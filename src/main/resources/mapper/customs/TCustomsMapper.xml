@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.customs.mapper.TCustomsMapper">
+
+    <!-- 查询上次上传时间 -->
+    <select id="getLastTime" resultType="java.lang.String" parameterType="java.lang.String">
+        SELECT
+            PARAM_VAL
+        FROM
+            SYS_PARAMETER
+        WHERE PARAM_CD =  'CUSTOMS_LAST_TIME'
+    </select>
+
+    <!-- 查询通知单 -->
+    <select id="getList" resultType="com.yy.ppm.customs.bean.TCustomsDTO" parameterType="java.lang.String">
+        SELECT
+            ID,
+            TO_CHAR(CREATE_TIME,'YYYY-MM-DD hh24:mi:ss') CREATE_TIME,
+            BILL_TYPE,
+            CARGO_INFO_NO,
+            BUSINESS_NO,
+            TO_CHAR(START_TIME,'YYYY-MM-DD hh24:mi:ss') START_TIME,
+            TO_CHAR(END_TIME,'YYYY-MM-DD hh24:mi:ss') END_TIME,
+            SCN,
+            SHIP_NAME,
+            VOYAGE,
+            TRADE_TYPE,
+            CARGO_AGENT_NAME,
+            CARGO_OWNER_NAME,
+            CARGO_NAME,
+            PACKING_NAME,
+            QUANTITY,
+            TON,
+            STOREHOUSE_NAME,
+            REGION_NAME
+        FROM
+            V_CUSTOMS
+        WHERE CREATE_TIME between to_date(#{lastTime},'YYYY-MM-DD hh24:mi:ss')  and to_date(#{currentTime},'YYYY-MM-DD hh24:mi:ss')
+            or TRUCK_MAX_TIME between to_date(#{lastTime},'YYYY-MM-DD hh24:mi:ss')  and to_date(#{currentTime},'YYYY-MM-DD hh24:mi:ss')
+    </select>
+
+    <!-- 查询派车 集疏港 -->
+    <select id="getDriverList" resultType="com.yy.ppm.customs.bean.TDriverDTO" parameterType="java.lang.String">
+        SELECT
+            ID,
+            VEHICLE_NO as TRUCK_NO,
+            DRIVER_NAME_ONE AS DRIVER,
+            DRIVER_PHONE_ONE AS TEL,
+            DRIVER_NO_ONE AS ID_NUMBER,
+            PLAN_START_TIME AS START_TIME,
+            PLAN_END_TIME AS END_TIME
+        FROM
+            T_BUS_VEHICLE_RESERVATION
+        WHERE  PLAN_NO = #{planNo}
+    </select>
+
+    <!-- 查询派车 倒运 -->
+    <select id="getDyDriverList" resultType="com.yy.ppm.customs.bean.TDriverDTO" parameterType="java.lang.String">
+        SELECT
+            ID,
+            EQUIPMENT_NO AS TRUCK_NO,
+            'null' AS DRIVER,
+            'null' AS TEL,
+            'null' AS ID_NUMBER,
+            TO_CHAR(START_TIME,'YYYY-MM-DD hh24:mi:ss') START_TIME,
+            TO_CHAR(END_TIME,'YYYY-MM-DD hh24:mi:ss') END_TIME
+        FROM
+            T_BUS_VEHICLE_TRANSFER
+        WHERE TRUST_CARGO_ID =  #{id}
+    </select>
+
+
+    <select id="getTosPlanList" resultType="java.util.Map">
+    	select t.* from TOS_PLAN t 
+    </select>
+    
+   	<delete id="deleteTosPlanList">
+   		delete from TOS_PLAN where auto_id in 
+   		<foreach collection="ids" item="id" separator="," open="(" close=")">
+			#{id}
+   		</foreach>
+   		
+   	</delete>
+   	
+   	<select id="getCargoIngnById" resultType="com.yy.ppm.business.bean.dto.TBusCargoInfoDTO">
+	   	SELECT
+			A.SHIPVOYAGE_ID SHIPVOYAGE_ID,
+			A.SHIP_NAME SHIP_NAME,
+			A.VOYAGE VOYAGE,
+			A.CARGO_OWNER_NAME CARGO_OWNER_NAME,
+			b.SCN SCN
+		FROM
+			T_BUS_CARGO_INFO A
+		LEFT JOIN T_DIS_SHIPVOYAGE b ON b."ID" = A.SHIPVOYAGE_ID
+		WHERE
+			A.ID = #{id}
+   	</select>
+   	
+   	<insert id="insert" parameterType="com.yy.ppm.customs.bean.TosPlanDTO">
+            INSERT INTO TOS_PLAN(
+				AUTO_ID,
+				SCN,
+				BIZ_TYPE,
+				IC_CARD,
+				TRAF_NAME,
+				TRAF_CODE,
+				VOYAGE_NO,
+				TRADE_NAME,
+				GOODS_NAME,
+				BILL_NO,
+				ENTRY_ID,
+				CAR_NO,
+				PACK_NO,
+				GOODS_TYPE,
+				GOODS_V,
+				GOODS_WT,
+				GROSS_WT,
+				TARE_WT,
+				ISINVALID,
+				INFORM_NO
+            )VALUES (
+				#{autoId},
+				#{scn},
+				#{bizType},
+				#{icCard},
+				#{trafName},
+				#{trafCode},
+				#{voyageNo},
+				#{tradeName},
+				#{goodsName},
+				#{billNo},
+				#{entryId},
+				#{carNo},
+				#{packNo},
+				#{goodsType},
+				#{goodsV},
+				#{goodsWt},
+				#{grossWt},
+				#{tareWt},
+				#{isinvalid},
+				#{informNo}
+            )
+    </insert>
+</mapper>

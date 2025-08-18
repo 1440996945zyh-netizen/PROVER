@@ -1,0 +1,778 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.business.mapper.TBusDispatchReleaseMapper">
+
+    <sql id="commonList">
+        SELECT ID,
+               SHIPVOYAGE_ID,
+               SHIPVOYAGE_ITEM_ID,
+               DELIVERY_NUMBERS,
+               QUANTITY,
+               TON,
+               PACKING_CODE,
+               PACKING_NAME,
+               SPECS,
+               PERMIT_THROUGH,
+               REMARK,
+               CREATE_BY,
+               CREATE_BY_NAME,
+               CREATE_TIME,
+               UPDATE_BY,
+               UPDATE_BY_NAME,
+               UPDATE_TIME
+        FROM T_BUS_DISPATCH_RELEASE
+    </sql>
+    <sql id="condition">
+        <where>
+            <if test="id != null">
+                and ID = #{id}
+            </if>
+            <if test="shipvoyageId != null">
+                and SHIPVOYAGE_ID = #{shipvoyageId}
+            </if>
+            <if test="shipvoyageItemId != null">
+                and SHIPVOYAGE_ITEM_ID = #{shipvoyageItemId}
+            </if>
+            <if test="deliveryNumbers != null">
+                and DELIVERY_NUMBERS = #{deliveryNumbers}
+            </if>
+            <if test="quantity != null">
+                and QUANTITY = #{quantity}
+            </if>
+            <if test="ton != null">
+                and TON = #{ton}
+            </if>
+            <if test="packingCode != null">
+                and PACKING_CODE = #{packingCode}
+            </if>
+            <if test="packingName != null">
+                and PACKING_NAME = #{packingName}
+            </if>
+            <if test="specs != null">
+                and SPECS = #{specs}
+            </if>
+            <if test="permitThrough != null">
+                and PERMIT_THROUGH = #{permitThrough}
+            </if>
+            <if test="remark != null">
+                and REMARK = #{remark}
+            </if>
+        </where>
+    </sql>
+
+    <resultMap id="listDisShipVoyage" type="com.yy.ppm.dispatch.bean.dto.disShipvoyage.TDisShipvoyageDTO">
+        <result property="id" column="TDS_ID" jdbcType="BIGINT"/>
+        <result property="scn" column="TDS_SCN" jdbcType="VARCHAR"/>
+        <result property="shipId" column="TDS_SHIP_ID" jdbcType="BIGINT"/>
+        <result property="shipName" column="TDS_SHIP_NAME" jdbcType="VARCHAR"/>
+        <result property="shipNameEn" column="TS_SHIP_NAME_EN" jdbcType="VARCHAR"/>
+        <result property="impExp" column="TDS_IMP_EXP" jdbcType="VARCHAR"/>
+        <result property="tradeType" column="TDS_TRADE_TYPE" jdbcType="VARCHAR"/>
+        <result property="loadUnload" column="TDS_LOAD_UNLOAD" jdbcType="VARCHAR"/>
+        <result property="isWater" column="TDS_IS_WATER" jdbcType="VARCHAR"/>
+        <result property="isShorePower" column="TDS_IS_SHORE_POWER" jdbcType="VARCHAR"/>
+        <result property="reqWater" column="TDS_REQ_WATER" jdbcType="VARCHAR"/>
+        <result property="reqElectricity" column="TDS_REQ_ELECTRICITY" jdbcType="VARCHAR"/>
+        <result property="bowDraft" column="TDS_BOW_DRAFT" jdbcType="VARCHAR"/>
+        <result property="sternDraft" column="TDS_STERN_DRAFT" jdbcType="VARCHAR"/>
+        <result property="isTug" column="TDS_IS_TUG" jdbcType="VARCHAR"/>
+        <result property="tugNumber" column="TDS_TUG_NUMBER" jdbcType="INTEGER"/>
+        <result property="pilotage" column="TDS_PILOTAGE" jdbcType="VARCHAR"/>
+        <result property="isPayment" column="TDS_IS_PAYMENT" jdbcType="VARCHAR"/>
+        <result property="paymentAmount" column="TDS_PAYMENT_AMOUNT" jdbcType="VARCHAR"/>
+        <result property="isDangerous" column="TDS_IS_DANGEROUS" jdbcType="VARCHAR"/>
+        <result property="arrivalTimePlan" column="TDS_ARRIVAL_TIME_PLAN" jdbcType="TIMESTAMP"/>
+        <result property="leavePortTimePlan" column="TDS_LEAVE_PORT_TIME_PLAN" jdbcType="TIMESTAMP"/>
+        <result property="leavePortTime" column="TDS_LEAVE_PORT_TIME" jdbcType="TIMESTAMP"/>
+        <result property="arrivalAnchorageTime" column="TDS_ARRIVAL_ANCHORAGE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="leaveAnchorageTime" column="TDS_LEAVE_ANCHORAGE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="berthTime" column="TDS_BERTH_TIME" jdbcType="TIMESTAMP"/>
+        <result property="berthId" column="TDS_BERTH_ID" jdbcType="BIGINT"/>
+        <result property="berthName" column="TDS_BERTH_NO" jdbcType="VARCHAR"/>
+        <result property="berthType" column="TDS_BERTH_TYPE" jdbcType="VARCHAR"/>
+        <result property="bollardNoStart" column="TDS_BOLLARD_NO_START" jdbcType="VARCHAR"/>
+        <result property="bollardNoEnd" column="TDS_BOLLARD_NO_END" jdbcType="VARCHAR"/>
+        <result property="leaveBerthTime" column="TDS_LEAVE_BERTH_TIME" jdbcType="TIMESTAMP"/>
+        <result property="receiveBy" column="TDS_RECEIVE_BY" jdbcType="BIGINT"/>
+        <result property="receiveByName" column="TDS_RECEIVE_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="receiveTime" column="TDS_RECEIVE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="delFlag" column="TDS_DEL_FLAG" jdbcType="VARCHAR"/>
+        <result property="delRemark" column="TDS_DEL_REMARK" jdbcType="VARCHAR"/>
+        <result property="delBy" column="TDS_DEL_BY" jdbcType="BIGINT"/>
+        <result property="delByName" column="TDS_DEL_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="delTime" column="TDS_DEL_TIME" jdbcType="TIMESTAMP"/>
+        <result property="remark" column="TDS_REMARK" jdbcType="VARCHAR"/>
+        <result property="createBy" column="TDS_CREATE_BY" jdbcType="BIGINT"/>
+        <result property="createByName" column="TDS_CREATE_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="createTime" column="TDS_CREATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="TDS_UPDATE_BY" jdbcType="BIGINT"/>
+        <result property="updateByName" column="TDS_UPDATE_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="updateTime" column="TDS_UPDATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="startPortId" column="TDS_START_PORT_ID" jdbcType="BIGINT"/>
+        <result property="startPortName" column="TDS_START_PORT_NAME" jdbcType="VARCHAR"/>
+        <result property="endPortId" column="TDS_END_PORT_ID" jdbcType="BIGINT"/>
+        <result property="endPortName" column="TDS_END_PORT_NAME" jdbcType="VARCHAR"/>
+        <result property="prePortId" column="TDS_PRE_PORT_ID" jdbcType="BIGINT"/>
+        <result property="prePortName" column="TDS_PRE_PORT_NAME" jdbcType="VARCHAR"/>
+        <result property="nextPortId" column="TDS_NEXT_PORT_ID" jdbcType="BIGINT"/>
+        <result property="nextPortName" column="TDS_NEXT_PORT_NAME" jdbcType="VARCHAR"/>
+        <result property="shipStatusCode" column="TDS_SHIP_STATUS_CODE" jdbcType="VARCHAR"/>
+        <result property="shipStatusName" column="TDS_SHIP_STATUS_NAME" jdbcType="VARCHAR"/>
+        <result property="captainPhone" column="TS_CAPTAIN_PHONE" jdbcType="VARCHAR"/>
+        <result property="certificatePath" column="TDS_CERTIFICATE_PATH" jdbcType="VARCHAR"/>
+        <result property="isStartWork" column="TDS_IS_START_WORK" jdbcType="VARCHAR"/>
+        <result property="isLastArrivalType" column="TDS_IS_LAST_ARRIVAL_TYPE" jdbcType="VARCHAR"/>
+        <result property="berthingCharge" column="TDS_BERTHING_CHARGE" jdbcType="VARCHAR"/>
+        <result property="jieShouRemark" column="TDS_JIESHOU_REMARK" jdbcType="VARCHAR"/>
+        <result property="wharf" column="TDS_WHARF" jdbcType="VARCHAR"/>
+        <result property="hatchNum" column="SHIP_HATCH_NUM" jdbcType="VARCHAR"/>
+        <result property="confirmTime" column="TDS_CONFIRM_TIME" jdbcType="TIMESTAMP"/>
+        <collection property="in" ofType="com.yy.ppm.dispatch.bean.po.TDisShipvoyageItemPO">
+            <result property="id" column="IN_ID" jdbcType="BIGINT"/>
+            <result property="shipvoyageId" column="IN_SHIPVOYAGE_ID" jdbcType="BIGINT"/>
+            <result property="impExp" column="IN_IMP_EXP" jdbcType="VARCHAR"/>
+            <result property="tradeType" column="IN_TRADE_TYPE" jdbcType="VARCHAR"/>
+            <result property="loadUnload" column="IN_LOAD_UNLOAD" jdbcType="VARCHAR"/>
+            <result property="voyage" column="IN_VOYAGE" jdbcType="VARCHAR"/>
+            <result property="companyId" column="IN_COMPANY_ID" jdbcType="BIGINT"/>
+            <result property="companyName" column="IN_COMPANY_NAME" jdbcType="VARCHAR"/>
+            <result property="cargoCategoryCode" column="IN_CARGO_CATEGORY_CODE" jdbcType="VARCHAR"/>
+            <result property="cargoCategoryName" column="IN_CARGO_CATEGORY_NAME" jdbcType="VARCHAR"/>
+            <result property="cargoNum" column="IN_CARGO_NUM" jdbcType="INTEGER"/>
+            <result property="customerId" column="IN_CUSTOMER_ID" jdbcType="BIGINT"/>
+            <result property="customerName" column="IN_CUSTOMER_NAME" jdbcType="VARCHAR"/>
+            <result property="contacts" column="IN_CONTACTS" jdbcType="VARCHAR"/>
+            <result property="shipPhone" column="IN_SHIP_PHONE" jdbcType="VARCHAR"/>
+            <result property="paymentAmount" column="IN_PAYMENT_AMOUNT" jdbcType="VARCHAR"/>
+            <result property="remark" column="IN_REMARK" jdbcType="VARCHAR"/>
+            <result property="shipStatusCode" column="IN_SHIP_STATUS_CODE" jdbcType="VARCHAR"/>
+            <result property="shipStatusName" column="IN_SHIP_STATUS_NAME" jdbcType="VARCHAR"/>
+            <result property="workStartTime" column="IN_WORK_START_TIME" jdbcType="TIMESTAMP"/>
+            <result property="workEndTime" column="IN_WORK_END_TIME" jdbcType="TIMESTAMP"/>
+            <result property="preChangeShipName" column="IN_PRE_CHANGE_SHIP_NAME" jdbcType="VARCHAR"/>
+            <result property="preChangeShipNo" column="IN_PRE_CHANGE_SHIP_NO" jdbcType="VARCHAR"/>
+        </collection>
+        <collection property="out" ofType="com.yy.ppm.dispatch.bean.po.TDisShipvoyageItemPO">
+            <result property="id" column="OUT_ID" jdbcType="BIGINT"/>
+            <result property="shipvoyageId" column="OUT_SHIPVOYAGE_ID" jdbcType="BIGINT"/>
+            <result property="impExp" column="OUT_IMP_EXP" jdbcType="VARCHAR"/>
+            <result property="tradeType" column="OUT_TRADE_TYPE" jdbcType="VARCHAR"/>
+            <result property="loadUnload" column="OUT_LOAD_UNLOAD" jdbcType="VARCHAR"/>
+            <result property="voyage" column="OUT_VOYAGE" jdbcType="VARCHAR"/>
+            <result property="companyId" column="OUT_COMPANY_ID" jdbcType="BIGINT"/>
+            <result property="companyName" column="OUT_COMPANY_NAME" jdbcType="VARCHAR"/>
+            <result property="cargoCategoryCode" column="OUT_CARGO_CATEGORY_CODE" jdbcType="VARCHAR"/>
+            <result property="cargoCategoryName" column="OUT_CARGO_CATEGORY_NAME" jdbcType="VARCHAR"/>
+            <result property="cargoNum" column="OUT_CARGO_NUM" jdbcType="INTEGER"/>
+            <result property="customerId" column="OUT_CUSTOMER_ID" jdbcType="BIGINT"/>
+            <result property="customerName" column="OUT_CUSTOMER_NAME" jdbcType="VARCHAR"/>
+            <result property="contacts" column="OUT_CONTACTS" jdbcType="VARCHAR"/>
+            <result property="shipPhone" column="OUT_SHIP_PHONE" jdbcType="VARCHAR"/>
+            <result property="paymentAmount" column="OUT_PAYMENT_AMOUNT" jdbcType="VARCHAR"/>
+            <result property="remark" column="OUT_REMARK" jdbcType="VARCHAR"/>
+            <result property="shipStatusCode" column="OUT_SHIP_STATUS_CODE" jdbcType="VARCHAR"/>
+            <result property="shipStatusName" column="OUT_SHIP_STATUS_NAME" jdbcType="VARCHAR"/>
+            <result property="workStartTime" column="OUT_WORK_START_TIME" jdbcType="TIMESTAMP"/>
+            <result property="workEndTime" column="OUT_WORK_END_TIME" jdbcType="TIMESTAMP"/>
+        </collection>
+    </resultMap>
+
+    <sql id="getList">
+        SELECT TDS.ID TDS_ID,
+        TDS.SCN TDS_SCN,
+        TDS.SHIP_ID TDS_SHIP_ID,
+        TDS.SHIP_NAME TDS_SHIP_NAME,
+        TS.SHIP_NAME_EN TS_SHIP_NAME_EN,
+        TDS.IMP_EXP TDS_IMP_EXP,
+        TDS.TRADE_TYPE TDS_TRADE_TYPE,
+        TDS.LOAD_UNLOAD TDS_LOAD_UNLOAD,
+        TDS.IS_WATER TDS_IS_WATER,
+        TDS.IS_SHORE_POWER TDS_IS_SHORE_POWER,
+        TDS.REQ_WATER TDS_REQ_WATER,
+        TDS.REQ_ELECTRICITY TDS_REQ_ELECTRICITY,
+        TDS.BOW_DRAFT TDS_BOW_DRAFT,
+        TDS.STERN_DRAFT TDS_STERN_DRAFT,
+        TDS.IS_TUG TDS_IS_TUG,
+        TDS.TUG_NUMBER TDS_TUG_NUMBER,
+        TDS.PILOTAGE TDS_PILOTAGE,
+        TDS.IS_PAYMENT TDS_IS_PAYMENT,
+        TDS.PAYMENT_AMOUNT TDS_PAYMENT_AMOUNT,
+        TDS.IS_DANGEROUS TDS_IS_DANGEROUS,
+        TDS.ARRIVAL_TIME_PLAN TDS_ARRIVAL_TIME_PLAN,
+        TDS.LEAVE_PORT_TIME_PLAN TDS_LEAVE_PORT_TIME_PLAN,
+        TDS.LEAVE_PORT_TIME TDS_LEAVE_PORT_TIME,
+        TDS.ARRIVAL_ANCHORAGE_TIME TDS_ARRIVAL_ANCHORAGE_TIME,
+        TDS.LEAVE_ANCHORAGE_TIME TDS_LEAVE_ANCHORAGE_TIME,
+        TDS.BERTH_TIME TDS_BERTH_TIME,
+        TDS.BERTH_ID TDS_BERTH_ID,
+        TDS.BERTH_NAME TDS_BERTH_NO,
+        TDS.BERTH_TYPE TDS_BERTH_TYPE,
+        TDS.BOLLARD_NO_START TDS_BOLLARD_NO_START,
+        TDS.BOLLARD_NO_END TDS_BOLLARD_NO_END,
+        TDS.LEAVE_BERTH_TIME TDS_LEAVE_BERTH_TIME,
+        TDS.RECEIVE_BY TDS_RECEIVE_BY,
+        TDS.RECEIVE_BY_NAME TDS_RECEIVE_BY_NAME,
+        TDS.RECEIVE_TIME TDS_RECEIVE_TIME,
+        TDS.DEL_FLAG TDS_DEL_FLAG,
+        TDS.DEL_REMARK TDS_DEL_REMARK,
+        TDS.DEL_BY TDS_DEL_BY,
+        TDS.DEL_BY_NAME TDS_DEL_BY_NAME,
+        TDS.DEL_TIME TDS_DEL_TIME,
+        TDS.REMARK TDS_REMARK,
+        TDS.CREATE_BY TDS_CREATE_BY,
+        TDS.CREATE_BY_NAME TDS_CREATE_BY_NAME,
+        TDS.CREATE_TIME TDS_CREATE_TIME,
+        TDS.UPDATE_BY TDS_UPDATE_BY,
+        TDS.UPDATE_BY_NAME TDS_UPDATE_BY_NAME,
+        TDS.UPDATE_TIME TDS_UPDATE_TIME,
+        TDS.START_PORT_ID TDS_START_PORT_ID,
+        TDS.START_PORT_NAME TDS_START_PORT_NAME,
+        TDS.END_PORT_ID TDS_END_PORT_ID,
+        TDS.END_PORT_NAME TDS_END_PORT_NAME,
+        TDS.PRE_PORT_ID TDS_PRE_PORT_ID,
+        TDS.PRE_PORT_NAME TDS_PRE_PORT_NAME,
+        TDS.NEXT_PORT_ID TDS_NEXT_PORT_ID,
+        TDS.NEXT_PORT_NAME TDS_NEXT_PORT_NAME,
+        TDS.SHIP_STATUS_CODE TDS_SHIP_STATUS_CODE,
+        TDS.SHIP_STATUS_NAME TDS_SHIP_STATUS_NAME,
+        TDS.CERTIFICATE_PATH TDS_CERTIFICATE_PATH,
+        TDS.IS_START_WORK TDS_IS_START_WORK,
+        TDS.IS_LAST_ARRIVAL_TYPE TDS_IS_LAST_ARRIVAL_TYPE,
+        TDS.BERTHING_CHARGE TDS_BERTHING_CHARGE,
+        TDS.JIESHOU_REMARK TDS_JIESHOU_REMARK,
+        TS.CAPTAIN_PHONE TS_CAPTAIN_PHONE,
+        TDS.WHARF TDS_WHARF,
+        TS.HATCH_NUM SHIP_HATCH_NUM,
+        TDS.CONFIRM_TIME TDS_CONFIRM_TIME,
+        "IN".ID IN_ID,
+        "IN".SHIPVOYAGE_ID IN_SHIPVOYAGE_ID,
+        "IN".IMP_EXP IN_IMP_EXP,
+        "IN".TRADE_TYPE IN_TRADE_TYPE,
+        "IN".LOAD_UNLOAD IN_LOAD_UNLOAD,
+        "IN".VOYAGE IN_VOYAGE,
+        "IN".COMPANY_ID IN_COMPANY_ID,
+        "IN".COMPANY_NAME IN_COMPANY_NAME,
+        "IN".CARGO_CATEGORY_CODE IN_CARGO_CATEGORY_CODE,
+        "IN".CARGO_CATEGORY_NAME IN_CARGO_CATEGORY_NAME,
+        "IN".CARGO_NUM IN_CARGO_NUM,
+        "IN".CUSTOMER_ID IN_CUSTOMER_ID,
+        "IN".CUSTOMER_NAME IN_CUSTOMER_NAME,
+        "IN".CONTACTS IN_CONTACTS,
+        "IN".SHIP_PHONE IN_SHIP_PHONE,
+        "IN".PAYMENT_AMOUNT IN_PAYMENT_AMOUNT,
+        "IN".REMARK IN_REMARK,
+        "IN".SHIP_STATUS_CODE IN_SHIP_STATUS_CODE,
+        "IN".SHIP_STATUS_NAME IN_SHIP_STATUS_NAME,
+        "IN".WORK_START_TIME IN_WORK_START_TIME,
+        "IN".WORK_END_TIME IN_WORK_END_TIME,
+        "IN".PRE_CHANGE_SHIP_NAME IN_PRE_CHANGE_SHIP_NAME,
+        "IN".PRE_CHANGE_SHIP_NO IN_PRE_CHANGE_SHIP_NO,
+        "OUT".ID OUT_ID,
+        "OUT".SHIPVOYAGE_ID OUT_SHIPVOYAGE_ID,
+        "OUT".IMP_EXP OUT_IMP_EXP,
+        "OUT".TRADE_TYPE OUT_TRADE_TYPE,
+        "OUT".LOAD_UNLOAD OUT_LOAD_UNLOAD,
+        "OUT".VOYAGE OUT_VOYAGE,
+        "OUT".COMPANY_ID OUT_COMPANY_ID,
+        "OUT".COMPANY_NAME OUT_COMPANY_NAME,
+        "OUT".CARGO_CATEGORY_CODE OUT_CARGO_CATEGORY_CODE,
+        "OUT".CARGO_CATEGORY_NAME OUT_CARGO_CATEGORY_NAME,
+        "OUT".CARGO_NUM OUT_CARGO_NUM,
+        "OUT".CUSTOMER_ID OUT_CUSTOMER_ID,
+        "OUT".CUSTOMER_NAME OUT_CUSTOMER_NAME,
+        "OUT".CONTACTS OUT_CONTACTS,
+        "OUT".SHIP_PHONE OUT_SHIP_PHONE,
+        "OUT".PAYMENT_AMOUNT OUT_PAYMENT_AMOUNT,
+        "OUT".REMARK OUT_REMARK,
+        "OUT".SHIP_STATUS_CODE OUT_SHIP_STATUS_CODE,
+        "OUT".SHIP_STATUS_NAME OUT_SHIP_STATUS_NAME,
+        "OUT".WORK_START_TIME OUT_WORK_START_TIME,
+        "OUT".WORK_END_TIME OUT_WORK_END_TIME
+        FROM T_DIS_SHIPVOYAGE TDS
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM "IN" ON ("IN".IMP_EXP = 'IN' AND TDS.ID = "IN".SHIPVOYAGE_ID)
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM "OUT" ON ("OUT".IMP_EXP = 'OUT' AND TDS.ID = "OUT".SHIPVOYAGE_ID)
+        LEFT JOIN M_SHIP TS ON TS.ID = TDS.SHIP_ID
+        <where>
+            <if test="shipVoyage != null and shipVoyage != ''">
+                and ("IN".ID = #{shipVoyage, jdbcType=VARCHAR} OR "OUT".ID = #{shipVoyage, jdbcType=VARCHAR})
+            </if>
+            <if test="id != null">
+                and TDS.ID = #{id, jdbcType=BIGINT}
+            </if>
+            <if test="tradeType != null and tradeType != ''">
+                and TDS.TRADE_TYPE = #{tradeType, jdbcType=VARCHAR}
+            </if>
+            <if test="shipStatusCode != null and shipStatusCode != ''">
+                and TDS.SHIP_STATUS_CODE = #{shipStatusCode, jdbcType=VARCHAR}
+            </if>
+            <if test="impExp != null and impExp != ''">
+                and TDS.IMP_EXP = #{impExp, jdbcType=VARCHAR}
+            </if>
+            <if test="loadUnload != null and loadUnload != ''">
+                and TDS.LOAD_UNLOAD = #{loadUnload, jdbcType=VARCHAR}
+            </if>
+        </where>
+        ORDER BY TDS.CREATE_TIME DESC
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getPageList" resultType="java.util.HashMap"
+            parameterType="com.yy.ppm.business.bean.dto.TBusDispatchReleaseSearchDTO">
+        SELECT
+        A.ID "shipvoyageItemId",
+        B.ID "shipvoyageId",
+        B.SHIP_NAME || '_' || A.VOYAGE "shipVoyage",
+        B.SCN "scn",
+        A.TRADE_TYPE "tradeType",
+        A.IMP_EXP "impExp",
+        A.LOAD_UNLOAD "loadUnload",
+        A.CARGO_CATEGORY_NAME "cargoName",
+        A.CUSTOMER_ID "customerId",
+        A.CUSTOMER_NAME "customerName",
+        A.COMPANY_NAME "companyName",
+        B.SHIP_STATUS_CODE "shipStatusCode",
+        B.SHIP_STATUS_NAME "shipStatusName"
+        FROM T_DIS_SHIPVOYAGE_ITEM A
+        LEFT JOIN T_DIS_SHIPVOYAGE B ON B.ID = A.SHIPVOYAGE_ID
+        <where>
+            <if test="shipvoyageItemId !=null">
+                A.ID = #{shipvoyageItemId}
+            </if>
+            <if test="shipName!=null and shipName !=''">
+                <bind name="shipName_like" value="'%'+shipName+'%'"/>
+                AND B.SHIP_NAME LIKE #{shipName_like}
+            </if>
+            <if test="voyage!=null and voyage !=''">
+                <bind name="voyage_like" value="'%'+voyage+'%'"/>
+                AND A.VOYAGE LIKE #{voyage_like}
+            </if>
+            <if test="tradeType !=null">
+                AND A.TRADE_TYPE = #{tradeType}
+            </if>
+            <if test="customerId !=null">
+                AND A.CUSTOMER_ID = #{customerId}
+            </if>
+            <if test="shipStatusCode !=null">
+                AND B.SHIP_STATUS_CODE = #{shipStatusCode}
+            </if>
+            <if test="impExp !=null">
+                AND A.IMP_EXP = #{impExp}
+            </if>
+            <if test="loadUnload !=null">
+                AND A.LOAD_UNLOAD = #{loadUnload}
+            </if>
+        </where>
+        order by A.CREATE_TIME DESC nulls last
+    </select>
+
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.business.bean.dto.TBusDispatchReleaseDTO"
+            parameterType="com.yy.ppm.business.bean.dto.TBusDispatchReleaseSearchDTO">
+        SELECT A.ID,
+        A.SHIPVOYAGE_ID,
+        A.SHIPVOYAGE_ITEM_ID,
+        A.DELIVERY_NUMBERS,
+        B.CARGO_INFO_NO,
+        A.QUANTITY,
+        A.TON,
+        A.PACKING_CODE,
+        A.PACKING_NAME,
+        A.SPECS,
+        A.PERMIT_THROUGH,
+        A.REMARK,
+        A.CREATE_BY,
+        A.CREATE_BY_NAME,
+        A.CREATE_TIME,
+        A.UPDATE_BY,
+        A.UPDATE_BY_NAME,
+        A.UPDATE_TIME
+        FROM T_BUS_DISPATCH_RELEASE A
+        LEFT JOIN (
+        SELECT DISPATCH_RELEASE_ID,
+        LISTAGG(CARGO_INFO_NO, ', ') WITHIN GROUP (
+        ORDER BY DISPATCH_RELEASE_ID) AS CARGO_INFO_NO
+        FROM
+        T_BUS_DISPATCH_RELEASE_DETAIL
+        GROUP BY
+        DISPATCH_RELEASE_ID
+        ) B ON A.ID = B.DISPATCH_RELEASE_ID
+        <where>
+            A.SHIPVOYAGE_ITEM_ID = #{shipvoyageItemId}
+            <if test="deliveryList!=null">
+                AND A.DELIVERY_NUMBERS
+                <foreach collection="deliveryList" item="item" open="in ( " separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.business.bean.dto.TBusDispatchReleaseDTO"
+            parameterType="java.lang.Long">
+        <include refid="commonList"></include>
+        <where>
+            id = #{id}
+        </where>
+    </select>
+
+    <select id="getCargoInfoByNos" resultType="com.yy.ppm.business.bean.dto.TBusCargoInfoDTO">
+        select * from T_BUS_CARGO_INFO
+        <where>
+            CARGO_INFO_NO
+            <foreach collection="list" item="item" open="in ( " separator="," close=")">
+                #{item}
+            </foreach>
+        </where>
+    </select>
+
+
+    <select id="getCargoInfoByTrustId" resultType="com.yy.ppm.business.bean.dto.TBusTrustCargoDTO"
+            parameterType="java.lang.Long">
+        SELECT a.ID,
+               a.TRUST_ID,
+               a.CARGO_INFO_ID,
+               a.DIRECTION,
+               a.QUANTITY,
+               a.TON,
+               a.CARGO_OWNER_ID,
+               a.CARGO_OWNER_NAME,
+               a.CARGO_AGENT_ID,
+               a.CARGO_AGENT_NAME,
+               a.CARGO_CODE,
+               a.CARGO_NAME,
+               a.PACKING_CODE,
+               a.PACKING_NAME,
+               a.CREATE_BY,
+               a.CREATE_BY_NAME,
+               a.CREATE_TIME,
+               a.UPDATE_BY,
+               a.UPDATE_BY_NAME,
+               a.UPDATE_TIME,
+               b.WORK_TYPE,
+               a.CONTRACT_ID,
+               a.CONTRACT_NAME,
+               a.CONTRACT_RATE_ID,
+               a.RATE,
+               a.EST_AMOUNT,
+               TBCI.CARGO_INFO_NO,
+               TBCI.SHIPVOYAGE_ITEM_ID,
+               a.BUSINESS_NO,
+               a.HATCHS,
+               a.IS_SECOND_WEIGH,
+               a.PRINT_POUND_ID,
+               a.PRINT_POUND_NUM,
+               a.RATE_LABEL,
+               a.STATUS
+        FROM T_BUS_TRUST_CARGO a
+                 inner join m_cargo b on a.CARGO_CODE = b.CARGO_CODE
+                 LEFT JOIN T_BUS_CARGO_INFO TBCI ON a.CARGO_INFO_ID = TBCI.ID
+        where a.TRUST_ID = #{trustId}
+        ORDER BY a.BUSINESS_NO
+    </select>
+    <select id="getBusTrustDTO" resultType="com.yy.ppm.business.bean.dto.TBusTrustDTO">
+        SELECT A.*,B.DELIVERY_NUMBERS
+        FROM T_BUS_TRUST A
+        LEFT JOIN T_BUS_TRUST_CARGO B ON A.ID = B.TRUST_ID
+        <where>
+            A.SHIPVOYAGE_ITEM_ID = #{shipvoyageItemId}
+            <if test="deliveryNumbers != null and deliveryNumbers != ''">
+                <bind name="deliveryNumbersLike" value="'%'+deliveryNumbers+'%'"/>
+                AND B.DELIVERY_NUMBERS LIKE #{deliveryNumbersLike}
+            </if>
+        </where>
+    </select>
+    <select id="getByIds" resultType="com.yy.ppm.business.bean.dto.TBusDispatchReleaseDTO">
+        <include refid="commonList"></include>
+        <where>
+            ID IN (
+            <foreach collection="ids" item="id" index="index" separator=",">
+                #{id}
+            </foreach>
+            )
+        </where>
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.business.bean.dto.TBusDispatchReleaseDTO">
+        INSERT INTO T_BUS_DISPATCH_RELEASE(ID,
+                                           DELIVERY_NUMBERS,
+                                           SHIPVOYAGE_ID,
+                                           SHIPVOYAGE_ITEM_ID,
+                                           QUANTITY,
+                                           TON,
+                                           PACKING_CODE,
+                                           PACKING_NAME,
+                                           SPECS,
+                                           PERMIT_THROUGH,
+                                           REMARK,
+                                           CREATE_BY,
+                                           CREATE_BY_NAME,
+                                           CREATE_TIME)
+        VALUES (#{id, jdbcType=VARCHAR},
+                #{shipvoyageId, jdbcType=VARCHAR},
+                #{shipvoyageItemId, jdbcType=VARCHAR},
+                #{deliveryNumbers, jdbcType=VARCHAR},
+                #{quantity, jdbcType=VARCHAR},
+                #{ton, jdbcType=VARCHAR},
+                #{packingCode, jdbcType=VARCHAR},
+                #{packingName, jdbcType=VARCHAR},
+                #{specs, jdbcType=VARCHAR},
+                #{permitThrough, jdbcType=VARCHAR},
+                #{remark, jdbcType=VARCHAR},
+                #{loginUserId, jdbcType=BIGINT},
+                #{loginUserName, jdbcType=VARCHAR},
+                #{now})
+    </insert>
+
+    <!-- 批量新增 -->
+    <insert id="insertList" parameterType="com.yy.ppm.business.bean.dto.TBusDispatchReleaseDTO">
+        begin
+        <foreach collection="tBusDispatchReleaseDTOS" item="item" separator="  ">
+            INSERT INTO T_BUS_DISPATCH_RELEASE(
+            ID,
+            SHIPVOYAGE_ID,
+            SHIPVOYAGE_ITEM_ID,
+            DELIVERY_NUMBERS,
+            QUANTITY,
+            TON,
+            PACKING_CODE,
+            PACKING_NAME,
+            SPECS,
+            PERMIT_THROUGH,
+            REMARK,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+            )VALUES (
+            #{item.id, jdbcType=VARCHAR},
+            #{item.shipvoyageId, jdbcType=VARCHAR},
+            #{item.shipvoyageItemId, jdbcType=VARCHAR},
+            #{item.deliveryNumbers, jdbcType=VARCHAR},
+            #{item.quantity, jdbcType=VARCHAR},
+            #{item.ton, jdbcType=VARCHAR},
+            #{item.packingCode, jdbcType=VARCHAR},
+            #{item.packingName, jdbcType=VARCHAR},
+            #{item.specs, jdbcType=VARCHAR},
+            #{item.permitThrough, jdbcType=VARCHAR},
+            #{item.remark, jdbcType=VARCHAR},
+            #{item.loginUserId, jdbcType=BIGINT},
+            #{item.loginUserName, jdbcType=VARCHAR},
+            #{item.now}
+            );
+        </foreach>
+        end;
+    </insert>
+
+    <!-- 批量新增 -->
+    <insert id="insertDetailList" parameterType="com.yy.ppm.business.bean.dto.TBusDispatchReleaseDetailDTO">
+        begin
+        <foreach collection="tBusDispatchReleaseDetailDTOS" item="item" separator="  ">
+            INSERT INTO T_BUS_DISPATCH_RELEASE_DETAIL(
+            ID,
+            DISPATCH_RELEASE_ID,
+            DELIVERY_NUMBERS,
+            CARGO_INFO_NO,
+            CARGO_OWNER_ID,
+            CARGO_OWNER_NAME,
+            CARGO_CODE,
+            CARGO_NAME,
+            QUANTITY,
+            TON,
+            PACKING_CODE,
+            PACKING_NAME,
+            REMARK,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+            )VALUES (
+            #{item.id, jdbcType=VARCHAR},
+            #{item.dispatchReleaseId, jdbcType=VARCHAR},
+            #{item.deliveryNumbers, jdbcType=VARCHAR},
+            #{item.cargoInfoNo, jdbcType=VARCHAR},
+            #{item.cargoOwnerId, jdbcType=VARCHAR},
+            #{item.cargoOwnerName, jdbcType=VARCHAR},
+            #{item.cargoCode, jdbcType=VARCHAR},
+            #{item.cargoName, jdbcType=VARCHAR},
+            #{item.quantity, jdbcType=VARCHAR},
+            #{item.ton, jdbcType=VARCHAR},
+            #{item.packingCode, jdbcType=VARCHAR},
+            #{item.packingName, jdbcType=VARCHAR},
+            #{item.remark, jdbcType=VARCHAR},
+            #{item.loginUserId, jdbcType=BIGINT},
+            #{item.loginUserName, jdbcType=VARCHAR},
+            #{item.now}
+            );
+        </foreach>
+        end;
+    </insert>
+
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.business.bean.dto.TBusDispatchReleaseDTO">
+        UPDATE
+        T_BUS_DISPATCH_RELEASE
+        <set>
+            <if test="shipvoyageId != null">
+                SHIPVOYAGE_ID = #{shipvoyageId,jdbcType=VARCHAR},
+            </if>
+            <if test="shipvoyageItemId != null">
+                SHIPVOYAGE_ITEM_ID = #{shipvoyageItemId,jdbcType=VARCHAR},
+            </if>
+            <if test="deliveryNumbers != null">
+                DELIVERY_NUMBERS = #{deliveryNumbers,jdbcType=VARCHAR},
+            </if>
+            <if test="quantity != null">
+                QUANTITY = #{quantity,jdbcType=VARCHAR},
+            </if>
+            <if test="ton != null">
+                TON = #{ton,jdbcType=VARCHAR},
+            </if>
+            <if test="packingCode != null">
+                PACKING_CODE = #{packingCode,jdbcType=VARCHAR},
+            </if>
+            <if test="packingName != null">
+                PACKING_NAME = #{packingName,jdbcType=VARCHAR},
+            </if>
+            <if test="specs != null">
+                SPECS = #{specs,jdbcType=VARCHAR},
+            </if>
+            <if test="permitThrough != null">
+                PERMIT_THROUGH = #{permitThrough,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                REMARK = #{remark,jdbcType=VARCHAR},
+            </if>
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now}
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 批量修改 -->
+    <update id="updateListById" parameterType="com.yy.ppm.business.bean.dto.TBusDispatchReleaseDTO">
+        begin
+        <foreach collection="tBusDispatchReleaseDTOS" item="item" separator=" ">
+            UPDATE
+            T_BUS_DISPATCH_RELEASE
+            SET
+            <if test="item.shipvoyageId != null">
+                SHIPVOYAGE_ID = #{item.shipvoyageId,jdbcType=VARCHAR},
+            </if>
+            <if test="item.shipvoyageItemId != null">
+                SHIPVOYAGE_ITEM_ID = #{item.shipvoyageItemId,jdbcType=VARCHAR},
+            </if>
+            <if test="item.deliveryNumbers != null">
+                DELIVERY_NUMBERS = #{item.deliveryNumbers,jdbcType=VARCHAR},
+            </if>
+            <if test="item.quantity != null">
+                QUANTITY = #{item.quantity,jdbcType=VARCHAR},
+            </if>
+            <if test="item.ton != null">
+                TON = #{item.ton,jdbcType=VARCHAR},
+            </if>
+            <if test="item.packingCode != null">
+                PACKING_CODE = #{item.packingCode,jdbcType=VARCHAR},
+            </if>
+            <if test="item.packingName != null">
+                PACKING_NAME = #{item.packingName,jdbcType=VARCHAR},
+            </if>
+            <if test="item.specs != null">
+                SPECS = #{item.specs,jdbcType=VARCHAR},
+            </if>
+            <if test="item.permitThrough != null">
+                PERMIT_THROUGH = #{item.permitThrough,jdbcType=VARCHAR},
+            </if>
+            <if test="item.remark != null">
+                REMARK = #{item.remark,jdbcType=VARCHAR},
+            </if>
+            UPDATE_BY = #{item.loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{item.loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{item.now}
+            <where>
+                id = #{item.id};
+            </where>
+        </foreach>
+        end;
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE
+        FROM T_BUS_DISPATCH_RELEASE
+        WHERE id = #{id}
+    </delete>
+    <!-- 删除 -->
+    <delete id="deleteCargoInfoIsNullById" parameterType="java.lang.Long">
+        DELETE
+        FROM T_BUS_DISPATCH_RELEASE
+        WHERE ID = (
+        SELECT A.ID
+        FROM T_BUS_DISPATCH_RELEASE A
+        LEFT JOIN T_BUS_DISPATCH_RELEASE_DETAIL B ON A.ID = B.DISPATCH_RELEASE_ID
+        <where>
+            B.CARGO_INFO_NO IS NULL
+            <if test="id!=null">
+                AND A.ID = #{id}
+            </if>
+        </where>
+        )
+    </delete>
+
+    <!-- 批量删除 -->
+    <delete id="deleteListByIds" parameterType="java.lang.Long">
+        DELETE FROM
+        T_BUS_DISPATCH_RELEASE
+        WHERE
+        ID IN (
+        <foreach collection="ids" item="id" index="index" separator=",">
+            #{id}
+        </foreach>
+        )
+    </delete>
+
+    <!-- 批量删除 -->
+    <delete id="deleteByCondition" parameterType="com.yy.ppm.business.bean.dto.TBusDispatchReleaseDTO">
+        DELETE FROM
+        T_BUS_DISPATCH_RELEASE
+        <include refid="condition"></include>
+    </delete>
+
+    <delete id="deleteDetailDispatchReleaseIds">
+        DELETE FROM
+        T_BUS_DISPATCH_RELEASE_DETAIL
+        <where>
+            DISPATCH_RELEASE_ID IN (
+            <foreach collection="ids" item="id" index="index" separator=",">
+                #{id}
+            </foreach>
+            )
+        </where>
+    </delete>
+    <delete id="deleteDetailByCondition">
+        DELETE FROM T_BUS_DISPATCH_RELEASE_DETAIL
+        <where>
+            1=1
+            <if test="dispatchReleaseIds!=null">
+                AND DISPATCH_RELEASE_ID IN (
+                <foreach collection="dispatchReleaseIds" item="id" index="index" separator=",">
+                    #{id}
+                </foreach>
+                )
+            </if>
+            <if test="cargoInfoNos!=null">
+                AND CARGO_INFO_NO IN (
+                <foreach collection="cargoInfoNos" item="id" index="index" separator=",">
+                    #{id}
+                </foreach>
+                )
+            </if>
+        </where>
+    </delete>
+
+
+</mapper>
+

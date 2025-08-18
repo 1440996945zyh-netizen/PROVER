@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.master.mapper.MCityMapper">
+
+    <sql id="commonList">
+        SELECT
+                ID,
+    PROVINCE_CODE,
+    CITY_CODE,
+    AREA_CODE,
+    NAME,
+    CODE,
+    REC_NAM,
+    REC_TIM,
+    UPD_NAM,
+    UPD_TIM,
+    IDEV_VERSIONUSE,
+    OBJ,
+    MAP,
+    IS_CK
+        FROM
+            M_CITY
+        <where>
+                    <if test="id != null">
+                and ID = #{id}
+            </if>
+                        <if test="provinceCode != null and provinceCode != ''">
+                and PROVINCE_CODE = #{provinceCode}
+            </if>
+                        <if test="cityCode != null and cityCode != ''">
+                and CITY_CODE = #{cityCode}
+            </if>
+                        <if test="areaCode != null and areaCode != ''">
+                and AREA_CODE = #{areaCode}
+            </if>
+                        <if test="name != null and name != ''">
+                and NAME = #{name}
+            </if>
+                        <if test="code != null and code != ''">
+                and CODE = #{code}
+            </if>
+                        <if test="recNam != null and recNam != ''">
+                and REC_NAM = #{recNam}
+            </if>
+                        <if test="recTim != null and recTim != ''">
+                and REC_TIM = #{recTim}
+            </if>
+                        <if test="updNam != null and updNam != ''">
+                and UPD_NAM = #{updNam}
+            </if>
+                        <if test="updTim != null and updTim != ''">
+                and UPD_TIM = #{updTim}
+            </if>
+                        <if test="idevVersionuse != null and idevVersionuse != ''">
+                and IDEV_VERSIONUSE = #{idevVersionuse}
+            </if>
+                        <if test="obj != null and obj != ''">
+                and OBJ = #{obj}
+            </if>
+                        <if test="map != null and map != ''">
+                and MAP = #{map}
+            </if>
+                        <if test="isCk != null and isCk != ''">
+                and IS_CK = #{isCk}
+            </if>
+                    </where>
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.master.bean.dto.MCityDTO" parameterType="com.yy.ppm.master.bean.dto.MCitySearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.master.bean.dto.MCityDTO" parameterType="com.yy.ppm.master.bean.dto.MCitySearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.master.bean.dto.MCityDTO" parameterType="java.lang.Long">
+        SELECT
+        ID,    PROVINCE_CODE,    CITY_CODE,    AREA_CODE,    NAME,    CODE,    REC_NAM,    REC_TIM,    UPD_NAM,    UPD_TIM,    IDEV_VERSIONUSE,    OBJ,    MAP,    IS_CK        FROM
+            M_CITY
+        <where>
+            id = #{id}
+        </where>
+    </select>
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.master.bean.dto.MCityDTO">
+        INSERT INTO M_CITY(
+                ID,
+                    PROVINCE_CODE,
+                    CITY_CODE,
+                    AREA_CODE,
+                    NAME,
+                    CODE,
+                    REC_NAM,
+                    REC_TIM,
+                    UPD_NAM,
+                    UPD_TIM,
+                    IDEV_VERSIONUSE,
+                    OBJ,
+                    MAP,
+                    IS_CK,
+    CREATE_BY,
+CREATE_NAME,
+CREATE_TIME
+        )VALUES (
+                                    #{id, jdbcType=VARCHAR},
+                                                #{provinceCode, jdbcType=VARCHAR},
+                                                #{cityCode, jdbcType=VARCHAR},
+                                                #{areaCode, jdbcType=VARCHAR},
+                                                #{name, jdbcType=VARCHAR},
+                                                #{code, jdbcType=VARCHAR},
+                                                #{recNam, jdbcType=VARCHAR},
+                                                #{recTim, jdbcType=VARCHAR},
+                                                #{updNam, jdbcType=VARCHAR},
+                                                #{updTim, jdbcType=VARCHAR},
+                                                #{idevVersionuse, jdbcType=VARCHAR},
+                                                #{obj, jdbcType=VARCHAR},
+                                                #{map, jdbcType=VARCHAR},
+                                                #{isCk, jdbcType=VARCHAR},
+                        #{loginUserId, jdbcType=BIGINT},
+    #{loginUserName, jdbcType=VARCHAR},
+    #{now}
+)
+    </insert>
+    <!-- 修改 -->
+   <update id="update" parameterType="com.yy.ppm.master.bean.dto.MCityDTO">
+        UPDATE
+            M_CITY
+        SET
+            ID = #{id,jdbcType=VARCHAR},
+                PROVINCE_CODE = #{provinceCode,jdbcType=VARCHAR},
+                CITY_CODE = #{cityCode,jdbcType=VARCHAR},
+                AREA_CODE = #{areaCode,jdbcType=VARCHAR},
+                NAME = #{name,jdbcType=VARCHAR},
+                CODE = #{code,jdbcType=VARCHAR},
+                REC_NAM = #{recNam,jdbcType=VARCHAR},
+                REC_TIM = #{recTim,jdbcType=VARCHAR},
+                UPD_NAM = #{updNam,jdbcType=VARCHAR},
+                UPD_TIM = #{updTim,jdbcType=VARCHAR},
+                IDEV_VERSIONUSE = #{idevVersionuse,jdbcType=VARCHAR},
+                OBJ = #{obj,jdbcType=VARCHAR},
+                MAP = #{map,jdbcType=VARCHAR},
+                IS_CK = #{isCk,jdbcType=VARCHAR},
+                UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+   <!-- 删除 -->
+   <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM
+            M_CITY
+        WHERE
+            id = #{id}
+    </delete>
+</mapper>
+

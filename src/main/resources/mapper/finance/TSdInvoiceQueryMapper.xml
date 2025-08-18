@@ -1,0 +1,526 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.finance.mapper.TSdInvoiceQueryMapper">
+
+    <sql id="commonList">
+        SELECT
+        ID
+
+        INVOICE_ID
+
+        BUSINESS_TYPE
+
+        ORDER_NUM
+
+        COUNT
+
+        ORDER_CHANNEL
+
+        ORDER_DATE
+
+        INVOICE_TYPE_CODE
+
+        TYPE_CODE
+
+        SPECIAL_INVOICE_MARK
+
+        TAX_INCLUSIVE_PRICE_MARK
+
+        TAX_MARK
+
+        REQUEST_TYPE
+
+        BUYER_MOBILE_NUM
+
+        BUYER_EMAIL
+
+        BUYER_WE_CHAT
+
+        BUYER_MEMBER_ID
+
+        TAX_EXCLUSIVE_TOTAL_AMOUNT
+
+        TAX_TOTAL_AMOUNT
+
+        TAX_INCLUSIVE_TOTAL_AMOUNT
+
+        NOTE
+
+        DEDUCTION
+
+        PAYEE
+
+        CHECKER
+
+        INVOICE_CLERK
+
+        INFO_FORM_NUM
+
+        APPLICATION_FORM_CODE
+
+        ORIGINAL_INVOICE_CODE
+
+        ORIGINAL_INVOICE_NO
+
+        ORIGINAL_ISSUE_DATE
+
+        BUYER_NATURE
+
+        BUYER_TAX_ID
+
+        BUYER_NAME
+
+        BUYER_ADDR_TEL
+
+        BUYER_TEL
+
+        BUYER_FINANCIAL_ACCOUNT
+
+        BUYER_ACCOUNT
+
+        SELLER_TAX_ID
+
+        SELLER_NAME
+
+        SELLER_ADDR_TEL
+
+        SELLER_TEL
+
+        SELLER_FINANCIAL_ACCOUNT
+
+        SELLER_ACCOUNT
+
+        CREATE_BY
+
+        CREATE_BY_NAME
+
+        CREATE_TIME
+
+        UPDATE_BY
+
+        UPDATE_BY_NAME
+
+        UPDATE_TIME
+
+        FROM
+        T_SD_INVOICE_QUERY
+        <where>
+            <if test="id != null">
+                and ID = #{id}
+            </if>
+            <if test="invoiceId != null">
+                and INVOICE_ID = #{invoiceId}
+            </if>
+            <if test="businessType != null">
+                and BUSINESS_TYPE = #{businessType}
+            </if>
+            <if test="orderNum != null and orderNum != ''">
+                and ORDER_NUM = #{orderNum}
+            </if>
+            <if test="count != null and count != ''">
+                and COUNT = #{count}
+            </if>
+            <if test="orderChannel != null and orderChannel != ''">
+                and ORDER_CHANNEL = #{orderChannel}
+            </if>
+            <if test="orderDate != null and orderDate != ''">
+                and ORDER_DATE = #{orderDate}
+            </if>
+            <if test="invoiceTypeCode != null and invoiceTypeCode != ''">
+                and INVOICE_TYPE_CODE = #{invoiceTypeCode}
+            </if>
+            <if test="typeCode != null and typeCode != ''">
+                and TYPE_CODE = #{typeCode}
+            </if>
+            <if test="specialInvoiceMark != null and specialInvoiceMark != ''">
+                and SPECIAL_INVOICE_MARK = #{specialInvoiceMark}
+            </if>
+            <if test="taxInclusivePriceMark != null and taxInclusivePriceMark != ''">
+                and TAX_INCLUSIVE_PRICE_MARK = #{taxInclusivePriceMark}
+            </if>
+            <if test="taxMark != null and taxMark != ''">
+                and TAX_MARK = #{taxMark}
+            </if>
+            <if test="requestType != null and requestType != ''">
+                and REQUEST_TYPE = #{requestType}
+            </if>
+            <if test="buyerMobileNum != null and buyerMobileNum != ''">
+                and BUYER_MOBILE_NUM = #{buyerMobileNum}
+            </if>
+            <if test="buyerEmail != null and buyerEmail != ''">
+                and BUYER_EMAIL = #{buyerEmail}
+            </if>
+            <if test="buyerWeChat != null and buyerWeChat != ''">
+                and BUYER_WE_CHAT = #{buyerWeChat}
+            </if>
+            <if test="buyerMemberId != null and buyerMemberId != ''">
+                and BUYER_MEMBER_ID = #{buyerMemberId}
+            </if>
+            <if test="taxExclusiveTotalAmount != null and taxExclusiveTotalAmount != ''">
+                and TAX_EXCLUSIVE_TOTAL_AMOUNT = #{taxExclusiveTotalAmount}
+            </if>
+            <if test="taxTotalAmount != null and taxTotalAmount != ''">
+                and TAX_TOTAL_AMOUNT = #{taxTotalAmount}
+            </if>
+            <if test="taxInclusiveTotalAmount != null and taxInclusiveTotalAmount != ''">
+                and TAX_INCLUSIVE_TOTAL_AMOUNT = #{taxInclusiveTotalAmount}
+            </if>
+            <if test="note != null and note != ''">
+                and NOTE = #{note}
+            </if>
+            <if test="deduction != null and deduction != ''">
+                and DEDUCTION = #{deduction}
+            </if>
+            <if test="payee != null and payee != ''">
+                and PAYEE = #{payee}
+            </if>
+            <if test="checker != null and checker != ''">
+                and CHECKER = #{checker}
+            </if>
+            <if test="invoiceClerk != null and invoiceClerk != ''">
+                and INVOICE_CLERK = #{invoiceClerk}
+            </if>
+            <if test="infoFormNum != null and infoFormNum != ''">
+                and INFO_FORM_NUM = #{infoFormNum}
+            </if>
+            <if test="applicationFormCode != null and applicationFormCode != ''">
+                and APPLICATION_FORM_CODE = #{applicationFormCode}
+            </if>
+            <if test="originalInvoiceCode != null and originalInvoiceCode != ''">
+                and ORIGINAL_INVOICE_CODE = #{originalInvoiceCode}
+            </if>
+            <if test="originalInvoiceNo != null and originalInvoiceNo != ''">
+                and ORIGINAL_INVOICE_NO = #{originalInvoiceNo}
+            </if>
+            <if test="originalIssueDate != null and originalIssueDate != ''">
+                and ORIGINAL_ISSUE_DATE = #{originalIssueDate}
+            </if>
+            <if test="buyerNature != null and buyerNature != ''">
+                and BUYER_NATURE = #{buyerNature}
+            </if>
+            <if test="buyerTaxId != null and buyerTaxId != ''">
+                and BUYER_TAX_ID = #{buyerTaxId}
+            </if>
+            <if test="buyerName != null and buyerName != ''">
+                and BUYER_NAME = #{buyerName}
+            </if>
+            <if test="buyerAddrTel != null and buyerAddrTel != ''">
+                and BUYER_ADDR_TEL = #{buyerAddrTel}
+            </if>
+            <if test="buyerTel != null and buyerTel != ''">
+                and BUYER_TEL = #{buyerTel}
+            </if>
+            <if test="buyerFinancialAccount != null and buyerFinancialAccount != ''">
+                and BUYER_FINANCIAL_ACCOUNT = #{buyerFinancialAccount}
+            </if>
+            <if test="buyerAccount != null and buyerAccount != ''">
+                and BUYER_ACCOUNT = #{buyerAccount}
+            </if>
+            <if test="sellerTaxId != null and sellerTaxId != ''">
+                and SELLER_TAX_ID = #{sellerTaxId}
+            </if>
+            <if test="sellerName != null and sellerName != ''">
+                and SELLER_NAME = #{sellerName}
+            </if>
+            <if test="sellerAddrTel != null and sellerAddrTel != ''">
+                and SELLER_ADDR_TEL = #{sellerAddrTel}
+            </if>
+            <if test="sellerTel != null and sellerTel != ''">
+                and SELLER_TEL = #{sellerTel}
+            </if>
+            <if test="sellerFinancialAccount != null and sellerFinancialAccount != ''">
+                and SELLER_FINANCIAL_ACCOUNT = #{sellerFinancialAccount}
+            </if>
+            <if test="sellerAccount != null and sellerAccount != ''">
+                and SELLER_ACCOUNT = #{sellerAccount}
+            </if>
+        </where>
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.finance.bean.dto.TSdInvoiceQueryDTO"
+            parameterType="com.yy.ppm.finance.bean.dto.TSdInvoiceQuerySearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.finance.bean.dto.TSdInvoiceQueryDTO"
+            parameterType="com.yy.ppm.finance.bean.dto.TSdInvoiceQuerySearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.finance.bean.dto.TSdInvoiceQueryDTO" parameterType="java.lang.Long">
+        SELECT
+        ID,
+        INVOICE_ID,
+        BUSINESS_TYPE,
+        ORDER_NUM,
+        COUNT,
+        ORDER_CHANNEL,
+        ORDER_DATE,
+        INVOICE_TYPE_CODE,
+        TYPE_CODE,
+        SPECIAL_INVOICE_MARK,
+        TAX_INCLUSIVE_PRICE_MARK,
+        TAX_MARK,
+        REQUEST_TYPE,
+        BUYER_MOBILE_NUM,
+        BUYER_EMAIL,
+        BUYER_WE_CHAT,
+        BUYER_MEMBER_ID,
+        TAX_EXCLUSIVE_TOTAL_AMOUNT,
+        TAX_TOTAL_AMOUNT,
+        TAX_INCLUSIVE_TOTAL_AMOUNT,
+        NOTE,
+        DEDUCTION,
+        PAYEE,
+        CHECKER,
+        INVOICE_CLERK,
+        INFO_FORM_NUM,
+        APPLICATION_FORM_CODE,
+        ORIGINAL_INVOICE_CODE,
+        ORIGINAL_INVOICE_NO,
+        ORIGINAL_ISSUE_DATE,
+        BUYER_NATURE,
+        BUYER_TAX_ID,
+        BUYER_NAME,
+        BUYER_ADDR_TEL,
+        BUYER_TEL,
+        BUYER_FINANCIAL_ACCOUNT,
+        BUYER_ACCOUNT,
+        SELLER_TAX_ID,
+        SELLER_NAME,
+        SELLER_ADDR_TEL,
+        SELLER_TEL,
+        SELLER_FINANCIAL_ACCOUNT,
+        SELLER_ACCOUNT,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME
+        FROM
+        T_SD_INVOICE_QUERY
+        <where>
+            id = #{id}
+        </where>
+    </select>
+
+    <select id="getByInvoiceId" resultType="com.yy.ppm.finance.bean.dto.TSdInvoiceQueryDTO" parameterType="java.lang.Long">
+        SELECT
+        ID,
+        INVOICE_ID,
+        BUSINESS_TYPE,
+        ORDER_NUM,
+        COUNT,
+        ORDER_CHANNEL,
+        ORDER_DATE,
+        INVOICE_TYPE_CODE,
+        TYPE_CODE,
+        SPECIAL_INVOICE_MARK,
+        TAX_INCLUSIVE_PRICE_MARK,
+        TAX_MARK,
+        REQUEST_TYPE
+        BUYER_MOBILE_NUM,
+        BUYER_EMAIL,
+        BUYER_WE_CHAT,
+        BUYER_MEMBER_ID,
+        TAX_EXCLUSIVE_TOTAL_AMOUNT,
+        TAX_TOTAL_AMOUNT,
+        TAX_INCLUSIVE_TOTAL_AMOUNT,
+        NOTE,
+        DEDUCTION,
+        PAYEE,
+        CHECKER,
+        INVOICE_CLERK,
+        INFO_FORM_NUM,
+        APPLICATION_FORM_CODE,
+        ORIGINAL_INVOICE_CODE,
+        ORIGINAL_INVOICE_NO,
+        ORIGINAL_ISSUE_DATE,
+        BUYER_NATURE,
+        BUYER_TAX_ID,
+        BUYER_NAME,
+        BUYER_ADDR_TEL,
+        BUYER_TEL,
+        BUYER_FINANCIAL_ACCOUNT,
+        BUYER_ACCOUNT,
+        SELLER_TAX_ID,
+        SELLER_NAME,
+        SELLER_ADDR_TEL,
+        SELLER_TEL,
+        SELLER_FINANCIAL_ACCOUNT,
+        SELLER_ACCOUNT,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME
+        FROM
+        T_SD_INVOICE_QUERY
+        <where>
+            INVOICE_ID = #{invoiceId}
+        </where>
+    </select>
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.finance.bean.dto.TSdInvoiceQueryDTO">
+        INSERT INTO T_SD_INVOICE_QUERY(ID,
+                                       INVOICE_ID,
+                                       BUSINESS_TYPE,
+                                       ORDER_NUM,
+                                       COUNT,
+                                       ORDER_CHANNEL,
+                                       ORDER_DATE,
+                                       INVOICE_TYPE_CODE,
+                                       TYPE_CODE,
+                                       SPECIAL_INVOICE_MARK,
+                                       TAX_INCLUSIVE_PRICE_MARK,
+                                       TAX_MARK,
+                                       REQUEST_TYPE,
+                                       BUYER_MOBILE_NUM,
+                                       BUYER_EMAIL,
+                                       BUYER_WE_CHAT,
+                                       BUYER_MEMBER_ID,
+                                       TAX_EXCLUSIVE_TOTAL_AMOUNT,
+                                       TAX_TOTAL_AMOUNT,
+                                       TAX_INCLUSIVE_TOTAL_AMOUNT,
+                                       NOTE,
+                                       DEDUCTION,
+                                       PAYEE,
+                                       CHECKER,
+                                       INVOICE_CLERK,
+                                       INFO_FORM_NUM,
+                                       APPLICATION_FORM_CODE,
+                                       ORIGINAL_INVOICE_CODE,
+                                       ORIGINAL_INVOICE_NO,
+                                       ORIGINAL_ISSUE_DATE,
+                                       BUYER_NATURE,
+                                       BUYER_TAX_ID,
+                                       BUYER_NAME,
+                                       BUYER_ADDR_TEL,
+                                       BUYER_TEL,
+                                       BUYER_FINANCIAL_ACCOUNT,
+                                       BUYER_ACCOUNT,
+                                       SELLER_TAX_ID,
+                                       SELLER_NAME,
+                                       SELLER_ADDR_TEL,
+                                       SELLER_TEL,
+                                       SELLER_FINANCIAL_ACCOUNT,
+                                       SELLER_ACCOUNT,
+                                       CREATE_BY,
+                                       CREATE_BY_NAME,
+                                       CREATE_TIME)
+        VALUES (#{id, jdbcType=VARCHAR},
+                #{invoiceId, jdbcType=VARCHAR},
+                #{businessType, jdbcType=VARCHAR},
+                #{orderNum, jdbcType=VARCHAR},
+                #{count, jdbcType=VARCHAR},
+                #{orderChannel, jdbcType=VARCHAR},
+                #{orderDate, jdbcType=VARCHAR},
+                #{invoiceTypeCode, jdbcType=VARCHAR},
+                #{typeCode, jdbcType=VARCHAR},
+                #{specialInvoiceMark, jdbcType=VARCHAR},
+                #{taxInclusivePriceMark, jdbcType=VARCHAR},
+                #{taxMark, jdbcType=VARCHAR},
+                #{requestType, jdbcType=VARCHAR},
+                #{buyerMobileNum, jdbcType=VARCHAR},
+                #{buyerEmail, jdbcType=VARCHAR},
+                #{buyerWeChat, jdbcType=VARCHAR},
+                #{buyerMemberId, jdbcType=VARCHAR},
+                #{taxExclusiveTotalAmount, jdbcType=VARCHAR},
+                #{taxTotalAmount, jdbcType=VARCHAR},
+                #{taxInclusiveTotalAmount, jdbcType=VARCHAR},
+                #{note, jdbcType=VARCHAR},
+                #{deduction, jdbcType=VARCHAR},
+                #{payee, jdbcType=VARCHAR},
+                #{checker, jdbcType=VARCHAR},
+                #{invoiceClerk, jdbcType=VARCHAR},
+                #{infoFormNum, jdbcType=VARCHAR},
+                #{applicationFormCode, jdbcType=VARCHAR},
+                #{originalInvoiceCode, jdbcType=VARCHAR},
+                #{originalInvoiceNo, jdbcType=VARCHAR},
+                #{originalIssueDate, jdbcType=VARCHAR},
+                #{buyerNature, jdbcType=VARCHAR},
+                #{buyerTaxId, jdbcType=VARCHAR},
+                #{buyerName, jdbcType=VARCHAR},
+                #{buyerAddrTel, jdbcType=VARCHAR},
+                #{buyerTel, jdbcType=VARCHAR},
+                #{buyerFinancialAccount, jdbcType=VARCHAR},
+                #{buyerAccount, jdbcType=VARCHAR},
+                #{sellerTaxId, jdbcType=VARCHAR},
+                #{sellerName, jdbcType=VARCHAR},
+                #{sellerAddrTel, jdbcType=VARCHAR},
+                #{sellerTel, jdbcType=VARCHAR},
+                #{sellerFinancialAccount, jdbcType=VARCHAR},
+                #{sellerAccount, jdbcType=VARCHAR},
+                #{loginUserId, jdbcType=BIGINT},
+                #{loginUserName, jdbcType=VARCHAR},
+                #{now})
+    </insert>
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.finance.bean.dto.TSdInvoiceQueryDTO">
+        UPDATE
+        T_SD_INVOICE_QUERY
+        SET
+        ID = #{id,jdbcType=VARCHAR},
+        INVOICE_ID = #{invoiceId,jdbcType=VARCHAR},
+        BUSINESS_TYPE = #{businessType,jdbcType=VARCHAR},
+        ORDER_NUM = #{orderNum,jdbcType=VARCHAR},
+        COUNT = #{count,jdbcType=VARCHAR},
+        ORDER_CHANNEL = #{orderChannel,jdbcType=VARCHAR},
+        ORDER_DATE = #{orderDate,jdbcType=VARCHAR},
+        INVOICE_TYPE_CODE = #{invoiceTypeCode,jdbcType=VARCHAR},
+        TYPE_CODE = #{typeCode,jdbcType=VARCHAR},
+        SPECIAL_INVOICE_MARK = #{specialInvoiceMark,jdbcType=VARCHAR},
+        TAX_INCLUSIVE_PRICE_MARK = #{taxInclusivePriceMark,jdbcType=VARCHAR},
+        TAX_MARK = #{taxMark,jdbcType=VARCHAR},
+        REQUEST_TYPE = #{requestType,jdbcType=VARCHAR},
+        BUYER_MOBILE_NUM = #{buyerMobileNum,jdbcType=VARCHAR},
+        BUYER_EMAIL = #{buyerEmail,jdbcType=VARCHAR},
+        BUYER_WE_CHAT = #{buyerWeChat,jdbcType=VARCHAR},
+        BUYER_MEMBER_ID = #{buyerMemberId,jdbcType=VARCHAR},
+        TAX_EXCLUSIVE_TOTAL_AMOUNT = #{taxExclusiveTotalAmount,jdbcType=VARCHAR},
+        TAX_TOTAL_AMOUNT = #{taxTotalAmount,jdbcType=VARCHAR},
+        TAX_INCLUSIVE_TOTAL_AMOUNT = #{taxInclusiveTotalAmount,jdbcType=VARCHAR},
+        NOTE = #{note,jdbcType=VARCHAR},
+        DEDUCTION = #{deduction,jdbcType=VARCHAR},
+        PAYEE = #{payee,jdbcType=VARCHAR},
+        CHECKER = #{checker,jdbcType=VARCHAR},
+        INVOICE_CLERK = #{invoiceClerk,jdbcType=VARCHAR},
+        INFO_FORM_NUM = #{infoFormNum,jdbcType=VARCHAR},
+        APPLICATION_FORM_CODE = #{applicationFormCode,jdbcType=VARCHAR},
+        ORIGINAL_INVOICE_CODE = #{originalInvoiceCode,jdbcType=VARCHAR},
+        ORIGINAL_INVOICE_NO = #{originalInvoiceNo,jdbcType=VARCHAR},
+        ORIGINAL_ISSUE_DATE = #{originalIssueDate,jdbcType=VARCHAR},
+        BUYER_NATURE = #{buyerNature,jdbcType=VARCHAR},
+        BUYER_TAX_ID = #{buyerTaxId,jdbcType=VARCHAR},
+        BUYER_NAME = #{buyerName,jdbcType=VARCHAR},
+        BUYER_ADDR_TEL = #{buyerAddrTel,jdbcType=VARCHAR},
+        BUYER_TEL = #{buyerTel,jdbcType=VARCHAR},
+        BUYER_FINANCIAL_ACCOUNT = #{buyerFinancialAccount,jdbcType=VARCHAR},
+        BUYER_ACCOUNT = #{buyerAccount,jdbcType=VARCHAR},
+        SELLER_TAX_ID = #{sellerTaxId,jdbcType=VARCHAR},
+        SELLER_NAME = #{sellerName,jdbcType=VARCHAR},
+        SELLER_ADDR_TEL = #{sellerAddrTel,jdbcType=VARCHAR},
+        SELLER_TEL = #{sellerTel,jdbcType=VARCHAR},
+        SELLER_FINANCIAL_ACCOUNT = #{sellerFinancialAccount,jdbcType=VARCHAR},
+        SELLER_ACCOUNT = #{sellerAccount,jdbcType=VARCHAR},
+        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE
+        FROM T_SD_INVOICE_QUERY
+        WHERE id = #{id}
+    </delete>
+</mapper>
+

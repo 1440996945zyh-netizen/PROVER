@@ -1,0 +1,530 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.master.mapper.MShipMapper">
+
+    <sql id="commonList">
+        SELECT
+        M1.ID,
+        M1.SHIP_NAME,
+        M1.SHIP_NAME_EN,
+        M1.SHORTHAND_CODE,
+        M1.SHIP_KIND_CODE,
+        E.DICT_LABEL AS SHIP_KIND_LABEL,
+        M1.NATION_CODE,
+        F.DICT_LABEL AS NATION_LABEL,
+        M1.SHIP_TYPE_CODE,
+        D.DICT_LABEL AS SHIP_TYPE_LABEL,
+        M1.IMO,
+        M1.MMSI,
+        M1.CALL_NO,
+        M1.SHIP_LENGTH,
+        M1.SHIP_WIDTH,
+        M1.SHIP_HEIGHT,
+        M1.SELF_WEIGHT,
+        M1.NET_WEIGHT,
+        M1.TOTAL_WEIGHT,
+        M1.HATCH_NUM,
+        M1.CABIN_LAYER_NUM,
+        M1.DWT,
+        M1.CABIN_VOLUME,
+        M1.HATCH_SIZE,
+        M1.MAX_SPEED,
+        M1.SPEED,
+        M1.MOULDED_DEPTH,
+        M1.HANGER_NUM,
+        M1.CABIN_TYPE,
+        M1.HANGER_LOAD,
+        M1.HATCH_COVER_TYPE_CODE,
+        M1.HANGER_LOCATION,
+        M1.CAPTAIN_PHONE,
+        M1.CAPTAIN_NAME,
+        M1.BUILT_YM,
+        M1.WATER_VOLUME,
+        M1.SURPLUS_WATER_DEPTH,
+        M1.FULL_LOAD_WATER,
+        M1.EMPTY_LOAD_WATER,
+        M1.HEADER_COCKPIT_DISTANCE,
+        M1.STATUS,
+        J.NM AS STATUS_LABEL,
+        M1.CREATE_BY,
+        M1.CREATE_BY_NAME,
+        M1.CREATE_TIME,
+        M1.UPDATE_BY,
+        M1.UPDATE_BY_NAME,
+        M1.UPDATE_TIME,
+        M1.BO_HAI_TONG_ID,
+        M1.CERTIFICATE_PATH,
+        M1.APPLICATION_UNIT,
+        M1.APPLICATION_UNIT_CODE,
+        M1.IS_FOCUS_SHIP
+        FROM
+        M_SHIP M1
+        left join M_DICT_DATA d ON M1.SHIP_TYPE_CODE=d.DICT_VALUE and d.DICT_TYPE='SHIP_TYPE'
+        left join M_DICT_DATA e ON M1.SHIP_KIND_CODE=e.DICT_VALUE and e.DICT_TYPE='SHIP_KIND'
+        left join M_DICT_DATA f ON M1.NATION_CODE=f.DICT_VALUE and e.DICT_TYPE='NATION'
+        left join m_constants j on M1.STATUS = j.cd and j.TYPE_CD = 'SHIP_STATUS'
+        <where>
+            <if test="shipName != null and shipName != ''">
+                <bind name="shipName" value="'%' + shipName + '%'"/>
+                and (FUNC_SHIP_NAME_REPLACE(M1.SHIP_NAME) LIKE #{shipName} OR M1.SHORTHAND_CODE LIKE #{shipName})
+            </if>
+            <if test="shipNameEn != null and shipNameEn != ''">
+                and M1.SHIP_NAME_EN = #{shipNameEn}
+            </if>
+
+            <if test="shipKindCode != null and shipKindCode != ''">
+                and M1.SHIP_KIND_CODE = #{shipKindCode}
+            </if>
+            <if test="nationCode != null and nationCode != ''">
+                and M1.NATION_CODE = #{nationCode}
+            </if>
+            <if test="shipTypeCode != null and shipTypeCode != ''">
+                and M1.SHIP_TYPE_CODE = #{shipTypeCode}
+            </if>
+            <if test="imo != null and imo != ''">
+                and M1.IMO = #{imo}
+            </if>
+            <if test="mmsi != null and mmsi != ''">
+                and M1.MMSI = #{mmsi}
+            </if>
+            <if test="callNo != null and callNo != ''">
+                and M1.CALL_NO = #{callNo}
+            </if>
+            <if test="status != null and status != ''">
+                and M1.STATUS = #{status}
+            </if>
+        </where>
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.master.bean.dto.MShipDTO"
+            parameterType="com.yy.ppm.master.bean.dto.MShipSearchDTO">
+        <include refid="commonList"></include>
+        order by M1.CREATE_TIME desc
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getAllList" resultType="com.yy.ppm.master.bean.dto.MShipDTO"
+            parameterType="com.yy.ppm.master.bean.dto.MShipSearchDTO">
+        <include refid="commonList"></include>
+        order by M1.CREATE_TIME desc
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.master.bean.dto.MShipDTO"
+            parameterType="com.yy.ppm.master.bean.dto.MShipSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.master.bean.dto.MShipDTO" parameterType="java.lang.Long">
+        SELECT
+        M1.ID,
+        M1.BO_HAI_TONG_ID,
+        M1.SHIP_NAME,
+        M1.SHIP_NAME_EN,
+        M1.SHORTHAND_CODE,
+        M1.SHIP_KIND_CODE,
+        M1.NATION_CODE,
+        M1.SHIP_TYPE_CODE,
+        M1.IMO,
+        M1.MMSI,
+        M1.CALL_NO,
+        M1.SHIP_LENGTH,
+        M1.SHIP_WIDTH,
+        M1.SHIP_HEIGHT,
+        M1.SELF_WEIGHT,
+        M1.NET_WEIGHT,
+        M1.TOTAL_WEIGHT,
+        M1.HATCH_NUM,
+        M1.CABIN_LAYER_NUM,
+        M1.DWT,
+        M1.CABIN_VOLUME,
+        M1.HATCH_SIZE,
+        M1.MAX_SPEED,
+        M1.SPEED,
+        M1.MOULDED_DEPTH,
+        M1.HANGER_NUM,
+        M1.CABIN_TYPE,
+        M1.HANGER_LOAD,
+        M1.HATCH_COVER_TYPE_CODE,
+        M1.HANGER_LOCATION,
+        M1.CAPTAIN_PHONE,
+        M1.CAPTAIN_NAME,
+        M1.BUILT_YM,
+        M1.WATER_VOLUME,
+        M1.SURPLUS_WATER_DEPTH,
+        M1.FULL_LOAD_WATER,
+        M1.EMPTY_LOAD_WATER,
+        M1.HEADER_COCKPIT_DISTANCE,
+        M1.STATUS,
+        M1.CREATE_BY,
+        M1.CREATE_BY_NAME,
+        M1.CREATE_TIME,
+        M1.APPROVAL_BY,
+        M1.APPROVAL_NAME,
+        M1.APPROVAL_TIME,
+        M1.UPDATE_BY,
+        M1.UPDATE_BY_NAME,
+        M1.UPDATE_TIME,
+        F.DICT_LABEL AS NATION_LABEL,
+        M1.LAST_TIME,
+        M1.APPLICATION_UNIT,
+        M1.APPLICATION_UNIT_CODE,
+        M1.IS_FOCUS_SHIP
+        FROM
+        M_SHIP M1
+        left join M_DICT_DATA F ON M1.NATION_CODE=F.DICT_VALUE and F.DICT_TYPE='NATION'
+        <where>
+            M1.id = #{id}
+        </where>
+    </select>
+
+
+    <select id="getByIds" resultType="com.yy.ppm.master.bean.dto.MShipDTO">
+        SELECT
+        *
+        FROM
+        M_SHIP
+        <where>
+            <if test="ids != null">
+                ID IN (
+                <foreach collection="ids" item="id" index="index" separator=",">
+                    #{id}
+                </foreach>
+                )
+            </if>
+        </where>
+    </select>
+
+    <select id="getByShipKindCode" resultType="com.yy.ppm.master.bean.dto.MShipDTO">
+        SELECT
+        *
+        FROM
+        M_SHIP
+        WHERE SHIP_KIND_CODE = #{shipKindCode,jdbcType=VARCHAR}
+    </select>
+
+
+    <!-- 根据gid查询数据 -->
+    <select id="getByBHTId" resultType="com.yy.ppm.master.bean.dto.MShipDTO" parameterType="java.lang.Long">
+        SELECT
+        ID,
+        BO_HAI_TONG_ID,
+        SHIP_NAME,
+        SHIP_NAME_EN,
+        SHORTHAND_CODE,
+        SHIP_KIND_CODE,
+        NATION_CODE,
+        SHIP_TYPE_CODE,
+        IMO,
+        IS_FOCUS_SHIP,
+        MMSI, CALL_NO, SHIP_LENGTH, SHIP_WIDTH, SHIP_HEIGHT,
+        SELF_WEIGHT, NET_WEIGHT, TOTAL_WEIGHT, HATCH_NUM,
+        CABIN_LAYER_NUM, DWT, CABIN_VOLUME, HATCH_SIZE, MAX_SPEED,
+        SPEED, MOULDED_DEPTH, HANGER_NUM, CABIN_TYPE, HANGER_LOAD,
+        HATCH_COVER_TYPE_CODE, HANGER_LOCATION, CAPTAIN_PHONE, CAPTAIN_NAME,
+        BUILT_YM, WATER_VOLUME, SURPLUS_WATER_DEPTH, FULL_LOAD_WATER,
+        EMPTY_LOAD_WATER, HEADER_COCKPIT_DISTANCE, STATUS, CREATE_BY,
+        CREATE_BY_NAME, CREATE_TIME, UPDATE_BY, UPDATE_BY_NAME, UPDATE_TIME
+        FROM
+        M_SHIP
+        <where>
+            BO_HAI_TONG_ID = #{boHaiTongId}
+        </where>
+    </select>
+    <select id="getShipVoyageByShipId" resultType="java.lang.Integer">
+        select count(*) from T_DIS_SHIPVOYAGE WHERE SHIP_ID = #{id}
+    </select>
+    <!-- 新增 -->
+    <update id="updatePhoneById" parameterType="com.yy.ppm.master.bean.dto.MShipDTO">
+        UPDATE
+        M_SHIP
+        SET
+        CAPTAIN_PHONE = #{captainPhone,jdbcType=VARCHAR},
+        <if test="loginUserId != null">
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        </if>
+        <if test="loginUserName != null">
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        </if>
+        <if test="now != null">
+            UPDATE_TIME = #{now}
+        </if>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+    <update id="updatePhoneByBHTId" parameterType="com.yy.ppm.master.bean.dto.MShipDTO">
+        UPDATE
+        M_SHIP
+        SET
+        CAPTAIN_PHONE = #{captainPhone,jdbcType=VARCHAR}
+        <if test="loginUserId != null">
+            ,UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        </if>
+        <if test="loginUserName != null">
+            ,UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        </if>
+        <if test="now != null">
+            ,UPDATE_TIME = #{now}
+        </if>
+        <where>
+            BO_HAI_TONG_ID = #{boHaiTongId}
+        </where>
+    </update>
+    <!-- 修改 -->
+    <insert id="insert" parameterType="com.yy.ppm.master.bean.dto.MShipDTO">
+        INSERT INTO M_SHIP(
+            ID,
+            BO_HAI_TONG_ID,
+            SHIP_NAME,
+            SHIP_NAME_EN,
+            SHORTHAND_CODE,
+            SHIP_KIND_CODE,
+            NATION_CODE,
+            SHIP_TYPE_CODE,
+            IMO,
+            MMSI,
+            CALL_NO,
+            SHIP_LENGTH,
+            SHIP_WIDTH,
+            SHIP_HEIGHT,
+            SELF_WEIGHT,
+            NET_WEIGHT,
+            TOTAL_WEIGHT,
+            HATCH_NUM,
+            CABIN_LAYER_NUM,
+            DWT,
+            CABIN_VOLUME,
+            HATCH_SIZE,
+            MAX_SPEED,
+            SPEED,
+            MOULDED_DEPTH,
+            HANGER_NUM,
+            CABIN_TYPE,
+            HANGER_LOAD,
+            HATCH_COVER_TYPE_CODE,
+            HANGER_LOCATION,
+            CAPTAIN_PHONE,
+            CAPTAIN_NAME,
+            BUILT_YM,
+            WATER_VOLUME,
+            SURPLUS_WATER_DEPTH,
+            FULL_LOAD_WATER,
+            EMPTY_LOAD_WATER,
+            HEADER_COCKPIT_DISTANCE,
+            STATUS,
+            CERTIFICATE_PATH,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            APPLICATION_UNIT,
+            APPLICATION_UNIT_CODE,
+            IS_FOCUS_SHIP
+        )VALUES (
+            #{id, jdbcType=BIGINT},
+            #{boHaiTongId, jdbcType=BIGINT},
+            #{shipName, jdbcType=VARCHAR},
+            #{shipNameEn, jdbcType=VARCHAR},
+            #{shorthandCode, jdbcType=VARCHAR},
+            #{shipKindCode, jdbcType=VARCHAR},
+            #{nationCode, jdbcType=VARCHAR},
+            #{shipTypeCode, jdbcType=VARCHAR},
+            #{imo, jdbcType=VARCHAR},
+            #{mmsi, jdbcType=VARCHAR},
+            #{callNo, jdbcType=VARCHAR},
+            #{shipLength, jdbcType=DECIMAL},
+            #{shipWidth, jdbcType=DECIMAL},
+            #{shipHeight, jdbcType=DECIMAL},
+            #{selfWeight, jdbcType=DECIMAL},
+            #{netWeight, jdbcType=DECIMAL},
+            #{totalWeight, jdbcType=DECIMAL},
+            #{hatchNum, jdbcType=INTEGER},
+            #{cabinLayerNum, jdbcType=INTEGER},
+            #{dwt, jdbcType=DECIMAL},
+            #{cabinVolume, jdbcType=DECIMAL},
+            #{hatchSize, jdbcType=VARCHAR},
+            #{maxSpeed, jdbcType=DECIMAL},
+            #{speed, jdbcType=DECIMAL},
+            #{mouldedDepth, jdbcType=DECIMAL},
+            #{hangerNum, jdbcType=INTEGER},
+            #{cabinType, jdbcType=VARCHAR},
+            #{hangerLoad, jdbcType=VARCHAR},
+            #{hatchCoverTypeCode, jdbcType=VARCHAR},
+            #{hangerLocation, jdbcType=VARCHAR},
+            #{captainPhone, jdbcType=VARCHAR},
+            #{captainName, jdbcType=VARCHAR},
+            #{builtYm, jdbcType=VARCHAR},
+            #{waterVolume, jdbcType=DECIMAL},
+            #{surplusWaterDepth, jdbcType=DECIMAL},
+            #{fullLoadWater, jdbcType=DECIMAL},
+            #{emptyLoadWater, jdbcType=DECIMAL},
+            #{headerCockpitDistance, jdbcType=DECIMAL},
+            #{status, jdbcType=VARCHAR},
+            #{certificatePath, jdbcType=VARCHAR},
+            #{loginUserId, jdbcType=BIGINT},
+            #{loginUserName, jdbcType=VARCHAR},
+            #{now},
+            #{applicationUnit,jdbcType=VARCHAR},
+            #{applicationUnitCode,jdbcType=BIGINT},
+            #{isFocusShip,jdbcType=VARCHAR}
+        )
+    </insert>
+    <insert id="insertShipLog" parameterType="com.yy.ppm.master.bean.po.MShipLogPO">
+        INSERT INTO M_SHIP_LOG(
+            ID,
+            SHIP_ID,
+            IMO,
+            MMSI,
+            UPDATE_INFO,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )VALUES (
+            #{id, jdbcType=BIGINT},
+            #{shipId, jdbcType=BIGINT},
+            #{imo, jdbcType=VARCHAR},
+            #{mmsi, jdbcType=VARCHAR},
+            #{updateInfo, jdbcType=VARCHAR},
+            #{loginUserId, jdbcType=BIGINT},
+            #{loginUserName, jdbcType=VARCHAR},
+            #{now}
+        )
+    </insert>
+    <update id="update" parameterType="com.yy.ppm.master.bean.dto.MShipDTO">
+        UPDATE
+        M_SHIP
+        <set>
+        SHIP_NAME = #{shipName,jdbcType=VARCHAR},
+        SHIP_NAME_EN = #{shipNameEn,jdbcType=VARCHAR},
+        SHORTHAND_CODE = #{shorthandCode,jdbcType=VARCHAR},
+        SHIP_KIND_CODE = #{shipKindCode,jdbcType=VARCHAR},
+        NATION_CODE = #{nationCode,jdbcType=VARCHAR},
+        SHIP_TYPE_CODE = #{shipTypeCode,jdbcType=VARCHAR},
+        IMO = #{imo,jdbcType=VARCHAR},
+        MMSI = #{mmsi,jdbcType=VARCHAR},
+        CALL_NO = #{callNo,jdbcType=VARCHAR},
+        SHIP_LENGTH = #{shipLength,jdbcType=DECIMAL},
+        SHIP_WIDTH = #{shipWidth,jdbcType=DECIMAL},
+        SHIP_HEIGHT = #{shipHeight,jdbcType=DECIMAL},
+        SELF_WEIGHT = #{selfWeight,jdbcType=DECIMAL},
+        NET_WEIGHT = #{netWeight,jdbcType=DECIMAL},
+        TOTAL_WEIGHT = #{totalWeight,jdbcType=DECIMAL},
+        HATCH_NUM = #{hatchNum,jdbcType=INTEGER},
+        CABIN_LAYER_NUM = #{cabinLayerNum,jdbcType=INTEGER},
+        DWT = #{dwt,jdbcType=DECIMAL},
+        CABIN_VOLUME = #{cabinVolume,jdbcType=DECIMAL},
+        HATCH_SIZE = #{hatchSize,jdbcType=VARCHAR},
+        MAX_SPEED = #{maxSpeed,jdbcType=DECIMAL},
+        SPEED = #{speed,jdbcType=DECIMAL},
+        MOULDED_DEPTH = #{mouldedDepth,jdbcType=DECIMAL},
+        HANGER_NUM = #{hangerNum,jdbcType=INTEGER},
+        CABIN_TYPE = #{cabinType,jdbcType=VARCHAR},
+        HANGER_LOAD = #{hangerLoad,jdbcType=VARCHAR},
+        HATCH_COVER_TYPE_CODE = #{hatchCoverTypeCode,jdbcType=VARCHAR},
+        HANGER_LOCATION = #{hangerLocation,jdbcType=VARCHAR},
+        CAPTAIN_PHONE = #{captainPhone,jdbcType=VARCHAR},
+        CAPTAIN_NAME = #{captainName,jdbcType=VARCHAR},
+        BUILT_YM = #{builtYm,jdbcType=VARCHAR},
+        WATER_VOLUME = #{waterVolume,jdbcType=DECIMAL},
+        SURPLUS_WATER_DEPTH = #{surplusWaterDepth,jdbcType=DECIMAL},
+        FULL_LOAD_WATER = #{fullLoadWater,jdbcType=DECIMAL},
+        EMPTY_LOAD_WATER = #{emptyLoadWater,jdbcType=DECIMAL},
+        HEADER_COCKPIT_DISTANCE = #{headerCockpitDistance,jdbcType=DECIMAL},
+        STATUS = #{status,jdbcType=VARCHAR},
+        IS_FOCUS_SHIP = #{isFocusShip,jdbcType=VARCHAR},
+        IDEA = #{idea,jdbcType=VARCHAR},
+        APPROVAL_BY = #{approvalBy,jdbcType=BIGINT},
+        APPROVAL_NAME = #{approvalName,jdbcType=VARCHAR},
+        APPROVAL_TIME = #{approvalTime,jdbcType=DATE},
+        CERTIFICATE_PATH = #{certificatePath,jdbcType=VARCHAR},
+        APPLICATION_UNIT = #{applicationUnit,jdbcType=VARCHAR},
+        APPLICATION_UNIT_CODE = #{applicationUnitCode,jdbcType=BIGINT},
+        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        UPDATE_TIME = #{now}
+        </set>
+        <where>
+            <if test="id != null">
+                ID = #{id}
+            </if>
+            <if test="boHaiTongId != null">
+                AND BO_HAI_TONG_ID = #{boHaiTongId}
+            </if>
+        </where>
+    </update>
+
+    <update id="reject" parameterType="com.yy.ppm.master.bean.dto.MShipDTO">
+        UPDATE
+        M_SHIP
+        SET
+        IDEA = #{idea,jdbcType=VARCHAR},
+        STATUS = #{status,jdbcType=VARCHAR},
+        APPROVAL_BY = #{approvalBy,jdbcType=BIGINT},
+        APPROVAL_NAME = #{approvalName,jdbcType=VARCHAR},
+        APPROVAL_TIME = #{approvalTime,jdbcType=DATE},
+        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM
+            M_SHIP
+        WHERE
+            id = #{id}
+    </delete>
+    <delete id="deleteByBHTId" parameterType="java.lang.Long">
+        DELETE FROM
+            M_SHIP
+        WHERE
+            BO_HAI_TONG_ID = #{boHaiTongId}
+    </delete>
+
+    <update id="approveCancelById" parameterType="com.yy.ppm.master.bean.dto.MShipDTO">
+        UPDATE
+        M_SHIP
+        SET
+        STATUS = #{status,jdbcType=VARCHAR},
+        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        UPDATE_TIME = #{now}
+        <where>
+            ID = #{id}
+        </where>
+    </update>
+
+    <update id="updateBoHaiTongIdById">
+    	UPDATE M_SHIP
+    		SET BO_HAI_TONG_ID = #{boHaiTongId}
+    	WHERE ID = #{id}
+    </update>
+    <select id="getCheckList" resultType="com.yy.ppm.master.bean.dto.MShipDTO">
+        select *
+        from M_SHIP
+        where (STATUS != '0' AND  STATUS IS NOT NULL )
+            <if test="shipName!=null and shipName !=''">
+               and SHIP_NAME = #{shipName,jdbcType=VARCHAR}
+            </if>
+            <if test="imo!=null and imo!=''">
+                and IMO = #{imo,jdbcType=VARCHAR}
+
+            </if>
+            <if test="mmsi!=null and mmsi!=''">
+                and MMSI =#{mmsi,jdbcType=VARCHAR}
+            </if>
+
+    </select>
+    <select id="getByShipId" resultType="com.yy.ppm.master.bean.po.MShipLogPO" parameterType="java.lang.Long">
+        select * from m_ship_log where ship_id = #{shipId} order by CREATE_TIME desc
+    </select>
+    <select id="getShipBlackByIMO" resultType="com.yy.ppm.master.bean.dto.MShipDTO">
+        select  * from M_SHIP_BLACK WHERE IMO = #{imo}
+    </select>
+</mapper>
+

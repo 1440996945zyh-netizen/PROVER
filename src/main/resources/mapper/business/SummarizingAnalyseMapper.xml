@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.standardization.mapper.SummarizingAnalyseMapper">
+
+    <select id="handoverListTonByCondition" resultType="java.math.BigDecimal">
+        SELECT NVL(SUM(M.TON), 0) TON
+        FROM T_BUS_HANDOVERLIST M
+                 INNER JOIN
+             T_DIS_SHIPVOYAGE_ITEM N
+             ON M.SHIPVOYAGE_ITEM_ID = N.ID
+        WHERE M.TYPE = '1'
+        <if test="cargoCategoryName!=null">
+            AND N.CARGO_CATEGORY_NAME = #{cargoCategoryName}
+        </if>
+        <if test="startTime!=null">
+            AND N.WORK_START_TIME >= TO_DATE(#{startTime}, 'YYYY-MM-DD HH24:MI:SS')
+        </if>
+        <if test="endTime!=null">
+            AND TO_DATE(#{endTime}, 'YYYY-MM-DD HH24:MI:SS') >= N.WORK_END_TIME
+        </if>
+    </select>
+
+    <select id="dynamicsByCondition" resultType="com.yy.ppm.dispatch.bean.dto.disShipDynamic.TDisShipDynamicDTO">
+        SELECT *
+        FROM T_DIS_SHIP_DYNAMIC M
+                 INNER JOIN
+             T_DIS_SHIPVOYAGE_ITEM N
+             ON M.SHIPVOYAGE_ITEM_ID = N.ID
+        <where>
+            <if test="cargoCategoryName!=null">
+                N.CARGO_CATEGORY_NAME = #{cargoCategoryName}
+            </if>
+            <if test="startTime!=null">
+                AND N.WORK_START_TIME >= TO_DATE(#{startTime}, 'YYYY-MM-DD HH24:MI:SS')
+            </if>
+            <if test="endTime!=null">
+                AND TO_DATE(#{endTime}, 'YYYY-MM-DD HH24:MI:SS') >= N.WORK_END_TIME
+            </if>
+        </where>
+    </select>
+</mapper>

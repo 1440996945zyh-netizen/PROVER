@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.business.mapper.TBusDispatchReleaseDetailMapper">
+
+    <sql id="commonList">
+        SELECT ID,
+               DISPATCH_RELEASE_ID,
+               CARGO_INFO_NO,
+               CARGO_OWNER_ID,
+               CARGO_OWNER_NAME,
+               CARGO_CODE,
+               CARGO_NAME,
+               QUANTITY,
+               TON,
+               PACKING_CODE,
+               PACKING_NAME,
+               SPECS,
+               REMARK,
+               CREATE_BY,
+               CREATE_BY_NAME,
+               CREATE_TIME,
+               UPDATE_BY,
+               UPDATE_BY_NAME,
+               UPDATE_TIME
+        FROM T_BUS_DISPATCH_RELEASE_DETAIL
+    </sql>
+    <sql id="condition">
+        <where>
+            <if test="id != null">
+                and ID = #{id}
+            </if>
+            <if test="dispatchReleaseId != null">
+                and DISPATCH_RELEASE_ID = #{dispatchReleaseId}
+            </if>
+            <if test="cargoInfoNo != null">
+                and CARGO_INFO_NO = #{cargoInfoNo}
+            </if>
+            <if test="cargoOwnerId != null">
+                and CARGO_OWNER_ID = #{cargoOwnerId}
+            </if>
+            <if test="cargoOwnerName != null">
+                and CARGO_OWNER_NAME = #{cargoOwnerName}
+            </if>
+            <if test="cargoCode != null">
+                and CARGO_CODE = #{cargoCode}
+            </if>
+            <if test="cargoName != null">
+                and CARGO_NAME = #{cargoName}
+            </if>
+            <if test="quantity != null">
+                and QUANTITY = #{quantity}
+            </if>
+            <if test="ton != null">
+                and TON = #{ton}
+            </if>
+            <if test="packingCode != null">
+                and PACKING_CODE = #{packingCode}
+            </if>
+            <if test="packingName != null">
+                and PACKING_NAME = #{packingName}
+            </if>
+            <if test="specs != null">
+                and SPECS = #{specs}
+            </if>
+            <if test="remark != null">
+                and REMARK = #{remark}
+            </if>
+        </where>
+    </sql>
+
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getPageList" resultType="com.yy.ppm.business.bean.dto.TBusDispatchReleaseDetailDTO"
+            parameterType="com.yy.ppm.business.bean.dto.TBusDispatchReleaseDetailSearchDTO">
+        <include refid="commonList"></include>
+        <include refid="condition"></include>
+    </select>
+
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.business.bean.dto.TBusDispatchReleaseDetailDTO"
+            parameterType="com.yy.ppm.business.bean.dto.TBusDispatchReleaseDetailSearchDTO">
+        <include refid="commonList"></include>
+        <include refid="condition"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.business.bean.dto.TBusDispatchReleaseDetailDTO"
+            parameterType="java.lang.Long">
+        <include refid="commonList"></include>
+        <where>
+            id = #{id}
+        </where>
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.business.bean.dto.TBusDispatchReleaseDetailDTO">
+        INSERT INTO T_BUS_DISPATCH_RELEASE_DETAIL(ID,
+                                                  DISPATCH_RELEASE_ID,
+                                                  CARGO_INFO_NO,
+                                                  CARGO_OWNER_ID,
+                                                  CARGO_OWNER_NAME,
+                                                  CARGO_CODE,
+                                                  CARGO_NAME,
+                                                  QUANTITY,
+                                                  TON,
+                                                  PACKING_CODE,
+                                                  PACKING_NAME,
+                                                  SPECS,
+                                                  REMARK,
+                                                  CREATE_BY,
+                                                  CREATE_BY_NAME,
+                                                  CREATE_TIME)
+        VALUES (#{dispatchReleaseId, jdbcType=VARCHAR},
+                #{cargoInfoNo, jdbcType=VARCHAR},
+                #{cargoOwnerId, jdbcType=VARCHAR},
+                #{cargoOwnerName, jdbcType=VARCHAR},
+                #{cargoCode, jdbcType=VARCHAR},
+                #{cargoName, jdbcType=VARCHAR},
+                #{quantity, jdbcType=VARCHAR},
+                #{ton, jdbcType=VARCHAR},
+                #{packingCode, jdbcType=VARCHAR},
+                #{packingName, jdbcType=VARCHAR},
+                #{specs, jdbcType=VARCHAR},
+                #{remark, jdbcType=VARCHAR},
+                #{loginUserId, jdbcType=BIGINT},
+                #{loginUserName, jdbcType=VARCHAR},
+                #{now})
+    </insert>
+
+    <!-- 批量新增 -->
+    <insert id="insertList" parameterType="com.yy.ppm.business.bean.dto.TBusDispatchReleaseDetailDTO">
+        begin
+        <foreach collection="tBusDispatchReleaseDetailDTOS" item="item" separator="  ">
+            INSERT INTO T_BUS_DISPATCH_RELEASE_DETAIL(
+            ID,
+            DISPATCH_RELEASE_ID,
+            CARGO_INFO_NO,
+            CARGO_OWNER_ID,
+            CARGO_OWNER_NAME,
+            CARGO_CODE,
+            CARGO_NAME,
+            QUANTITY,
+            TON,
+            PACKING_CODE,
+            PACKING_NAME,
+            SPECS,
+            REMARK,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+            )VALUES (
+            #{item.dispatchReleaseId, jdbcType=VARCHAR},
+            #{item.cargoInfoNo, jdbcType=VARCHAR},
+            #{item.cargoOwnerId, jdbcType=VARCHAR},
+            #{item.cargoOwnerName, jdbcType=VARCHAR},
+            #{item.cargoCode, jdbcType=VARCHAR},
+            #{item.cargoName, jdbcType=VARCHAR},
+            #{item.quantity, jdbcType=VARCHAR},
+            #{item.ton, jdbcType=VARCHAR},
+            #{item.packingCode, jdbcType=VARCHAR},
+            #{item.packingName, jdbcType=VARCHAR},
+            #{item.specs, jdbcType=VARCHAR},
+            #{item.remark, jdbcType=VARCHAR},
+            #{item.loginUserId, jdbcType=BIGINT},
+            #{item.loginUserName, jdbcType=VARCHAR},
+            #{item.now}
+            );
+        </foreach>
+        end;
+    </insert>
+
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.business.bean.dto.TBusDispatchReleaseDetailDTO">
+        UPDATE
+        T_BUS_DISPATCH_RELEASE_DETAIL
+        <set>
+            <if test="dispatchReleaseId != null">
+                DISPATCH_RELEASE_ID = #{dispatchReleaseId,jdbcType=VARCHAR},
+            </if>
+            <if test="cargoInfoNo != null">
+                CARGO_INFO_NO = #{cargoInfoNo,jdbcType=VARCHAR},
+            </if>
+            <if test="cargoOwnerId != null">
+                CARGO_OWNER_ID = #{cargoOwnerId,jdbcType=VARCHAR},
+            </if>
+            <if test="cargoOwnerName != null">
+                CARGO_OWNER_NAME = #{cargoOwnerName,jdbcType=VARCHAR},
+            </if>
+            <if test="cargoCode != null">
+                CARGO_CODE = #{cargoCode,jdbcType=VARCHAR},
+            </if>
+            <if test="cargoName != null">
+                CARGO_NAME = #{cargoName,jdbcType=VARCHAR},
+            </if>
+            <if test="quantity != null">
+                QUANTITY = #{quantity,jdbcType=VARCHAR},
+            </if>
+            <if test="ton != null">
+                TON = #{ton,jdbcType=VARCHAR},
+            </if>
+            <if test="packingCode != null">
+                PACKING_CODE = #{packingCode,jdbcType=VARCHAR},
+            </if>
+            <if test="packingName != null">
+                PACKING_NAME = #{packingName,jdbcType=VARCHAR},
+            </if>
+            <if test="specs != null">
+                SPECS = #{specs,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                REMARK = #{remark,jdbcType=VARCHAR},
+            </if>
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now}
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 批量修改 -->
+    <update id="updateListById" parameterType="com.yy.ppm.business.bean.dto.TBusDispatchReleaseDetailDTO">
+        begin
+        <foreach collection="tBusDispatchReleaseDetailDTOS" item="item" separator=" ">
+            UPDATE
+            T_BUS_DISPATCH_RELEASE_DETAIL
+            SET
+            <if test="dispatchReleaseId != null">
+                DISPATCH_RELEASE_ID = #{dispatchReleaseId,jdbcType=VARCHAR},
+            </if>
+            <if test="cargoInfoNo != null">
+                CARGO_INFO_NO = #{cargoInfoNo,jdbcType=VARCHAR},
+            </if>
+            <if test="cargoOwnerId != null">
+                CARGO_OWNER_ID = #{cargoOwnerId,jdbcType=VARCHAR},
+            </if>
+            <if test="cargoOwnerName != null">
+                CARGO_OWNER_NAME = #{cargoOwnerName,jdbcType=VARCHAR},
+            </if>
+            <if test="cargoCode != null">
+                CARGO_CODE = #{cargoCode,jdbcType=VARCHAR},
+            </if>
+            <if test="cargoName != null">
+                CARGO_NAME = #{cargoName,jdbcType=VARCHAR},
+            </if>
+            <if test="quantity != null">
+                QUANTITY = #{quantity,jdbcType=VARCHAR},
+            </if>
+            <if test="ton != null">
+                TON = #{ton,jdbcType=VARCHAR},
+            </if>
+            <if test="packingCode != null">
+                PACKING_CODE = #{packingCode,jdbcType=VARCHAR},
+            </if>
+            <if test="packingName != null">
+                PACKING_NAME = #{packingName,jdbcType=VARCHAR},
+            </if>
+            <if test="specs != null">
+                SPECS = #{specs,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                REMARK = #{remark,jdbcType=VARCHAR},
+            </if>
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now}
+            <where>
+                id = #{id};
+            </where>
+        </foreach>
+        end;
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE
+        FROM T_BUS_DISPATCH_RELEASE_DETAIL
+        WHERE id = #{id}
+    </delete>
+
+    <!-- 批量删除 -->
+    <delete id="deleteListByIds" parameterType="java.lang.Long">
+        DELETE FROM
+        T_BUS_DISPATCH_RELEASE_DETAIL
+        WHERE
+        ID IN (
+        <foreach collection="ids" item="id" index="index" separator=",">
+            #{id}
+        </foreach>
+        )
+    </delete>
+
+    <!-- 批量删除 -->
+    <delete id="deleteByCondition" parameterType="com.yy.ppm.business.bean.dto.TBusDispatchReleaseDetailDTO">
+        DELETE FROM
+        T_BUS_DISPATCH_RELEASE_DETAIL
+        <include refid="condition"></include>
+    </delete>
+
+
+</mapper>
+

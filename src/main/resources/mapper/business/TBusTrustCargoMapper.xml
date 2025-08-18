@@ -1,0 +1,552 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.business.mapper.TBusTrustCargoMapper">
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.business.bean.dto.TBusTrustCargoDTO" parameterType="java.lang.Long">
+        SELECT
+            a.ID,
+            a.TRUST_ID,
+            a.CARGO_INFO_ID,
+            a.DIRECTION,
+            a.QUANTITY,
+            a.TON,
+            a.CARGO_OWNER_ID,
+            a.CARGO_OWNER_NAME,
+            a.CARGO_AGENT_ID,
+            a.CARGO_AGENT_NAME,
+            a.CARGO_CODE,
+            a.CARGO_NAME,
+            a.PACKING_CODE,
+            a.PACKING_NAME,
+            a.CREATE_BY,
+            a.CREATE_BY_NAME,
+            a.CREATE_TIME,
+            a.UPDATE_BY,
+            a.UPDATE_BY_NAME,
+            a.UPDATE_TIME,
+            b.WORK_TYPE,
+            a.CONTRACT_ID,
+            a.CONTRACT_NAME,
+            a.CONTRACT_RATE_ID,
+            a.RATE,
+            a.EST_AMOUNT,
+            TBCI.CARGO_INFO_NO,
+            a.BUSINESS_NO,
+            a.HATCHS,
+            a.IS_SECOND_WEIGH,
+            a.PRINT_POUND_ID,
+            a.PRINT_POUND_NUM,
+            a.RATE_LABEL,
+            a.STATUS,
+            a.IS_STOP,
+            a.IS_STOP_OPERATION_NAME,
+            a.IS_STOP_OPERATION_TIME
+        FROM
+            T_BUS_TRUST_CARGO a inner join m_cargo b on a.CARGO_CODE=b.CARGO_CODE
+            LEFT JOIN T_BUS_CARGO_INFO TBCI ON a.CARGO_INFO_ID = TBCI.ID
+        where
+            a.TRUST_ID = #{trustId}
+        ORDER BY
+            a.BUSINESS_NO
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.business.bean.dto.TBusTrustCargoDTO" parameterType="java.lang.Long">
+        SELECT
+            ID,
+            TRUST_ID,
+            CARGO_INFO_ID,
+            CARGO_OWNER_ID,
+            CARGO_OWNER_NAME,
+            CARGO_AGENT_ID,
+            CARGO_AGENT_NAME,
+            CARGO_CODE,
+            CARGO_NAME,
+            PACKING_CODE,
+            PACKING_NAME,
+            DIRECTION,
+            QUANTITY,
+            TON,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME,
+            BUSINESS_NO,
+            HATCHS,
+            IS_SECOND_WEIGH,
+            PRINT_POUND_ID,
+            PRINT_POUND_NUM,
+            RATE_LABEL
+        from
+            T_BUS_TRUST_CARGO
+        <where>
+            id = #{id}
+        </where>
+    </select>
+    <select id="getByBHTId" resultType="com.yy.ppm.business.bean.dto.TBusTrustCargoDTO" parameterType="java.lang.Long">
+        SELECT
+            ID,
+            TRUST_ID,
+            BHT_ID,
+            CARGO_INFO_ID,
+            CARGO_OWNER_ID,
+            CARGO_OWNER_NAME,
+            CARGO_AGENT_ID,
+            CARGO_AGENT_NAME,
+            CARGO_CODE,
+            CARGO_NAME,
+            PACKING_CODE,
+            PACKING_NAME,
+            DIRECTION,
+            QUANTITY,
+            TON,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME,
+            BUSINESS_NO,
+            HATCHS,
+            IS_SECOND_WEIGH,
+            PRINT_POUND_ID,
+            PRINT_POUND_NUM,
+            RATE_LABEL
+        from
+            T_BUS_TRUST_CARGO
+        <where>
+            BHT_ID = #{bhtId}
+        </where>
+    </select>
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.business.bean.dto.TBusTrustCargoDTO">
+        INSERT INTO T_BUS_TRUST_CARGO(
+            ID,
+            TRUST_ID,
+            CARGO_INFO_ID,
+            DELIVERY_NUMBERS,
+            CARGO_OWNER_ID,
+            CARGO_OWNER_NAME,
+            CARGO_AGENT_ID,
+            CARGO_AGENT_NAME,
+            CARGO_CODE,
+            CARGO_NAME,
+            PACKING_CODE,
+            PACKING_NAME,
+            DIRECTION,
+            QUANTITY,
+            TON,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            BHT_ID,
+            WORK_ACCOMPANYING_ID,
+            CONTRACT_ID,
+            CONTRACT_NAME,
+            CONTRACT_RATE_ID,
+            RATE,
+            EST_AMOUNT,
+            BUSINESS_NO,
+            HATCHS,
+            IS_SECOND_WEIGH,
+            PRINT_POUND_ID,
+            PRINT_POUND_NUM,
+            RATE_LABEL,
+            STATUS,
+            DIS_RATE,
+            ORDER_ITEM_ID,
+            BILL_NO
+        )VALUES (
+            #{id, jdbcType=BIGINT},
+            #{trustId, jdbcType=BIGINT},
+            #{cargoInfoId, jdbcType=BIGINT},
+            #{deliveryNumbers, jdbcType=VARCHAR},
+            #{cargoOwnerId, jdbcType=BIGINT},
+            #{cargoOwnerName, jdbcType=VARCHAR},
+            #{cargoAgentId, jdbcType=BIGINT},
+            #{cargoAgentName, jdbcType=VARCHAR},
+            #{cargoCode, jdbcType=VARCHAR},
+            #{cargoName, jdbcType=VARCHAR},
+            #{packingCode, jdbcType=VARCHAR},
+            #{packingName, jdbcType=VARCHAR},
+            #{direction, jdbcType=VARCHAR},
+            #{quantity, jdbcType=BIGINT},
+            #{ton,jdbcType=DECIMAL},
+            #{loginUserId, jdbcType=BIGINT},
+            #{loginUserName, jdbcType=VARCHAR},
+            #{now},
+            SEQ_BHT_ID.NEXTVAL,
+            #{workAccompanyingId,jdbcType=BIGINT},
+            #{contractId,jdbcType=BIGINT},
+            #{contractName,jdbcType=BIGINT},
+            #{contractRateId,jdbcType=BIGINT},
+            #{rate,jdbcType=DECIMAL},
+            #{estAmount,jdbcType=DECIMAL},
+            #{businessNo,jdbcType=VARCHAR},
+            #{hatchs,jdbcType=VARCHAR},
+            #{isSecondWeigh,jdbcType=VARCHAR},
+            #{printPoundId,jdbcType=INTEGER},
+            #{printPoundNum,jdbcType=INTEGER},
+            #{rateLabel,jdbcType=VARCHAR},
+            #{status,jdbcType=VARCHAR},
+            #{disRate,jdbcType=VARCHAR},
+            #{orderItemId, jdbcType=BIGINT},
+            #{billNo,jdbcType=VARCHAR}
+        )
+    </insert>
+    <!-- 修改 -->
+   <update id="update" parameterType="com.yy.ppm.business.bean.dto.TBusTrustCargoDTO">
+        UPDATE
+            T_BUS_TRUST_CARGO
+        SET
+            TRUST_ID = #{trustId,jdbcType=BIGINT},
+            CARGO_INFO_ID = #{cargoInfoId,jdbcType=BIGINT},
+            CARGO_OWNER_ID = #{cargoOwnerId,jdbcType=BIGINT},
+            CARGO_OWNER_NAME = #{cargoOwnerName,jdbcType=VARCHAR},
+            CARGO_AGENT_ID = #{cargoAgentId,jdbcType=BIGINT},
+            CARGO_AGENT_NAME = #{cargoAgentName,jdbcType=VARCHAR},
+            CARGO_CODE = #{cargoCode,jdbcType=VARCHAR},
+            CARGO_NAME = #{cargoName,jdbcType=VARCHAR},
+            PACKING_CODE = #{packingCode,jdbcType=VARCHAR},
+            PACKING_NAME = #{packingName,jdbcType=VARCHAR},
+            DIRECTION = #{direction,jdbcType=VARCHAR},
+            QUANTITY = #{quantity,jdbcType=BIGINT},
+            TON = #{ton,jdbcType=DECIMAL},
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now},
+            HATCHS = #{hatchs, jdbcType=VARCHAR},
+            IS_SECOND_WEIGH = #{isSecondWeigh, jdbcType=VARCHAR},
+            PRINT_POUND_ID = #{printPoundId, jdbcType=INTEGER},
+            PRINT_POUND_NUM = #{printPoundNum, jdbcType=INTEGER},
+            RATE_LABEL = #{rateLabel,jdbcType=VARCHAR}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 修改委托人 -->
+    <update id="updateConsigner" parameterType="com.yy.ppm.business.bean.dto.trust.TrustCargoDTO">
+        UPDATE
+        T_BUS_TRUST_CARGO
+        SET
+        CONSIGNER_ID = #{consignerId,jdbcType=BIGINT},
+        CONSIGNER_NAME = #{consignerName,jdbcType=VARCHAR}
+        <if test="type != null and type == '疏港'">
+            ,QUANTITY = #{quantity,jdbcType=BIGINT},
+            TON = #{ton,jdbcType=DECIMAL}
+        </if>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 修改 -->
+    <update id="updateNotNull" parameterType="com.yy.ppm.business.bean.dto.TBusTrustCargoDTO">
+        UPDATE
+            T_BUS_TRUST_CARGO
+        SET
+            <if test="cargoInfoId != null">
+                CARGO_INFO_ID = #{cargoInfoId,jdbcType=BIGINT},
+            </if>
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+   <!-- 删除 -->
+   <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM
+            T_BUS_TRUST_CARGO
+        WHERE
+            id = #{id}
+    </delete>
+
+    <!-- 查询船舶信息 -->
+    <select id="getShipInfo" resultType="java.util.Map">
+        SELECT
+            T1.ID AS "shipvoyageId",
+            T2.ID AS "value",
+            CONCAT(CONCAT(T1.SHIP_NAME, '_') , T2.VOYAGE) as "label",
+            T2.CARGO_CATEGORY_NAME as "cargoCategoryName",
+            T2.CUSTOMER_NAME as "shipAgentName",
+            T1.START_PORT_NAME as "startPortName",
+            T1.END_PORT_NAME as "endPortName",
+            TO_CHAR(T1.ARRIVAL_TIME_PLAN, 'YYYY-MM-DD') as "arrivalTimePlan",
+            T1.SCN as "scn",
+            T1.SHIP_NAME as "shipName",
+            T2.VOYAGE as "voyage"
+        FROM
+            T_DIS_SHIPVOYAGE T1 JOIN
+            T_DIS_SHIPVOYAGE_ITEM T2 ON T1.ID = T2.SHIPVOYAGE_ID
+        where
+            T2.ID = #{id}
+    </select>
+    <select id="getByBusinessNo" resultType="com.yy.ppm.business.bean.dto.TBusTrustCargoDTO">
+        SELECT
+        ID,
+        TRUST_ID,
+        BHT_ID,
+        CARGO_INFO_ID,
+        CARGO_OWNER_ID,
+        CARGO_OWNER_NAME,
+        CARGO_AGENT_ID,
+        CARGO_AGENT_NAME,
+        CARGO_CODE,
+        CARGO_NAME,
+        PACKING_CODE,
+        PACKING_NAME,
+        DIRECTION,
+        QUANTITY,
+        TON,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME,
+        HATCHS,
+        IS_SECOND_WEIGH,
+        PRINT_POUND_ID,
+        PRINT_POUND_NUM,
+        RATE_LABEL
+        from
+        T_BUS_TRUST_CARGO
+        <where>
+            BUSINESS_NO = #{businessNo}
+        </where>
+
+    </select>
+    <select id="getSignList" resultType="com.yy.ppm.business.bean.dto.TBusTrustCargoDTO">
+        SELECT
+        a.ID,
+        a.TRUST_ID,
+        a.CARGO_INFO_ID,
+        a.DIRECTION,
+        a.QUANTITY,
+        a.TON,
+        a.CARGO_OWNER_ID,
+        a.CARGO_OWNER_NAME,
+        a.CARGO_AGENT_ID,
+        a.CARGO_AGENT_NAME,
+        a.CARGO_CODE,
+        CASE
+        WHEN b.SIGN IS NOT NULL  THEN a.CARGO_NAME || '(' || b.SIGN || ')'
+        ELSE a.CARGO_NAME
+        END AS "CARGO_NAME",
+        a.PACKING_CODE,
+        a.PACKING_NAME,
+        a.CREATE_BY,
+        a.CREATE_BY_NAME,
+        a.CREATE_TIME,
+        a.UPDATE_BY,
+        a.UPDATE_BY_NAME,
+        a.UPDATE_TIME,
+        b.WORK_TYPE,
+        a.CONTRACT_ID,
+        a.CONTRACT_NAME,
+        a.CONTRACT_RATE_ID,
+        a.RATE,
+        a.EST_AMOUNT,
+        TBCI.CARGO_INFO_NO,
+        TBCI.SHIPVOYAGE_ITEM_ID,
+        case when tbt.type = '疏港' or tbt.type='装船' then a.delivery_numbers
+            when RELEASE.DELIVERY_NUMBERS is null then a.DELIVERY_NUMBERS else RELEASE.DELIVERY_NUMBERS end as DELIVERY_NUMBERS,
+        DISPATCH.PERMIT_THROUGH,
+        a.BUSINESS_NO,
+        a.HATCHS,
+        a.IS_SECOND_WEIGH,
+        a.PRINT_POUND_ID,
+        a.PRINT_POUND_NUM,
+        a.RATE_LABEL,
+        a.CONSIGNER_ID,
+        a.CONSIGNER_NAME,
+        a.IS_STOP,
+        a.IS_STOP_OPERATION_NAME,
+        a.IS_STOP_OPERATION_TIME,
+        a.DIS_RATE,
+        a.ORDER_ITEM_ID,
+        a.BILL_NO
+        FROM
+        T_BUS_TRUST_CARGO a inner join m_cargo b on a.CARGO_CODE=b.CARGO_CODE
+        LEFT JOIN T_BUS_CARGO_INFO TBCI ON a.CARGO_INFO_ID = TBCI.ID
+        left join t_bus_trust tbt on a.trust_id = tbt.id
+        LEFT JOIN (
+        SELECT CARGO_INFO_NO,
+        LISTAGG(DELIVERY_NUMBERS, ', ') WITHIN GROUP (
+        ORDER BY CARGO_INFO_NO) AS DELIVERY_NUMBERS
+        FROM
+        T_BUS_DISPATCH_RELEASE_DETAIL
+        GROUP BY
+        CARGO_INFO_NO
+        ) RELEASE ON TBCI.CARGO_INFO_NO = RELEASE.CARGO_INFO_NO
+        LEFT JOIN (
+        SELECT
+        B.CARGO_INFO_NO,
+        CASE
+        WHEN COUNT(0) = SUM(TO_NUMBER(A.PERMIT_THROUGH)) THEN '放行'
+        WHEN 0 = SUM(TO_NUMBER(A.PERMIT_THROUGH)) THEN '不放行'
+        ELSE '部分放行'
+        END AS PERMIT_THROUGH
+        FROM T_BUS_DISPATCH_RELEASE A
+        LEFT JOIN T_BUS_DISPATCH_RELEASE_DETAIL B ON A.ID = B.DISPATCH_RELEASE_ID
+        GROUP BY B.CARGO_INFO_NO
+        ) DISPATCH ON DISPATCH.CARGO_INFO_NO = RELEASE.CARGO_INFO_NO
+        where
+        a.TRUST_ID = #{id}
+        <choose>
+            <when test="isOrderByCreateTime">
+                ORDER BY TBCI.CREATE_TIME
+            </when>
+            <otherwise>
+                ORDER BY A.BUSINESS_NO
+            </otherwise>
+        </choose>
+    </select>
+    <select id="getCount" resultType="java.math.BigDecimal">
+         SELECT sum( WEIGHT_GOODS ) FROM WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND
+    WHERE IS_DELETE = 0 AND IS_FINISHED = 1 AND PLAN_NO = #{businessNo}
+    </select>
+
+    <select id="getCargoInfoListByTrustId" resultType="com.yy.ppm.business.bean.po.TBusCargoInfoPO">
+        select distinct TBTC.CARGO_INFO_ID ID ,TBTC.cargo_code
+        from T_BUS_TRUST TBT
+                 left join T_BUS_TRUST_CARGO TBTC on TBT.id = TBTC.TRUST_ID
+        where TBT.id = #{id}
+    </select>
+    <select id="getCargoShipWithTrust" resultType="com.yy.ppm.business.bean.dto.TBusCargoShipDTO">
+        select *
+        from T_BUS_CARGO_SHIP
+        where TRUST_ID = #{trustId}  and CARGO_INFO_ID = #{cargoInfoId} and SHIP_VOYAGE_ITEM_ID = #{shipVoyageItemId}
+    </select>
+    <insert id="insertCargoShip" parameterType="com.yy.ppm.business.bean.dto.TBusCargoShipDTO">
+        INSERT INTO T_BUS_CARGO_SHIP (ID, TYPE, TRUST_ID, CARGO_INFO_ID, SHIP_VOYAGE_ITEM_ID, SHIP_VOYAGE_ID, SHIP_NAME, VOYAGE, CREATE_BY, CREATE_BY_NAME, CREATE_TIME)
+        VALUES (#{id}, #{type}, #{trustId}, #{cargoInfoId}, #{shipVoyageItemId}, #{shipVoyageId}, #{shipName}, #{voyage}, #{loginUserId}, #{loginUserName}, #{now,jdbcType=TIMESTAMP})
+    </insert>
+    <delete id="deleteCargoShipByCargoTrust">
+    delete from T_BUS_CARGO_SHIP where CARGO_INFO_ID = #{cargoInfoId,jdbcType=BIGINT} and TRUST_ID = #{trustId,jdbcType=BIGINT}
+    </delete>
+    <update id="updateXCCargoInfo">
+        begin
+        <foreach collection="cargoInfoIds" item="cargoInfoId"  separator="" >
+            UPDATE
+            t_bus_cargo_info
+            SET
+            TRUST_ID = #{trustId,jdbcType=BIGINT},
+            UPDATE_BY = #{updateBy, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{updateByName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{updateTime,jdbcType=DATE}
+            where  ID = #{cargoInfoId,jdbcType=VARCHAR} ;
+        </foreach>
+        end;
+    </update>
+    <update id="updateXCHandoverlist">
+        update T_BUS_HANDOVERLIST set
+                                      TRUST_CARGO_ID = #{trustCargoId},
+            UPDATE_TIME = #{updateTime,jdbcType=TIMESTAMP},
+            UPDATE_BY_NAME = #{updateByName,jdbcType=VARCHAR},
+            UPDATE_BY = #{updateBy,jdbcType=BIGINT}
+                                  where CARGO_INFO_ID = #{cargoInfoId} and LOAD_UNLOAD = '卸'
+
+    </update>
+    <select id="getCargoTrustIdByIds" resultType="java.lang.Long">
+        select TRUST_ID
+        from T_BUS_CARGO_INFO where TRUST_ID is not null  and id in
+        <foreach collection="ids" item="id" index="index" separator="," open="(" close=")">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </select>
+    <select id="gethandoverListByCargoInfoId" resultType="com.yy.ppm.business.bean.dto.TBusHandoverListDTO">
+        select TBH.ID,TBH.TON,TBH.QUANTITY,MC.FLOAT_TON
+        from T_BUS_HANDOVERLIST TBH
+                 join T_BUS_CARGO_INFO TBCI on TBH.CARGO_INFO_ID = TBCI.ID
+                 join M_CARGO MC  on TBCI.CARGO_CODE = MC.CARGO_CODE
+        where TBH.LOAD_UNLOAD = '卸'
+        and EXISTS (
+        select * from (
+        <foreach collection="cargoInfoIds" separator="union all " item="cargoInfoId">
+            select #{cargoInfoId, jdbcType=BIGINT} as TMPID
+            from dual
+        </foreach>
+        ) a where a.TMPID = TBH.CARGO_INFO_ID
+        )
+        group by TBH.ID, TBH.TON, TBH.QUANTITY, MC.FLOAT_TON
+    </select>
+    <select id="handoverListByCargoInfoId" resultType="com.yy.ppm.business.bean.dto.TBusHandoverListDTO">
+        select TBH.ID,TBH.TON,TBH.QUANTITY,TBCI.CARGO_INFO_NO,TBH.TRUST_CARGO_ID
+        from T_BUS_HANDOVERLIST TBH
+        join T_BUS_CARGO_INFO TBCI on TBH.CARGO_INFO_ID = TBCI.ID
+        where TBH.LOAD_UNLOAD = #{loadUnload,jdbcType=VARCHAR}
+        and EXISTS (
+        select * from (
+        <foreach collection="cargoInfoIds" separator="union all " item="cargoInfoId">
+            select #{cargoInfoId, jdbcType=BIGINT} as TMPID
+            from dual
+        </foreach>
+        ) a where a.TMPID = TBH.CARGO_INFO_ID
+        )
+    </select>
+    <update id="updateEntrustDetail" parameterType="com.yy.ppm.business.bean.dto.TBusTrustCargoDTO">
+        update t_bus_entrust_detail set trust_cargo_id = #{id} ,
+                                        update_by = #{loginUserId},
+                                        update_by_name = #{loginUserName},
+                                        update_TIME = #{now} where id = #{entrustDetailId}
+    </update>
+    <update id="updateentrustDetailForCargoInfo" parameterType="com.yy.ppm.business.bean.dto.TBusTrustCargoDTO">
+        update t_bus_entrust_detail set cargo_info_id = #{cargoInfoId},
+                                        update_by = #{loginUserId},
+                                        update_by_name = #{loginUserName},
+                                        update_TIME = #{now}  where trust_cargo_id = #{id}
+    </update>
+
+    <insert id="insertEntrustDetial" parameterType="com.yy.ppm.business.bean.dto.TBusTrustCargoDTO">
+        INSERT INTO
+            T_BUS_ENTRUST_DETAIL (
+            ID,
+            ENTRUST_ID,
+            TRUST_ID,
+            CARGO_OWNER_ID,
+            CARGO_OWNER_NAME,
+            CARGO_CODE,
+            CARGO_NAME,
+            PACKING_CODE,
+            PACKING_NAME,
+            QUANTITY,
+            TON,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            DELIVERY_NUMBERS,
+            trust_cargo_id
+        )
+        VALUES
+            (
+            #{entrustDetailId},
+            #{entrustId},
+            #{trustId},#{cargoOwnerId},#{cargoOwnerName},#{cargoCode},
+            #{cargoName},#{packingCode},#{packingName},
+            #{quantity},#{ton},#{loginUserId},#{loginUserName},#{now},
+            #{deliveryNumbers},#{id}
+            )
+
+    </insert>
+    <select id="getcargoinfoList" resultType="com.yy.ppm.business.bean.po.TBusCargoInfoPO">
+        select TBCI.ID,TBCI.CARGO_INFO_NO,TBCI.COMPANY_NAME,TBCI.COMPANY_ID,TBCI.CARGO_CODE
+            FROM
+        T_BUS_CARGO_INFO TBCI
+        where  EXISTS (
+        select * from (
+        <foreach collection="cargoInfoIds" separator="union all " item="cargoInfoId">
+            select #{cargoInfoId, jdbcType=BIGINT} as TMPID
+            from dual
+        </foreach>
+        ) a where a.TMPID = TBCI.ID
+        )
+    </select>
+</mapper>
+

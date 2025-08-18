@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GATHER_INFO AREA_ID="0000000000" CHNL_NO="0000000000"  I_E_TYPE="I" SEQ_NO="">
+    <IC>
+        <DR_IC_NO></DR_IC_NO>
+        <IC_DR_CUSTOMS_NO></IC_DR_CUSTOMS_NO>
+        <IC_CO_CUSTOMS_NO></IC_CO_CUSTOMS_NO>
+        <IC_BILL_NO></IC_BILL_NO>
+        <IC_GROSS_WT></IC_GROSS_WT>
+        <IC_VE_CUSTOMS_NO></IC_VE_CUSTOMS_NO>
+        <IC_VE_NAME></IC_VE_NAME>
+        <IC_CONTA_ID></IC_CONTA_ID>
+        <IC_ESEAL_ID></IC_ESEAL_ID>
+    </IC>
+    <WEIGHT>
+        <GROSS_WT>0</GROSS_WT>
+    </WEIGHT>
+    <CAR>
+        <VE_NAME></VE_NAME>
+        <CAR_EC_NO></CAR_EC_NO>
+        <CAR_EC_NO2></CAR_EC_NO2>
+        <VE_CUSTOMS_NO></VE_CUSTOMS_NO>
+        <VE_WT></VE_WT>
+        <INFORM_NO></INFORM_NO>
+    </CAR>
+    <CONTA>
+        <CONTA_NUM></CONTA_NUM>
+        <CONTA_RECO>1</CONTA_RECO>
+        <CONTA_ID_F></CONTA_ID_F>
+        <CONTA_ID_B></CONTA_ID_B>
+    </CONTA>
+    <SEAL>
+        <ESEAL_ID></ESEAL_ID>
+        <SEAL_KEY></SEAL_KEY>
+    </SEAL>
+</GATHER_INFO>

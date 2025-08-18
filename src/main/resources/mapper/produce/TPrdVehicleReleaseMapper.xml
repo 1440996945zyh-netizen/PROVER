@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.produce.mapper.TPrdVehicleReleaseMapper">
+
+    <select id="getList" resultType="com.yy.ppm.produce.bean.po.TPrdVehicleReleasePO">
+        SELECT
+        TDPD.ID,
+        TDPD.BUSINESS_NO AS PLAN_NO,
+        TBPE.SUB_PLAN_NO,
+        TDPD.CARGO_OWNER_NAME AS CONSIGNOR_NAME,
+        TDPD.PORT_NAME,
+        TDPD.CARGO_NAME,
+        TDPD.MASS_NAMES_TARGET_LABEL AS YARD_CODE,
+        TDPD.END_TIME,
+        to_char(TDPD.BEGIN_TIME,'mm-dd hh24:mi') || '~' ||to_char(TDPD.END_TIME,'mm-dd hh24:mi') PLAN_START_TIME,
+        COUNT(T1.ID) AS SIGN_COUNT
+        FROM
+        T_BUS_RESERVATION_SIGN T1
+        LEFT JOIN T_BUS_VEHICLE_RESERVATION T2 ON T1.RESERVATION_ID = T2.ID
+        LEFT JOIN T_BUS_PLAN_ENTRUST TBPE ON T2.SUB_PLAN_NO = TBPE.SUB_PLAN_NO
+        LEFT JOIN T_DIS_PORT_DAYNIGHTPLAN TDPD ON TBPE.DAY_NIGHT_PLAN_ID = TDPD.ID
+        WHERE
+        T2.ID IS NOT NULL AND T1.STATUS IN ('1','0') and TDPD.PACKING_CODE = '2'
+        <if test="planNo != null and planNo != ''">
+            <bind name="planNoLike" value="'%' + planNo + '%'"/>
+            and T2.PLAN_NO LIKE #{planNoLike, jdbcType=VARCHAR}
+        </if>
+        <if test="consignorName != null and consignorName != ''">
+            <bind name="consignorNameLike" value="'%' + consignorName + '%'"/>
+            and T2.CONSIGNOR_NAME LIKE #{consignorNameLike, jdbcType=VARCHAR}
+        </if>
+        <if test="vehicleNo != null and vehicleNo != ''">
+            <bind name="vehicleNoLike" value="'%' + vehicleNo + '%'"/>
+            and T2.VEHICLE_NO LIKE #{vehicleNoLike, jdbcType=VARCHAR}
+        </if>
+        group by
+        TDPD.ID,
+        TDPD.BUSINESS_NO,
+        TBPE.SUB_PLAN_NO,
+        TDPD.CARGO_OWNER_NAME,
+        TDPD.PORT_NAME,
+        TDPD.CARGO_NAME,
+        TDPD.MASS_NAMES_TARGET_LABEL,
+        TDPD.END_TIME,
+        to_char(TDPD.BEGIN_TIME,'mm-dd hh24:mi') || '~' ||to_char(TDPD.END_TIME,'mm-dd hh24:mi')
+        ORDER by TDPD.END_TIME DESC
+    </select>
+
+    <select id="getSubList" resultType="com.yy.ppm.produce.bean.po.TPrdVehicleReleasePO">
+        SELECT
+            T1.ID,
+            T2.VEHICLE_NO,
+            T2.DRIVER_NAME_ONE,
+            T2.DRIVER_PHONE_ONE,
+            T2.PLAN_NO,
+            T2.CONSIGNOR_CODE,
+            T2.CONSIGNOR_NAME,
+            T2.CARGO_CODE,
+            T2.CARGO_NAME,
+            T2.YARD_CODE,
+            to_char(T1.CREATE_TIME,'mm-dd hh24:mi') "signTime",
+            T1.STATUS,
+            DECODE(T3.NOTE_ID,null,'不在港','在港') "hasInPort"
+        FROM
+            T_BUS_RESERVATION_SIGN T1
+            LEFT JOIN T_BUS_VEHICLE_RESERVATION T2 ON T1.RESERVATION_ID = T2.ID
+            LEFT JOIN WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND T3 ON T2.DRIVER_NO_ONE = T3.ID_NUMBER AND T3.IS_FINISHED = 0
+            AND T3.IS_DELETE = 0
+        WHERE
+            T2.ID IS NOT NULL AND T1.STATUS IN ('1','0')
+
+          and T2.SUB_PLAN_NO = #{subPlanNo}
+
+        ORDER by T1.CREATE_TIME
+    </select>
+    <update id="updateStatus" parameterType="java.lang.String">
+        UPDATE
+            T_BUS_RESERVATION_SIGN
+        SET
+            STATUS = '2'
+        WHERE TASK_NO = #{taskNo}
+    </update>
+
+    <select id="getById" resultType="com.yy.ppm.produce.bean.dto.TPrdVehicleReleaseDTO">
+        SELECT
+        ID,
+        RESERVATION_ID,
+        APPROVE_BY,
+        APPROVE_BY_NAME,
+        APPROVE_TIME,
+        CREATE_TIME,
+        STATUS
+        FROM
+        T_BUS_RESERVATION_SIGN
+        <where>
+            id = #{id}
+        </where>
+    </select>
+
+    <update id="auditRevokeStatusById">
+        UPDATE
+        T_BUS_RESERVATION_SIGN
+        SET
+        STATUS = #{status},
+        APPROVE_BY = #{loginUserId,jdbcType=BIGINT},
+        APPROVE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+        APPROVE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+    <update id="auditStatusById">
+        UPDATE
+        T_BUS_RESERVATION_SIGN
+        SET
+        STATUS = #{status},
+        APPROVE_BY = #{loginUserId,jdbcType=BIGINT},
+        APPROVE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+        APPROVE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+</mapper>

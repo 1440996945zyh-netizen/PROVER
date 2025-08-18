@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.system.mapper.SysOnLineUserMapper">
+<!--    查询所有信息-->
+    <select id="getList" resultType="com.yy.ppm.system.bean.dto.SysUserDTO">
+        select
+            A.ID,
+            A.USER_ACCOUNT,
+            A.PASSWD,
+            A.USER_NAME,
+            A.DEPT_ID,
+            A.IS_SUPERADMIN,
+            A.MOBILE,
+            A.EMAIL,
+            A.STATUS,
+            A.REMARK,
+            A.PSD_UPD_DATE,
+            A.SORT_NUM,
+            A.UPDATE_TIME,
+            A.CREATE_TIME,
+            B.DEPT_NAME
+        from
+            SYS_USER A LEFT JOIN SYS_DEPT B ON A.DEPT_ID = B.ID
+       WHERE
+           A.USER_ACCOUNT IN
+        <foreach collection="accountList" item="item" index="index" open="(" close=")" separator=",">
+            #{item, jdbcType=VARCHAR}
+        </foreach>
+
+        <if test="userAccount != null and userAccount != ''">
+            <bind name="userAccount" value="'%' + userAccount + '%'"/>
+            AND (A.USER_ACCOUNT LIKE  #{userAccount,jdbcType=VARCHAR})
+        </if>
+        <if test="userName != null and userName != ''">
+            <bind name="userName" value="'%' + userName + '%'"/>
+            AND (A.USER_NAME LIKE  #{userName,jdbcType=VARCHAR})
+        </if>
+    </select>
+<!--    <select id="getList" resultType="com.yy.ppm.system.bean.dto.SysUserDTO">-->
+<!--        select-->
+<!--        A.ID,-->
+<!--        A.USER_ACCOUNT,-->
+<!--        A.PASSWD,-->
+<!--        A.USER_NAME,-->
+<!--        A.DEPT_ID,-->
+<!--        A.IS_SUPERADMIN,-->
+<!--        A.MOBILE,-->
+<!--        A.EMAIL,-->
+<!--        A.STATUS,-->
+<!--        A.REMARK,-->
+<!--        A.PSD_UPD_DATE,-->
+<!--        A.SORT_NUM,-->
+<!--        A.UPDATE_TIME,-->
+<!--        A.CREATE_TIME,-->
+<!--        B.DEPT_NAME-->
+<!--        from-->
+<!--        SYS_USER A LEFT JOIN SYS_DEPT B ON A.DEPT_ID = B.DEPT_ID-->
+<!--        left join (select acc, score  from (-->
+<!--        <foreach collection="accountList" item="item" index="index" open="(" close=")" separator="union all">-->
+<!--            SELECT-->
+<!--            #{item.account, jdbcType=BIGINT} acc,-->
+<!--            #{item.score, jdbcType=BIGINT} score-->
+<!--            FROM DUAL-->
+<!--        </foreach>-->
+<!--        ) ) C on a.USER_ACCOUNT = C.acc-->
+<!--        WHERE-->
+<!--        A.USER_ACCOUNT IN-->
+<!--        <foreach collection="accountList" item="item" index="index" open="(" close=")" separator=",">-->
+<!--            {item.account, jdbcType=BIGINT}-->
+<!--        </foreach>-->
+
+<!--        <if test="userAccount != null and userAccount != ''">-->
+<!--            <bind name="userAccount" value="'%' + userAccount + '%'"/>-->
+<!--            AND (A.USER_ACCOUNT LIKE  #{userAccount,jdbcType=VARCHAR})-->
+<!--        </if>-->
+<!--        <if test="userName != null and userName != ''">-->
+<!--            <bind name="userName" value="'%' + userName + '%'"/>-->
+<!--            AND (A.USER_NAME LIKE  #{userName,jdbcType=VARCHAR})-->
+<!--        </if>-->
+<!--    </select>-->
+</mapper>

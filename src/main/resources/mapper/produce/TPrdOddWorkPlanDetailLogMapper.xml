@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.produce.mapper.TPrdOddWorkPlanDetailLogMapper">
+
+    <sql id="commonList">
+            ID,
+            ODD_PLAN_ID,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME,
+            REPORT_START_TIME,
+            REPORT_END_TIME,
+            DURATION,
+            REMARK,
+            OPERATE_ID,
+            LOG_TYPE,
+            HOUR_METER_START,
+            HOUR_METER_END
+    </sql>
+    <select id="getList" resultType="com.yy.ppm.produce.bean.po.TPrdOddWorkPlanDetailLogPO">
+        SELECT
+        <include refid="commonList"></include>
+        FROM T_PRD_ODD_WORK_PLAN_DETAIL_LOG
+        <where>
+            OPERATE_ID = #{operateId, jdbcType=BIGINT}
+        </where>
+        ORDER BY REPORT_START_TIME ASC
+    </select>
+    <!-- 新增 -->
+    <insert id="insert">
+        INSERT ALL
+        <foreach collection="detailList" item="entity">
+            INTO T_PRD_ODD_WORK_PLAN_DETAIL_LOG(
+                ID,
+                CREATE_BY,
+                CREATE_BY_NAME,
+                CREATE_TIME,
+                ODD_PLAN_ID,
+                REPORT_START_TIME,
+                REPORT_END_TIME,
+                DURATION,
+                REMARK,
+                OPERATE_ID,
+                LOG_TYPE,
+                PARENT_ID,
+                HOUR_METER_START,
+                HOUR_METER_END
+            )
+            VALUES (
+                #{entity.id, jdbcType=BIGINT},
+                #{entity.loginUserId, jdbcType=BIGINT},
+                #{entity.loginUserName, jdbcType=VARCHAR},
+                #{entity.now},
+                #{entity.oddPlanId, jdbcType=BIGINT},
+                #{entity.reportStartTime},
+                #{entity.reportEndTime},
+                #{entity.duration, jdbcType=DECIMAL},
+                #{entity.remark, jdbcType=VARCHAR},
+                #{entity.operateId, jdbcType=BIGINT},
+                #{entity.logType, jdbcType=VARCHAR},
+                #{entity.parentId, jdbcType=BIGINT},
+                #{entity.hourMeterStart, jdbcType=DECIMAL},
+                #{entity.hourMeterEnd, jdbcType=DECIMAL}
+            )
+        </foreach>
+        SELECT 1 FROM DUAL
+    </insert>
+
+
+</mapper>

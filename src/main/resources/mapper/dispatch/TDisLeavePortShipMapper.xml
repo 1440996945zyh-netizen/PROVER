@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.dispatch.mapper.TDisLeavePortShipMapper">
+
+
+    <select id="getCostShipList" resultType="com.yy.ppm.dispatch.bean.po.TDisLeavePortCostShipPO">
+        SELECT TCSD.TAX_AMOUNT,TCSD.AMOUNT,TCSD.RATE_ITEM_CODE,
+        TCSD.RATE_ITEM_NAME,TCSD.UNIT_CODE,TCSD.UNIT_NAME,TCSD."NUMBER",TCSD.REMARK,TCSD.RATE,
+        TCSD.NUMBER2,TCSD.TAX,TCST.SHIPVOYAGE_ID
+        FROM T_COST_STATEMENT TCST
+        LEFT JOIN T_COST_STATEMENT_DETAIL TCSD ON TCST.ID = TCSD.STATEMENT
+        WHERE TCST.SHIPVOYAGE_ID =#{shipvoyageId}
+    </select>
+</mapper>

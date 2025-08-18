@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.auth.mapper.AuthMapper">
+
+    <!-- 根据用户ID获取用户角色信息 -->
+    <select id="getUserRoleById" resultType="java.lang.String">
+       SELECT
+            C.ROLE_CODE
+       FROM
+            SYS_ROLE_USER B INNER JOIN SYS_ROLE C ON B.ROLE_ID = C.ID
+       WHERE
+            B.USER_ID = #{id}
+    </select>
+
+    <select id="getUserRoleListById" resultType="java.util.HashMap">
+        SELECT
+            C.ROLE_CODE as "roleCode",
+            C.ID as "id",
+            C.DATA_SCOPE as "dataScope"
+        FROM
+            SYS_ROLE_USER B INNER JOIN SYS_ROLE C ON B.ROLE_ID = C.ID
+        WHERE
+            B.USER_ID = #{id}
+    </select>
+
+    <!-- 全部角色 -->
+    <select id="getAllUserRole" resultType="java.lang.String">
+       SELECT
+            C.ROLE_CODE
+       FROM
+            SYS_ROLE C
+    </select>
+
+    <!-- 注册用户未审核时的角色 -->
+    <select id="getUserRoleRegist" resultType="java.lang.String">
+       SELECT
+            ROLE_CODE
+       FROM
+            SYS_ROLE
+        WHERE
+            ROLE_CODE = #{roleCd}
+    </select>
+
+    <!--根据用户ID查询用户权限按钮 -->
+    <select id="getUserPermissionById" resultType="java.lang.String">
+       SELECT
+           PERMS
+       FROM
+            SYS_ROLE_USER B
+            INNER JOIN SYS_ROLE_MENU C ON B.ROLE_ID=C.ROLE_ID
+            INNER JOIN SYS_MENU D ON C.MENU_ID=D.ID
+        WHERE
+            B.USER_ID = #{id}
+            AND D.MENU_TYPE = 'F'
+            AND D.DATA_TYPE = 'PC'
+    </select>
+
+    <!--查询全部用户权限按钮 -->
+    <select id="getAllUserPermission" resultType="java.lang.String">
+       SELECT
+           PERMS
+       FROM
+            SYS_MENU D
+        WHERE
+          D.MENU_TYPE = 'F'
+          AND D.DATA_TYPE = 'PC'
+    </select>
+
+    <!-- 注册用户未审核时的资源 -->
+    <select id="getUserPermissionRegist" resultType="java.lang.String">
+        SELECT
+	        MENU_CODE
+        FROM
+	        SYS_ROLE_MENU C
+	        INNER JOIN SYS_MENU D ON C.MENU_GID = D.GID
+	        INNER JOIN SYS_ROLE E  ON E.GID = C.ROLE_GID
+        WHERE
+            D.MENU_TYPE = '3'
+            AND E.ROLE_CODE = #{roleCd}
+    </select>
+
+    <!-- 登录 -->
+    <select id="getUserInfoByAccount" resultType="com.yy.ppm.auth.bean.dto.UserInfo">
+       select
+            a.ID,
+            a.USER_ACCOUNT,
+            a.PASSWD,
+            a.USER_NAME,
+            a.DEPT_ID,
+            b.dept_name,
+            a.IS_SUPERADMIN,
+            a.POST_NAME,
+            a.MOBILE,
+            a.EMAIL,
+            a.STATUS,
+            a.PSD_UPD_DATE,
+            a.SORT_NUM,
+            a.CREATE_BY,
+            a.create_by_name,
+            a.CREATE_TIME,
+            a.UPDATE_BY,
+            a.update_BY_NAME,
+            a.UPDATE_TIME
+        from
+            sys_user a left join sys_dept b on a.dept_id = b.id
+        where
+            a.USER_ACCOUNT = #{account}
+    </select>
+    <select id="getRoleMenuByRoleId" resultType="java.lang.String">
+        SELECT
+            B.PERMS
+        FROM SYS_ROLE_MENU A
+                 LEFT JOIN SYS_MENU B ON A.MENU_ID = B.ID
+        WHERE A.ROLE_ID = #{roleId} AND B.PERMS IS NOT NULL
+    </select>
+
+</mapper>

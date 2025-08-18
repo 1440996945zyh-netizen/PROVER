@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.dispatch.mapper.TDisCloseSailShipMapper">
+
+    <sql id="commonList">
+        SELECT
+            ID,
+            CLOSE_SAIL_ID,
+            SHIPVOYAGE_ID,
+            BERTH_ID,
+            BERTH_NAME,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME
+        FROM
+            T_DIS_CLOSE_SAIL_SHIP
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.dispatch.bean.dto.TDisCloseSailShipDTO" parameterType="java.lang.Long">
+        <include refid="commonList"></include>
+    </select>
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.dispatch.bean.dto.TDisCloseSailShipDTO" parameterType="java.lang.Long">
+        SELECT
+            ID,
+            CLOSE_SAIL_ID,
+            SHIPVOYAGE_ID,
+            BERTH_ID,
+            BERTH_NAME,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME
+        FROM
+            T_DIS_CLOSE_SAIL_SHIP
+        <where>
+            id = #{id}
+        </where>
+    </select>
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.dispatch.bean.dto.TDisCloseSailShipDTO">
+        INSERT INTO T_DIS_CLOSE_SAIL_SHIP(
+                ID,
+                CLOSE_SAIL_ID,
+                SHIPVOYAGE_ID,
+                BERTH_ID,
+                BERTH_NAME,
+                CREATE_BY,
+                CREATE_BY_NAME,
+                CREATE_TIME
+        )VALUES (
+            #{id, jdbcType=BIGINT},
+            #{closeSailId, jdbcType=BIGINT},
+            #{shipvoyageId, jdbcType=BIGINT},
+            #{berthId, jdbcType=BIGINT},
+            #{berthName, jdbcType=VARCHAR},
+            #{loginUserId, jdbcType=BIGINT},
+            #{loginUserName, jdbcType=VARCHAR},
+            #{now}
+        )
+    </insert>
+    <!-- 修改 -->
+   <update id="update" parameterType="com.yy.ppm.dispatch.bean.dto.TDisCloseSailShipDTO">
+        UPDATE
+            T_DIS_CLOSE_SAIL_SHIP
+        SET
+            ID = #{id,jdbcType=BIGINT},
+            CLOSE_SAIL_ID = #{closeSailId,jdbcType=BIGINT},
+            SHIPVOYAGE_ID = #{shipvoyageId,jdbcType=BIGINT},
+            BERTH_ID = #{berthId,jdbcType=BIGINT},
+            BERTH_NAME = #{berthName,jdbcType=VARCHAR},
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+   <!-- 删除 -->
+   <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM
+            T_DIS_CLOSE_SAIL_SHIP
+        WHERE
+            id = #{id}
+    </delete>
+
+    <select id="selectBerth" parameterType="java.lang.Long" resultType="com.yy.ppm.dispatch.bean.dto.ShipVoyageDto">
+        SELECT
+            BERTH_ID,
+            BERTH_NAME
+        FROM T_DIS_SHIPVOYAGE
+        WHERE
+            ID = #{shipId, jdbcType=BIGINT}
+    </select>
+    <select id="getInfoByCloseSailId" resultType="java.lang.Long">
+        SELECT
+        SHIPVOYAGE_ID AS ID
+        FROM
+        T_DIS_CLOSE_SAIL_SHIP
+        <where>
+            CLOSE_SAIL_ID = #{closeSailId}
+        </where>
+    </select>
+</mapper>
+

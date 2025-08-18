@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.finance.mapper.FinancialSharingPlatformMapper">
+    <insert id="insert" parameterType="com.yy.ppm.finance.bean.dto.FinacialSharing.SharePlatformLogDTO">
+        INSERT INTO T_FD_SHARE_PLATFORM_LOG (OPER_ID, BUSINESS_TYPE, OPER_USER_NAME, OPER_URL, OPER_IP,
+                                             STATUS, OPER_TIME, OPER_PARAM, JSON_RESULT, ERROR_MSG, OPER_USER_ID, COST_TIME,INVOICE_ID)
+        VALUES (#{operId},
+                #{businessType,jdbcType=VARCHAR},
+                #{operUserName,jdbcType=VARCHAR},
+                #{operUrl,jdbcType=VARCHAR},
+                #{operIp,jdbcType=VARCHAR},
+                #{status,jdbcType=VARCHAR},
+                #{operTime,jdbcType=TIMESTAMP},
+                #{operParam,jdbcType=VARCHAR},
+                #{jsonResult,jdbcType=VARCHAR},
+                #{errorMsg,jdbcType=VARCHAR},
+                #{operUserId,jdbcType=VARCHAR},
+                #{costTime,jdbcType=VARCHAR},
+                #{invoiceId,jdbcType=BIGINT})
+    </insert>
+</mapper>

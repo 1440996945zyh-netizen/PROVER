@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.common.mapper.CommonMapper">
+
+    <!--根据 一个表名、一个列名、一个列值 删除数据-->
+    <delete id="delete" parameterType="java.lang.String">
+        DELETE FROM
+            ${tableName}
+        WHERE
+            ${columnName} = #{columnValue}
+    </delete>
+    <!--根据 一个表名 删除数据-->
+    <delete id="deleteAll" parameterType="java.lang.String">
+        DELETE FROM
+            ${tableName}
+    </delete>
+    <!-- 根据Gid删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM
+            ${tableName}
+        WHERE
+            ID = #{id}
+    </delete>
+
+    <!-- 根据多个Gid删除 -->
+    <delete id="deleteByIds">
+        DELETE FROM
+            ${tableName}
+        WHERE
+            ID IN (
+                <foreach collection="ids" item="id" index="index" separator=",">
+                    #{id}
+                </foreach>
+            )
+    </delete>
+
+    <select id="isDelFlagExists" resultType="int">
+        SELECT
+            COUNT( * )
+        FROM
+            USER_TAB_COLUMNS
+        WHERE
+            TABLE_NAME = upper(#{tableName})
+            AND COLUMN_NAME = 'DEL_FLAG'
+    </select>
+
+    <!--简单判断重复-->
+    <select id="checkRepeat" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT
+            count(*)
+        FROM
+            ${tableName}
+        WHERE
+            ${conditionColNm} = #{conditionColVal}
+        <if test="isDelFlagExists > 0">
+            AND DEL_FLAG = '0'
+        </if>
+        <if test="id != '' and id != null">
+            and ID != #{id}
+        </if>
+        <if test="list != null and list.size() > 0">
+            <foreach collection="list" item="item" index="index" separator=",">
+               AND ${item.key} = #{item.value}
+            </foreach>
+        </if>
+    </select>
+
+    <!--简单判断重复-->
+    <select id="isRepeat" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT
+            count(*)
+        FROM
+            ${tableName}
+        WHERE
+            ${conditionColNm} = #{conditionColVal}
+        <if test="isDelFlagExists > 0">
+            AND DEL_FLAG = '0'
+        </if>
+        <if test="id != '' and id != null">
+            and ID = #{id}
+        </if>
+        <if test="list != null and list.size() > 0">
+            <foreach collection="list" item="item" index="index" separator=",">
+               AND ${item.key} = #{item.value}
+            </foreach>
+        </if>
+    </select>
+
+    <!-- 根据表名和字段名获取该字段的下一个值 -->
+    <select id="getNextValue" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select
+            case
+            when (NVL(MAX(${columnName}), 0) + 1) > 99999999 then 99999999
+            else (NVL(MAX(${columnName}), 0) + 1)
+            end
+        FROM
+            ${tableName}
+        <where>
+            ${otherCondition}
+        </where>
+    </select>
+    <!-- 动态组合查询下拉框 -->
+    <select id="dynamicDropDownBox" parameterType="String" resultType="com.yy.ppm.common.bean.dto.SelectResultDTO">
+        SELECT DISTINCT
+            ${cd} AS CD,
+            ${nm} AS NM
+        FROM
+            ${tableName}
+        <where>
+            <if test="where != '' and where != null ">
+                ${where}
+            </if>
+        </where>
+        <if test="sort != '' and sort != null ">
+            ORDER BY
+                ${sort}
+        </if>
+    </select>
+
+    <!-- 查询行数 -->
+    <select id="getCount" resultType="java.lang.Integer">
+        SELECT
+            COUNT(*)
+         FROM
+             ${tableName}
+        WHERE
+            ${columnName} = #{columnValue}
+    </select>
+
+    <!-- 查询行数 -->
+    <select id="getCountByParentId" resultType="java.lang.Integer">
+        SELECT
+            COUNT(*)
+         FROM
+             ${tableName}
+        WHERE
+            parent_id = #{parentId}
+    </select>
+
+    <select id="getAutoNum" resultType="java.lang.String">
+        SELECT
+            <if test="parentCodeVal != '' and parentCodeVal != null ">
+                case
+                when MAX(${colName}) is null then #{parentCodeVal} || LPAD(1, #{codeLength}, '0')
+                else
+                #{parentCodeVal} || LPAD(TO_NUMBER(REGEXP_REPLACE(MAX(${colName}), #{parentCodeVal}, '', 1, 1)) + 1, #{codeLength}, '0')
+                end
+            </if>
+            <if test="parentCodeVal == '' or parentCodeVal == null ">
+                case
+                when MAX(${colName}) is null then #{like} || LPAD(1, #{codeLength}, '0')
+                else
+                #{like} || LPAD(TO_NUMBER(LPAD(REGEXP_REPLACE(MAX(${colName}), #{like}, '', 1, 1),#{codeLength}, '0')) + 1, #{codeLength}, '0')
+                end
+            </if>
+        FROM
+            ${tableName}
+        WHERE
+            1=1
+            <if test='like != "" '>
+                AND ${colName} like  #{like} || '%'
+            </if>
+            <if test="newCodeLength != '' and newCodeLength != null">
+                AND length(${colName}) = #{newCodeLength}
+            </if>
+            <if test="parentCodeVal != '' and parentCodeVal != null ">
+                AND ${parentColName} = #{parentCodeVal}
+            </if>
+    </select>
+</mapper>

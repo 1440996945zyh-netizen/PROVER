@@ -1,0 +1,756 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.business.mapper.TBusCargoMixMapper">
+
+    <select id="listPortStorage" resultType="com.yy.ppm.business.bean.dto.TBusCargoMix.TPrdPortStorageDTO">
+        SELECT TPPSD.CARGO_INFO_ID,
+               TPPSD.STOREHOUSE_ID,
+               TPPSD.REGION_ID,
+               TPPSD.MASS_ID,
+               TBCI.CARGO_INFO_NO,
+               TPPSD.STOREHOUSE_NAME,
+               TPPSD.REGION_NAME,
+               TPPSD.MASS_NAME,
+               TPPSD.TON
+        FROM (SELECT CARGO_INFO_ID,
+                     STOREHOUSE_ID,
+                     REGION_ID,
+                     MASS_ID,
+                     STOREHOUSE_NAME,
+                     REGION_NAME,
+                     MASS_NAME,
+                     SUM(TON) TON
+              FROM T_PRD_PORT_STORAGE_DETAIL
+              WHERE CLEAN_MASS_SIGN = '0'
+               <if test="mixRecordId != null">
+                    or CARGO_INFO_ID IN (select TBCMD.CARGO_INFO_ID
+                    from T_BUS_CARGO_MIX_RECORD TBCMR left join T_BUS_CARGO_MIX_DETAIL TBCMD  on TBCMR.id = TBCMD.MIX_RECORD_ID where TBCMR.ID = #{mixRecordId,jdbcType=BIGINT}
+                    )
+                </if>
+              GROUP BY CARGO_INFO_ID, STOREHOUSE_ID, REGION_ID, MASS_ID, STOREHOUSE_NAME, REGION_NAME, MASS_NAME) TPPSD
+                 JOIN T_BUS_CARGO_INFO TBCI ON TPPSD.CARGO_INFO_ID = TBCI.ID
+        WHERE (TBCI.IS_CLEAR = '0' and (TBCI.IS_LOGOUT != 10  or TBCI.IS_LOGOUT is null)
+           <if test="mixRecordId != null">
+                or TBCI.ID IN (select TBCMD.CARGO_INFO_ID
+               from T_BUS_CARGO_MIX_RECORD TBCMR left join T_BUS_CARGO_MIX_DETAIL TBCMD  on TBCMR.id = TBCMD.MIX_RECORD_ID where TBCMR.ID = #{mixRecordId,jdbcType=BIGINT}
+               )
+            </if>
+      ) AND TBCI.CARGO_OWNER_ID = #{cargoOwnerId,jdbcType=BIGINT}
+        ORDER BY TBCI.CARGO_INFO_NO, TPPSD.STOREHOUSE_NAME, TPPSD.REGION_NAME, TPPSD.MASS_NAME
+    </select>
+
+    <resultMap id="contracts" type="java.util.Map">
+        <result column="cargoInfoId" property="cargoInfoId" javaType="java.lang.Long"/>
+        <result column="contractId" property="contractId" javaType="java.lang.Long"/>
+        <result column="contractNo" property="contractNo" javaType="java.lang.String"/>
+        <result column="freeStorageDays" property="freeStorageDays" javaType="java.lang.Integer"/>
+    </resultMap>
+
+    <select id="contracts" resultMap="contracts">
+        SELECT
+        TBCI.ID "cargoInfoId",
+        TBC.ID "contractId",
+        TBC.CONTACT_NO "contractNo",
+        TBCR.FREE_STORAGE_DAYS "freeStorageDays"
+        FROM
+        T_BUS_CARGO_INFO TBCI
+        JOIN T_BUS_CONTRACT TBC ON TBCI.CARGO_OWNER_ID = TBC.CUSTOMER_ID
+        JOIN T_BUS_CONTRACT_RATE TBCR
+        ON (TBCR.TYPE = '10' AND TBCR.RATE_ITEM_CODE = 'MS00240' AND TBC.ID = TBCR.CONTRACT_ID AND TBCI.CARGO_CODE =
+        TBCR.CARGO_CODE)
+        WHERE TBC.STATUS = '20'
+        AND
+        <foreach collection="firstInDates" open="(" close=")" separator="OR" item="item">
+            (
+            #{item.firstInDate,jdbcType=DATE} >= TBC.START_TIME AND #{item.firstInDate,jdbcType=DATE} &lt;= TBC.END_TIME
+            AND TBCI.ID = #{item.cargoInfoId, jdbcType=BIGINT}
+            )
+        </foreach>
+    </select>
+
+    <insert id="insertCargoMixRecord" parameterType="com.yy.ppm.business.bean.po.TBusCargoMixRecordPO">
+        INSERT INTO T_BUS_CARGO_MIX_RECORD(ID, CARGO_OWNER_ID, CARGO_CODE, STOREHOUSE_ID, REGION_ID, MASS_ID,
+                                           CARGO_INFO_ID, MIX_WEIGHT, MIX_TIME, STATUS, CREATE_BY, CREATE_BY_NAME,
+                                           CREATE_TIME, UPDATE_BY, UPDATE_BY_NAME, UPDATE_TIME,
+                                           SHIPVOYAGE_ITEM_ID,SHIPVOYAGE_ID,SHIP_NAME,VOYAGE,IS_BILLING)
+        VALUES (#{id, jdbcType=BIGINT}, #{cargoOwnerId, jdbcType=BIGINT}, #{cargoCode, jdbcType=VARCHAR},
+                #{storehouseId, jdbcType=BIGINT}, #{regionId, jdbcType=BIGINT}, #{massId, jdbcType=BIGINT},
+                #{cargoInfoId, jdbcType=BIGINT}, #{mixWeight, jdbcType=DECIMAL}, #{mixTime, jdbcType=TIMESTAMP},
+                #{status, jdbcType=VARCHAR}, #{loginUserId, jdbcType=VARCHAR}, #{loginUserName, jdbcType=VARCHAR},
+                #{now, jdbcType=TIMESTAMP}, #{updateBy, jdbcType=VARCHAR}, #{updateByName, jdbcType=VARCHAR},
+                #{updateTime, jdbcType=TIMESTAMP},
+                #{shipvoyageItemId},#{shipvoyageId},#{shipName},#{voyage},#{isBilling})
+    </insert>
+
+    <insert id="insertCargoMixDetail">
+        INSERT ALL
+        <foreach collection="details" item="detail">
+            INTO T_BUS_CARGO_MIX_DETAIL(ID, MIX_RECORD_ID, CARGO_INFO_ID, STOREHOUSE_ID, REGION_ID, MASS_ID, MIX_WEIGHT,
+            CONTRACT_ID, FREE_STORAGE_DAYS, REMAIN_FREE_STORAGE_DAYS, CREATE_BY, CREATE_BY_NAME, CREATE_TIME, UPDATE_BY,
+            UPDATE_BY_NAME, UPDATE_TIME)
+            VALUES (#{detail.id, jdbcType=BIGINT}, #{detail.mixRecordId, jdbcType=BIGINT},
+            #{detail.cargoInfoId, jdbcType=BIGINT}, #{detail.storehouseId, jdbcType=BIGINT},
+            #{detail.regionId, jdbcType=BIGINT}, #{detail.massId, jdbcType=BIGINT},
+            #{detail.mixWeight, jdbcType=DECIMAL}, #{detail.contractId, jdbcType=BIGINT},
+            #{detail.freeStorageDays, jdbcType=INTEGER}, #{detail.remainFreeStorageDays, jdbcType=INTEGER},
+            #{detail.loginUserId, jdbcType=VARCHAR}, #{detail.loginUserName, jdbcType=VARCHAR},
+            #{detail.now, jdbcType=TIMESTAMP}, #{detail.updateBy, jdbcType=VARCHAR},
+            #{detail.updateByName, jdbcType=VARCHAR}, #{detail.updateTime, jdbcType=TIMESTAMP})
+        </foreach>
+        SELECT 1 FROM DUAL
+    </insert>
+
+    <resultMap id="listMix" type="com.yy.ppm.business.bean.dto.TBusCargoMix.TBusCargoMixRecordDTO">
+        <result column="ID" property="id"/>
+        <result column="CARGO_OWNER_ID" property="cargoOwnerId"/>
+        <result column="CARGO_CODE" property="cargoCode"/>
+        <result column="STOREHOUSE_ID" property="storehouseId"/>
+        <result column="REGION_ID" property="regionId"/>
+        <result column="MASS_ID" property="massId"/>
+        <result column="CARGO_INFO_ID" property="cargoInfoId"/>
+        <result column="MIX_WEIGHT" property="mixWeight"/>
+        <result column="MIX_TIME" property="mixTime"/>
+        <result column="STATUS" property="status"/>
+        <result column="CREATE_BY" property="createBy"/>
+        <result column="CREATE_BY_NAME" property="createByName"/>
+        <result column="CREATE_TIME" property="createTime"/>
+        <result column="UPDATE_BY" property="updateBy"/>
+        <result column="UPDATE_BY_NAME" property="updateByName"/>
+        <result column="UPDATE_TIME" property="updateTime"/>
+        <result column="CARGO_INFO_NO" property="cargoInfoNo"/>
+        <result column="STOREHOUSE_NAME" property="storehouseName"/>
+        <result column="REGION_NAME" property="regionName"/>
+        <result column="MASS_NAME" property="massName"/>
+        <result column="STATUS_LABEL" property="statusLabel"/>
+    </resultMap>
+
+    <select id="listMix" resultMap="listMix">
+        SELECT TBCMR.ID,
+        TBCMR.CARGO_OWNER_ID,
+        TBCMR.CARGO_CODE,
+        TBCMR.STOREHOUSE_ID,
+        TBCMR.REGION_ID,
+        TBCMR.MASS_ID,
+        TBCMR.CARGO_INFO_ID,
+        TBCMR.MIX_WEIGHT,
+        TBCMR.MIX_TIME,
+        TBCMR.STATUS,
+        TBCMR.CREATE_BY,
+        TBCMR.CREATE_BY_NAME,
+        TBCMR.CREATE_TIME,
+        TBCMR.UPDATE_BY,
+        TBCMR.UPDATE_BY_NAME,
+        TBCMR.UPDATE_TIME,
+        TBCI.CARGO_INFO_NO,
+        MSY.STOREHOUSE_NAME,
+        MSY.REGION_NAME,
+        MSY.MASS_NAME,
+        CASE
+        WHEN TBCMR.STATUS = '10' THEN '未审核'
+        ELSE (CASE WHEN TBCMR.STATUS = '20' THEN '已审核' END) END STATUS_LABEL
+        FROM T_BUS_CARGO_MIX_RECORD TBCMR
+        LEFT JOIN T_BUS_CARGO_INFO TBCI ON TBCMR.CARGO_INFO_ID = TBCI.ID
+        JOIN (SELECT L1.ID STOREHOUSE_ID,
+        L1.STORAGE_YARD_NM STOREHOUSE_NAME,
+        L2.ID REGION_ID,
+        L2.STORAGE_YARD_NM REGION_NAME,
+        L3.ID MASS_ID,
+        L3.STORAGE_YARD_NM MASS_NAME
+        FROM M_STORAGE_YARD L1
+        LEFT JOIN M_STORAGE_YARD L2 ON L2.STORAGE_YARD_LEVEL = '2' AND L1.ID = L2.PARENT_ID
+        LEFT JOIN M_STORAGE_YARD L3 ON L3.STORAGE_YARD_LEVEL = '3' AND L2.ID = L3.PARENT_ID
+        WHERE L1.STORAGE_YARD_LEVEL = '1') MSY
+        ON (TBCMR.STOREHOUSE_ID = MSY.STOREHOUSE_ID AND TBCMR.REGION_ID = MSY.REGION_ID AND
+        TBCMR.MASS_ID = MSY.MASS_ID)
+        <where>
+            <if test="cargoInfoNo != null and cargoInfoNo != ''">
+                AND ( TBCI.CARGO_INFO_NO LIKE #{cargoInfoNo,jdbcType=VARCHAR} OR ( (SELECT COUNT(*) FROM
+                T_BUS_CARGO_MIX_DETAIL TBCMD JOIN T_BUS_CARGO_INFO TBCI ON TBCMD.CARGO_INFO_ID = TBCI.ID WHERE TBCMR.ID
+                = TBCMD.MIX_RECORD_ID AND TBCI.CARGO_INFO_NO = #{cargoInfoNo,jdbcType=VARCHAR}) > 0 ) )
+            </if>
+        </where>
+        ORDER BY TBCMR.CREATE_TIME DESC
+    </select>
+
+    <resultMap id="getMix" type="com.yy.ppm.business.bean.dto.TBusCargoMix.TBusCargoMixRecordDTO">
+        <result column="TBCMR_ID" property="id"/>
+        <result column="TBCMR_CARGO_OWNER_ID" property="cargoOwnerId"/>
+        <result column="TBCMR_CARGO_CODE" property="cargoCode"/>
+        <result column="TBCMR_STOREHOUSE_ID" property="storehouseId"/>
+        <result column="TBCMR_REGION_ID" property="regionId"/>
+        <result column="TBCMR_MASS_ID" property="massId"/>
+        <result column="TBCMR_CARGO_INFO_ID" property="cargoInfoId"/>
+        <result column="TBCMR_MIX_WEIGHT" property="mixWeight"/>
+        <result column="TBCMR_MIX_TIME" property="mixTime"/>
+        <result column="TBCMR_STATUS" property="status"/>
+        <result column="TBCMR_CREATE_BY" property="createBy"/>
+        <result column="TBCMR_CREATE_BY_NAME" property="createByName"/>
+        <result column="TBCMR_CREATE_TIME" property="createTime"/>
+        <result column="TBCMR_UPDATE_BY" property="updateBy"/>
+        <result column="TBCMR_UPDATE_BY_NAME" property="updateByName"/>
+        <result column="TBCMR_UPDATE_TIME" property="updateTime"/>
+        <result column="TBCMR_UPDATE_TIME" property="updateTime"/>
+        <result column="SHIPVOYAGE_ID" property="shipvoyageId"/>
+        <result column="SHIPVOYAGE_ITEM_ID" property="shipvoyageItemId"/>
+        <result column="SHIP_NAME" property="shipName"/>
+        <result column="VOYAGE" property="voyage"/>
+        <result column="IS_BILLING" property="isBilling"/>
+        <collection property="details" ofType="com.yy.ppm.business.bean.po.TBusCargoMixDetailPO">
+            <result column="TBCMD_ID" property="id"/>
+            <result column="TBCMD_MIX_RECORD_ID" property="mixRecordId"/>
+            <result column="TBCMD_CARGO_INFO_ID" property="cargoInfoId"/>
+            <result column="TBCMD_STOREHOUSE_ID" property="storehouseId"/>
+            <result column="TBCMD_REGION_ID" property="regionId"/>
+            <result column="TBCMD_MASS_ID" property="massId"/>
+            <result column="TBCMD_MIX_WEIGHT" property="mixWeight"/>
+            <result column="TBCMD_CONTRACT_ID" property="contractId"/>
+            <result column="TBCMD_FREE_STORAGE_DAYS" property="freeStorageDays"/>
+            <result column="TBCMD_REMAIN_FREE_STORAGE_DAYS" property="remainFreeStorageDays"/>
+            <result column="TBCMD_CREATE_BY" property="createBy"/>
+            <result column="TBCMD_CREATE_BY_NAME" property="createByName"/>
+            <result column="TBCMD_CREATE_TIME" property="createTime"/>
+            <result column="TBCMD_UPDATE_BY" property="updateBy"/>
+            <result column="TBCMD_UPDATE_BY_NAME" property="updateByName"/>
+            <result column="TBCMD_UPDATE_TIME" property="updateTime"/>
+        </collection>
+    </resultMap>
+
+    <select id="getMix" resultMap="getMix">
+        SELECT TBCMR.ID                       TBCMR_ID,
+               TBCMR.CARGO_OWNER_ID           TBCMR_CARGO_OWNER_ID,
+               TBCMR.CARGO_CODE               TBCMR_CARGO_CODE,
+               TBCMR.STOREHOUSE_ID            TBCMR_STOREHOUSE_ID,
+               TBCMR.REGION_ID                TBCMR_REGION_ID,
+               TBCMR.MASS_ID                  TBCMR_MASS_ID,
+               TBCMR.CARGO_INFO_ID            TBCMR_CARGO_INFO_ID,
+               TBCMR.MIX_WEIGHT               TBCMR_MIX_WEIGHT,
+               TBCMR.MIX_TIME                 TBCMR_MIX_TIME,
+               TBCMR.STATUS                   TBCMR_STATUS,
+               TBCMR.CREATE_BY                TBCMR_CREATE_BY,
+               TBCMR.CREATE_BY_NAME           TBCMR_CREATE_BY_NAME,
+               TBCMR.CREATE_TIME              TBCMR_CREATE_TIME,
+               TBCMR.UPDATE_BY                TBCMR_UPDATE_BY,
+               TBCMR.UPDATE_BY_NAME           TBCMR_UPDATE_BY_NAME,
+               TBCMR.UPDATE_TIME              TBCMR_UPDATE_TIME,
+               TBCMR.SHIPVOYAGE_ITEM_ID       SHIPVOYAGE_ITEM_ID,
+               TBCMR.SHIPVOYAGE_ID            SHIPVOYAGE_ID,
+               TBCMR.SHIP_NAME                SHIP_NAME,
+               TBCMR.VOYAGE                   VOYAGE,
+               TBCMR.IS_BILLING               IS_BILLING,
+               TBCMD.ID                       TBCMD_ID,
+               TBCMD.MIX_RECORD_ID            TBCMD_MIX_RECORD_ID,
+               TBCMD.CARGO_INFO_ID            TBCMD_CARGO_INFO_ID,
+               TBCMD.STOREHOUSE_ID            TBCMD_STOREHOUSE_ID,
+               TBCMD.REGION_ID                TBCMD_REGION_ID,
+               TBCMD.MASS_ID                  TBCMD_MASS_ID,
+               TBCMD.MIX_WEIGHT               TBCMD_MIX_WEIGHT,
+               TBCMD.CONTRACT_ID              TBCMD_CONTRACT_ID,
+               TBCMD.FREE_STORAGE_DAYS        TBCMD_FREE_STORAGE_DAYS,
+               TBCMD.REMAIN_FREE_STORAGE_DAYS TBCMD_REMAIN_FREE_STORAGE_DAYS,
+               TBCMD.CREATE_BY                TBCMD_CREATE_BY,
+               TBCMD.CREATE_BY_NAME           TBCMD_CREATE_BY_NAME,
+               TBCMD.CREATE_TIME              TBCMD_CREATE_TIME,
+               TBCMD.UPDATE_BY                TBCMD_UPDATE_BY,
+               TBCMD.UPDATE_BY_NAME           TBCMD_UPDATE_BY_NAME,
+               TBCMD.UPDATE_TIME              TBCMD_UPDATE_TIME
+        FROM T_BUS_CARGO_MIX_RECORD TBCMR
+                 JOIN T_BUS_CARGO_MIX_DETAIL TBCMD ON TBCMR.ID = TBCMD.MIX_RECORD_ID
+        WHERE TBCMR.ID = #{id,jdbcType=BIGINT}
+    </select>
+
+    <delete id="deleteCargoMixRecord">
+        DELETE
+        FROM T_BUS_CARGO_MIX_RECORD
+        WHERE ID = #{id,jdbcType=BIGINT}
+    </delete>
+
+    <delete id="deleteCargoMixDetail">
+        DELETE
+        FROM T_BUS_CARGO_MIX_DETAIL
+        WHERE MIX_RECORD_ID = #{mixRecordId,jdbcType=BIGINT}
+    </delete>
+
+    <select id="listCargoInfo" resultType="com.yy.ppm.business.bean.po.TBusCargoInfoPO">
+        SELECT ID,
+        SHIPVOYAGE_ID,
+        SHIPVOYAGE_ITEM_ID,
+        SCN,
+        SHIP_NAME,
+        CARGO_INFO_NO,
+        CARGO_OWNER_ID,
+        CARGO_OWNER_NAME,
+        CARGO_AGENT_ID,
+        CARGO_AGENT_NAME,
+        CARGO_CODE,
+        CARGO_NAME,
+        TRADE_TYPE,
+        PACKING_CODE,
+        PACKING_NAME,
+        COMPANY_ID,
+        COMPANY_NAME,
+        PARENT_ID,
+        ROOT_ID,
+        QUANTITY,
+        TON,
+        RIGHTS_QUANTITY,
+        SURPLUS_RIGHTS_QUANTITY,
+        IS_CLEAR,
+        CLEAR_BY,
+        CLEAR_BY_NAME,
+        CLEAR_DATE,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME,
+        SOURCE,
+        STATEMENT_STATUS_CODE,
+        STATEMENT_STATUS_NAME,
+        TRUST_ID,
+        CONTRACT_ITEM_ID,
+        CONTRACT_CODE,
+        VOYAGE,
+        STORAGE_DATE,
+        RESIDUE_STORAGE,
+        TRANSFER_DATE,
+        YSPHH,
+        JSZT,
+        TOS_CARGO_ID,
+        CDH,
+        IS_TOS
+        FROM T_BUS_CARGO_INFO
+        WHERE ID IN
+        <foreach collection="cargoInfoIds" open="(" close=")" separator=", " item="cargoInfoId">
+            #{cargoInfoId,jdbcType=BIGINT}
+        </foreach>
+    </select>
+
+    <resultMap id="listFirstInDate" type="java.util.Map">
+        <result column="cargoInfoId" property="cargoInfoId" javaType="java.lang.Long"/>
+        <result column="firstInDate" property="firstInDate" javaType="java.util.Date"/>
+    </resultMap>
+
+    <select id="listFirstInDate" resultMap="listFirstInDate">
+        SELECT TBCI.ID "cargoInfoId",
+        CASE
+        WHEN (TBCI.IS_TOS = '卸船' OR TBT.TYPE = '卸船') THEN TO_DATE(TO_CHAR(TDSI.WORK_START_TIME, 'yyyy-mm-dd'),
+        'yyyy-mm-dd')
+        WHEN (TBCI.IS_TOS = '集港' OR TBT.TYPE = '集港') THEN JG.FIRST_IN_DATE
+        WHEN TBCI.ROOT_ID IS NOT NULL THEN TBCI.TRANSFER_DATE
+        WHEN TBCI.SOURCE = '50' THEN TO_DATE(TO_CHAR(TBCMR.MIX_TIME, 'yyyy-mm-dd'), 'yyyy-mm-dd')
+        END "firstInDate"
+        FROM T_BUS_CARGO_INFO TBCI
+        LEFT JOIN T_BUS_TRUST TBT ON TBCI.TRUST_ID = TBT.ID
+        LEFT JOIN (SELECT TEMP.CARGO_INFO_ID,
+        TO_DATE(TO_CHAR(MIN(TEMP.WEIGH_OUT_DT), 'yyyy-mm-dd'), 'yyyy-mm-dd') FIRST_IN_DATE
+        FROM (SELECT TEMP.CARGO_INFO_ID, VWI.WEIGH_OUT_DT
+        FROM (SELECT TBTC.BUSINESS_NO, TBTC.CARGO_INFO_ID
+        FROM T_BUS_TRUST_CARGO TBTC
+        JOIN T_BUS_TRUST TBT ON TBTC.TRUST_ID = TBT.ID AND TBT.TYPE IN ('集港', '拆箱集港')) TEMP
+        JOIN V_WEIGHT_INFO VWI ON VWI.IS_OLD = '否' AND TEMP.BUSINESS_NO = VWI.PLAN_NO
+        UNION ALL
+        SELECT TO_NUMBER(VWI2.CARGO_INFO_ID), VWI2.WEIGH_OUT_DT
+        FROM V_WEIGHT_INFO VWI2
+        WHERE VWI2.IS_OLD = '是'
+        AND VWI2.PLAN_TYPE IN ('集港', '拆箱集港')) TEMP
+        GROUP BY TEMP.CARGO_INFO_ID) JG ON TBCI.ID = JG.CARGO_INFO_ID
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM TDSI ON TBT.SHIPVOYAGE_ITEM_ID = TDSI.ID
+        LEFT JOIN T_BUS_CARGO_MIX_RECORD TBCMR ON TBCI.ID = TBCMR.CARGO_INFO_ID
+        WHERE TBCI.ID IN
+        <foreach collection="cargoInfoIds" item="cargoInfoId" separator=", " close=")" open="(">
+            #{cargoInfoId,jdbcType=BIGINT}
+        </foreach>
+    </select>
+
+    <select id="getCargoNameByCode" resultType="java.lang.String">
+        SELECT CARGO_NAME
+        FROM M_CARGO
+        WHERE DEL_FLAG = '0'
+          AND CARGO_CODE = #{cargoCode,jdbcType=VARCHAR}
+    </select>
+
+    <insert id="insertCargoInfo" parameterType="com.yy.ppm.business.bean.po.TBusCargoInfoPO">
+        INSERT INTO T_BUS_CARGO_INFO(ID, SHIPVOYAGE_ID, SHIPVOYAGE_ITEM_ID, SCN, SHIP_NAME, CARGO_INFO_NO,
+                                     CARGO_OWNER_ID, CARGO_OWNER_NAME, CARGO_AGENT_ID, CARGO_AGENT_NAME, CARGO_CODE,
+                                     CARGO_NAME, TRADE_TYPE, PACKING_CODE, PACKING_NAME, COMPANY_ID, COMPANY_NAME,
+                                     PARENT_ID, ROOT_ID, QUANTITY, TON, RIGHTS_QUANTITY, SURPLUS_RIGHTS_QUANTITY,
+                                     IS_CLEAR, CLEAR_BY, CLEAR_BY_NAME, CLEAR_DATE, CREATE_BY, CREATE_BY_NAME,
+                                     CREATE_TIME, UPDATE_BY, UPDATE_BY_NAME, UPDATE_TIME, SOURCE, STATEMENT_STATUS_CODE,
+                                     STATEMENT_STATUS_NAME, TRUST_ID, CONTRACT_ITEM_ID, CONTRACT_CODE, VOYAGE,
+                                     STORAGE_DATE, RESIDUE_STORAGE, TRANSFER_DATE, YSPHH, JSZT, TOS_CARGO_ID, CDH,
+                                     IS_TOS, MIX_FREE_STORAGE_DAYS)
+        VALUES (#{id, jdbcType=BIGINT}, #{shipvoyageId, jdbcType=BIGINT}, #{shipvoyageItemId, jdbcType=BIGINT},
+                #{scn, jdbcType=VARCHAR}, #{shipName, jdbcType=VARCHAR}, #{cargoInfoNo, jdbcType=VARCHAR},
+                #{cargoOwnerId, jdbcType=BIGINT}, #{cargoOwnerName, jdbcType=VARCHAR}, #{cargoAgentId, jdbcType=BIGINT},
+                #{cargoAgentName, jdbcType=VARCHAR}, #{cargoCode, jdbcType=VARCHAR}, #{cargoName, jdbcType=VARCHAR},
+                #{tradeType, jdbcType=VARCHAR}, #{packingCode, jdbcType=VARCHAR}, #{packingName, jdbcType=VARCHAR},
+                #{companyId, jdbcType=BIGINT}, #{companyName, jdbcType=VARCHAR}, #{parentId, jdbcType=BIGINT},
+                #{rootId, jdbcType=BIGINT}, #{quantity, jdbcType=INTEGER}, #{ton, jdbcType=DECIMAL},
+                #{rightsQuantity, jdbcType=DECIMAL}, #{surplusRightsQuantity, jdbcType=DECIMAL},
+                #{isClear, jdbcType=VARCHAR}, #{clearBy, jdbcType=BIGINT}, #{clearByName, jdbcType=VARCHAR},
+                #{clearDate, jdbcType=TIMESTAMP}, #{loginUserId, jdbcType=BIGINT}, #{loginUserName, jdbcType=VARCHAR},
+                #{now, jdbcType=TIMESTAMP}, #{updateBy, jdbcType=BIGINT}, #{updateByName, jdbcType=VARCHAR},
+                #{updateTime, jdbcType=TIMESTAMP}, #{source, jdbcType=VARCHAR},
+                #{statementStatusCode, jdbcType=VARCHAR}, #{statementStatusName, jdbcType=VARCHAR},
+                #{trustId, jdbcType=BIGINT}, #{contractItemId, jdbcType=VARCHAR}, #{contractCode, jdbcType=VARCHAR},
+                #{voyage, jdbcType=VARCHAR}, #{storageDate, jdbcType=TIMESTAMP}, #{residueStorage, jdbcType=INTEGER},
+                #{transferDate, jdbcType=TIMESTAMP}, #{ysphh, jdbcType=VARCHAR}, #{jszt, jdbcType=VARCHAR},
+                #{tosCargoId, jdbcType=VARCHAR}, #{cdh, jdbcType=VARCHAR}, #{isTos, jdbcType=VARCHAR},
+                #{mixFreeStorageDays, jdbcType=INTEGER})
+    </insert>
+
+    <update id="updateCargoInfoSurplusRightsQuantity">
+        BEGIN
+        <foreach collection="cargoInfos" item="cargoInfo">
+            UPDATE T_BUS_CARGO_INFO
+            SET SURPLUS_RIGHTS_QUANTITY = SURPLUS_RIGHTS_QUANTITY - #{cargoInfo.surplusRightsQuantity,jdbcType=DECIMAL},
+            UPDATE_BY = #{cargoInfo.loginUserId,jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{cargoInfo.loginUserName,jdbcType=VARCHAR},
+            UPDATE_TIME = #{cargoInfo.now,jdbcType=TIMESTAMP}
+            WHERE ID = #{cargoInfo.id,jdbcType=BIGINT};
+        </foreach>
+        END;
+    </update>
+
+    <delete id="deleteCargoInfo">
+        DELETE
+        FROM T_BUS_CARGO_INFO
+        WHERE ID = #{id,jdbcType=BIGINT}
+    </delete>
+
+    <select id="listPortStorageDetail" resultType="com.yy.ppm.produce.bean.po.TPrdPortStorageDetailPO">
+        SELECT ID,
+        PORT_STORAGE_ID,
+        CARGO_INFO_ID,
+        WORK_DATE,
+        CLASS_CODE,
+        CLASS_NAME,
+        PROCESS_DETAIL_CODE,
+        PROCESS_DETAIL_NAME,
+        STOREHOUSE_ID,
+        STOREHOUSE_NAME,
+        REGION_ID,
+        REGION_NAME,
+        MASS_ID,
+        MASS_NAME,
+        QUANTITY,
+        TON,
+        INOUT_TYPE,
+        INOUT_STORAGE_CODE,
+        INOUT_STORAGE_NAME,
+        WORK_TICKET_ID,
+        WORK_TICKET_DETAIL_ID,
+        CARGO_TALLY_ID,
+        CARGO_TALLY_DETAIL_ID,
+        INOUT_DATE,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME,
+        COMPANY_ID,
+        COMPANY_NAME,
+        CLEAN_MASS_SIGN,
+        CLEAN_MASS_BY,
+        CLEAN_MASS_BY_NAME,
+        CLEAN_MASS_TIME,
+        CARGO_TRANSFER_ID
+        FROM T_PRD_PORT_STORAGE_DETAIL
+        WHERE (
+        CARGO_MIX_RECORD_ID IN
+        <foreach collection="cargoMixRecordIds" item="cargoMixRecordId" separator=", " close=")" open="(">
+            #{cargoMixRecordId,jdbcType=BIGINT}
+        </foreach>
+        OR CARGO_MIX_DETAIL_ID IN
+        <foreach collection="cargoMixRecordIds" item="cargoMixRecordId" separator=", " close=")" open="(">
+            #{cargoMixRecordId,jdbcType=BIGINT}
+        </foreach>
+        )
+    </select>
+
+    <update id="updateMixCargoInfoIdStatus">
+        UPDATE T_BUS_CARGO_MIX_RECORD
+        SET CARGO_INFO_ID = #{cargoInfoId,jdbcType=BIGINT},
+            STATUS        = #{status,jdbcType=VARCHAR}
+        WHERE ID = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="getStorageSettle" resultType="com.yy.ppm.statement.bean.po.TCostStorageSettlePO">
+        SELECT ID,
+               COMPANY_ID,
+               COMPANY_NAME,
+               SHIPVOYAGE_ID,
+               SHIPVOYAGE_ITEM_ID,
+               CARGO_OWNER_ID,
+               CARGO_OWNER_NAME,
+               CARGO_INFO_ID,
+               HANDOVERLIST_ID,
+               CONTRACT_ID,
+               RATE,
+               FREE_STORAGE_DAYS,
+               AMOUNT,
+               START_DATE,
+               END_DATE,
+               STATUS,
+               REVIEW_BY,
+               REVIEW_BY_NAME,
+               REVIEW_BY_TIME,
+               CREATE_BY,
+               CREATE_BY_NAME,
+               CREATE_TIME,
+               UPDATE_BY,
+               UPDATE_BY_NAME,
+               UPDATE_TIME,
+               CONTRACT_RATE_ID,
+               TAX,
+               TAX_AMOUNT
+        FROM T_COST_STORAGE_SETTLE
+        WHERE CARGO_INFO_ID = #{cargoInfoId,jdbcType=BIGINT}
+    </select>
+
+    <select id="listTransferCargoInfo" resultType="com.yy.ppm.business.bean.po.TBusCargoInfoPO">
+        SELECT ID,
+               SHIPVOYAGE_ID,
+               SHIPVOYAGE_ITEM_ID,
+               SCN,
+               SHIP_NAME,
+               CARGO_INFO_NO,
+               CARGO_OWNER_ID,
+               CARGO_OWNER_NAME,
+               CARGO_AGENT_ID,
+               CARGO_AGENT_NAME,
+               CARGO_CODE,
+               CARGO_NAME,
+               TRADE_TYPE,
+               PACKING_CODE,
+               PACKING_NAME,
+               COMPANY_ID,
+               COMPANY_NAME,
+               PARENT_ID,
+               ROOT_ID,
+               QUANTITY,
+               TON,
+               RIGHTS_QUANTITY,
+               SURPLUS_RIGHTS_QUANTITY,
+               IS_CLEAR,
+               CLEAR_BY,
+               CLEAR_BY_NAME,
+               CLEAR_DATE,
+               CREATE_BY,
+               CREATE_BY_NAME,
+               CREATE_TIME,
+               UPDATE_BY,
+               UPDATE_BY_NAME,
+               UPDATE_TIME,
+               SOURCE,
+               STATEMENT_STATUS_CODE,
+               STATEMENT_STATUS_NAME,
+               TRUST_ID,
+               CONTRACT_ITEM_ID,
+               CONTRACT_CODE,
+               VOYAGE,
+               STORAGE_DATE,
+               RESIDUE_STORAGE,
+               TRANSFER_DATE,
+               YSPHH,
+               JSZT,
+               TOS_CARGO_ID,
+               CDH,
+               IS_TOS
+        FROM T_BUS_CARGO_INFO
+        WHERE PARENT_ID = #{parentId,jdbcType=BIGINT}
+    </select>
+
+    <select id="listTrustCargo" resultType="com.yy.ppm.business.bean.po.TBusTrustCargoPO">
+        SELECT ID,
+               TRUST_ID,
+               CARGO_INFO_ID,
+               DIRECTION,
+               QUANTITY,
+               TON,
+               CREATE_BY,
+               CREATE_BY_NAME,
+               CREATE_TIME,
+               UPDATE_BY,
+               UPDATE_BY_NAME,
+               UPDATE_TIME,
+               CARGO_OWNER_ID,
+               CARGO_OWNER_NAME,
+               CARGO_AGENT_ID,
+               CARGO_AGENT_NAME,
+               CARGO_CODE,
+               CARGO_NAME,
+               PACKING_CODE,
+               PACKING_NAME,
+               BHT_ID,
+               WORK_ACCOMPANYING_ID,
+               CONTRACT_ID,
+               CONTRACT_RATE_ID,
+               RATE,
+               EST_AMOUNT,
+               CONTRACT_NAME,
+               BUSINESS_NO,
+               HATCHS,
+               PRINT_POUND_ID,
+               PRINT_POUND_NUM,
+               IS_SECOND_WEIGH,
+               STATUS,
+               INNERTRANSPORT_TYPE,
+               BANG_CUSTOMER,
+               RATE_LABEL,
+               CONSIGNER_ID,
+               CONSIGNER_NAME,
+               TRANSPORT_TYPE,
+               EMPTY_WEIGHT,
+               HEAVY_WEIGHT,
+               IS_RULE,
+               IS_TOS,
+               PHH,
+               CDH,
+               IS_CEREAL
+        FROM T_BUS_TRUST_CARGO
+        WHERE CARGO_INFO_ID = #{cargoInfoId,jdbcType=BIGINT}
+    </select>
+
+    <select id="listCargoMixDetail" resultType="com.yy.ppm.business.bean.po.TBusCargoMixDetailPO">
+        SELECT ID,
+               MIX_RECORD_ID,
+               CARGO_INFO_ID,
+               STOREHOUSE_ID,
+               REGION_ID,
+               MASS_ID,
+               MIX_WEIGHT,
+               CONTRACT_ID,
+               FREE_STORAGE_DAYS,
+               REMAIN_FREE_STORAGE_DAYS,
+               CREATE_BY,
+               CREATE_BY_NAME,
+               CREATE_TIME,
+               UPDATE_BY,
+               UPDATE_BY_NAME,
+               UPDATE_TIME
+        FROM T_BUS_CARGO_MIX_DETAIL
+        WHERE CARGO_INFO_ID = #{cargoInfoId,jdbcType=BIGINT}
+    </select>
+    <select id="getShipWorkStartTime" resultType="java.lang.String">
+        select TO_DATE(TO_CHAR(TDSI.WORK_START_TIME, 'yyyy-mm-dd'), 'yyyy-mm-dd')
+        FROM T_BUS_CARGO_INFO t
+                 LEFT JOIN T_DIS_SHIPVOYAGE_ITEM TDSI ON t.SHIPVOYAGE_ITEM_ID = TDSI.ID
+        where t.ID = #{cargoInfoId}
+    </select>
+    <select id="getJGTimeByCargoInfoId" resultType="java.lang.String">
+        select
+            TO_DATE(TO_CHAR(MIN(WEIGH_IN_DT), 'yyyy-mm-dd'), 'yyyy-mm-dd')
+        from V_WEIGHT_INFO
+        where PLAN_TYPE = '集港'
+          and CARGO_INFO_ID = #{cargoInfoId}
+        GROUP BY CARGO_INFO_ID
+    </select>
+    <select id="getShipVoyageInfo" resultType="com.yy.ppm.dispatch.bean.dto.ShipVoyageDto">
+        select
+               TDS.ID SHIPVOYAGE_ID,
+               TDS.SHIP_NAME,
+               TDSI.ID,
+               TDSI.VOYAGE
+        from T_DIS_SHIPVOYAGE_ITEM TDSI
+                 left join T_DIS_SHIPVOYAGE TDS on TDSI.SHIPVOYAGE_ID = TDS.ID
+        where TDSI.ID = #{id,jdbcType=BIGINT}
+    </select>
+    <select id="getBusRate" resultType="com.yy.ppm.business.bean.dto.TBusRateDTO">
+        select TBR.id,
+               TBR.rate,
+               TBR.process_code,
+               TBR.tax_rate/100 tax_rate,
+               TBR.rate_item_code,
+               TBR.rate_item_name,
+               MDD.DICT_VALUE "measurementUnitCode1",
+               MDD.DICT_LABEL "measurementUnitName1"
+        from T_BUS_RATE TBR
+        left join M_DICT_DATA  MDD on
+            (MDD.DICT_TYPE = 'UNIT' and mdd.DICT_VALUE = TBR.MEASUREMENT_UNIT_CODE1  )
+        where TBR.RATE_ITEM_CODE = '02' and TBR.PROCESS_CODE = #{processCd}
+    </select>
+    <insert id="insertMiscBilling" parameterType="com.yy.ppm.statement.bean.po.TMiscBillingPO">
+        INSERT INTO
+            T_MISC_BILLING (
+            ID,
+            RATE_ITEM_CODE,
+            RATE_NAME,
+            RATE,
+            TAX_RATE,
+            BILL_DATE,
+            VOYAGE_ID,
+            SHIP_VOYAGE,
+            BILL_QUANTITY,
+            AMOUNT_MONEY,
+            TAX_AMOUNT,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+
+            CUSTOMER_ID,
+            STATUS,
+
+            COMPANY_ID,
+            COMPANY_NAME,
+            RATE_ID,
+
+            UNIT_CODE,
+            UNIT_NAME,
+            PROCESS_CODE,
+            PROCESS_NAME,
+            CARGO_INFO_ID,
+            IS_CARGO_MIX
+        )
+        VALUES
+            (
+                #{id},
+                #{rateItemCode},
+                #{rateName},
+                #{rate},
+                #{taxRate},
+                #{billDate},
+                #{voyageId},
+                #{shipVoyage},
+                #{billQuantity},
+                #{amountMoney},
+                #{taxAmount},
+                #{loginUserId},
+                #{loginUserName},
+                #{now},
+
+                #{customerId},
+                #{status},
+
+                #{companyId},
+                #{companyName},
+                #{rateId},
+
+                #{unitCode},
+                #{unitName},
+                #{processCode},
+                #{processName},
+                #{cargoInfoId},
+                #{isCargoMix}
+            )
+    </insert>
+    <select id="getMisnFee" resultType="com.yy.ppm.statement.bean.po.TMiscBillingPO">
+        select *
+        from t_misc_billing
+        where process_code = #{processCd} and cargo_info_id = #{id} and is_cargo_mix = '1'
+    </select>
+    <delete id="deleteMiscFee">
+        delete from t_misc_billing where is_cargo_mix = '1' and id = #{id} and cargo_info_id = #{cargoInfoId}
+    </delete>
+    <select id="getStorageCargoStackTon" resultType="map"
+            parameterType="com.yy.ppm.business.bean.po.TBusCargoMixDetailPO">
+        select TBCI.CARGO_INFO_NO "cargoInfoNo",tppsd.REGION_NAME "regionName",tppsd.MASS_NAME "massName",sum(tppsd.TON) "ton"
+        from T_PRD_PORT_STORAGE_DETAIL tppsd
+                 left join T_BUS_CARGO_INFO TBCI on tppsd.CARGO_INFO_ID = TBCI.ID
+        where tppsd.id is not null and tppsd.CARGO_INFO_ID = #{cargoInfoId,jdbcType=BIGINT}
+          and tppsd.MASS_ID = #{massId,jdbcType=BIGINT}
+        group by TBCI.CARGO_INFO_NO,tppsd.REGION_NAME,tppsd.MASS_NAME
+    </select>
+</mapper>

@@ -1,0 +1,283 @@
+#basic
+server:
+  port: 9092
+  servlet:
+    context-path: /dev-api
+
+#druid
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    # 动态数据源文档 https://www.kancloud.cn/tracy5546/dynamic-datasource/content
+    dynamic:
+      # 性能分析插件(有性能损耗 不建议生产环境使用)
+      p6spy: false
+      # 设置默认的数据源或者数据源组,默认值即为 master
+      primary: master
+      # 严格模式 匹配不到数据源则报错
+      strict: true
+      datasource:
+        # 主库数据源
+        master:
+          driverClassName: oracle.jdbc.OracleDriver
+          # jdbc 所有参数配置参考 https://lionli.blog.csdn.net/article/details/122018562
+          # rewriteBatchedStatements=true 批处理优化 大幅提升批量插入更新删除性能(对数据库有性能损耗 使用批量操作应考虑性能问题)
+          username: WFG_PORTMIS
+          password: Wfg@0923
+          url: jdbc:oracle:thin:@//172.18.2.6:1521/sdgswfg
+        # 能耗
+        energy:
+          driverClassName: oracle.jdbc.OracleDriver
+          url: jdbc:oracle:thin:@//10.180.51.26:1521/ORCL
+          username: bhweam
+          password: Cft1Yjm9
+        # 能耗
+        bhtnewdb:
+          driverClassName: oracle.jdbc.OracleDriver
+          url: jdbc:oracle:thin:@//10.180.51.26:1521/ORCL
+          username: bhweam
+          password: Cft1Yjm9
+        # 过磅
+        # simeauto:
+        #   driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+        #   url: jdbc:sqlserver://172.29.61.99:1433;database=simeauto;trustServerCertificate=true
+        #   username: sa
+        #   password: DB@simeauto
+        #   druid:
+        #     validationQuery: SELECT 1
+        # eport:
+        #   driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+        #   url: jdbc:sqlserver://172.29.61.103:1433;database=eport;trustServerCertificate=true
+        #   username: sa
+        #   password: Eport@2018
+        #   druid:
+        #     validationQuery: SELECT 1
+      druid:
+        # 初始连接数
+        initialSize: 32
+        # 最小连接池数量
+        minIdle: 32
+        # 最大连接池数量
+        maxActive: 128
+        # 配置获取连接等待超时的时间
+        maxWait: 15000
+        # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+        timeBetweenEvictionRunsMillis: 3000
+        # 配置一个连接在池中最小生存的时间，单位是毫秒
+        minEvictableIdleTimeMillis: 300000
+        # 配置一个连接在池中最大生存的时间，单位是毫秒
+        maxEvictableIdleTimeMillis: 900000
+        # 配置检测连接是否有效 避免 mysql空闲8小时断开连接
+        #        validationQuery: SELECT 1
+        #        testWhileIdle: true
+        #        testOnBorrow: false
+        #        testOnReturn: false
+        # 注意这个值和druid原生不一致，默认启动了stat
+        filters: stat
+  #    driver-class-name: oracle.jdbc.OracleDriver
+  #    #  oracle.jdbc.OracleDriver  net.sf.log4jdbc.DriverSpy
+  #    druid:
+  #      name: wfppm
+  #      master:
+  #        username: WFPORT
+  #        password: wfport
+  #  #      url: jdbc:oracle:thin:@(DESCRIPTION =(ADDRESS = (PROTOCOL = TCP)(HOST = 49.233.67.104)(PORT = 1521))(CONNECT_DATA =(SERVER = DEDICATED)(SERVICE_NAME = orcl)))
+  #        url: jdbc:oracle:thin:@(DESCRIPTION =(ADDRESS = (PROTOCOL = TCP)(HOST = 42.120.10.45)(PORT = 1521))(CONNECT_DATA =(SERVER = DEDICATED)(SERVICE_NAME = orcl)))
+  #      slave:
+  #        # 从数据源开关/默认关闭
+  #        enabled: true
+  #        username: WFPORT
+  #        password: wfport
+  #        url: jdbc:oracle:thin:@(DESCRIPTION =(ADDRESS = (PROTOCOL = TCP)(HOST = 42.120.10.45)(PORT = 1521))(CONNECT_DATA =(SERVER = DEDICATED)(SERVICE_NAME = orcl)))
+  #      async-init: true
+  #      initial-size: 8
+  #      max-active: 32
+  #      min-idle: 8
+  #      max-wait: 2000
+  #      # 配置连接超时时间
+  #      connect-timeout: 30000
+  #      # 配置网络超时时间
+  #      socket-timeout: 60000
+  #      use-unfair-lock: true
+  #      pool-prepared-statements: true
+  #      max-open-prepared-statements: 32
+  #      time-between-eviction-runs-millis: 5000
+  #      min-evictable-idle-time-millis: 600000
+  #      max-evictable-idle-time-millis: 900000
+  #      validation-query: SELECT 1 FROM DUAL
+  #      test-on-borrow: false
+  #      test-while-idle: true
+  #      test-on-return: false
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 120MB #单个文件最大大小
+      max-request-size: 500MB #上传数据总大小
+  application:
+    name: dev-api
+  redis:
+    client-name: wfppm
+    password: Rever168
+    database: 0
+    host: 127.0.0.1
+    timeout: 3000
+    lettuce:
+      shutdown-timeout: 2000
+      pool:
+        max-active: 8
+        max-idle: 4
+        min-idle: 1
+        max-wait: 200
+        time-between-eviction-runs: 120000
+    port: 6380
+  # mq
+#  rabbitmq:
+#    # 虚拟机
+#    virtual-host: /
+#    host: 127.0.0.1
+#    port: 5672
+#    username: guest
+#    password: guest
+#    listener:
+#      simple:
+#        # 初始化并发数量
+#        concurrency: 10
+#        # 设置并发最大数量
+#        max-concurrency: 20
+
+
+#mybatis
+mybatis:
+  mapper-locations: classpath*:mapper/**/*Mapper.xml
+  type-aliases-package: com.yy.ppm.bean
+  configuration:
+    map-underscore-to-camel-case: true
+    call-setters-on-nulls: true
+#mybatis-plus
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*Mapper.xml
+  typeAliasesPackage: com.yy.ppm.**.model
+  configuration:
+    mapUnderscoreToCamelCase: true
+    call-setters-on-nulls: true
+    jdbc-type-for-null: 'null'
+
+#cros
+cros:
+  config:
+    pathPattern: /**
+    origins: '*'
+    allowMethods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - OPTIONS
+    exposedHeaders:
+      - token
+      - content-disposition
+    allowHeaders:
+      - token
+      - content-disposition
+      - x-requested-with
+    maxAge: 86400
+    allowCredentials: true
+
+# Swagger配置 add by yy
+swagger:
+  # 是否开启swagger
+  enabled: true
+  # 请求前缀
+  pathMapping: /dev-api
+  # 项目相关配置
+  project:
+    # 名称
+    name: 济南扬奕Java开发平台V1.0
+    # 版本
+    version: 1.0.0
+    # 版权年份
+    copyrightYear: 2023
+    #作者
+    contact: 济南扬奕软件开发有限公司
+
+#扬奕云配置参数
+yy:
+  #token过期时间
+  token:
+    expires: 480
+  mqSwitch: 1
+  whiteList:
+    accounts:
+      - admin
+      - test
+      - wfkjgs511
+      - superme
+      - xielinqi
+    urls:
+      - /api/internal/login
+      - /api/internal/loginApp
+      - /api/internal/loginApplet
+      - /api/internal/loginRunPlie
+      - /api/internal/sysVersion/getVersion
+      - /api/internal/sysVersion/downloadApp
+      - /api/internal/sysVersion/downloadMacApp
+      - /api/internal/sysVersion/downloadRunPileApp
+#minio
+minio:
+  url: 127.0.0.1
+  port: 9000
+  accessKey: rever
+  secretKey: rever168
+  connectTimeout: 30
+  writeTimeout: 30
+  readTimeout: 30
+  secure: false
+
+service:
+  url: 172.18.5.223
+
+#snowflake 配置雪花算法的workId IP地址需要替换成服务器地址  在com.port.common.snowflake包中使用
+snowflake:
+  ipdz: {
+    "[172.18.5.223]": "1"
+  }
+
+#log
+logging:
+  level:
+    com.yy.ppm.mappers: debug
+
+deploy:
+  env: prd
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,env,metrics
+  endpoint:
+    health:
+      show-details: always
+
+#pagehelper
+pagehelper:
+  reasonable: true
+  #分页插件会自动检测当前的数据库链接，自动选择合适的分页方式
+  auto-dialect: true
+  #默认值为 false。设置为 true 时，允许在运行时根据多数据源自动识别对应方言的分页
+  auto-runtime-dialect: true
+
+ftp:
+  host: 172.29.61.9
+  port: 21
+  username: WSDP
+  password: abc@123
+  localTempPath: F:/tmp/
+  customsCode: 4310
+  unitCode: 91370700778433376A
+  unitName: 潍坊森达美有限公司
+  saveFilePath: /
+# 吨包理货接口
+dblh:
+  url: http://172.18.20.235:8000

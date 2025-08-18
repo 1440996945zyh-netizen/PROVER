@@ -1,0 +1,492 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.statement.mapper.TCostShipWaterElectricityMapper">
+
+    <resultMap id="listTrust" type="com.yy.ppm.statement.bean.dto.costShipWaterElectricity.TBusTrustDTO">
+        <result property="id" column="ID" jdbcType="BIGINT"/>
+        <result property="shipvoyageId" column="SHIPVOYAGE_ID" jdbcType="BIGINT"/>
+        <result property="shipvoyageItemId" column="SHIPVOYAGE_ITEM_ID" jdbcType="BIGINT"/>
+        <result property="companyId" column="COMPANY_ID" jdbcType="BIGINT"/>
+        <result property="companyName" column="COMPANY_NAME" jdbcType="VARCHAR"/>
+        <result property="customerId" column="CUSTOMER_ID" jdbcType="BIGINT"/>
+        <result property="customerName" column="CUSTOMER_NAME" jdbcType="VARCHAR"/>
+        <result property="processCode" column="PROCESS_CODE" jdbcType="VARCHAR"/>
+        <result property="processName" column="PROCESS_NAME" jdbcType="VARCHAR"/>
+        <result property="shipNameVoyage" column="SHIP_NAME_VOYAGE" jdbcType="VARCHAR"/>
+        <result property="berthName" column="BERTH_NAME" jdbcType="VARCHAR"/>
+        <result property="tradeType" column="TRADE_TYPE" jdbcType="VARCHAR"/>
+        <result property="netWeight" column="NET_WEIGHT" jdbcType="DECIMAL"/>
+        <result property="berthTime" column="BERTH_TIME" jdbcType="TIMESTAMP"/>
+        <result property="leaveBerthTime" column="LEAVE_BERTH_TIME" jdbcType="TIMESTAMP"/>
+        <result property="statementNo" column="STATEMENT_NO" jdbcType="VARCHAR"/>
+        <result property="createByName" column="CREATE_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="status" column="STATUS" jdbcType="VARCHAR"/>
+        <result property="statusLabel" column="STATUS_LABEL" jdbcType="VARCHAR"/>
+        <result property="statementStatus" column="STATEMENT_STATUS" jdbcType="VARCHAR"/>
+        <result property="shipCustomerId" column="SHIP_CUSTOMER_ID" jdbcType="VARCHAR"/>
+        <result property="shipCustomerName" column="SHIP_CUSTOMER_NAME" jdbcType="VARCHAR"/>
+        <result property="workAreaCd" column="WORK_AREA_CD" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="listTrust" parameterType="com.yy.ppm.statement.bean.dto.costShipWaterElectricity.TBusTrustQueryDTO" resultMap="listTrust">
+
+        SELECT
+        TBT.ID,
+        TBT.COMPANY_ID,
+        TBT.COMPANY_NAME,
+        TBT.CUSTOMER_ID,
+        TBT.CUSTOMER_NAME,
+        TBT.PROCESS_CODE,
+        TBT.PROCESS_NAME,
+        CASE WHEN TDSI.ID IS NOT NULL THEN TDS.SHIP_NAME || '_' || TDSI.VOYAGE END SHIP_NAME_VOYAGE,
+        CASE WHEN TDS.LEAVE_PORT_TIME IS NOT NULL THEN '1' ELSE '2' END "isLeave",
+        TDS.LEAVE_PORT_TIME,
+        TDS.BERTH_NAME,
+        TDS.ID AS SHIPVOYAGE_ID,
+        TDSI.ID AS SHIPVOYAGE_ITEM_ID,
+        TDSI.TRADE_TYPE,
+        MS.NET_WEIGHT,
+        TDS.BERTH_TIME,
+        TDS.LEAVE_BERTH_TIME,
+        ( SELECT STATEMENT_NO FROM T_COST_STATEMENT TC_STATEMENT JOIN T_COST_STATEMENT_DETAIL TCSD ON TC_STATEMENT.ID =
+        TCSD.STATEMENT JOIN T_COST_SHIP TC_SHIP ON (TC_SHIP.TYPE = '20' AND TCSD.BUSINESS_ID = TC_SHIP.ID) WHERE
+        TC_STATEMENT."TYPE" = '40' AND TBT.ID = TC_SHIP.TRUST_ID AND
+        ROWNUM &lt;= 1 ) STATEMENT_NO,
+        ( SELECT CREATE_BY_NAME FROM T_COST_SHIP TCS WHERE TCS."TYPE" = '20' AND TBT.ID = TCS.TRUST_ID AND ROWNUM
+        &lt;=
+        1 ) CREATE_BY_NAME,
+        ( SELECT CREATE_TIME FROM T_COST_SHIP TCS WHERE TCS."TYPE" = '20' AND TBT.ID = TCS.TRUST_ID AND ROWNUM &lt;=
+        1
+        ) CREATE_TIME,
+        TBT.STATUS,
+        MDD_TRUST_STATUS.DICT_LABEL STATUS_LABEL,
+        CASE WHEN ( SELECT COUNT(1) FROM T_COST_SHIP TCS WHERE TCS."TYPE" = '20' AND TBT.ID = TCS.TRUST_ID ) &lt; 1 THEN
+        '00'
+        ELSE (
+        CASE WHEN
+        (SELECT MAX(TCST.ID) FROM T_COST_STATEMENT TCST
+        INNER JOIN T_COST_STATEMENT_DETAIL TCSD ON TCST.ID = TCSD.STATEMENT
+        INNER JOIN T_COST_SHIP TCS ON TCSD.BUSINESS_ID = TCS.ID
+        WHERE TCS."TYPE" = '20' AND TCST.STATUS IN ('40','50')
+        AND TBT.ID = TCS.TRUST_ID) IS NOT NULL
+        THEN
+        (SELECT TO_CHAR(MAX(TCST.STATUS)) FROM T_COST_STATEMENT TCST WHERE TCST.ID IN (
+        SELECT STATEMENT FROM T_COST_STATEMENT_DETAIL TCSD
+        INNER JOIN T_COST_SHIP TCS ON TCSD.BUSINESS_ID = TCS.ID
+        WHERE TCS."TYPE" = '20' AND TBT.ID = TCS.TRUST_ID
+        ))
+        ELSE
+        ( SELECT TO_CHAR(STATUS) FROM T_COST_SHIP TCS WHERE TCS."TYPE" = '20' AND TBT.ID = TCS.TRUST_ID AND ROWNUM &lt; 2 )
+        END
+        )
+        END STATEMENT_STATUS,
+        TDSI.CUSTOMER_ID AS SHIP_CUSTOMER_ID,
+        TDSI.CUSTOMER_NAME AS SHIP_CUSTOMER_NAME,
+        MDD.DICT_LABEL AS WORK_AREA_CD
+        FROM
+        T_BUS_TRUST TBT
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM TDSI ON TBT.SHIPVOYAGE_ITEM_ID = TDSI.ID
+        JOIN T_DIS_SHIPVOYAGE TDS ON TDSI.SHIPVOYAGE_ID = TDS.ID
+        JOIN M_SHIP MS ON TDS.SHIP_ID = MS.ID
+        JOIN M_DICT_DATA MDD_TRUST_STATUS ON ( MDD_TRUST_STATUS.DICT_TYPE = 'TRUST_STATUS' AND TBT.STATUS =
+        MDD_TRUST_STATUS.DICT_VALUE )
+        LEFT JOIN M_BERTH MB ON TDS.BERTH_ID = MB.ID
+        LEFT JOIN M_DICT_DATA MDD ON MDD.DICT_TYPE = 'WORK_AREA' AND MDD.DICT_VALUE = MB.WORK_AREA_CD
+        <where>
+            AND TBT.PROCESS_NAME IN ( '船舶加水', '接电' )
+            <if test="status != null and status != ''">
+                AND TBT.STATUS = #{status, jdbcType=VARCHAR}
+            </if>
+            <if test="shipvoyageItemId != null">
+                AND TDSI.ID = #{shipvoyageItemId,jdbcType=BIGINT}
+            </if>
+            <if test="companyId != null">
+                AND TBT.COMPANY_ID = #{companyId,jdbcType=BIGINT}
+            </if>
+            <if test="customerId != null">
+                AND TDSI.CUSTOMER_ID = #{customerId,jdbcType=BIGINT}
+            </if>
+            <if test="shipStatusCode != null and shipStatusCode != ''">
+                AND TDS.SHIP_STATUS_CODE = #{shipStatusCode,jdbcType=VARCHAR}
+            </if>
+            <if test="beginLeaveBerthTime != null">
+                AND TDS.LEAVE_BERTH_TIME >= #{beginLeaveBerthTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="endLeaveBerthTime != null">
+                AND TDS.LEAVE_BERTH_TIME &lt;= #{endLeaveBerthTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="isLeavePort == '0'.toString()">
+                AND TDS.SHIP_STATUS_CODE != '120'
+            </if>
+            <if test="isLeavePort == '1'.toString()">
+                AND TDS.SHIP_STATUS_CODE = '120'
+            </if>
+            <if test="beginLeavePortTime != null">
+                AND TDS.LEAVE_PORT_TIME >= #{beginLeavePortTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="endLeavePortTime != null">
+                AND TDS.LEAVE_PORT_TIME &lt;= #{endLeavePortTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="shipName!=null and shipName !=''">
+                <bind name="shipName_like" value="'%'+shipName+'%'"/>
+                AND TDS.SHIP_NAME LIKE #{shipName_like}
+            </if>
+            <if test="voyage!=null and voyage !=''">
+                <bind name="voyage_like" value="'%'+voyage+'%'"/>
+                AND TDSI.VOYAGE LIKE #{voyage_like}
+            </if>
+            <if test="statementStatus == '00'.toString() or statementStatus == '10'.toString() or statementStatus == '20'.toString()">
+                AND TBT.ID
+                <if test="statementStatus == '00'.toString()">
+                    NOT
+                </if>
+                IN (SELECT TCS.TRUST_ID FROM T_COST_SHIP TCS WHERE TCS."TYPE" = '20'
+                    AND TCS.TRUST_ID IS NOT NULL
+                    <if test="statementStatus != '00'.toString()">AND TCS.STATUS =#{statementStatus,jdbcType=VARCHAR}
+                    </if>
+                    <if test="statementStatus == '20'.toString()">
+                        AND TCS.ID NOT IN (
+                            SELECT TCSD.BUSINESS_ID FROM T_COST_STATEMENT TCST
+                            INNER JOIN T_COST_STATEMENT_DETAIL TCSD ON TCST.ID = TCSD.STATEMENT
+                            WHERE TCST.STATUS IN ('40','50') AND TCSD.BUSINESS_ID IS NOT NULL
+                        )
+                    </if>
+                )
+            </if>
+            <if test="statementStatus == '40'.toString() or statementStatus == '50'.toString()">
+                AND TBT.ID
+                IN (
+                SELECT TCS.TRUST_ID FROM T_COST_STATEMENT TCST
+                INNER JOIN T_COST_STATEMENT_DETAIL TCSD ON TCST.ID = TCSD.STATEMENT
+                INNER JOIN T_COST_SHIP TCS ON TCSD.BUSINESS_ID = TCS.ID
+                WHERE TCS.TYPE = '20' AND TCST.STATUS = #{statementStatus,jdbcType=VARCHAR}
+                )
+            </if>
+            <if test="isCentre !=null">
+                <choose>
+                    <when test="isCentre == 1">
+                        AND MB.WORK_AREA_CD = '02'
+                    </when>
+                    <when test="isCentre == 0">
+                        AND (MB.WORK_AREA_CD = '01' OR MB.WORK_AREA_CD = '03')
+                    </when>
+                    <otherwise>
+
+                    </otherwise>
+                </choose>
+            </if>
+
+        </where>
+        ORDER BY LEAVE_PORT_TIME DESC
+    </select>
+
+    <resultMap id="listWaterElectricity"
+               type="com.yy.ppm.statement.bean.dto.costShipWaterElectricity.TPrdWaterElectricityDTO">
+        <result property="id" column="ID" jdbcType="BIGINT"/>
+        <result property="shipvoyageId" column="SHIPVOYAGE_ID" jdbcType="BIGINT"/>
+        <result property="processCode" column="PROCESS_CODE" jdbcType="VARCHAR"/>
+        <result property="processName" column="PROCESS_NAME" jdbcType="VARCHAR"/>
+        <result property="quantity" column="QUANTITY" jdbcType="DECIMAL"/>
+        <result property="startTime" column="START_TIME" jdbcType="TIMESTAMP"/>
+        <result property="createByName" column="CREATE_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="fileIds" column="FILE_IDS" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="listWaterElectricity" resultMap="listWaterElectricity">
+        SELECT TPWE.ID,
+               TPWE.PROCESS_CODE,
+               TPWE.PROCESS_NAME,
+               TPWE.QUANTITY,
+               TPWE.START_TIME,
+               TPWE.SHIPVOYAGE_ID,
+               TPWE.CREATE_BY_NAME,
+               TPWE.CREATE_TIME,
+               LISTAGG(SFB.FILE_ID, ',') WITHIN GROUP ( ORDER BY SFB.FILE_ID ) FILE_IDS
+        FROM T_PRD_WATER_ELECTRICITY TPWE
+                 LEFT JOIN SYS_FILE_BUSINESS SFB ON TPWE.ID = SFB.BUSINESS_ID
+        WHERE TPWE.TRUST_ID = #{trustId,jdbcType=BIGINT}
+        GROUP BY TPWE.ID,
+                 TPWE.PROCESS_CODE,
+                 TPWE.PROCESS_NAME,
+                 TPWE.QUANTITY,
+                 TPWE.START_TIME,
+                 TPWE.SHIPVOYAGE_ID,
+                 CREATE_BY_NAME,
+                 TPWE.CREATE_TIME
+        ORDER BY TPWE.START_TIME
+    </select>
+
+    <resultMap id="listRate" type="com.yy.ppm.business.bean.po.TBusRatePO">
+        <result property="id" column="ID" jdbcType="BIGINT"/>
+        <result property="rateId" column="RAET_ID" jdbcType="BIGINT"/>
+        <result property="rateItemCode" column="RATE_ITEM_CODE" jdbcType="VARCHAR"/>
+        <result property="rateItemName" column="RATE_ITEM_NAME" jdbcType="VARCHAR"/>
+        <result property="serviceContentId" column="SERVICE_CONTENT_ID" jdbcType="BIGINT"/>
+        <result property="serviceContentName" column="SERVICE_CONTENT_NAME" jdbcType="VARCHAR"/>
+        <result property="processCode" column="PROCESS_CODE" jdbcType="VARCHAR"/>
+        <result property="processName" column="PROCESS_NAME" jdbcType="VARCHAR"/>
+        <result property="cargoCode" column="CARGO_CODE" jdbcType="VARCHAR"/>
+        <result property="cargoName" column="CARGO_NAME" jdbcType="VARCHAR"/>
+        <result property="inteFore" column="INTE_FORE" jdbcType="VARCHAR"/>
+        <result property="rate" column="RATE" jdbcType="DECIMAL"/>
+        <result property="taxRate" column="TAX_RATE" jdbcType="DECIMAL"/>
+        <result property="measurementUnitCode1" column="MEASUREMENT_UNIT_CODE1" jdbcType="VARCHAR"/>
+        <result property="measurementUnitName1" column="MEASUREMENT_UNIT_NAME1" jdbcType="VARCHAR"/>
+        <result property="measurementUnitCode2" column="MEASUREMENT_UNIT_CODE2" jdbcType="VARCHAR"/>
+        <result property="status" column="STATUS" jdbcType="VARCHAR"/>
+        <result property="startDate" column="START_DATE" jdbcType="TIMESTAMP"/>
+        <result property="endDate" column="END_DATE" jdbcType="TIMESTAMP"/>
+        <result property="remark" column="REMARK" jdbcType="VARCHAR"/>
+        <result property="createBy" column="CREATE_BY" jdbcType="BIGINT"/>
+        <result property="createByName" column="CREATE_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="UPDATE_BY" jdbcType="BIGINT"/>
+        <result property="updateByName" column="UPDATE_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="updateTime" column="UPDATE_TIME" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <select id="listRate" resultMap="listRate">
+        SELECT TBR.ID,
+               TBR.ID AS RAET_ID,
+               TBR.RATE_ITEM_CODE,
+               TBR.RATE_ITEM_NAME,
+               TBR.SERVICE_CONTENT_ID,
+               TBR.SERVICE_CONTENT_NAME,
+               TBR.PROCESS_CODE,
+               TBR.PROCESS_NAME,
+               TBR.CARGO_CODE,
+               TBR.CARGO_NAME,
+               TBR.INTE_FORE,
+               TBR.RATE,
+               TBR.TAX_RATE,
+               TBR.MEASUREMENT_UNIT_CODE1,
+               MDD_UNIT.DICT_LABEL MEASUREMENT_UNIT_NAME1,
+               TBR.MEASUREMENT_UNIT_CODE2,
+               TBR.STATUS,
+               TBR.START_DATE,
+               TBR.END_DATE,
+               TBR.REMARK,
+               TBR.CREATE_BY,
+               TBR.CREATE_BY_NAME,
+               TBR.CREATE_TIME,
+               TBR.UPDATE_BY,
+               TBR.UPDATE_BY_NAME,
+               TBR.UPDATE_TIME
+        FROM T_BUS_RATE TBR
+                 JOIN M_DICT_DATA MDD_UNIT
+                      ON (MDD_UNIT.DICT_TYPE = 'UNIT' AND TBR.MEASUREMENT_UNIT_CODE1 = MDD_UNIT.DICT_VALUE)
+        WHERE TBR.STATUS = '10'
+          AND (TBR.RATE_ITEM_CODE IN ('MS00287', 'MS00276', 'MS00308','MS00288'))
+    </select>
+
+    <resultMap id="listCostShip" type="com.yy.ppm.statement.bean.po.TCostShipPO">
+        <result property="id" column="ID" jdbcType="BIGINT"/>
+        <result property="rateId" column="RATE_ID" jdbcType="BIGINT"/>
+        <result property="type" column="TYPE" jdbcType="VARCHAR"/>
+        <result property="shipvoyageId" column="SHIPVOYAGE_ID" jdbcType="BIGINT"/>
+        <result property="shipvoyageItemId" column="SHIPVOYAGE_ITEM_ID" jdbcType="BIGINT"/>
+        <result property="trustId" column="TRUST_ID" jdbcType="BIGINT"/>
+        <result property="number" column="NUMBER" jdbcType="INTEGER"/>
+        <result property="rateItemCode" column="RATE_ITEM_CODE" jdbcType="VARCHAR"/>
+        <result property="rateItemName" column="RATE_ITEM_NAME" jdbcType="VARCHAR"/>
+        <result property="rate" column="RATE" jdbcType="DECIMAL"/>
+        <result property="taxRate" column="TAX_RATE" jdbcType="DECIMAL"/>
+        <result property="unitCode" column="UNIT_CODE" jdbcType="VARCHAR"/>
+        <result property="unitName" column="UNIT_NAME" jdbcType="VARCHAR"/>
+        <result property="amount" column="AMOUNT" jdbcType="DECIMAL"/>
+        <result property="taxAmount" column="TAX_AMOUNT" jdbcType="DECIMAL"/>
+        <result property="status" column="STATUS" jdbcType="VARCHAR"/>
+        <result property="remark" column="REMARK" jdbcType="VARCHAR"/>
+        <result property="createBy" column="CREATE_BY" jdbcType="BIGINT"/>
+        <result property="createByName" column="CREATE_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="UPDATE_BY" jdbcType="BIGINT"/>
+        <result property="updateByName" column="UPDATE_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="updateTime" column="UPDATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="companyId" column="COMPANY_ID" jdbcType="BIGINT"/>
+        <result property="companyName" column="COMPANY_NAME" jdbcType="VARCHAR"/>
+        <result property="customerId" column="CUSTOMER_ID" jdbcType="BIGINT"/>
+        <result property="customerName" column="CUSTOMER_NAME" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="listCostShip" resultMap="listCostShip">
+        SELECT ID,
+               TYPE,
+               SHIPVOYAGE_ID,
+               SHIPVOYAGE_ITEM_ID,
+               TRUST_ID,
+               "NUMBER",
+               RATE_ITEM_CODE,
+               RATE_ITEM_NAME,
+               RATE,
+               TAX_RATE,
+               UNIT_CODE,
+               UNIT_NAME,
+               AMOUNT,
+               TAX_AMOUNT,
+               STATUS,
+               REMARK,
+               CREATE_BY,
+               CREATE_BY_NAME,
+               CREATE_TIME,
+               UPDATE_BY,
+               UPDATE_BY_NAME,
+               UPDATE_TIME,
+               COMPANY_ID,
+               COMPANY_NAME,
+               CUSTOMER_ID,
+               CUSTOMER_NAME,
+               RATE_ID
+        FROM T_COST_SHIP
+        WHERE TRUST_ID = #{trustId,jdbcType=BIGINT}
+    </select>
+
+    <insert id="insertCostShip">
+        INSERT ALL
+        <foreach collection="costShips" item="entity">
+            INTO T_COST_SHIP(ID, TYPE, SHIPVOYAGE_ID,SHIPVOYAGE_ITEM_ID, TRUST_ID, "NUMBER", RATE_ITEM_CODE, RATE_ITEM_NAME, RATE,
+            TAX_RATE,
+            UNIT_CODE, UNIT_NAME, AMOUNT, TAX_AMOUNT, STATUS, REMARK, CREATE_BY, CREATE_BY_NAME, CREATE_TIME, UPDATE_BY,
+            UPDATE_BY_NAME, UPDATE_TIME, COMPANY_ID, COMPANY_NAME, CUSTOMER_ID, CUSTOMER_NAME,RATE_ID )
+            VALUES
+            (#{entity.id, jdbcType=BIGINT}, #{entity.type, jdbcType=VARCHAR}, #{entity.shipvoyageId, jdbcType=BIGINT},
+            #{entity.shipvoyageItemId, jdbcType=BIGINT},
+            #{entity.trustId, jdbcType=BIGINT}, #{entity.number, jdbcType=INTEGER},
+            #{entity.rateItemCode, jdbcType=VARCHAR}, #{entity.rateItemName, jdbcType=VARCHAR},
+            #{entity.rate, jdbcType=DECIMAL}, #{entity.taxRate, jdbcType=DECIMAL}, #{entity.unitCode, jdbcType=VARCHAR},
+            #{entity.unitName, jdbcType=VARCHAR}, #{entity.amount, jdbcType=DECIMAL},
+            #{entity.taxAmount, jdbcType=DECIMAL}, #{entity.status, jdbcType=VARCHAR},
+            #{entity.remark, jdbcType=VARCHAR}, #{entity.loginUserId, jdbcType=BIGINT},
+            #{entity.loginUserName, jdbcType=VARCHAR}, #{entity.now, jdbcType=TIMESTAMP},
+            #{entity.updateBy, jdbcType=BIGINT}, #{entity.updateByName, jdbcType=VARCHAR},
+            #{entity.updateTime, jdbcType=TIMESTAMP},#{entity.companyId, jdbcType=BIGINT},
+            #{entity.companyName, jdbcType=VARCHAR}, #{entity.customerId, jdbcType=BIGINT},
+            #{entity.customerName, jdbcType=VARCHAR},#{entity.rateId, jdbcType=BIGINT} )
+        </foreach>
+        SELECT 1 FROM DUAL
+    </insert>
+
+    <insert id="insertCostStatement">
+        INSERT INTO T_COST_STATEMENT(ID, COMPANY_ID, COMPANY_NAME, STATEMENT_NO, CUSTOMER_ID, CUSTOMER_NAME, TYPE,
+                                     TRUST_ID, TRUST_CARGO_ID, HANDOVERLIST_ID, SHIPVOYAGE_ID, SHIPVOYAGE_ITEM_ID,
+                                     CARGO_CODE, CARGO_NAME, TRADE_TYPE, SETTLEMENT_DATE, STATUS, REMARK, CREATE_BY,
+                                     CREATE_BY_NAME, CREATE_TIME, UPDATE_BY, UPDATE_BY_NAME, UPDATE_TIME, IS_FINAL)
+        VALUES (#{id, jdbcType=BIGINT}, #{companyId, jdbcType=BIGINT}, #{companyName, jdbcType=VARCHAR},
+                #{statementNo, jdbcType=VARCHAR}, #{customerId, jdbcType=BIGINT}, #{customerName, jdbcType=VARCHAR},
+                #{type, jdbcType=VARCHAR}, #{trustId, jdbcType=BIGINT}, #{trustCargoId, jdbcType=BIGINT},
+                #{handoverlistId, jdbcType=BIGINT}, #{shipvoyageId, jdbcType=BIGINT},
+                #{shipvoyageItemId, jdbcType=BIGINT}, #{cargoCode, jdbcType=VARCHAR}, #{cargoName, jdbcType=VARCHAR},
+                #{tradeType, jdbcType=VARCHAR}, #{settlementDate, jdbcType=TIMESTAMP}, #{status, jdbcType=VARCHAR},
+                #{remark, jdbcType=VARCHAR}, #{loginUserId, jdbcType=BIGINT}, #{loginUserName, jdbcType=VARCHAR},
+                #{now, jdbcType=TIMESTAMP}, #{updateBy, jdbcType=BIGINT}, #{updateByName, jdbcType=VARCHAR},
+                #{updateTime, jdbcType=TIMESTAMP}, #{isFinal, jdbcType=VARCHAR})
+    </insert>
+
+    <insert id="insertCostStatementDetail">
+        INSERT ALL
+        <foreach collection="details" item="entity">
+            INTO T_COST_STATEMENT_DETAIL(ID, STATEMENT, CONTRACT_ID, RATE_ITEM_CODE, RATE_ITEM_NAME,
+            SERVICE_CONTENT_ID, SERVICE_CONTENT_NAME, PROCESS_CODE, PROCESS_NAME, RATE, UNIT_CODE, UNIT_NAME, "NUMBER",
+            AMOUNT, TAX, TAX_AMOUNT, REMARK, CREATE_BY, CREATE_BY_NAME, CREATE_TIME,
+            BUSINESS_ID,RATE_ID)
+            VALUES
+            (#{entity.id, jdbcType=BIGINT}, #{entity.statement, jdbcType=BIGINT}, #{entity.contractId, jdbcType=BIGINT},
+            #{entity.rateItemCode, jdbcType=VARCHAR},
+            #{entity.rateItemName, jdbcType=VARCHAR}, #{entity.serviceContentId, jdbcType=BIGINT},
+            #{entity.serviceContentName, jdbcType=VARCHAR}, #{entity.processCode, jdbcType=VARCHAR},
+            #{entity.processName, jdbcType=VARCHAR}, #{entity.rate, jdbcType=DECIMAL},
+            #{entity.unitCode, jdbcType=VARCHAR}, #{entity.unitName, jdbcType=VARCHAR},
+            #{entity.number, jdbcType=DECIMAL}, #{entity.amount, jdbcType=DECIMAL}, #{entity.tax, jdbcType=DECIMAL},
+            #{entity.taxAmount, jdbcType=DECIMAL}, #{entity.remark, jdbcType=VARCHAR},
+            #{entity.loginUserId, jdbcType=BIGINT}, #{entity.loginUserName, jdbcType=VARCHAR},
+            #{entity.now, jdbcType=TIMESTAMP},  #{entity.businessId, jdbcType=BIGINT},  #{entity.rateId, jdbcType=BIGINT})
+        </foreach>
+        SELECT 1 FROM DUAL
+    </insert>
+
+    <delete id="deleteCostShip">
+        DELETE
+        FROM T_COST_SHIP
+        WHERE TYPE = '20'
+          AND TRUST_ID = #{trustId,jdbcType=BIGINT}
+    </delete>
+
+    <update id="updateCostShip">
+        UPDATE T_COST_SHIP
+        SET STATUS = #{status,jdbcType=VARCHAR}
+        WHERE TRUST_ID = #{trustId,jdbcType=BIGINT}
+    </update>
+
+    <resultMap id="getCostStatement" type="com.yy.ppm.statement.bean.po.TCostStatementPO">
+        <result property="id" column="ID" jdbcType="BIGINT"/>
+        <result property="companyId" column="COMPANY_ID" jdbcType="BIGINT"/>
+        <result property="companyName" column="COMPANY_NAME" jdbcType="VARCHAR"/>
+        <result property="statementNo" column="STATEMENT_NO" jdbcType="VARCHAR"/>
+        <result property="customerId" column="CUSTOMER_ID" jdbcType="BIGINT"/>
+        <result property="customerName" column="CUSTOMER_NAME" jdbcType="VARCHAR"/>
+        <result property="type" column="TYPE" jdbcType="VARCHAR"/>
+        <result property="trustId" column="TRUST_ID" jdbcType="BIGINT"/>
+        <result property="trustCargoId" column="TRUST_CARGO_ID" jdbcType="BIGINT"/>
+        <result property="handoverlistId" column="HANDOVERLIST_ID" jdbcType="BIGINT"/>
+        <result property="shipvoyageId" column="SHIPVOYAGE_ID" jdbcType="BIGINT"/>
+        <result property="shipvoyageItemId" column="SHIPVOYAGE_ITEM_ID" jdbcType="BIGINT"/>
+        <result property="cargoCode" column="CARGO_CODE" jdbcType="VARCHAR"/>
+        <result property="cargoName" column="CARGO_NAME" jdbcType="VARCHAR"/>
+        <result property="tradeType" column="TRADE_TYPE" jdbcType="VARCHAR"/>
+        <result property="settlementDate" column="SETTLEMENT_DATE" jdbcType="TIMESTAMP"/>
+        <result property="status" column="STATUS" jdbcType="VARCHAR"/>
+        <result property="remark" column="REMARK" jdbcType="VARCHAR"/>
+        <result property="createBy" column="CREATE_BY" jdbcType="BIGINT"/>
+        <result property="createByName" column="CREATE_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="UPDATE_BY" jdbcType="BIGINT"/>
+        <result property="updateByName" column="UPDATE_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="updateTime" column="UPDATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="isFinal" column="IS_FINAL" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="getCostStatement" resultMap="getCostStatement">
+        SELECT TCS.ID,
+               TCS.COMPANY_ID,
+               TCS.COMPANY_NAME,
+               TCS.STATEMENT_NO,
+               TCS.CUSTOMER_ID,
+               TCS.CUSTOMER_NAME,
+               TCS.TYPE,
+               TCS.TRUST_ID,
+               TCS.TRUST_CARGO_ID,
+               TCS.HANDOVERLIST_ID,
+               TCS.SHIPVOYAGE_ID,
+               TCS.SHIPVOYAGE_ITEM_ID,
+               TCS.CARGO_CODE,
+               TCS.CARGO_NAME,
+               TCS.TRADE_TYPE,
+               TCS.SETTLEMENT_DATE,
+               TCS.STATUS,
+               TCS.REMARK,
+               TCS.CREATE_BY,
+               TCS.CREATE_BY_NAME,
+               TCS.CREATE_TIME,
+               TCS.UPDATE_BY,
+               TCS.UPDATE_BY_NAME,
+               TCS.UPDATE_TIME,
+               TCS.IS_FINAL
+        FROM T_COST_STATEMENT TCS JOIN T_COST_STATEMENT_DETAIL TCSD ON TCS.ID = TCSD.STATEMENT
+        WHERE TYPE = '40'
+          AND TCSD.BUSINESS_ID = #{businessId,jdbcType=BIGINT}
+    </select>
+
+    <delete id="deleteCostStatement">
+        DELETE
+        FROM T_COST_STATEMENT
+        WHERE ID = #{id,jdbcType=BIGINT}
+    </delete>
+
+    <delete id="deleteCostStatementDetail">
+        DELETE
+        FROM T_COST_STATEMENT_DETAIL
+        WHERE STATEMENT = #{statementId,jdbcType=BIGINT}
+    </delete>
+</mapper>

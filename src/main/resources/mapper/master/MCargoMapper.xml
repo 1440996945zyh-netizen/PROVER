@@ -1,0 +1,629 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.master.mapper.MCargoMapper">
+    <select id="getListCargoCategory" parameterType="com.yy.ppm.master.bean.dto.MCargoCategorySearchDTO"
+            resultType="com.yy.ppm.master.bean.dto.MCargoCategoryDTO">
+        SELECT
+            ID,
+            CARGO_CATEGORY_CODE,
+            CARGO_CATEGORY_NAME,
+            CARGO_TYPE_CODE,
+            CARGO_TYPE_NAME,
+            SORT_NUM,
+            MAIN_NAME,
+            MAIN_MOBILE,
+            MINOR_NAME,
+            MINOR_MOBILE,
+            DEL_FLAG,
+            CREATE_BY,
+            create_by_name,
+            CREATE_TIME,
+            UPDATE_BY,
+            update_BY_NAME,
+            UPDATE_TIME
+        FROM M_CARGO_CATEGORY
+        <where>
+            DEL_FLAG = '0'
+            <if test="cargoCategoryName != null and cargoCategoryCode != ''">
+                <bind name="cargoCategoryName" value="'%' + cargoCategoryName + '%'"/>
+                AND (CARGO_CATEGORY_NAME LIKE #{cargoCategoryName,jdbcType=VARCHAR})
+            </if>
+            <if test="cargoCategoryCode != null and cargoCategoryCode != ''">
+                <bind name="cargoCategoryCode" value="'%' + cargoCategoryCode + '%'"/>
+                AND (CARGO_CATEGORY_CODE LIKE #{cargoCategoryCode,jdbcType=VARCHAR})
+            </if>
+            <if test="cargoTypeCode != null and cargoTypeCode != ''">
+                AND (CARGO_TYPE_CODE =  #{cargoTypeCode})
+            </if>
+        </where>
+        ORDER BY CARGO_TYPE_CODE, CARGO_CATEGORY_CODE
+    </select>
+
+    <select id="getCargoCategoryById" resultType="com.yy.ppm.master.bean.dto.MCargoCategoryDTO" parameterType="java.lang.Long">
+        SELECT
+        ID,
+        CARGO_CATEGORY_CODE,
+        CARGO_CATEGORY_NAME,
+        CARGO_TYPE_CODE,
+        CARGO_TYPE_NAME,
+        SORT_NUM,
+        DEL_FLAG,
+        MAIN_NAME,
+        MAIN_MOBILE,
+        MINOR_NAME,
+        MINOR_MOBILE,
+        CREATE_BY,
+        create_by_name,
+        CREATE_TIME,
+        UPDATE_BY,
+        update_BY_NAME,
+        UPDATE_TIME
+        FROM M_CARGO_CATEGORY
+        WHERE
+            ID = #{id}
+
+    </select>
+
+    <select id="getListCargo" resultType="com.yy.ppm.master.bean.dto.MCargoDTO"
+            parameterType="com.yy.ppm.master.bean.dto.MCargoDTO">
+        SELECT
+            ID,
+            BHT_ID,
+            CARGO_CODE,
+            CARGO_NAME,
+            CARGO_CATEGORY_CODE,
+            WORK_TYPE,
+            TALLY,
+            YARD_SALARY_TYPE_CODE,
+            YARD_SALARY_TYPE_NAME,
+            CARGO_COLOR,
+            SORT_NUM,
+            DEL_FLAG,
+            SIGN,
+            CREATE_BY,
+            create_by_name,
+            CREATE_TIME,
+            UPDATE_BY,
+            update_BY_NAME,
+            UPDATE_TIME,
+            SHORTHAND_CODE,
+            UPDATE_POINT,
+        DISPATCH_SALARY_TYPE_CODE,
+        DISPATCH_SALARY_TYPE_NAME,
+        FLOW_SALARY_TYPE_CODE,
+        FLOW_SALARY_TYPE_NAME,
+        FIXED_SALARY_TYPE_CODE,
+        FIXED_SALARY_TYPE_NAME,
+        STATUS,
+        FLOAT_TON
+        FROM M_CARGO
+        <where>
+            DEL_FLAG = '0'
+            <if test="cargoCategoryCode != null and cargoCategoryCode != ''">
+                AND (CARGO_CATEGORY_CODE = #{cargoCategoryCode})
+            </if>
+            <if test="cargoCode != null and cargoCode != ''">
+                <bind name="cargoCode" value="'%' + cargoCode + '%'"/>
+                AND (CARGO_CODE LIKE #{cargoCode,jdbcType=VARCHAR})
+            </if>
+            <if test="bhtId != null and bhtId != ''">
+                <bind name="bhtId" value="'%' + bhtId + '%'"/>
+                AND (BHT_ID LIKE #{bhtId,jdbcType=VARCHAR})
+            </if>
+            <if test="cargoName != null and cargoName != ''">
+                <bind name="cargoName" value="'%' + cargoName + '%'"/>
+                AND (CARGO_NAME LIKE  #{cargoName,jdbcType=VARCHAR})
+            </if>
+            <if test="cargoShortName != null and cargoShortName != ''">
+                <bind name="cargoShortName" value="'%' + cargoShortName + '%'"/>
+                AND (CARGO_NAME LIKE  #{cargoName,jdbcType=VARCHAR})
+            </if>
+        </where>
+        ORDER BY CARGO_CODE
+    </select>
+    <select id="getList" resultType="com.yy.ppm.master.bean.dto.MCargoDTO"
+            parameterType="com.yy.ppm.master.bean.dto.MCargoDTO">
+        SELECT
+            ID,
+            BHT_ID,
+            CARGO_CODE,
+            CARGO_NAME,
+            CARGO_CATEGORY_CODE,
+            WORK_TYPE,
+            TALLY,
+            YARD_SALARY_TYPE_CODE,
+            YARD_SALARY_TYPE_NAME,
+            CARGO_COLOR,
+            SORT_NUM,
+            DEL_FLAG,
+            SIGN,
+            CREATE_BY,
+            create_by_name,
+            CREATE_TIME,
+            UPDATE_BY,
+            update_BY_NAME,
+            UPDATE_TIME,
+            SHORTHAND_CODE,
+            UPDATE_POINT,
+        DISPATCH_SALARY_TYPE_CODE,
+        DISPATCH_SALARY_TYPE_NAME,
+        FLOW_SALARY_TYPE_CODE,
+        FLOW_SALARY_TYPE_NAME,
+        FIXED_SALARY_TYPE_CODE,
+        FIXED_SALARY_TYPE_NAME,
+        STATUS,
+        FLOAT_TON
+        FROM M_CARGO
+        <where>
+            DEL_FLAG = '0'
+            <if test="cargoCategoryCode != null and cargoCategoryCode != ''">
+                AND (CARGO_CATEGORY_CODE = #{cargoCategoryCode})
+            </if>
+            <if test="cargoCode != null and cargoCode != ''">
+                <bind name="cargoCode" value="'%' + cargoCode + '%'"/>
+                AND (CARGO_CODE LIKE #{cargoCode,jdbcType=VARCHAR})
+            </if>
+            <if test="bhtId != null and bhtId != ''">
+                <bind name="bhtId" value="'%' + bhtId + '%'"/>
+                AND (BHT_ID LIKE #{bhtId,jdbcType=VARCHAR})
+            </if>
+            <if test="cargoName != null and cargoName != ''">
+                <bind name="cargoName" value="'%' + cargoName + '%'"/>
+                AND (CARGO_NAME LIKE  #{cargoName,jdbcType=VARCHAR})
+            </if>
+            <if test="cargoShortName != null and cargoShortName != ''">
+                <bind name="cargoShortName" value="'%' + cargoShortName + '%'"/>
+                AND (CARGO_NAME LIKE  #{cargoName,jdbcType=VARCHAR})
+            </if>
+        </where>
+        ORDER BY CARGO_CODE
+    </select>
+    <select id="getListCargoNew" resultType="com.yy.ppm.master.bean.dto.MCargoDTO"
+            parameterType="com.yy.ppm.master.bean.dto.MCargoDTO">
+        SELECT
+        t.ID,
+        t.BHT_ID,
+        t.CARGO_CODE,
+        t.CARGO_NAME,
+        t.CARGO_CATEGORY_CODE,
+        t.WORK_TYPE,
+        t.TALLY,
+        t.YARD_SALARY_TYPE_CODE,
+        t.YARD_SALARY_TYPE_NAME,
+        t.DISPATCH_SALARY_TYPE_CODE,
+        t.DISPATCH_SALARY_TYPE_NAME,
+        t.FLOW_SALARY_TYPE_CODE,
+        t.FLOW_SALARY_TYPE_NAME,
+        t.FIXED_SALARY_TYPE_CODE,
+        t.FIXED_SALARY_TYPE_NAME,
+        t.CARGO_COLOR,
+        t.SORT_NUM,
+        t.DEL_FLAG,
+        t.SIGN,
+        t.CREATE_BY,
+        t.create_by_name,
+        t.CREATE_TIME,
+        t.UPDATE_BY,
+        t.update_BY_NAME,
+        t.UPDATE_TIME,
+        t.SHORTHAND_CODE,
+        t.UPDATE_POINT,
+        t1.CARGO_CATEGORY_NAME,
+        t1.CARGO_TYPE_NAME,
+        t.STATUS,
+        t.FLOAT_TON
+        FROM
+        M_CARGO t
+        LEFT JOIN M_CARGO_CATEGORY t1 ON  t.CARGO_CATEGORY_CODE = t1.CARGO_CATEGORY_CODE
+        <where>
+            t.DEL_FLAG = '0'
+            <if test="cargoCategoryCode != null and cargoCategoryCode != ''">
+                AND (t.CARGO_CATEGORY_CODE = #{cargoCategoryCode})
+            </if>
+            <if test="cargoCode != null and cargoCode != ''">
+                <bind name="cargoCode" value="'%' + cargoCode + '%'"/>
+                AND (t.CARGO_CODE LIKE #{cargoCode,jdbcType=VARCHAR})
+            </if>
+            <if test="cargoName != null and cargoName != ''">
+                <bind name="cargoName" value="'%' + cargoName + '%'"/>
+                AND (t.CARGO_NAME LIKE  #{cargoName,jdbcType=VARCHAR})
+            </if>
+            <if test="cargoShortName != null and cargoShortName != ''">
+                <bind name="cargoShortName" value="'%' + cargoShortName + '%'"/>
+                AND (t.CARGO_NAME LIKE  #{cargoName,jdbcType=VARCHAR})
+            </if>
+            <if test="cargoTypeCode != null and cargoTypeCode != ''">
+                AND t1.CARGO_TYPE_CODE =  #{cargoTypeCode,jdbcType=VARCHAR}
+            </if>
+            <if test="cargoCategoryName != null and cargoCategoryName != ''">
+                <bind name="cargoCategoryNameTMP" value="'%' + cargoCategoryName + '%'"/>
+                AND (t1.CARGO_CATEGORY_NAME LIKE  #{cargoCategoryNameTMP,jdbcType=VARCHAR})
+            </if>
+            <if test="status != null and status != ''">
+                AND t.STATUS =  #{status,jdbcType=VARCHAR}
+            </if>
+        </where>
+        ORDER BY t.CARGO_CODE
+    </select>
+
+    <select id="getOutwardGoods" resultType="com.yy.ppm.master.bean.dto.MCargoDTO" parameterType="com.yy.ppm.master.bean.dto.MCargoDTO">
+        SELECT
+        mc.ID ,
+        mc.SORT_NUM ,
+        mc.SHORTHAND_CODE ,
+        mc.SIGN ,
+        mcc.CARGO_CATEGORY_NAME ,
+        mcc.CARGO_TYPE_NAME,
+        mc.CARGO_NAME ,
+        mc.WORK_TYPE,
+        CASE WHEN mc.WORK_TYPE = '1' THEN '件'
+        WHEN mc.WORK_TYPE = '2' THEN '散' END "workTypeName",
+        mc.OUTWARD_TYPE ,
+        mc.OUTWARD_TYPE_NAME
+        FROM M_CARGO mc
+        LEFT JOIN M_CARGO_CATEGORY mcc ON mc.CARGO_CATEGORY_CODE = MCC.CARGO_CATEGORY_CODE
+        <where>
+            mc.DEL_FLAG = '0'
+            <if test="cargoCategoryCode != null and cargoCategoryCode != ''">
+                AND (mc.CARGO_CATEGORY_CODE = #{cargoCategoryCode})
+            </if>
+            <if test="cargoCode != null and cargoCode != ''">
+                <bind name="cargoCode" value="'%' + cargoCode + '%'"/>
+                AND (mc.CARGO_CODE LIKE #{cargoCode,jdbcType=VARCHAR})
+            </if>
+            <if test="cargoName != null and cargoName != ''">
+                <bind name="cargoName" value="'%' + cargoName + '%'"/>
+                AND (mc.CARGO_NAME LIKE  #{cargoName,jdbcType=VARCHAR})
+            </if>
+            <if test="cargoShortName != null and cargoShortName != ''">
+                <bind name="cargoShortName" value="'%' + cargoShortName + '%'"/>
+                AND (mc.CARGO_NAME LIKE  #{cargoName,jdbcType=VARCHAR})
+            </if>
+            <if test="cargoTypeCode != null and cargoTypeCode != ''">
+                AND mcc.CARGO_TYPE_CODE =  #{cargoTypeCode,jdbcType=VARCHAR}
+            </if>
+            <if test="cargoCategoryName != null and cargoCategoryName != ''">
+                <bind name="cargoCategoryNameTMP" value="'%' + cargoCategoryName + '%'"/>
+                AND (mcc.CARGO_CATEGORY_NAME LIKE  #{cargoCategoryNameTMP,jdbcType=VARCHAR})
+            </if>
+            <if test="status != null and status != ''">
+                AND mc.STATUS =  #{status,jdbcType=VARCHAR}
+            </if>
+        </where>
+        ORDER BY mc.SORT_NUM
+    </select>
+
+    <select id="getCargoById" resultType="com.yy.ppm.master.bean.dto.MCargoDTO">
+        SELECT
+            ID,
+            CARGO_CODE,
+            CARGO_NAME,
+            CARGO_CATEGORY_CODE,
+            WORK_TYPE,
+            YARD_SALARY_TYPE_CODE,
+            YARD_SALARY_TYPE_NAME,
+            DISPATCH_SALARY_TYPE_CODE,
+            DISPATCH_SALARY_TYPE_NAME,
+            FLOW_SALARY_TYPE_CODE,
+            FLOW_SALARY_TYPE_NAME,
+            FIXED_SALARY_TYPE_CODE,
+            FIXED_SALARY_TYPE_NAME,
+            TALLY,
+            CARGO_COLOR,
+            SORT_NUM,
+            DEL_FLAG,
+            SIGN,
+            CREATE_BY,
+            create_by_name,
+            CREATE_TIME,
+            UPDATE_BY,
+            update_BY_NAME,
+            UPDATE_TIME,
+            SHORTHAND_CODE,
+            UPDATE_POINT,
+            STATUS,
+            FLOAT_TON
+        FROM M_CARGO
+        WHERE ID = #{id}
+    </select>
+    <select id="getDetailById" resultType="com.yy.ppm.master.bean.dto.MCargoDTO">
+        SELECT
+            mc.ID,
+            mc.CARGO_CODE,
+            mc.CARGO_NAME,
+            mc.CARGO_CATEGORY_CODE,
+            mcc.CARGO_CATEGORY_NAME,
+            mc.WORK_TYPE,
+            mc.YARD_SALARY_TYPE_CODE,
+            mc.YARD_SALARY_TYPE_NAME,
+            mc.DISPATCH_SALARY_TYPE_CODE,
+            mc.DISPATCH_SALARY_TYPE_NAME,
+            mc.FLOW_SALARY_TYPE_CODE,
+            mc.FLOW_SALARY_TYPE_NAME,
+            mc.FIXED_SALARY_TYPE_CODE,
+            mc.FIXED_SALARY_TYPE_NAME,
+            mc.TALLY,
+            mc.CARGO_COLOR,
+            mc.SORT_NUM,
+            mc.DEL_FLAG,
+            mc.SIGN,
+            mc.CREATE_BY,
+            mc.create_by_name,
+            mc.CREATE_TIME,
+            mc.UPDATE_BY,
+            mc.update_BY_NAME,
+            mc.UPDATE_TIME,
+            mc.SHORTHAND_CODE,
+            mc.UPDATE_POINT,
+            mc.STATUS,
+            mc.FLOAT_TON,
+            mc.OUTWARD_TYPE
+        FROM M_CARGO mc
+        LEFT JOIN M_CARGO_CATEGORY mcc ON mcc.CARGO_CATEGORY_CODE = mc.CARGO_CATEGORY_CODE
+        WHERE mc.ID = #{id}
+    </select>
+    <select id="getCargoByCondition" resultType="com.yy.ppm.master.bean.dto.MCargoDTO">
+        SELECT
+            ID,
+            CARGO_CODE,
+            CARGO_NAME,
+            CARGO_CATEGORY_CODE,
+            WORK_TYPE,
+            YARD_SALARY_TYPE_CODE,
+            YARD_SALARY_TYPE_NAME,
+        DISPATCH_SALARY_TYPE_CODE,
+        DISPATCH_SALARY_TYPE_NAME,
+        FLOW_SALARY_TYPE_CODE,
+        FLOW_SALARY_TYPE_NAME,
+        FIXED_SALARY_TYPE_CODE,
+        FIXED_SALARY_TYPE_NAME,
+            TALLY,
+            CARGO_COLOR,
+            SORT_NUM,
+            DEL_FLAG,
+            SIGN,
+            CREATE_BY,
+            create_by_name,
+            CREATE_TIME,
+            UPDATE_BY,
+            update_BY_NAME,
+            UPDATE_TIME,
+            SHORTHAND_CODE,
+            UPDATE_POINT,
+            STATUS,
+            FLOAT_TON
+        FROM M_CARGO
+        <where>
+            <if test="cargoCode != null">
+                AND CARGO_CODE = #{cargoCode}
+            </if>
+            <if test="cargoName != null">
+                AND CARGO_NAME = #{cargoName}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insertCargoCategory" parameterType="com.yy.ppm.master.bean.po.MCargoCategoryPO">
+        INSERT INTO M_CARGO_CATEGORY (
+            ID,
+            CARGO_CATEGORY_CODE,
+            CARGO_CATEGORY_NAME,
+            CARGO_TYPE_CODE,
+            CARGO_TYPE_NAME,
+            SORT_NUM,
+            DEL_FLAG,
+            MAIN_NAME,
+            MAIN_MOBILE,
+            MINOR_NAME,
+            MINOR_MOBILE,
+            CREATE_BY,
+            create_by_name,
+            CREATE_TIME
+        )
+        VALUES (
+                #{id,jdbcType=BIGINT},
+                #{cargoCategoryCode,jdbcType=VARCHAR},
+                #{cargoCategoryName,jdbcType=VARCHAR},
+                #{cargoTypeCode,jdbcType=VARCHAR},
+                #{cargoTypeName,jdbcType=VARCHAR},
+                #{sortNum,jdbcType=BIGINT},
+                '0',
+                #{mainName,jdbcType=VARCHAR},
+                #{mainMobile,jdbcType=VARCHAR},
+                #{minorName,jdbcType=VARCHAR},
+                #{minorMobile,jdbcType=VARCHAR},
+                #{loginUserId},
+                #{loginUserName},
+                #{now}
+               )
+    </insert>
+
+    <insert id="insertCargo" parameterType="com.yy.ppm.master.bean.po.MCargoPO">
+        INSERT INTO M_CARGO
+        (ID ,
+         CARGO_CODE,
+         CARGO_NAME,
+         CARGO_CATEGORY_CODE,
+         WORK_TYPE,
+         TALLY,
+         CARGO_COLOR,
+         SORT_NUM,
+         DEL_FLAG,
+         SIGN,
+         YARD_SALARY_TYPE_CODE,
+         YARD_SALARY_TYPE_NAME,
+         DISPATCH_SALARY_TYPE_CODE,
+         DISPATCH_SALARY_TYPE_NAME,
+         FLOW_SALARY_TYPE_CODE,
+         FLOW_SALARY_TYPE_NAME,
+         FIXED_SALARY_TYPE_CODE,
+         FIXED_SALARY_TYPE_NAME,
+         CREATE_BY,
+         create_by_name,
+         CREATE_TIME,
+         SHORTHAND_CODE,
+         UPDATE_POINT,
+         BHT_ID,
+         FLOAT_TON
+         )  VALUES (
+           #{id,jdbcType=BIGINT},
+           #{cargoCode,jdbcType=VARCHAR},
+           #{cargoName,jdbcType=VARCHAR},
+           #{cargoCategoryCode,jdbcType=VARCHAR},
+           #{workType,jdbcType=INTEGER},
+           #{tally,jdbcType=INTEGER},
+           #{cargoColor,jdbcType=VARCHAR},
+           #{sortNum,jdbcType=INTEGER},
+           '0',
+           #{sign,jdbcType=VARCHAR},
+           #{yardSalaryTypeCode,jdbcType=VARCHAR},
+           #{yardSalaryTypeName,jdbcType=VARCHAR},
+           #{dispatchSalaryTypeCode,jdbcType=VARCHAR},
+           #{dispatchSalaryTypeName,jdbcType=VARCHAR},
+           #{flowSalaryTypeCode,jdbcType=VARCHAR},
+           #{flowSalaryTypeName,jdbcType=VARCHAR},
+           #{fixedSalaryTypeCode,jdbcType=VARCHAR},
+           #{fixedSalaryTypeName,jdbcType=VARCHAR},
+           #{loginUserId},
+           #{loginUserName},
+           #{now},
+           #{shorthandCode,jdbcType=VARCHAR},
+           #{updatePoint,jdbcType=INTEGER},
+           CARGOM_CARGO.nextval,
+           #{floatTon,jdbcType=INTEGER}
+        )
+
+    </insert>
+
+    <update id="deleteCargoCategory">
+        UPDATE
+            M_CARGO_CATEGORY
+        SET DEL_FLAG = '1'
+        WHERE
+            ID = #{id}
+    </update>
+
+    <update id="deleteCargo">
+        DELETE
+        FROM
+            M_CARGO
+        WHERE
+            ID = #{id}
+    </update>
+
+    <update id="updateCargoCategory" parameterType="com.yy.ppm.master.bean.dto.MCargoCategoryDTO">
+        UPDATE
+            M_CARGO_CATEGORY
+        SET
+            CARGO_CATEGORY_CODE = #{cargoCategoryCode,jdbcType=VARCHAR },
+            CARGO_CATEGORY_NAME =#{cargoCategoryName,jdbcType=VARCHAR },
+            CARGO_TYPE_CODE = #{cargoTypeCode,jdbcType=VARCHAR },
+            CARGO_TYPE_NAME = #{cargoTypeName,jdbcType=VARCHAR },
+            SORT_NUM =#{sortNum,jdbcType=VARCHAR },
+            MAIN_NAME =#{mainName,jdbcType=VARCHAR },
+            MAIN_MOBILE =#{mainMobile,jdbcType=VARCHAR },
+            MINOR_NAME =#{minorName,jdbcType=VARCHAR },
+            MINOR_MOBILE =#{minorMobile,jdbcType=VARCHAR },
+            UPDATE_BY = #{loginUserId},
+            update_BY_NAME = #{loginUserName},
+            UPDATE_TIME =#{now}
+        WHERE
+            ID = #{id}
+    </update>
+
+    <update id="updateCargo" parameterType="com.yy.ppm.master.bean.dto.MCargoDTO">
+        UPDATE
+            M_CARGO
+        SET
+            CARGO_CODE = #{cargoCode,jdbcType=VARCHAR},
+            CARGO_NAME = #{cargoName,jdbcType=VARCHAR},
+            CARGO_CATEGORY_CODE = #{cargoCategoryCode,jdbcType=VARCHAR},
+            WORK_TYPE = #{workType,jdbcType=INTEGER},
+            TALLY = #{tally,jdbcType=INTEGER},
+            CARGO_COLOR = #{cargoColor,jdbcType=VARCHAR},
+            SORT_NUM = #{sortNum,jdbcType=INTEGER},
+            YARD_SALARY_TYPE_CODE = #{yardSalaryTypeCode,jdbcType=INTEGER},
+            YARD_SALARY_TYPE_NAME = #{yardSalaryTypeName,jdbcType=INTEGER},
+            DISPATCH_SALARY_TYPE_CODE = #{dispatchSalaryTypeCode,jdbcType=INTEGER},
+            DISPATCH_SALARY_TYPE_NAME = #{dispatchSalaryTypeName,jdbcType=INTEGER},
+            FLOW_SALARY_TYPE_CODE = #{flowSalaryTypeCode,jdbcType=INTEGER},
+            FLOW_SALARY_TYPE_NAME = #{flowSalaryTypeName,jdbcType=INTEGER},
+            FIXED_SALARY_TYPE_CODE = #{fixedSalaryTypeCode,jdbcType=INTEGER},
+            FIXED_SALARY_TYPE_NAME = #{fixedSalaryTypeName,jdbcType=INTEGER},
+            SIGN = #{sign,jdbcType=VARCHAR},
+            UPDATE_BY = #{loginUserId},
+            update_BY_NAME = #{loginUserName},
+            UPDATE_TIME =#{now},
+            SHORTHAND_CODE = #{shorthandCode,jdbcType=VARCHAR},
+            UPDATE_POINT = #{updatePoint,jdbcType=INTEGER},
+            FLOAT_TON = #{floatTon,jdbcType=INTEGER},
+            OUTWARD_TYPE = #{outwardType,jdbcType=INTEGER},
+            OUTWARD_TYPE_NAME = #{outwardTypeName}
+        WHERE
+            ID = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="getCargoCategoryNameByBHTId" resultType="com.yy.ppm.master.bean.dto.MCargoDTO">
+    SELECT
+		*
+	FROM
+		(
+			SELECT
+				CARGO_NAME,
+                CARGO_CODE
+			FROM
+				M_CARGO
+			WHERE
+				BHT_ID = #{bhtId}
+		)
+	WHERE
+		ROWNUM = 1
+    </select>
+    <select id="getCargoByCargoCode" resultType="com.yy.ppm.master.bean.dto.MCargoDTO">
+        SELECT
+        CARGO_NAME
+        FROM
+        M_CARGO
+        WHERE CARGO_CODE = #{cargoCode}
+    </select>
+    <select id="getCargoIsRepeate" resultType="com.yy.ppm.master.bean.dto.MCargoDTO">
+        SELECT
+        ID,
+        CARGO_NAME,
+        SIGN
+        FROM
+        M_CARGO
+        <where>
+             CARGO_NAME = #{cargoName}
+        <if test="sign != null and sign != ''">
+            AND (SIGN = #{sign})
+        </if>
+        </where>
+    </select>
+
+    <update id="updateStatus">
+        UPDATE M_CARGO
+        SET STATUS = #{status,jdbcType=VARCHAR}
+        WHERE ID = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="nextCargoCode" resultType="java.lang.String">
+        <bind name="cargoCategoryCodeLike" value="cargoCategoryCode + '%'"/>
+        SELECT CASE
+        WHEN MAX(TO_NUMBER(CARGO_CODE)) IS NULL THEN #{cargoCategoryCode,jdbcType=VARCHAR} || '0001'
+        ELSE #{cargoCategoryCode,jdbcType=VARCHAR} || to_char( LPAD(TO_NUMBER(substr(MAX(CARGO_CODE),
+        LENGTH(#{cargoCategoryCode,jdbcType=VARCHAR})+1 ))+1,
+        LENGTH(substr(MAX(CARGO_CODE),LENGTH(#{cargoCategoryCode,jdbcType=VARCHAR})+1 )) ,'0')) END
+        FROM M_CARGO
+        WHERE CARGO_CODE LIKE #{cargoCategoryCodeLike,jdbcType=VARCHAR}
+    </select>
+    <select id="getCargoInfoByCode" resultType="java.lang.Integer">
+        SELECT
+        count(*)
+        FROM
+        T_BUS_CARGO_INFO
+        <where>
+            CARGO_CODE  = #{cargoCode}
+        </where>
+    </select>
+</mapper>

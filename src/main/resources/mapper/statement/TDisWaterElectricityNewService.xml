@@ -1,0 +1,545 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.statement.mapper.StorageChargeMapper">
+
+    <!-- 获取交接清单数据集合 -->
+    <select id="getHandoverlist" parameterType="com.yy.ppm.statement.bean.dto.prodCostStatement.TBusHandoverlistQueryDTO"
+        resultType="com.yy.ppm.statement.bean.dto.busHandoverlist.TBusHandoverlistDTO">
+        select
+            a.ID,a.TYPE,a.CARGO_INFO_ID,a.TRUST_ID,a.TRUST_CARGO_ID,a.SHIPVOYAGE_ID,a.SHIPVOYAGE_ITEM_ID,a.SHIP_NAME,a.TRADE_TYPE,
+            a.LOAD_UNLOAD,a.CARGO_OWNER_ID,a.CARGO_OWNER_NAME,a.CARGO_AGENT_ID,a.CARGO_AGENT_NAME,a.CARGO_CODE,a.CARGO_NAME,
+            a.QUANTITY,a.TON,a.TICKET_NUM,a.STATEMENT_STATUS_CODE,a.STATEMENT_STATUS_NAME,a.REMARK,a.CREATE_BY,a.CREATE_BY_NAME,
+            a.CREATE_TIME,a.UPDATE_BY,a.UPDATE_BY_NAME,a.UPDATE_TIME,a.VOYAGE,b.company_id,b.COMPANY_NAME,a.SHIP_NAME||'_'||a.VOYAGE AS SHIP_VOYAGE_NAME,
+            b.IS_CLEAR,
+            DECODE(MC.WORK_TYPE, '1', '件杂','2' ,'散杂','3','木材') workType
+
+        from
+            T_BUS_HANDOVERLIST a inner join T_BUS_CARGO_INFO b on a.CARGO_INFO_ID=b.ID
+            LEFT JOIN M_CARGO MC ON a.CARGO_CODE = MC.CARGO_CODE
+        <where>
+            <if test="shipvoyageItemId!=null and shipvoyageItemId!=''">
+                and a.SHIPVOYAGE_ITEM_ID=#{shipvoyageItemId}
+            </if>
+
+            <if test="cargoOwnerId!=null and cargoOwnerId!=''">
+                and a.CARGO_OWNER_ID=#{cargoOwnerId}
+            </if>
+        </where>
+        order by id desc
+    </select>
+
+    <!-- 根据客户获取有效期内的合同信息 -->
+    <select id="getContractList" resultType="com.yy.ppm.business.bean.dto.TBusContractDTO">
+        select
+            a.ID,a.CONTACT_NO,a.PARENT_ID,a.CUSTOMER_ID,a.CUSTOMER_NAME,a.SIGN_TIME,a.CONTRACT_TYPE,a.IS_SHIP,a.SETTLEMENT_BASIS_CODE,
+            a.SETTLEMENT_BASIS_NAME,a.DEPOSIT_BASIS_CODE,a.DEPOSIT_BASIS_NAME,a.DEPOSIT_RATIO,a.PAY_TYPE,a.FREE_STORAGE_DAYS,
+            a.START_TIME,a.END_TIME,a.SHIPVOYAGE_ID,a.VALID_BY,a.VALID_BY_NAME,a.VALID_TIME,a."STATUS",a.REMARK,a.COMPANY_NAMES
+        from
+            T_BUS_CONTRACT a inner join T_BUS_CONTRACT_COMPANY b on a.ID=b.CONTRACT_ID
+        <where>
+            customer_id=#{customerId} and sysdate between START_TIME and END_TIME
+            and status='20' and b.company_id=#{companyId}
+        </where>
+        order by
+            create_time
+    </select>
+
+    <!-- 根据合同ID获取合同费率信息 -->
+    <select id="getContractRate" resultType="com.yy.ppm.business.bean.dto.TBusContractRateDTO">
+        select
+            ID,CONTRACT_ID,CARGO_CODE,CARGO_NAME,RATE_ITEM_CODE,RATE_ITEM_NAME,TRADE_TYPE,SERVICE_CONTENT_ID,SERVICE_CONTENT_NAME,
+            PAYMENT_TYPE_CODE,PAYMENT_TYPE_NAME,PAYMENT_DAYS,RATE,TAX,UNIT_CODE,UNIT_NAME,RATE_ID
+        from
+            t_bus_contract_rate
+        <where>
+            contract_id=#{contractId}
+            <if test="cargoCode!=null and cargoCode!=''">
+                and cargo_code=#{cargoCode}
+            </if>
+
+            <if test="rateItemCode!=null and rateItemCode!=''">
+                and RATE_ITEM_CODE=#{rateItemCode}
+            </if>
+        </where>
+        order by
+            id
+    </select>
+
+    <!-- 根据票货id获取场存信息数据 -->
+    <select id="getPrdPortStorage" resultType="com.yy.ppm.produce.bean.dto.portStorage.TPrdPortStorageDTO">
+        SELECT
+            ID,COMPANY_ID,COMPANY_NAME,CARGO_INFO_ID,STOREHOUSE_ID,STOREHOUSE_NAME,REGION_ID,REGION_NAME,MASS_ID,MASS_NAME,
+            QUANTITY,TON,CREATE_BY,CREATE_BY_NAME,CREATE_TIME,UPDATE_BY,UPDATE_BY_NAME,UPDATE_TIME,CLEAN_MASS_SIGN,CLEAN_MASS_BY,
+            CLEAN_MASS_BY_NAME,CLEAN_MASS_TIME
+        FROM
+            T_PRD_PORT_STORAGE
+        where
+            COMPANY_ID=#{companyId} and CARGO_INFO_ID=#{cargoInfoId}
+            AND CLEAN_MASS_SIGN='0'
+        ORDER BY ID
+    </select>
+
+    <!-- 根据票货GID获取对应的历史结算信息 -->
+    <select id="getLastStorageFee" resultType="com.yy.ppm.statement.bean.po.TStorageFeeHisPO">
+        SELECT
+        TSFH.ID,
+        TSFH.CARGO_INFO_ID,
+        TSFH.START_DATE,
+        TSFH.END_DATE,
+        TSFH.AMOUNT,
+        TSFH.BALANCES_AMOUNT,
+        TSFH.TOTAL_ENTRY,
+        TSFH.TOTAL_APPEARANCE,
+        TSFH.SETTLEMENT_DAYS,
+        TSFH.FREE_STORAGE_DAYS,
+        TSFH.CREATE_BY,
+        TSFH.CREATE_TIME,
+        TSFH.CREATE_BY_NAME,
+        TSFH.TAX_RATE,
+        TSFH.TAX_CAST,
+        TSFH.AFTER_TAX,
+        TSFH.CONTRACT_ID,
+        TSFH.STATUS,
+        TSFH.RATE,
+        TSFH.IS_FINAL,
+        TCS.STATUS STATEMENT_STATUS
+        FROM
+        T_STORAGE_FEE_HIS TSFH
+        LEFT JOIN T_COST_STATEMENT_DETAIL TCSD ON TSFH.ID = TCSD.BUSINESS_ID
+        LEFT JOIN T_COST_STATEMENT TCS ON TCSD.STATEMENT = TCS.ID
+        WHERE
+        TSFH.CARGO_INFO_ID=#{cargoInfoId}
+        <if test="hisGid != null">
+            AND TSFH.id&lt;#{hisGid,jdbcType=BIGINT}
+        </if>
+        ORDER BY
+        TSFH.ID desc
+    </select>
+
+    <!-- 根据票货id获取进出场明细信息 过滤掉倒运的数据 -->
+    <select id="getInOutDetail" resultType="com.yy.ppm.produce.bean.po.TPrdPortStorageDetailPO">
+        select
+            sum(nvl(QUANTITY,0)) as QUANTITY,
+            sum(nvl(TON,0)) as TON,
+            INOUT_TYPE,
+            INOUT_DATE,
+            CARGO_INFO_ID
+        from
+            T_PRD_PORT_STORAGE_DETAIL a inner join M_WORK_PROCESS b on a.PROCESS_DETAIL_CODE=b.PROCESS_CD
+        where
+            CARGO_INFO_ID=#{cargoInfoId} and b.IN_OUT_STORAGE_TYPE_CD!='301'
+            <if test="startDate != null">
+                and INOUT_DATE BETWEEN to_date(#{startDate},'yyyy-mm-dd') and to_date(#{endDate},'yyyy-mm-dd')
+            </if>
+        group by
+            CARGO_INFO_ID,
+            INOUT_TYPE,
+            INOUT_DATE
+        order by
+            INOUT_DATE
+    </select>
+
+    <!-- 根据合同GID查询免堆存期 -->
+    <select id="getFreeDaysById" resultType="java.lang.Integer">
+        SELECT
+            FREE_STORAGE_DAYS
+        FROM
+            T_BUS_CONTRACT
+        WHERE
+            ID=#{contractId}
+    </select>
+
+    <!-- 取上次结算明细的最后一条数据 -->
+    <select id="getLastStorageFeeDetail" resultType="com.yy.ppm.statement.bean.po.TStorageFeeDetailPO">
+        select rownum,a.* from (
+            SELECT
+                ID,
+                HISTORY_ID,
+                STORAGE_DATE,
+                DAYS,
+                FIELD_STOCK_WEIGHT,
+                ENTRY_WEIGHT,
+                APPEARANCE_WEIGHT,
+                FEE_STORAGE,
+                SETTLEMENT_VOLUME,
+                AMOUNT,
+                RATE
+            FROM
+                T_STORAGE_FEE_DETAIL
+            WHERE
+                HISTORY_ID=#{hisGid}
+            ORDER BY
+                ID DESC) a
+        where
+            rownum=1
+    </select>
+
+    <!-- 查询上次结算的中间数据 -->
+    <select id="getLastMiddleData" resultType="com.yy.ppm.statement.bean.po.TStorageFeeMiddlePO">
+        SELECT
+            ID,
+            HIS_GID,
+            CARGO_INFO_ID,
+            AMOUNT,
+            TYPE
+        FROM
+            T_STORAGE_FEE_MIDDLE
+        WHERE
+            HIS_GID=#{hisId}
+    </select>
+
+    <!-- 插入历史结算信息 -->
+    <insert id="insertStorageHis" parameterType="com.yy.ppm.statement.bean.po.TStorageFeeHisPO">
+        INSERT INTO
+        T_STORAGE_FEE_HIS(
+            ID,
+            CARGO_INFO_ID,
+            CONTRACT_ID,
+            START_DATE,
+            END_DATE,
+            AMOUNT,
+            BALANCES_AMOUNT,
+            TOTAL_ENTRY,
+            TOTAL_APPEARANCE,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            TAX_RATE,
+            TAX_CAST,
+            AFTER_TAX,
+            SETTLEMENT_DAYS,
+            RATE,
+            IS_FINAL,
+            RATE_ID )
+        VALUES (
+            #{id,jdbcType=BIGINT},
+            #{cargoInfoId,jdbcType=BIGINT},
+            #{contractId,jdbcType=BIGINT},
+            #{startDate,jdbcType=TIMESTAMP},
+            #{endDate,jdbcType=TIMESTAMP},
+            #{amount,jdbcType=DECIMAL},
+            #{balancesAmount,jdbcType=DECIMAL},
+            #{totalEntry,jdbcType=DECIMAL},
+            #{totalAppearance,jdbcType=DECIMAL},
+            #{loginUserId, jdbcType=BIGINT},
+            #{loginUserName, jdbcType=VARCHAR},
+            #{now,jdbcType=TIMESTAMP},
+            #{taxRate,jdbcType=DECIMAL},
+            #{taxCast,jdbcType=DECIMAL},
+            #{afterTax,jdbcType=DECIMAL},
+            #{settlementDays,jdbcType=BIGINT},
+            #{rate,jdbcType=DECIMAL},
+            #{isFinal,jdbcType=VARCHAR},
+            #{rateId,jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <!-- 根据历史记录GID更新历史记录信息 -->
+    <update id="updateHisInfo" parameterType="com.yy.ppm.statement.bean.po.TStorageFeeHisPO">
+        UPDATE
+            T_STORAGE_FEE_HIS
+        SET
+            CONTRACT_ID=#{contractId,jdbcType=BIGINT},
+            END_DATE = #{endDate,jdbcType=TIMESTAMP},
+            AMOUNT=#{amount,jdbcType=DECIMAL},
+            BALANCES_AMOUNT=#{balancesAmount,jdbcType=DECIMAL},
+            TOTAL_ENTRY=#{totalEntry,jdbcType=DECIMAL},
+            TOTAL_APPEARANCE=#{totalAppearance,jdbcType=DECIMAL},
+            SETTLEMENT_DAYS=#{settlementDays,jdbcType=BIGINT},
+            TAX_CAST=#{taxCast,jdbcType=DECIMAL},
+            TAX_RATE=#{taxRate,jdbcType=DECIMAL},
+            AFTER_TAX=#{afterTax,jdbcType=DECIMAL},
+            RATE=#{rate,jdbcType=DECIMAL},
+            IS_FINAL=#{isFinal,jdbcType=VARCHAR},
+            RATE_ID=#{rateId,jdbcType=BIGINT}
+        WHERE
+            ID=#{id}
+    </update>
+
+    <!-- 根据历史记录GID删除历史结算信息 -->
+    <delete id="deleteHistoryDetailByGid">
+        DELETE FROM
+            T_STORAGE_FEE_DETAIL
+        WHERE
+            HISTORY_ID=#{gid}
+    </delete>
+
+    <!-- 根据历史记录GID删除历史结算信息 -->
+    <delete id="deleteMiddleData">
+        DELETE FROM
+            T_STORAGE_FEE_MIDDLE
+        WHERE
+            HIS_GID=#{gid}
+    </delete>
+
+    <!-- 插入结算明细信息 -->
+    <insert id="insertStorageFeeDetail" parameterType="com.yy.ppm.statement.bean.po.TStorageFeeDetailPO">
+
+        INSERT INTO
+            T_STORAGE_FEE_DETAIL(
+                ID,
+                HISTORY_ID,
+                STORAGE_DATE,
+                DAYS,
+                FIELD_STOCK_WEIGHT,
+                ENTRY_WEIGHT,
+                APPEARANCE_WEIGHT,
+                FEE_STORAGE,
+                SETTLEMENT_VOLUME,
+                AMOUNT,
+                RATE)
+        <foreach collection="detailList" index="index" item="item" open="(" separator="union" close=")">
+            select
+                #{item.id,jdbcType=BIGINT},
+                #{item.historyId,jdbcType=BIGINT},
+                #{item.storageDate,jdbcType=TIMESTAMP},
+                #{item.days,jdbcType=BIGINT},
+                #{item.fieldStockWeight,jdbcType=DECIMAL},
+                #{item.entryWeight,jdbcType=DECIMAL},
+                #{item.appearanceWeight,jdbcType=DECIMAL},
+                #{item.feeStorage,jdbcType=DECIMAL},
+                #{item.settlementVolume,jdbcType=DECIMAL},
+                #{item.amount,jdbcType=DECIMAL},
+                #{item.rate,jdbcType=DECIMAL}
+            from dual
+        </foreach>
+    </insert>
+
+    <!-- 插入上次结算的中间数据 -->
+    <insert id="insertStorageMiddle" parameterType="com.yy.ppm.statement.bean.po.TStorageFeeMiddlePO">
+
+        INSERT INTO
+        T_STORAGE_FEE_MIDDLE(
+            ID,
+            HIS_GID,
+            CARGO_INFO_ID,
+            AMOUNT,
+            TYPE)
+        <foreach collection="detailList" index="index" item="item" open="(" separator="union" close=")">
+            select
+            #{item.id,jdbcType=BIGINT},
+            #{item.hisGid,jdbcType=BIGINT},
+            #{item.cargoInfoId,jdbcType=BIGINT},
+            #{item.amount,jdbcType=DECIMAL},
+            #{item.type,jdbcType=INTEGER}
+            from dual
+        </foreach>
+    </insert>
+
+    <!-- 根据历史记录GID获取历史 -->
+    <select id="getHistoryByGid" resultType="com.yy.ppm.statement.bean.dto.FStorageFeeHisDTO">
+        SELECT
+            ID,
+            CARGO_INFO_ID,
+            CONTRACT_ID,
+            START_DATE,
+            END_DATE,
+            AMOUNT,
+            BALANCES_AMOUNT,
+            TOTAL_ENTRY,
+            TOTAL_APPEARANCE,
+            SETTLEMENT_DAYS,
+            FREE_STORAGE_DAYS,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            TAX_RATE,
+            TAX_CAST,
+            AFTER_TAX,
+            STATUS,
+            RATE,
+            IS_FINAL,
+            RATE_ID
+        FROM
+            T_STORAGE_FEE_HIS
+        WHERE
+            ID=#{gid}
+    </select>
+
+    <!-- 根据历史记录GID获取历史计算详情 -->
+    <select id="getHistoryDetailByHisgid" resultType="com.yy.ppm.statement.bean.po.TStorageFeeDetailPO">
+        SELECT
+            ID,
+            HISTORY_ID,
+            STORAGE_DATE,
+            DAYS,
+            FIELD_STOCK_WEIGHT,
+            ENTRY_WEIGHT,
+            APPEARANCE_WEIGHT,
+            FEE_STORAGE,
+            SETTLEMENT_VOLUME,
+            AMOUNT,
+            RATE
+        FROM
+            T_STORAGE_FEE_DETAIL
+        WHERE
+            HISTORY_ID=#{gid}
+        ORDER BY
+            ID
+    </select>
+
+    <!-- 获取最后一次计算的历史结算GID -->
+    <select id="getLastHisGidByTicket" resultType="java.lang.Long">
+        SELECT
+            MAX(ID)
+        FROM
+            T_STORAGE_FEE_HIS
+        WHERE
+            CARGO_INFO_ID=#{cargoInfoId}
+    </select>
+
+    <!-- 根据历史记录GID删除历史结算信息 -->
+    <delete id="deleteHistoryByGid">
+        DELETE FROM
+            T_STORAGE_FEE_HIS
+        WHERE
+            ID=#{gid}
+    </delete>
+
+    <select id="getCargoInfoById" resultType="com.yy.ppm.business.bean.po.TBusCargoInfoPO">
+        select
+            ID,SHIPVOYAGE_ID,SHIPVOYAGE_ITEM_ID,SCN,SHIP_NAME,CARGO_INFO_NO,CARGO_OWNER_ID,CARGO_OWNER_NAME,CARGO_AGENT_ID,
+            CARGO_AGENT_NAME,CARGO_CODE,CARGO_NAME,TRADE_TYPE,PACKING_CODE,PACKING_NAME,COMPANY_ID,COMPANY_NAME,PARENT_ID,
+            ROOT_ID,QUANTITY,TON,RIGHTS_QUANTITY,SURPLUS_RIGHTS_QUANTITY,IS_CLEAR,CLEAR_BY,CLEAR_BY_NAME,CLEAR_DATE,CREATE_BY,
+            CREATE_BY_NAME,CREATE_TIME,UPDATE_BY,UPDATE_BY_NAME,UPDATE_TIME,"SOURCE",STATEMENT_STATUS_CODE,STATEMENT_STATUS_NAME
+        from
+            T_BUS_CARGO_INFO
+        WHERE
+            ID=#{id}
+    </select>
+
+    <insert id="insertCostStatement" parameterType="com.yy.ppm.statement.bean.po.TCostStatementPO">
+        INSERT INTO T_COST_STATEMENT(ID, COMPANY_ID, COMPANY_NAME, STATEMENT_NO, CUSTOMER_ID, CUSTOMER_NAME, TYPE,
+            TRUST_ID, TRUST_CARGO_ID, HANDOVERLIST_ID, SHIPVOYAGE_ID, SHIPVOYAGE_ITEM_ID,
+            CARGO_CODE, CARGO_NAME, TRADE_TYPE, SETTLEMENT_DATE, STATUS, REMARK, CREATE_BY,
+            CREATE_BY_NAME, CREATE_TIME, IS_FINAL)
+        VALUES (#{id, jdbcType=BIGINT}, #{companyId, jdbcType=BIGINT}, #{companyName, jdbcType=VARCHAR},
+            #{statementNo, jdbcType=VARCHAR}, #{customerId, jdbcType=BIGINT}, #{customerName, jdbcType=VARCHAR},
+            #{type, jdbcType=VARCHAR}, #{trustId, jdbcType=BIGINT}, #{trustCargoId, jdbcType=BIGINT},
+            #{handoverlistId, jdbcType=BIGINT}, #{shipvoyageId, jdbcType=BIGINT},
+            #{shipvoyageItemId, jdbcType=BIGINT}, #{cargoCode, jdbcType=VARCHAR}, #{cargoName, jdbcType=VARCHAR},
+            #{tradeType, jdbcType=VARCHAR}, #{settlementDate, jdbcType=TIMESTAMP}, #{status, jdbcType=VARCHAR},
+            #{remark, jdbcType=VARCHAR}, #{loginUserId, jdbcType=BIGINT}, #{loginUserName, jdbcType=VARCHAR},
+            #{now, jdbcType=TIMESTAMP}, #{isFinal, jdbcType=VARCHAR})
+    </insert>
+
+    <insert id="insertCostStatementDetail" parameterType="com.yy.ppm.statement.bean.po.TCostStatementDetailPO">
+        INSERT INTO T_COST_STATEMENT_DETAIL(ID, STATEMENT, CONTRACT_ID, RATE_ITEM_CODE, RATE_ITEM_NAME,
+            SERVICE_CONTENT_ID, SERVICE_CONTENT_NAME, PROCESS_CODE, PROCESS_NAME, RATE, UNIT_CODE, UNIT_NAME, "NUMBER",
+            AMOUNT, TAX, TAX_AMOUNT, REMARK, CREATE_BY, CREATE_BY_NAME, CREATE_TIME, BUSINESS_ID,RATE_ID)
+        VALUES
+        (#{id, jdbcType=BIGINT}, #{statement, jdbcType=BIGINT}, #{contractId, jdbcType=BIGINT},
+            #{rateItemCode, jdbcType=VARCHAR},
+            #{rateItemName, jdbcType=VARCHAR}, #{serviceContentId, jdbcType=BIGINT},
+            #{serviceContentName, jdbcType=VARCHAR}, #{processCode, jdbcType=VARCHAR},
+            #{processName, jdbcType=VARCHAR}, #{rate, jdbcType=DECIMAL},
+            #{unitCode, jdbcType=VARCHAR}, #{unitName, jdbcType=VARCHAR},
+            #{number, jdbcType=DECIMAL}, #{amount, jdbcType=DECIMAL}, #{tax, jdbcType=DECIMAL},
+            #{taxAmount, jdbcType=DECIMAL}, #{remark, jdbcType=VARCHAR},
+            #{loginUserId, jdbcType=BIGINT}, #{loginUserName, jdbcType=VARCHAR},
+            #{now, jdbcType=TIMESTAMP}, #{businessId, jdbcType=BIGINT}, #{rateId, jdbcType=BIGINT})
+    </insert>
+
+    <update id="updateHisStatus">
+        update
+            T_STORAGE_FEE_HIS
+        SET
+            STATUS=#{status}
+        WHERE
+            ID=#{id}
+    </update>
+
+    <resultMap id="getCostStatementDetail" type="com.yy.ppm.statement.bean.po.TCostStatementDetailPO">
+        <result column="ID" property="id" jdbcType="BIGINT"/>
+        <result column="STATEMENT" property="statement" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <select id="getCostStatementDetail" resultMap="getCostStatementDetail">
+        SELECT ID, STATEMENT
+        FROM T_COST_STATEMENT_DETAIL
+        WHERE BUSINESS_ID = #{historyGid, jdbcType=BIGINT}
+    </select>
+
+    <delete id="deleteCostStatement">
+        DELETE
+        FROM T_COST_STATEMENT
+        WHERE ID = #{id,jdbcType=BIGINT}
+    </delete>
+
+    <delete id="deleteCostStatementDetail">
+        DELETE
+        FROM T_COST_STATEMENT_DETAIL
+        WHERE BUSINESS_ID = #{historyGid,jdbcType=BIGINT}
+    </delete>
+
+    <resultMap id="getCostStatement" type="com.yy.ppm.statement.bean.po.TCostStatementPO">
+        <result property="id" column="ID" jdbcType="BIGINT"/>
+        <result property="companyId" column="COMPANY_ID" jdbcType="BIGINT"/>
+        <result property="companyName" column="COMPANY_NAME" jdbcType="VARCHAR"/>
+        <result property="statementNo" column="STATEMENT_NO" jdbcType="VARCHAR"/>
+        <result property="customerId" column="CUSTOMER_ID" jdbcType="BIGINT"/>
+        <result property="customerName" column="CUSTOMER_NAME" jdbcType="VARCHAR"/>
+        <result property="type" column="TYPE" jdbcType="VARCHAR"/>
+        <result property="trustId" column="TRUST_ID" jdbcType="BIGINT"/>
+        <result property="trustCargoId" column="TRUST_CARGO_ID" jdbcType="BIGINT"/>
+        <result property="handoverlistId" column="HANDOVERLIST_ID" jdbcType="BIGINT"/>
+        <result property="shipvoyageId" column="SHIPVOYAGE_ID" jdbcType="BIGINT"/>
+        <result property="shipvoyageItemId" column="SHIPVOYAGE_ITEM_ID" jdbcType="BIGINT"/>
+        <result property="cargoCode" column="CARGO_CODE" jdbcType="VARCHAR"/>
+        <result property="cargoName" column="CARGO_NAME" jdbcType="VARCHAR"/>
+        <result property="tradeType" column="TRADE_TYPE" jdbcType="VARCHAR"/>
+        <result property="settlementDate" column="SETTLEMENT_DATE" jdbcType="TIMESTAMP"/>
+        <result property="status" column="STATUS" jdbcType="VARCHAR"/>
+        <result property="remark" column="REMARK" jdbcType="VARCHAR"/>
+        <result property="createBy" column="CREATE_BY" jdbcType="BIGINT"/>
+        <result property="createByName" column="CREATE_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="UPDATE_BY" jdbcType="BIGINT"/>
+        <result property="updateByName" column="UPDATE_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="updateTime" column="UPDATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="isFinal" column="IS_FINAL" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="getCostStatement" resultMap="getCostStatement">
+        SELECT ID,
+               COMPANY_ID,
+               COMPANY_NAME,
+               STATEMENT_NO,
+               CUSTOMER_ID,
+               CUSTOMER_NAME,
+               TYPE,
+               TRUST_ID,
+               TRUST_CARGO_ID,
+               HANDOVERLIST_ID,
+               SHIPVOYAGE_ID,
+               SHIPVOYAGE_ITEM_ID,
+               CARGO_CODE,
+               CARGO_NAME,
+               TRADE_TYPE,
+               SETTLEMENT_DATE,
+               STATUS,
+               REMARK,
+               CREATE_BY,
+               CREATE_BY_NAME,
+               CREATE_TIME,
+               UPDATE_BY,
+               UPDATE_BY_NAME,
+               UPDATE_TIME,
+               IS_FINAL
+        FROM T_COST_STATEMENT
+        WHERE ID = #{statementId,jdbcType=BIGINT}
+    </select>
+
+    <update id="updateCostStatement">
+        UPDATE T_COST_STATEMENT
+        SET STATUS = #{status, jdbcType=VARCHAR}
+        WHERE ID = #{id, jdbcType=BIGINT}
+    </update>
+
+    <update id="updateCargoInfo">
+        UPDATE T_BUS_CARGO_INFO
+        SET STATEMENT_STATUS_CODE = #{statementStatusCode, jdbcType=VARCHAR},
+            STATEMENT_STATUS_NAME = #{statementStatusName, jdbcType=VARCHAR}
+        WHERE ID = #{id,jdbcType=BIGINT}
+    </update>
+</mapper>

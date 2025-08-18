@@ -1,0 +1,225 @@
+#basic
+server:
+  port: 9092
+  servlet:
+    context-path: /dev-api
+
+#druid
+spring:
+  datasource:
+    # 动态数据源文档 https://www.kancloud.cn/tracy5546/dynamic-datasource/content
+    dynamic:
+      # 性能分析插件(有性能损耗 不建议生产环境使用)
+      p6spy: false
+      # 设置默认的数据源或者数据源组,默认值即为 master
+      primary: master
+      # 严格模式 匹配不到数据源则报错
+      strict: true
+      datasource:
+        # 主库数据源
+        master:
+          driver-class-name: oracle.jdbc.OracleDriver
+          username: WFG_PORTMIS
+          password: Rever@168
+          url: jdbc:oracle:thin:@//42.120.10.45:1521/ORCL
+        bhtnewdb:
+          driver-class-name: oracle.jdbc.OracleDriver
+          username: WFG_PORTMIS
+          password: Rever@168
+          url: jdbc:oracle:thin:@//42.120.10.45:1521/ORCL
+      druid:
+        # 初始连接数
+        initialSize: 32
+        # 最小连接池数量
+        minIdle: 32
+        # 最大连接池数量
+        maxActive: 128
+        # 配置获取连接等待超时的时间
+        maxWait: 15000
+        # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+        timeBetweenEvictionRunsMillis: 3000
+        # 配置一个连接在池中最小生存的时间，单位是毫秒
+        minEvictableIdleTimeMillis: 300000
+        # 配置一个连接在池中最大生存的时间，单位是毫秒
+        maxEvictableIdleTimeMillis: 900000
+        filters: stat
+        validation-query: SELECT 0 FROM DUAL
+        test-while-idle: true
+        test-on-borrow: false
+        test-on-return: false
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 120MB #单个文件最大大小
+      max-request-size: 500MB #上传数据总大小
+  application:
+    name: dev-api
+
+  data:
+    redis:
+      client-name: bdss-redis
+      database: 4
+      host: 123.207.147.75
+      password: yyRever168.com!#@
+      port: 6379
+      timeout: 3000ms
+      lettuce:
+        shutdown-timeout: 2000ms
+        pool:
+          max-active: 8
+          max-idle: 4
+          min-idle: 1
+          max-wait: 200ms
+          time-between-eviction-runs-millis: 120000
+  rabbitmq:
+    producer:
+      virtual-host: yangyi-eport
+      host: 114.55.226.181
+      port: 5672
+      username: yangyi
+      password: "Rever168@"
+
+    # 消费者配置（支持连接多个RabbitMQ服务器）
+    consumers:
+      - server-id: rabbit-server-1  # 第一台服务器唯一标识
+        virtual-host: yangyi-eport
+        host: 114.55.226.181
+        port: 5672
+        username: yangyi
+        password: "Rever168@"
+        listener:
+          concurrency: 10
+          max-concurrency: 20
+          acknowledge-mode: manual  # 手动确认模式（必填）
+
+        exchanges: # 该服务器下的交换机配置
+          - name: rabbitmq测试
+            type: direct  # 交换机类型（direct/topic/fanout/headers）
+
+        queues: # 该服务器下的队列配置
+          - name: 测试_queues
+            routing-key: exchange_cs
+            exchange: rabbitmq测试  # 关联的交换机名称
+            enabled: true  # 启用监听
+#mybatis-plus
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*Mapper.xml
+  typeAliasesPackage: com.yy.ppm.**.model
+  configuration:
+    mapUnderscoreToCamelCase: true
+    call-setters-on-nulls: true
+    jdbc-type-for-null: 'null'
+
+#cros
+cros:
+  config:
+    pathPattern: /**
+    origins: '*'
+    allowMethods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - OPTIONS
+    exposedHeaders:
+      - token
+      - content-disposition
+    allowHeaders:
+      - token
+      - content-disposition
+      - x-requested-with
+    maxAge: 86400
+    allowCredentials: true
+
+# Swagger配置 add by yy
+swagger:
+  # 是否开启swagger
+  enabled: true
+  # 请求前缀
+  pathMapping: /dev-api
+  # 项目相关配置
+  project:
+    # 名称
+    name: 济南扬奕Java开发平台V1.0
+    # 版本
+    version: 1.0.0
+    # 版权年份
+    copyrightYear: 2023
+    #作者
+    contact: 济南扬奕软件开发有限公司
+
+#扬奕云配置参数
+yy:
+  #token过期时间
+  token:
+    expires: 480
+  mqSwitch: 1
+  whiteList:
+    accounts:
+      - admin
+      - test
+      - wfkjgs511
+      - superme
+      - xielinqi
+      - bzhyanshi
+    urls:
+      - /api/internal/login
+      - /api/internal/loginApp
+      - /api/internal/loginApplet
+      - /api/internal/loginRunPlie
+      - /api/internal/sysVersion/getVersion
+      - /api/internal/sysVersion/downloadApp
+      - /api/internal/sysVersion/downloadMacApp
+      - /api/internal/sysVersion/downloadRunPileApp
+#minio
+minio:
+  url: 127.0.0.1
+  port: 9000
+  accessKey: minioadmin
+  secretKey: minioadmin
+  connectTimeout: 30
+  writeTimeout: 30
+  readTimeout: 30
+  secure: false
+
+service:
+  url: localhost
+
+#snowflake 配置雪花算法的workId IP地址需要替换成服务器地址  在com.port.common.snowflake包中使用
+snowflake:
+  ipdz: {
+    "[192.168.75.134]": "1"
+  }
+
+#log
+logging:
+  level:
+    com.yy.ppm.mappers: debug
+
+deploy:
+  env: dev
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,env,metrics
+  endpoint:
+    health:
+      show-details: always
+  health:
+    rabbit:
+      enabled: false
+
+#pagehelper
+pagehelper:
+  reasonable: true
+  #分页插件会自动检测当前的数据库链接，自动选择合适的分页方式
+  auto-dialect: true
+  #默认值为 false。设置为 true 时，允许在运行时根据多数据源自动识别对应方言的分页
+  auto-runtime-dialect: true
+
+# 吨包理货接口
+dblh:
+  url: https://000.00.00.000:8000

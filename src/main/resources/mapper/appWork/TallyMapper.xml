@@ -1,0 +1,2563 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.appWork.mapper.TallyMapper">
+
+    <resultMap type="com.yy.ppm.appWork.bean.po.TYardTallyPO" id="tallyRecordMap">
+        <result property="id" column="ID" jdbcType="BIGINT"/>
+        <result property="planId" column="PLAN_ID" jdbcType="BIGINT"/>
+        <result property="relationId" column="RELATION_ID" jdbcType="BIGINT"/>
+        <result property="shipvoyageId" column="SHIPVOYAGE_ID" jdbcType="BIGINT"/>
+        <result property="processCode" column="PROCESS_CODE" jdbcType="VARCHAR"/>
+        <result property="processName" column="PROCESS_NAME" jdbcType="VARCHAR"/>
+        <result property="equipmentId" column="EQUIPMENT_ID" jdbcType="BIGINT"/>
+        <result property="equipmentNo" column="EQUIPMENT_NO" jdbcType="VARCHAR"/>
+        <result property="transportEquipmentId" column="TRANSPORT_EQUIPMENT_ID" jdbcType="BIGINT"/>
+        <result property="transportEquipmentNo" column="TRANSPORT_EQUIPMENT_NO" jdbcType="VARCHAR"/>
+        <result property="quantity" column="QUANTITY" jdbcType="INTEGER"/>
+        <result property="ton" column="TON" jdbcType="DOUBLE"/>
+        <result property="createBy" column="CREATE_BY" jdbcType="VARCHAR"/>
+        <result property="workErWeiId" column="WORK_ERWEI_ID" jdbcType="VARCHAR"/>
+        <result property="tsptId" column="TSPT_ID" jdbcType="VARCHAR"/>
+        <result property="planNo" column="PLAN_NO" jdbcType="VARCHAR"/>
+        <result property="sourceCd" column="SOURCE_CD" jdbcType="VARCHAR"/>
+        <result property="source" column="SOURCE_NM" jdbcType="VARCHAR"/>
+        <result property="destinationCd" column="TARGET_CD" jdbcType="VARCHAR"/>
+        <result property="destination" column="TARGET_NM" jdbcType="VARCHAR"/>
+        <result property="deptParentId" column="DEPT_PARENT_ID" jdbcType="VARCHAR"/>
+        <result property="deptParentName" column="DEPT_PARENT_NAME" jdbcType="VARCHAR"/>
+        <result property="createByName" column="CREATE_NAME" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="TIMESTAMP"/>
+        <collection property="listTallyItemList" ofType=" com.yy.ppm.appWork.bean.po.TYardTallyItemPO"
+                    select="com.yy.ppm.appWork.mapper.TallyMapper.getTallyRecordItemList" column="{id=id}">
+        </collection>
+    </resultMap>
+
+    <resultMap type="com.yy.ppm.appWork.bean.po.TYardTallyItemPO" id="recordItemMap">
+        <result property="id" column="ID" jdbcType="BIGINT"/>
+        <result property="tallyId" column="TALLY_ID" jdbcType="BIGINT"/>
+        <result property="quantity" column="QUANTITY" jdbcType="BIGINT"/>
+        <result property="ton" column="TON" jdbcType="DOUBLE"/>
+        <result property="createBy" column="CREATE_BY" jdbcType="VARCHAR"/>
+        <result property="createByName" column="CREATE_NAME" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="sourceOrTargetFlag" column="SOURCE_OR_TARGET_FLAG" jdbcType="TIMESTAMP"/>
+        <result property="sourceCd" column="SOURCE_CD" jdbcType="TIMESTAMP"/>
+        <result property="sourceNm" column="SOURCE_NM" jdbcType="TIMESTAMP"/>
+        <result property="targetCd" column="TARGET_CD" jdbcType="TIMESTAMP"/>
+        <result property="targetNm" column="TARGET_NM" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+
+    <select id="getWorkPlan" resultType="com.yy.ppm.produce.bean.dto.TPrdWorkPlanDTO" parameterType="com.yy.ppm.produce.bean.dto.TPrdWorkPlanSearchDTO">
+        SELECT
+        T1. ID,
+        T1.COMPANY_ID,
+        T1.COMPANY_NAME,
+        T1.WORK_DATE,
+        T1.CLASS_CODE,
+        T1.CLASS_NAME,
+        T1.TRUST_ID,
+        T1.SHIPVOYAGE_ID,
+        T1.SHIPVOYAGE_ITEM_ID,
+        T1.HATCH,
+        T3.SHIP_NAME,
+        T3.SHIP_NAME SHIPVOYAGE_LABEL,
+        T1.HATCH,
+        T1.PLAN_NO,
+        T1.PLAN_TYPE,
+        T1.PROCESS_CODE,
+        T1.PROCESS_NAME,
+        T1.WORK_CONTENT,
+        T1.DEPT_ID,
+        T1.DEPT_NAME,
+        T1.QUANTITY_PLAN,
+        T1.TON_PLAN,
+        T1.START_TIME_PLAN,
+        T1.END_TIME_PLAN,
+        T1.START_WORK_TIME,
+        T1.END_WORK_TIME,
+        T1.REMARK,
+        T1.STATUS,
+        M1.NM AS STATUS_LABEL,
+        T3.SCN,
+        T1.BERTH_ID,
+        T1.BERTH_NAME,
+        T1.FRONT_TALLY_BY,
+        T1.FRONT_TALLY_BY_NAME,
+        T1.BACK_TALLY_BY,
+        T1.BACK_TALLY_BY_NAME,
+        T1.DISPATCH_BY,
+        T1.DISPATCH_BY_NAME,
+        T1.CREATE_BY,
+        T1.CREATE_BY_NAME,
+        T1.CREATE_TIME,
+        T1.UPDATE_BY,
+        T1.UPDATE_BY_NAME,
+        T1.UPDATE_TIME,
+        T1.EXAMINE_BY,
+        T1.EXAMINE_BY_NAME,
+        T1.EXAMINE_TIME,
+        T1.EQUIPMENT_NAMES_FRONT,
+        T1.EQUIPMENT_NAMES_BACK,
+        T1.EQUIPMENT_NAMES_ASSIST,
+        T1.EQUIPMENT_NAMES_RESHIPMENT,
+        T1.MASS_NAMES_SOURCE,
+        T1.MASS_NAMES_TARGET,
+        T1.RESHIPMENT_TYPE_CODE,
+        M2.NM AS RESHIPMENT_TYPE_Label,
+        T1.BUS_CARGO_INFO_ID,
+        T1.CARGO_CATEGORY_CODE,
+        T1.CARGO_CATEGORY_NAME,
+        T2.NUM AS LABOR_NUM,
+        T7.SHIP_NAME,
+        T4.VOYAGE,
+        5 AS HATCH_NUM,
+        T4.LOAD_UNLOAD,
+        T7.CARGO_NAME,
+        T7.CARGO_OWNER_NAME,
+        T7.CARGO_INFO_NO,
+        T7.TRUST_INFO_NO,
+        T8.TARGET_CD,
+        T8.SOURCE_CD,
+        T8.IS_DIRECT_ACCESS
+        FROM
+        T_PRD_WORK_PLAN T1
+        LEFT JOIN T_PRD_DISPATCH T2 ON T1. ID = T2.WORK_PLAN_ID AND T2.DISPATCH_TYPE = '2'
+        LEFT JOIN m_constants M1 ON T1.STATUS = M1.CD AND M1.TYPE_CD = 'WORK_PLAN_STATUS'
+        LEFT JOIN m_constants M2 ON T1.RESHIPMENT_TYPE_CODE = M2.CD AND M2.TYPE_CD = 'RESHIPMENT_TYPE'
+        LEFT JOIN T_DIS_SHIPVOYAGE T3 ON T1.SHIPVOYAGE_ID = T3. ID
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM T4 ON T4. ID = T1.SHIPVOYAGE_ITEM_ID
+        LEFT JOIN M_WORK_PROCESS T8 ON T1. PROCESS_CODE = T8.PROCESS_CD
+        LEFT JOIN (
+        SELECT
+        A .TRUST_ID,
+        T6.SHIP_NAME,
+        LISTAGG (TO_CHAR(T6.CARGO_INFO_NO), ',') WITHIN GROUP (ORDER BY T6.CARGO_INFO_NO) CARGO_INFO_NO,
+        LISTAGG (TO_CHAR(T6.CARGO_NAME), ',') WITHIN GROUP (ORDER BY T6.TRUST_ID) CARGO_NAME,
+        LISTAGG (
+        TO_CHAR (T6.CARGO_OWNER_NAME),
+        ','
+        ) WITHIN GROUP (ORDER BY T6.TRUST_ID) CARGO_OWNER_NAME,
+        LISTAGG (
+        TO_CHAR (A.BUSINESS_NO),
+        ','
+        ) WITHIN GROUP (ORDER BY A.TRUST_ID) TRUST_INFO_NO
+        FROM
+        T_BUS_CARGO_INFO T6,
+        T_BUS_TRUST_CARGO A,
+        T_BUS_TRUST T5
+        WHERE
+        A .CARGO_INFO_ID = T6. ID
+        AND T5. ID = A .TRUST_ID
+        GROUP BY
+        A .TRUST_ID,
+        T6.SHIP_NAME
+        ) T7 ON T7.TRUST_ID = T1.TRUST_ID
+        where
+        T1.CLASS_CODE = #{classCode} AND WORK_DATE = TO_DATE(#{workDateString},'YYYY-MM-DD') and T1.STATUS = 20
+        <if test="loginId != null and loginId != '' and flag == 0">
+            <bind name="loginIdLike" value="'%'+loginId+'%'"/>
+            and (T1.FRONT_TALLY_BY like #{loginIdLike} OR T1.BACK_TALLY_BY like  #{loginIdLike} OR T1.DISPATCH_BY like  #{loginIdLike})
+        </if>
+        <if test="shipNameVoyage != null and shipNameVoyage != ''">
+            <bind name="shipNameVoyage_like" value="'%' + shipNameVoyage + '%'"/>
+            AND (T3.SHIP_NAME LIKE #{shipNameVoyage_like} OR T4.VOYAGE LIKE #{shipNameVoyage_like})
+        </if>
+        <if test="businessNo != null and businessNo != ''">
+            <bind name="businessNo_like" value="'%' + businessNo + '%'"/>
+            AND T7.TRUST_INFO_NO LIKE #{businessNo_like}
+        </if>
+        <if test="cargoInfoNo != null and cargoInfoNo != ''">
+            <bind name="cargoInfoNo_like" value="'%' + cargoInfoNo + '%'"/>
+            AND T7.CARGO_INFO_NO LIKE #{cargoInfoNo_like}
+        </if>
+    </select>
+
+    <select id="getWorkPlanCargoInfo" resultType="Map" parameterType="com.yy.ppm.produce.bean.dto.TPrdWorkPlanSearchDTO">
+      	SELECT
+	    A1. ID "planId",
+        A2. ID "trustId",
+        A3.BUSINESS_NO "businessNo",
+        A4.CARGO_INFO_NO "cargoInfoNo",
+        A4.CARGO_OWNER_NAME "cargoOwnerName",
+        A4.CARGO_NAME "cargoName"
+        FROM
+            T_PRD_WORK_PLAN A1
+        LEFT JOIN T_BUS_TRUST A2 ON A2. ID = A1.TRUST_ID
+        LEFT JOIN T_BUS_TRUST_CARGO A3 ON A3.TRUST_ID = A2. ID
+        LEFT JOIN T_BUS_CARGO_INFO A4 ON A3.CARGO_INFO_ID = A4. ID
+        where
+        A1.CLASS_CODE = #{classCode} AND A1.WORK_DATE = TO_DATE(#{workDateString},'YYYY-MM-DD') and A1.STATUS = 20
+    </select>
+
+    <select id="getProcessInfoList" resultType="Map" parameterType="com.yy.ppm.master.bean.dto.MWorkProcessSearchDTO">
+        SELECT
+            TO_CHAR (A . ID) "id",
+            A .PROCESS_CD "processCode",
+            A .PROCESS_NM "processName",
+            A .SOURCE_CD "source",
+            A .TARGET_CD "destination",
+            A .IS_PRE_PROCESS "isFrontType",
+            D.DICT_VALUE "isOutSideTruck",
+            A.UPDATE_POINT "updatePoint",
+            A.NEW_PROCESS "newProcess"
+        FROM
+            M_WORK_PROCESS A
+        LEFT JOIN M_DICT_DATA D ON D .DICT_VALUE = A .IN_OUT_STORAGE_TYPE_CD
+        AND D .DICT_TYPE = 'IN_OUT_PORT_TYPE'
+        WHERE
+        A .PARENT_ID = (
+            SELECT
+                ID
+            FROM
+                M_WORK_PROCESS
+            WHERE
+                PROCESS_CD = #{processCd}
+        ) AND A.IS_TALLY_COURSE = '1'
+    </select>
+
+    <select id="getMechanics" resultType="Map" parameterType="com.yy.ppm.produce.bean.dto.TPrdDispatchSecondarySearchDTO">
+        SELECT
+        TO_CHAR (ID) "id",
+        TO_CHAR (EQUIPMENT_TYPE_ID) "equipmentTypeId",
+        EQUIPMENT_TYPE_NAME "equipmentTypeName",
+        TO_CHAR (EQUIPMENT_ID) "equipmentId",
+        EQUIPMENT_NO "equipmentNo",
+        TO_CHAR (OPERATORS_ID) "operatorsId",
+        OPERATORS_NAME "operatorsName"
+        FROM
+        T_PRD_DISPATCH_SECONDARY
+        WHERE
+        WORK_PLAN_ID = #{workPlanId}
+        AND DISPATCH_TYPE = 1 AND  WORK_POSITION_CODE IN (01,02,04)
+        <!--        AND WORK_POSITION_CODE IN (SELECT WORK_POSITION_CODE from T_PRD_DISPATCH_SECONDARY WHERE WORK_PLAN_ID = #{workPlanId} and OPERATORS_ID = #{operatorsId})-->
+    </select>
+
+    <select id="getTransfer" resultType="Map" parameterType="com.yy.ppm.produce.bean.dto.TPrdDispatchSecondarySearchDTO">
+        SELECT
+        TO_CHAR (ID) "id",
+        TO_CHAR (EQUIPMENT_TYPE_ID) "equipmentTypeId",
+        EQUIPMENT_TYPE_NAME "equipmentTypeName",
+        TO_CHAR (EQUIPMENT_ID) "equipmentId",
+        EQUIPMENT_NO "equipmentNo",
+        TO_CHAR (OPERATORS_ID) "operatorsId",
+        OPERATORS_NAME "operatorsName"
+        FROM
+        T_PRD_DISPATCH_SECONDARY
+        WHERE
+        WORK_PLAN_ID = #{workPlanId}
+        AND DISPATCH_TYPE = 1 AND WORK_POSITION_CODE = 03
+    </select>
+
+    <select id="getPlanCode" resultType="String" parameterType="String">
+        select LISTAGG ( '''' || TO_CHAR(BUSINESS_NO) || '''', ',') WITHIN GROUP (ORDER BY BUSINESS_NO) "businessNo"  from T_BUS_TRUST_CARGO A1 LEFT JOIN T_BUS_TRUST A2  ON A1.TRUST_ID = A2.ID
+        WHERE A1.TRUST_ID = #{trustId,jdbcType=VARCHAR}
+        <if test="cargoInfoId != null">
+            AND A1.CARGO_INFO_ID = #{cargoInfoId}
+        </if>
+    </select>
+
+    <select id="getPlanCodeZ" resultType="String">
+        SELECT
+        LISTAGG ( '''' || TO_CHAR(BUSINESS_NO) || '''', ',') WITHIN GROUP (ORDER BY BUSINESS_NO)  "businessNo"
+        FROM
+        T_BUS_TRUST T1
+        LEFT JOIN T_BUS_TRUST_CARGO T2 ON T1. ID = T2.TRUST_ID
+        WHERE
+        T2.CARGO_INFO_ID IN (
+        SELECT
+        A1.CARGO_INFO_ID
+        FROM
+        T_BUS_TRUST_CARGO A1
+        WHERE
+        A1.TRUST_ID = #{trustId,jdbcType=VARCHAR}
+        <if test="cargoInfoId != null">
+            AND A1.CARGO_INFO_ID = #{cargoInfoId}
+        </if>
+        ) AND T1.TYPE IN
+        <foreach collection="type" separator=", " open="(" close=")" item="item">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+
+    <select id="getPlanNoNew" resultType="String">
+        SELECT
+        LISTAGG ( '''' || TO_CHAR(BUSINESS_NO) || '''', ',') WITHIN GROUP (ORDER BY BUSINESS_NO)  "businessNo"
+        FROM
+        T_BUS_TRUST T1
+        LEFT JOIN T_BUS_TRUST_CARGO T2 ON T1. ID = T2.TRUST_ID
+        WHERE
+        T1.ID = #{trustId,jdbcType=VARCHAR}
+        AND T1.TYPE IN
+        <foreach collection="type" separator=", " open="(" close=")" item="item">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+
+    <select id="getTrustInfoNo" resultType="Map">
+        SELECT
+        BUSINESS_NO "businessNo",
+        A3.CARGO_INFO_NO "cargoInfoNo",
+        A3.CARGO_OWNER_NAME "cargoOwnerName",
+        A3.CARGO_NAME "cargoName"
+        FROM
+        T_BUS_TRUST T1
+        LEFT JOIN T_BUS_TRUST_CARGO T2 ON T1. ID = T2.TRUST_ID
+        LEFT JOIN T_BUS_CARGO_INFO A3 ON T2.CARGO_INFO_ID = A3. ID
+        WHERE
+        T2.CARGO_INFO_ID IN (
+        SELECT
+        A1.CARGO_INFO_ID
+        FROM
+        T_BUS_TRUST_CARGO A1
+        WHERE
+        A1.TRUST_ID = #{trustId,jdbcType=VARCHAR}
+        ) AND T1.TYPE IN
+        <foreach collection="type" separator=", " open="(" close=")" item="item">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+
+    <select id="getTrustId" resultType="Map">
+        SELECT A1.BUSINESS_NO "businessNo",A2.PORT_CODE "portCode" from T_BUS_TRUST_CARGO A1 LEFT JOIN T_BUS_TRUST A2 ON A1.TRUST_ID = A2.ID
+        WHERE A1.CARGO_INFO_ID = #{cargoInfoId,jdbcType=BIGINT} AND A2.TYPE IN
+        <foreach collection="type" separator=", " open="(" close=")" item="item">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+
+    <select id="getCarFer" resultType="Map" parameterType="String">
+         select platenumber "text",id "value" from t_weight_info where planCode IN ${planCode} and weight_status ='2' order by weight_1st_time
+    </select>
+
+    <select id="getWeightStatus" resultType="String" parameterType="String">
+         select weight_status from t_weight_info where id = #{id}
+    </select>
+
+    <select id="getWeightStatusNew" resultType="String" parameterType="String">
+         select IS_FINISHED from WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND where NOTE_ID = #{id}
+    </select>
+
+    <select id="getCargoInfoId" resultType="Map" parameterType="String">
+        <!-- SELECT
+             TO_CHAR (A.ID) "id",
+             A.CARGO_NAME "cargoNameValue",
+             A.CARGO_INFO_NO || '/' || CARGO_NAME || '/' || CARGO_OWNER_NAME "cargoName",
+             A.CARGO_CODE "cargoCode"
+         FROM
+             T_BUS_CARGO_INFO A, T_BUS_TRUST_CARGO B
+         WHERE
+             B.CARGO_INFO_ID = A.ID
+             AND A.ID IN (
+                 SELECT
+                     CARGO_INFO_ID
+                 FROM
+                     T_BUS_TRUST_CARGO
+                 WHERE
+                     TRUST_ID = #{trustId,jdbcType=VARCHAR}
+             )
+              -->
+        SELECT
+        TO_CHAR (A . ID) "id",
+        A .CARGO_NAME "cargoNameValue",
+        A .CARGO_INFO_NO || '/' || T1.BUSINESS_NO || '/' || A.CARGO_NAME || '/' || A.CARGO_OWNER_NAME "cargoName",
+        A .CARGO_CODE "cargoCode",
+        A .CARGO_INFO_NO "cargoInfoNo",
+        A. CARGO_NAME "cargoNameZ",
+        A.CARGO_OWNER_NAME "cargoOwnerName",
+        A.IS_HQ "isHq"
+        FROM
+        T_BUS_CARGO_INFO A,
+        T_BUS_TRUST_CARGO T1
+        WHERE
+        T1.CARGO_INFO_ID = A . ID
+        AND T1.TRUST_ID = #{trustId,jdbcType=VARCHAR}
+    </select>
+
+    <select id="getCargoInfoIdTr" resultType="Map" parameterType="String">
+        <!-- SELECT
+           TO_CHAR (A3. ID) "id",
+           A3.CARGO_NAME "cargoNameValue",
+           A3.CARGO_INFO_NO || '/' || A3.CARGO_NAME || '/' || A3.CARGO_OWNER_NAME "cargoName",
+           A3.CARGO_CODE "cargoCode"
+       FROM
+           T_YARD_TALLY A1
+       LEFT JOIN T_YARD_TALLY_ITEM A2 ON A2.TALLY_ID = A1. ID
+       LEFT JOIN T_BUS_CARGO_INFO A3 ON A3. ID = A2.CARGO_INFO_ID
+       WHERE
+           PLAN_ID = #{planId,jdbcType=VARCHAR}
+       GROUP BY
+           TO_CHAR (A3. ID),
+           A3.CARGO_NAME,
+           A3.CARGO_INFO_NO || '/' || A3.CARGO_NAME || '/' || A3.CARGO_OWNER_NAME,
+           A3.CARGO_CODE -->
+
+        SELECT
+        TO_CHAR (A3. ID) "id",
+        A3.CARGO_INFO_NO "cargoInfoNo",
+        A3.CARGO_NAME "cargoName",
+        A3.CARGO_CODE "cargoCode"
+        FROM
+        T_YARD_TALLY A1
+        LEFT JOIN T_YARD_TALLY_ITEM A2 ON A2.TALLY_ID = A1. ID
+        LEFT JOIN T_BUS_CARGO_INFO A3 ON A3. ID = A2.CARGO_INFO_ID
+        LEFT JOIN T_BUS_TRUST_CARGO A4 ON A4.CARGO_INFO_ID = A3. ID
+        WHERE
+        PLAN_ID = #{planId,jdbcType=VARCHAR}
+        GROUP BY
+        TO_CHAR (A3. ID),
+        A3.CARGO_INFO_NO,
+        A3.CARGO_NAME,
+        A3.CARGO_CODE
+    </select>
+
+    <select id="getStore" resultType="Map" parameterType="Long">
+      SELECT
+            TO_CHAR (STOREHOUSE_ID) "id",
+            TO_CHAR (STOREHOUSE_ID) "storehouseId",
+            STOREHOUSE_NAME "storehouseName",
+            TO_CHAR (REGION_ID) "locationId",
+            REGION_NAME "locationNo",
+            MASS_NAME "massName",
+            TO_CHAR (MASS_ID) "massId",
+            DIRECTION "direcTion",
+            STOREHOUSE_NAME || '/' || REGION_NAME  || '/' || MASS_NAME "label"
+        FROM
+            T_PRD_WORK_PLAN_LOCATION
+        WHERE
+            WORK_PLAN_ID = #{workPlanId,jdbcType=BIGINT}
+        GROUP BY
+            STOREHOUSE_ID,
+            STOREHOUSE_NAME,
+            REGION_ID,
+            REGION_NAME,
+            MASS_NAME,
+            MASS_ID,
+            DIRECTION
+    </select>
+
+    <select id="getStackPosition" resultType="Map" parameterType="Long">
+        SELECT
+	        TO_CHAR (ID) "id",
+            STORAGE_YARD_NM "stackPositionName"
+        FROM
+            M_STORAGE_YARD
+        WHERE
+            STORAGE_YARD_LEVEL = 3
+        AND PARENT_ID = #{id,jdbcType=BIGINT}
+        GROUP BY ID,STORAGE_YARD_NM
+    </select>
+
+    <select id="getRelationIdHc" resultType="Integer">
+            SELECT
+                count(ID)
+            FROM
+                T_YARD_TALLY
+            WHERE
+                ID = #{relationId,jdbcType=BIGINT} AND DEL_FLAG = 0
+                AND RELATION_ID IS NOT NULL
+    </select>
+
+    <select id="getRelationIdQy" resultType="Integer">
+            SELECT
+                count(A1.ID)
+            FROM
+                T_YARD_TALLY A1 LEFT JOIN T_PRD_WORK_PLAN A2 ON A1.PLAN_ID = A2.ID
+            WHERE
+                A2.TRUST_ID = #{trustId,jdbcType=BIGINT}
+            AND A1.PROCESS_CODE = #{processCode,jdbcType=VARCHAR}
+            AND A1.RELATION_ID IS NULL AND DEL_FLAG = 0
+            AND A1.TRANSPORT_EQUIPMENT_ID = #{transportEquipmentId,jdbcType=BIGINT}
+    </select>
+
+    <update id="updateRelationId">
+        UPDATE T_YARD_TALLY
+        <set>
+            RELATION_ID = #{id,jdbcType=BIGINT}
+        </set>
+        WHERE ID = #{relationId,jdbcType=BIGINT}
+    </update>
+
+    <insert id="tally">
+        INSERT INTO T_YARD_TALLY (ID,
+            PLAN_ID,
+            SHIPVOYAGE_ID,
+            SHIPVOYAGE_ITEM_ID,
+            RELATION_ID,
+            PROCESS_CODE,
+            PROCESS_NAME,
+            QUANTITY,
+            TON,
+            EQUIPMENT_ID,
+            EQUIPMENT_NO,
+            TRANSPORT_EQUIPMENT_ID,
+            TRANSPORT_EQUIPMENT_NO,
+            OPERATORS_ID,
+            OPERATORS_NAME,
+            TRANSPORT_OPERATORS_ID,
+            TRANSPORT_OPERATORS_NAME,
+            WEIGHBRIDGE_ID,
+            DEPT_ID,
+            DEPT_NAME,
+            DEPT_PARENT_ID,
+            DEPT_PARENT_NAME,
+            PLAN_NO,
+            TSPT_ID,
+            WORK_ERWEI_ID,
+            REMARK,
+            RESERVATION_POUND_ID,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,IS_ZD)
+        VALUES (
+            #{id,jdbcType=BIGINT},
+            #{planId,jdbcType=BIGINT},
+            #{shipvoyageId,jdbcType=BIGINT},
+            #{shipvoyageItemId,jdbcType=BIGINT},
+            #{relationId,jdbcType=BIGINT},
+            #{processCode,jdbcType=VARCHAR},
+            #{processName,jdbcType=VARCHAR},
+            #{quantity,jdbcType=INTEGER},
+            #{ton,jdbcType=DOUBLE},
+            #{equipmentId,jdbcType=BIGINT},
+            #{equipmentNo,jdbcType=VARCHAR},
+            #{transportEquipmentId,jdbcType=BIGINT},
+            #{transportEquipmentNo,jdbcType=VARCHAR},
+            #{operatorsId,jdbcType=BIGINT},
+            #{operatorsName,jdbcType=VARCHAR},
+            #{transportOperatorsId,jdbcType=BIGINT},
+            #{transportOperatorsName,jdbcType=VARCHAR},
+            #{weighbridgeId,jdbcType=BIGINT},
+            #{deptId,jdbcType=BIGINT},
+            #{deptName,jdbcType=VARCHAR},
+            #{deptParentId,jdbcType=BIGINT},
+            #{deptParentName,jdbcType=VARCHAR},
+            #{planNo,jdbcType=VARCHAR},
+            #{tsptId,jdbcType=VARCHAR},
+            #{workErWeiId,jdbcType=VARCHAR},
+            #{remark,jdbcType=VARCHAR},
+            #{reservationPoundId,jdbcType=BIGINT},
+            #{loginUserId,jdbcType=BIGINT},
+            #{loginUserName,jdbcType=VARCHAR},
+            #{now,jdbcType=TIMESTAMP},#{isZd,jdbcType=VARCHAR})
+    </insert>
+
+    <insert id="tallyDepartureSub">
+
+        INSERT INTO T_YARD_TALLY (ID,
+            PLAN_ID,
+            SHIPVOYAGE_ID,
+            RELATION_ID,
+            PROCESS_CODE,
+            PROCESS_NAME,
+            QUANTITY,
+            TON,
+            EQUIPMENT_ID,
+            EQUIPMENT_NO,
+            TRANSPORT_EQUIPMENT_ID,
+            TRANSPORT_EQUIPMENT_NO,
+            OPERATORS_ID,
+            OPERATORS_NAME,
+            TRANSPORT_OPERATORS_ID,
+            TRANSPORT_OPERATORS_NAME,
+            WEIGHBRIDGE_ID,
+            DEPT_ID,
+            DEPT_NAME,
+            PLAN_NO,
+            TSPT_ID,
+            WORK_ERWEI_ID,
+            TALLY_STATUS,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME)
+        VALUES (
+            #{id,jdbcType=BIGINT},
+            #{planId,jdbcType=BIGINT},
+            #{shipvoyageId,jdbcType=BIGINT},
+            #{relationId,jdbcType=BIGINT},
+            #{processCode,jdbcType=VARCHAR},
+            #{processName,jdbcType=VARCHAR},
+            #{quantity,jdbcType=INTEGER},
+            #{ton,jdbcType=DOUBLE},
+            #{equipmentId,jdbcType=BIGINT},
+            #{equipmentNo,jdbcType=VARCHAR},
+            #{transportEquipmentId,jdbcType=BIGINT},
+            #{transportEquipmentNo,jdbcType=VARCHAR},
+            #{operatorsId,jdbcType=BIGINT},
+            #{operatorsName,jdbcType=VARCHAR},
+            #{transportOperatorsId,jdbcType=BIGINT},
+            #{transportOperatorsName,jdbcType=VARCHAR},
+            #{weighbridgeId,jdbcType=BIGINT},
+            #{deptId,jdbcType=BIGINT},
+            #{deptName,jdbcType=VARCHAR},
+            #{planNo,jdbcType=VARCHAR},
+            #{tsptId,jdbcType=VARCHAR},
+            #{workErWeiId,jdbcType=VARCHAR},
+            #{tallyStatus,jdbcType=VARCHAR},
+            #{loginUserId,jdbcType=BIGINT},
+            #{loginUserName,jdbcType=VARCHAR},
+            #{now,jdbcType=TIMESTAMP})
+    </insert>
+
+    <insert id="insertStackPosition">
+
+        INSERT INTO M_STORAGE_YARD (ID,
+            PARENT_ID,
+            STORAGE_YARD_NM,
+            SHORT_CD,
+            STORAGE_YARD_LEVEL,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            BHT_ID)
+        VALUES (
+            #{id,jdbcType=BIGINT},
+            #{parentId,jdbcType=BIGINT},
+            #{storageYardNm,jdbcType=VARCHAR},
+            #{shoreCd,jdbcType=VARCHAR},
+            #{storageYardLevel,jdbcType=BIGINT},
+            #{loginUserId,jdbcType=BIGINT},
+            #{loginUserName,jdbcType=VARCHAR},
+            #{now,jdbcType=TIMESTAMP},
+            STORAGE_YARD.nextval)
+    </insert>
+
+    <insert id="tallyItem" parameterType="java.util.List">
+        INSERT INTO T_YARD_TALLY_ITEM(
+        ID,
+        TALLY_ID,
+        CARGO_INFO_ID,
+        IN_OUT_ID,
+        CARGO_CODE,
+        CARGO_NAME,
+        QUANTITY,
+        TON,
+        STOREHOUSE_ID,
+        STOREHOUSE_NAME,
+        LOCATION_ID,
+        LOCATION_NO,
+        STACK_POSITION_ID,
+        STACK_POSITION_NAME,
+        CABIN_NO,
+        TRUST_CARGO_INFO_ID,
+        REMARK,
+        SOURCE_OR_TARGET_FLAG,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME
+        )
+        (
+        <foreach collection="list" item="item" index="" separator="union all">
+            select
+            #{item.id,jdbcType=BIGINT},
+            #{item.tallyId,jdbcType=BIGINT},
+            #{item.cargoInfoId,jdbcType=BIGINT},
+            #{item.inOutId,jdbcType=BIGINT},
+            #{item.cargoCode,jdbcType=VARCHAR},
+            #{item.cargoName,jdbcType=VARCHAR},
+            #{item.quantity,jdbcType=DOUBLE},
+            #{item.ton,jdbcType=DOUBLE},
+            #{item.storehouseId,jdbcType=BIGINT},
+            #{item.storehouseName,jdbcType=VARCHAR},
+            #{item.locationId,jdbcType=BIGINT},
+            #{item.locationNo,jdbcType=VARCHAR},
+            #{item.stackPositionId,jdbcType=BIGINT},
+            #{item.stackPositionName,jdbcType=VARCHAR},
+            #{item.cabinNo,jdbcType=VARCHAR},
+            #{item.trustCargoInfoId,jdbcType=BIGINT},
+            #{item.remark,jdbcType=VARCHAR},
+            #{item.sourceOrTargetFlag,jdbcType=VARCHAR},
+            #{item.loginUserId,jdbcType=VARCHAR},
+            #{item.loginUserName,jdbcType=VARCHAR},
+            #{item.now}
+            from dual
+        </foreach>
+        )
+    </insert>
+
+    <select id="getWaitWork" resultMap="tallyRecordMap">
+
+            SELECT
+                A1.ID,
+                A1.PLAN_ID,
+                A1.RELATION_ID,
+                A1.SHIPVOYAGE_ID,
+                A1.OPERATORS_ID,
+                A1.OPERATORS_NAME,
+                A1.TRANSPORT_OPERATORS_ID,
+                A1.TRANSPORT_OPERATORS_NAME,
+                A1.PROCESS_CODE,
+                A1.PROCESS_NAME,
+                A1.EQUIPMENT_ID,
+                A1.EQUIPMENT_NO,
+                A1.TRANSPORT_EQUIPMENT_ID,
+                A1.TRANSPORT_EQUIPMENT_NO,
+                A1.DEPT_ID,
+                A1.DEPT_NAME,
+                A1.QUANTITY,
+                A1.TON,
+                A1.CREATE_BY,
+                A1.CREATE_BY_NAME,
+                A1.CREATE_TIME
+            FROM
+                T_YARD_TALLY A1 LEFT JOIN T_PRD_WORK_PLAN A2 ON A1.PLAN_ID = A2.ID
+            WHERE
+                A2.TRUST_ID = #{trustId,jdbcType=BIGINT} AND
+                A1.RELATION_ID IS NULL AND A1.DEL_FLAG = 0
+                AND A1.REMARK IS NULL
+    </select>
+
+    <select id="getTallyRecordItemList" resultMap="recordItemMap">
+
+            SELECT
+                tyti.ID,
+                tyti.TALLY_ID,
+                tyti.QUANTITY,
+                tyti.QUANTITY QUANTITY_OUT,
+                tyti.TON,
+                tyti.TON TON_OUT,
+                tyti.CARGO_INFO_ID,
+                tyti.CARGO_CODE,
+                tyti.CARGO_NAME,
+                tyti.STOREHOUSE_ID,
+                tyti.STOREHOUSE_NAME,
+                tyti.LOCATION_ID,
+                tyti.LOCATION_NO,
+                tyti.STACK_POSITION_ID,
+                tyti.STACK_POSITION_NAME,
+                tyti.CABIN_NO,
+                tyti.CREATE_BY,
+                tyti.CREATE_BY_NAME,
+                tyti.CREATE_TIME,
+                tyti.SOURCE_OR_TARGET_FLAG,
+                mwp.SOURCE_CD SOURCE_CD,
+                mwp.SOURCE_NM SOURCE_NM,
+                mwp.TARGET_CD TARGET_CD,
+                mwp.TARGET_NM TARGET_NM
+            FROM
+                T_YARD_TALLY_ITEM tyti
+                LEFT JOIN T_YARD_TALLY tyt ON tyti.TALLY_ID = tyt.ID
+                LEFT JOIN M_WORK_PROCESS mwp ON MWP.PROCESS_CD = tyt.PROCESS_CODE
+            WHERE
+                TALLY_ID =#{id}
+    </select>
+
+    <select id="getTallyRecord" parameterType="com.yy.ppm.appWork.bean.dto.TallyRecordSearchDTO"  resultType="com.yy.ppm.appWork.bean.po.TYardTallyItemPO">
+        SELECT DISTINCT
+        A1.ID TALLY_ID,
+        A1.DEL_FLAG,
+        A1.PLAN_ID,
+        A1.EQUIPMENT_NO,
+        A1.EQUIPMENT_ID,
+        A1.OPERATORS_ID,
+        A1.OPERATORS_NAME,
+        A1.PROCESS_CODE,
+        A1.PROCESS_NAME,
+        A1.TRANSPORT_EQUIPMENT_ID,
+        A1.TRANSPORT_EQUIPMENT_NO,
+        A1.QUANTITY,
+        A1.TON,
+        A1.CREATE_BY,
+        A1.CREATE_BY_NAME,
+        A1.CREATE_TIME,
+        A5.CLASS_CODE,
+        A5.CLASS_NAME,
+        A5.WORK_DATE,
+        a11.source_all sourceStack,
+        a11.target_all targetStack,
+        a11.cargo_name,
+        mwp.SOURCE_CD,
+        mwp.SOURCE_NM,
+        mwp.TARGET_CD,
+        mwp.TARGET_NM,
+        a2.CREATE_TIME CREATE_TIME_H,
+        a2.CREATE_BY_NAME CREATE_BY_NAME_H,
+        CASE
+
+        WHEN a2.CREATE_TIME IS NULL THEN
+        '待理货' ELSE '已理货'
+        END TALLY_STATUS_NAME
+        FROM
+        (
+        SELECT
+        tally_id,
+        TO_CHAR(
+        REGEXP_REPLACE(
+        RTRIM( XMLCAST ( XMLAGG( XMLELEMENT ( E, TO_CHAR( source_stack ) || ',' ) ORDER BY SOURCE_OR_TARGET_FLAG ) AS CLOB ), ',' ),
+        '([^,]+)(,\1)+',
+        '\1'
+        )
+        ) source_all,
+        TO_CHAR(
+        REGEXP_REPLACE(
+        RTRIM( XMLCAST ( XMLAGG( XMLELEMENT ( E, TO_CHAR( target_stack ) || ',' ) ORDER BY SOURCE_OR_TARGET_FLAG ) AS CLOB ), ',' ),
+        '([^,]+)(,\1)+',
+        '\1'
+        )
+        ) target_all,
+        TO_CHAR(
+        REGEXP_REPLACE(
+        RTRIM( XMLCAST ( XMLAGG( XMLELEMENT ( E, TO_CHAR( cargo_name ) || ',' ) ORDER BY SOURCE_OR_TARGET_FLAG ) AS CLOB ), ',' ),
+        '([^,]+)(,\1)+',
+        '\1'
+        )
+        ) cargo_name
+        FROM
+        (
+        SELECT
+        CASE
+
+        WHEN TYTI.SOURCE_OR_TARGET_FLAG = '1' THEN
+        STOREHOUSE_NAME || '/' || LOCATION_NO || '/' || STACK_POSITION_NAME
+        END source_stack,
+        CASE
+        WHEN TYTI.SOURCE_OR_TARGET_FLAG = '2' THEN
+        STOREHOUSE_NAME || '/' || LOCATION_NO || '/' || STACK_POSITION_NAME
+        END target_stack,
+        CARGO_INFO_NO || '/' || tbci.CARGO_OWNER_NAME || '/' || tbci.CARGO_NAME cargo_name,
+        TYTI.SOURCE_OR_TARGET_FLAG,
+        TYT.ID tally_id
+        FROM
+        T_YARD_TALLY TYT
+        LEFT JOIN T_YARD_TALLY_ITEM TYTI ON TYT.id = TYTI.TALLY_ID
+        LEFT JOIN T_BUS_CARGO_INFO TBCI ON TBCI.id = TYTI.CARGO_INFO_ID
+        <where>
+            <if test="planId!= null and planId != ''">
+                AND tyt.PLAN_ID = #{planId,jdbcType=BIGINT}
+            </if>
+            <if test="cargoInfoNo!= null and cargoInfoNo != ''">
+                AND  TBCI.CARGO_INFO_NO = #{cargoInfoNo,jdbcType=VARCHAR}
+            </if>
+            <if test="createName!= null and createName != ''">
+                <bind name="createName_like" value="'%'+createName+'%'"/>
+                AND  TYTI.CREATE_BY_NAME like  #{createName_like,jdbcType=VARCHAR}
+            </if>
+            <if test="stackPosition!= null and stackPosition != ''">
+                <bind name="stackPosition_like" value="'%'+stackPosition+'%'"/>
+                AND  TYTI.STACK_POSITION_NAME like  #{stackPosition_like,jdbcType=VARCHAR}
+            </if>
+            <if test="cargoInfoId!= null">
+                AND  TYTI.CARGO_INFO_ID = #{cargoInfoId,jdbcType=BIGINT}
+            </if>
+
+            <if test="startTime !=null and startTime != ''">
+                and to_char(TYTI.CREATE_TIME,'YYYY-MM-DD HH24:MI:SS') &gt;= #{startTime}
+            </if>
+            <if test="endTime !=null and endTime != ''">
+                and to_char(TYTI.CREATE_TIME,'YYYY-MM-DD HH24:MI:SS') &lt;= #{endTime}
+            </if>
+        </where>
+        ) tmp_tyti
+        GROUP BY
+        tally_id
+        ) a11
+        JOIN T_YARD_TALLY a1 ON a1.ID = a11.tally_id
+        left join T_YARD_TALLY a2 on  a2.RELATION_ID = a1.ID
+        LEFT JOIN T_PRD_WORK_PLAN a5 ON a5.ID = A1.PLAN_ID
+        LEFT JOIN M_WORK_PROCESS mwp ON MWP.PROCESS_CD = A1.PROCESS_CODE
+        WHERE A1.DEL_FLAG = 0
+        <if test="trustId!= null and trustId != ''">
+            AND A5.TRUST_ID = #{trustId,jdbcType=BIGINT}
+        </if>
+        <if test="planId!= null and planId != ''">
+            AND A1.PLAN_ID = #{planId,jdbcType=BIGINT}
+        </if>
+        <if test="classCode!= null and classCode != ''">
+            AND A5.CLASS_CODE = #{classCode,jdbcType=VARCHAR}
+        </if>
+        <if test="workDate!= null and workDate != ''">
+            and TO_CHAR(a5.WORK_DATE ,'yyyy-MM-dd') = #{workDate,jdbcType=VARCHAR}
+        </if>
+        <if test="processCode!= null and processCode != ''">
+            AND A1.PROCESS_CODE = #{processCode,jdbcType=VARCHAR}
+        </if>
+        <if test="transportEquipmentNo!= null and transportEquipmentNo != ''">
+            <bind name="transportEquipmentNo_like" value="'%'+transportEquipmentNo+'%'"/>
+            AND  A1.TRANSPORT_EQUIPMENT_NO like  #{transportEquipmentNo_like,jdbcType=VARCHAR}
+        </if>
+        <if test="equipmentNo!= null and equipmentNo != ''">
+            <bind name="equipmentNo_like" value="'%'+equipmentNo+'%'"/>
+            AND  A1.EQUIPMENT_NO like  #{equipmentNo_like,jdbcType=VARCHAR}
+        </if>
+
+
+        ORDER BY A1.CREATE_TIME DESC
+    </select>
+
+    <select id="getTallyRecordSum" parameterType="com.yy.ppm.appWork.bean.dto.TallyRecordSearchDTO"  resultType="Map">
+        SELECT
+        COUNT (DISTINCT(A1. ID)) "mahcineCount",
+        NVL( sum(A2.QUANTITY),0) "treeCount",
+        NVL( sum(A2.TON),0) "tonCount"
+        FROM
+        T_YARD_TALLY a1
+        LEFT JOIN T_YARD_TALLY_ITEM a2 on A2.TALLY_ID = A1.id
+        LEFT JOIN T_BUS_CARGO_INFO a4 ON A2. CARGO_INFO_ID = a4.ID
+        LEFT JOIN T_PRD_WORK_PLAN a5 on a5.ID = A1.PLAN_ID
+        WHERE A5.TRUST_ID = #{trustId,jdbcType=BIGINT} AND A1.DEL_FLAG = 0 AND A1.REMARK IS NULL
+        <if test="classCode!= null and classCode != ''">
+            AND A5.CLASS_CODE = #{classCode,jdbcType=VARCHAR}
+        </if>
+        <if test="workDate!= null and workDate != ''">
+            and TO_CHAR(a5.WORK_DATE ,'yyyy-MM-dd') = #{workDate,jdbcType=VARCHAR}
+        </if>
+        <if test="processCode!= null and processCode != ''">
+            AND A1.PROCESS_CODE = #{processCode,jdbcType=VARCHAR}
+        </if>
+        <if test="transportEquipmentNo!= null and transportEquipmentNo != ''">
+            <bind name="transportEquipmentNo_like" value="'%'+transportEquipmentNo+'%'"/>
+            AND  A1.TRANSPORT_EQUIPMENT_NO like  #{transportEquipmentNo_like,jdbcType=VARCHAR}
+        </if>
+        <if test="equipmentNo!= null and equipmentNo != ''">
+            <bind name="equipmentNo_like" value="'%'+equipmentNo+'%'"/>
+            AND  A1.EQUIPMENT_NO like  #{equipmentNo_like,jdbcType=VARCHAR}
+        </if>
+
+        <if test="createName!= null and createName != ''">
+            <bind name="createName_like" value="'%'+createName+'%'"/>
+            AND  A2.CREATE_BY_NAME like  #{createName_like,jdbcType=VARCHAR}
+        </if>
+        <if test="stackPosition!= null and stackPosition != ''">
+            <bind name="stackPosition_like" value="'%'+stackPosition+'%'"/>
+            AND  A2.STACK_POSITION_NAME like  #{stackPosition_like,jdbcType=VARCHAR}
+        </if>
+        <if test="cargoInfoId!= null">
+            AND  A2.CARGO_INFO_ID = #{cargoInfoId,jdbcType=BIGINT}
+        </if>
+        <if test="cargoInfoNo!= null and cargoInfoNo != ''">
+            AND  A4.CARGO_INFO_NO = #{cargoInfoNo,jdbcType=VARCHAR}
+        </if>
+        <if test="startTime !=null and startTime != ''">
+            and to_char(A2.CREATE_TIME,'YYYY-MM-DD HH24:MI:SS') &gt;= #{startTime}
+        </if>
+        <if test="endTime !=null and endTime != ''">
+            and to_char(A2.CREATE_TIME,'YYYY-MM-DD HH24:MI:SS') &lt;= #{endTime}
+        </if>
+        ORDER BY A2.CREATE_TIME DESC
+    </select>
+
+    <select id="getTallyRecordSumNew" parameterType="com.yy.ppm.appWork.bean.dto.TallyRecordSearchDTO"  resultType="Map">
+        SELECT
+        COUNT (DISTINCT(A1. ID)) "mahcineCount",
+        NVL( sum(A1.QUANTITY), 0) "treeCount",
+        NVL( sum(A1.TON), 0) "tonCount"
+        FROM
+        T_YARD_TALLY a1
+        LEFT JOIN T_PRD_WORK_PLAN a5 on a5.ID = A1.PLAN_ID
+        WHERE A5.TRUST_ID = #{trustId,jdbcType=BIGINT} AND A1.DEL_FLAG = 0
+        <if test="classCode!= null and classCode != ''">
+            AND A5.CLASS_CODE = #{classCode,jdbcType=VARCHAR}
+        </if>
+        <if test="workDate!= null and workDate != ''">
+            and TO_CHAR(a5.WORK_DATE ,'yyyy-MM-dd') = #{workDate,jdbcType=VARCHAR}
+        </if>
+        <if test="processCode!= null and processCode != ''">
+            AND A1.PROCESS_CODE = #{processCode,jdbcType=VARCHAR}
+        </if>
+        <if test="transportEquipmentNo!= null and transportEquipmentNo != ''">
+            <bind name="transportEquipmentNo_like" value="'%'+transportEquipmentNo+'%'"/>
+            AND  A1.TRANSPORT_EQUIPMENT_NO like  #{transportEquipmentNo_like,jdbcType=VARCHAR}
+        </if>
+        <if test="equipmentNo!= null and equipmentNo != ''">
+            <bind name="equipmentNo_like" value="'%'+equipmentNo+'%'"/>
+            AND  A1.EQUIPMENT_NO like  #{equipmentNo_like,jdbcType=VARCHAR}
+        </if>
+        <if test="startTime !=null and startTime != ''">
+            and to_char(A1.CREATE_TIME,'YYYY-MM-DD HH24:MI:SS') &gt;= #{startTime}
+        </if>
+        <if test="endTime !=null and endTime != ''">
+            and to_char(A1.CREATE_TIME,'YYYY-MM-DD HH24:MI:SS') &lt;= #{endTime}
+        </if>
+        <if test="planId!= null and planId != ''">
+            AND A1.PLAN_ID = #{planId,jdbcType=BIGINT}
+        </if>
+        ORDER BY A1.CREATE_TIME DESC
+    </select>
+
+
+    <select id="getIsTally" resultType="Integer">
+
+           SELECT
+              UPDATE_POINT
+            FROM
+                M_CARGO
+            WHERE
+               CARGO_CODE = #{cargoCode,jdbcType=VARCHAR} AND  UPDATE_POINT IS NOT NULL
+    </select>
+
+    <select id="getTrustCargoId" resultType="String">
+           SELECT listagg(CARGO_INFO_ID,',') within group (order by CARGO_INFO_ID) str from T_BUS_TRUST_CARGO WHERE TRUST_ID = #{trustId,jdbcType=BIGINT}
+    </select>
+
+    <select id="selectBh" resultType="java.lang.String">
+        SELECT
+            TALLY
+        FROM
+            M_CARGO
+        WHERE
+            CARGO_CODE = #{code}
+    </select>
+
+
+    <select id="getInoutType" resultType="String">
+       SELECT IN_OUT_STORAGE_TYPE_CD from M_WORK_PROCESS WHERE PROCESS_CD = #{processCode,jdbcType=VARCHAR}
+    </select>
+
+    <select id="getCarDetailedList" resultType="com.yy.ppm.appWork.bean.dto.AppTallyLadingDTO">
+        SELECT
+        A1. ID "inOutId",
+        A1.CARGO_INFO_ID,
+        A1.STOREHOUSE_ID,
+        A1.STOREHOUSE_NAME,
+        A1.REGION_ID LOCATION_ID,
+        A1.REGION_NAME LOCATION_NO,
+        A1.MASS_ID STACK_POSITION_ID,
+        A1.MASS_NAME STACK_POSITION_NAME,
+        A3.CARGO_CODE,
+        A3.CARGO_NAME,
+        A3.CARGO_INFO_NO,
+        A1.QUANTITY quantitySurplus,
+        A1.TON tonSurplus
+        FROM
+        T_PRD_PORT_STORAGE A1
+        LEFT JOIN T_BUS_CARGO_INFO a3 on a3.ID = a1.CARGO_INFO_ID
+        LEFT JOIN M_STORAGE_YARD st on st.ID = A1.REGION_ID
+        WHERE
+        <!--        (A1.QUANTITY > 0 or A1.TON> 0) AND-->
+        CARGO_INFO_ID IN ${trustIds}
+        <if test="stackPositionName != null and stackPositionName != ''">
+            <bind name="stackPosition_like" value="'%'+stackPosition+'%'"/>
+            AND  A1.MASS_NAME like  #{stackPosition_like,jdbcType=VARCHAR}
+        </if>
+        <if test="cargoInfoId != null">
+            AND  A1.CARGO_INFO_ID like  #{cargoInfoId}
+        </if>
+        <if test="switchIsFrontier != null and switchIsFrontier != ''">
+            <if test="isFrontier == null">
+                AND (st.IS_FRONTIER != '1' OR st.IS_FRONTIER IS NULL)
+            </if>
+            <if test="isFrontier != null">
+                AND st.IS_FRONTIER = '1'
+            </if>
+        </if>
+    </select>
+
+
+    <select id="getPortStorgeByPlan" resultType="com.yy.ppm.appWork.bean.dto.AppTallyLadingDTO">
+        SELECT
+        tpps.ID "inOutId",
+        tpps.CARGO_INFO_ID,
+        tpps.STOREHOUSE_ID,
+        tpps.STOREHOUSE_NAME,
+        tpps.REGION_ID LOCATION_ID,
+        tpps.REGION_NAME LOCATION_NO,
+        tpps.MASS_ID STACK_POSITION_ID,
+        tpps.MASS_NAME STACK_POSITION_NAME,
+        tbci.CARGO_CODE,
+        tbci.CARGO_NAME,
+        tbci.CARGO_INFO_NO,
+        tpps.QUANTITY quantitySurplus,
+        tpps.TON tonSurplus,
+        TPWPL.DIRECTION "sourceOrTargetFlag",
+        CASE WHEN TPWPL.DIRECTION = 1 THEN '源' WHEN TPWPL.DIRECTION = 2 THEN '目标' END "sourceOrTarget"
+        FROM T_PRD_PORT_STORAGE tpps
+        LEFT JOIN T_BUS_CARGO_INFO tbci ON TPPS.CARGO_INFO_ID = TBCI.ID
+        LEFT JOIN M_STORAGE_YARD msy ON msy.id = TPPS.REGION_ID
+        LEFT JOIN T_PRD_WORK_PLAN_LOCATION tpwpl ON TPWPL.MASS_ID = TPPS.MASS_ID
+        <where>
+            <!--            <if test="direction!=null">-->
+            <!--                TPWPL.DIRECTION = #{direction}-->
+            <!--            </if>-->
+            <if test="workPlanId!=null">
+                AND TPWPL.WORK_PLAN_ID = #{workPlanId}
+            </if>
+            <if test="cargoInfoId!=null">
+                AND tbci.ID = #{cargoInfoId}
+            </if>
+        </where>
+    </select>
+    <select id="getPortStorgeByPlanId" resultType="java.util.Map">
+        SELECT
+        tpps.ID "inOutId",
+        tpps.CARGO_INFO_ID,
+        tpps.STOREHOUSE_ID "storehouseId",
+        tpps.STOREHOUSE_NAME "storehouseName",
+        tpps.REGION_ID "locationId",
+        tpps.REGION_NAME "locationNo",
+        tpps.MASS_ID "stackPositionId",
+        tpps.MASS_NAME "stackPositionName",
+        tbci.CARGO_CODE "cargoCode",
+        tbci.CARGO_NAME "cargoName",
+        tbci.CARGO_INFO_NO "cargoInfoNo",
+        tpps.ton "tonSurplus",
+        tpps.QUANTITY "quantitySurplus"
+        FROM
+        T_PRD_PORT_STORAGE tpps
+        LEFT JOIN T_BUS_CARGO_INFO tbci ON TPPS.CARGO_INFO_ID = TBCI.ID
+        <where>
+            <if test="cargoInfoId!=null">
+                AND TPPS.CARGO_INFO_ID = #{cargoInfoId}
+            </if>
+        </where>
+    </select>
+
+    <select id="getPortStorageDetailId" resultType="Long">
+       SELECT
+	        ID
+        FROM
+	        T_PRD_PORT_STORAGE_DETAIL
+        WHERE
+	        CARGO_TALLY_ID  = #{tallyId,jdbcType=BIGINT}
+    </select>
+
+    <select id="getPortStorageDetailItemId" resultType="Long">
+       SELECT
+	        ID
+        FROM
+	        T_PRD_PORT_STORAGE_DETAIL
+        WHERE
+	        CARGO_TALLY_DETAIL_ID  = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="getTallyById" resultType="Long">
+
+           SELECT
+              ID "id"
+            FROM
+                T_YARD_TALLY
+            WHERE
+               RELATION_ID = #{tallyId,jdbcType=BIGINT} AND DEL_FLAG = 0
+    </select>
+
+    <select id="getById" resultType="com.yy.ppm.appWork.bean.po.TYardTallyPO">
+           SELECT
+              *
+            FROM
+                T_YARD_TALLY
+            WHERE
+               id = #{tallyId,jdbcType=BIGINT} AND DEL_FLAG = 0
+    </select>
+
+    <select id="getIsZq" resultType="Map">
+
+           SELECT
+             IS_DIRECT_ACCESS "isDirectAccess",
+             SOURCE_CD "sourceCd",
+             TARGET_CD "targetCd"
+            FROM
+                M_WORK_PROCESS
+            WHERE
+               PROCESS_CD = #{processCode,jdbcType=VARCHAR}
+    </select>
+
+    <select id="getTallyInfoById" resultMap="tallyRecordMap">
+       SELECT
+            ID,
+            PLAN_ID,
+            RELATION_ID,
+            SHIPVOYAGE_ID,
+            PROCESS_CODE,
+            PROCESS_NAME,
+            EQUIPMENT_ID,
+            EQUIPMENT_NO,
+            TRANSPORT_EQUIPMENT_ID,
+            TRANSPORT_EQUIPMENT_NO,
+            QUANTITY,
+            TON,
+            WEIGHBRIDGE_ID,
+            PLAN_NO,
+            TSPT_ID,
+            WORK_ERWEI_ID
+        FROM T_YARD_TALLY WHERE  ID = #{tallyId,jdbcType=BIGINT}
+
+    </select>
+    <select id="getTallyInfoByIdNew" resultMap="tallyRecordMap">
+       SELECT
+           tyt.ID,
+           tyt.PLAN_ID,
+           tyt.RELATION_ID,
+           tyt.SHIPVOYAGE_ID,
+           tyt.PROCESS_CODE,
+           tyt.PROCESS_NAME,
+           tyt.EQUIPMENT_ID,
+           tyt.EQUIPMENT_NO,
+           tyt.TRANSPORT_EQUIPMENT_ID,
+           tyt.TRANSPORT_EQUIPMENT_NO,
+           tyt.QUANTITY,
+           tyt.TON,
+           tyt.WEIGHBRIDGE_ID,
+           tyt.PLAN_NO,
+           tyt.TSPT_ID,
+           tyt.WORK_ERWEI_ID,
+           mwp.SOURCE_CD SOURCE_CD,
+           mwp.SOURCE_NM SOURCE_NM,
+           mwp.TARGET_CD TARGET_CD,
+           mwp.TARGET_NM TARGET_NM,
+           tyt.DEPT_PARENT_ID,
+           tyt.DEPT_PARENT_NAME
+       FROM
+           T_YARD_TALLY tyt
+               LEFT JOIN M_WORK_PROCESS mwp ON TYT.PROCESS_CODE = MWP.PROCESS_CD
+       WHERE tyt.ID = #{tallyId,jdbcType=BIGINT}
+    </select>
+
+    <select id="getTallyNew" resultMap="tallyRecordMap">
+        SELECT
+	        ID,
+            PLAN_ID,
+            RELATION_ID,
+            DEPT_ID,
+            DEPT_NAME,
+            SHIPVOYAGE_ID,
+            PROCESS_CODE,
+            PROCESS_NAME,
+            EQUIPMENT_ID,
+            EQUIPMENT_NO,
+            TRANSPORT_EQUIPMENT_ID,
+            TRANSPORT_EQUIPMENT_NO,
+            QUANTITY,
+            TON
+        FROM
+            (
+                SELECT
+                    *
+                FROM
+                    T_YARD_TALLY WHERE  PLAN_ID = #{planId,jdbcType=BIGINT} AND DEL_FLAG = '0'
+                ORDER BY
+                    CREATE_TIME DESC
+            )
+        WHERE
+            ROWNUM = 1
+
+    </select>
+
+    <select id="getPlanCodeNew" resultType="String">
+       SELECT
+            '(' || listagg (BUSINESS_NO, ',') WITHIN GROUP (ORDER BY BUSINESS_NO) || ')' planCode
+        FROM
+            T_BUS_TRUST_CARGO
+        WHERE
+            TRUST_ID = #{trustId,jdbcType=VARCHAR}
+
+    </select>
+
+    <select id="getCarFerNew" resultType="Map">
+        SELECT
+            NOTE_ID "value",
+            TRUCK_PLATE "textLabel",
+            TRUCK_PLATE || '/' || ROUND((SYSDATE - WEIGH_IN_DT) * 24 * 60) || '分钟' "text"
+        FROM
+            WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND
+        WHERE
+             PLAN_NO IN ${planCode} AND IS_FINISHED = 0 AND IS_DELETE = 0 AND IS_TALLY = 0
+        ORDER BY WEIGH_IN_DT
+    </select>
+
+    <select id="getDept"  resultType="Map">
+         SELECT
+            DS.DEPT_ID "deptId",
+            DS.DEPT_NAME "deptName"
+        FROM
+           T_PRD_DISPATCH_SECONDARY DS
+        WHERE
+            DS.DISPATCH_TYPE = '2'
+         AND DS.WORK_PLAN_ID = #{workPlanId}
+    </select>
+
+    <select id="getHatch"  resultType="Map">
+      SELECT
+            HATCH_NUM "hatchNum"
+        FROM
+            M_SHIP
+        WHERE
+            ID IN (
+                SELECT
+                    SHIP_ID
+                FROM
+                    T_DIS_SHIPVOYAGE
+                WHERE
+                    ID = #{id,jdbcType=BIGINT}
+            )
+    </select>
+
+    <select id="getCargoStatistics"  resultType="com.yy.ppm.appWork.bean.dto.TallyCargoDTO">
+        SELECT
+        T2.CARGO_INFO_ID CARGO_INFO_ID,
+        NVL(SUM (CASE WHEN T5.TALLY_DATA_STAT = '20'
+        THEN T2.QUANTITY ELSE 0 END),0) AS ZQ_QUANTITY,
+        NVL(SUM (CASE WHEN T5.TALLY_DATA_STAT = '20'
+        THEN T2.TON ELSE 0 END),0) AS ZQ_TON,
+        NVL(SUM (CASE WHEN T5.TALLY_DATA_STAT = '30'
+        THEN T2.QUANTITY ELSE 0 END),0) AS ZY_QUANTITY,
+        NVL(SUM (CASE WHEN T5.TALLY_DATA_STAT = '30'
+        THEN T2.TON ELSE 0 END),0) AS ZY_TON
+        FROM
+        T_YARD_TALLY T1,
+        T_YARD_TALLY_ITEM T2,
+        M_WORK_PROCESS T5
+        WHERE
+        T1. ID = T2.TALLY_ID
+        AND T1.PROCESS_CODE = T5.PROCESS_CD
+        AND T1.DEL_FLAG = 0
+        AND T5.TALLY_DATA_STAT IS NOT NULL
+        <if test="ids != null and ids.size() > 0">
+            AND T2.CARGO_INFO_ID IN
+            <foreach collection="ids" item="item" close=")" open="(" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        GROUP BY
+        T2.CARGO_INFO_ID
+    </select>
+
+    <select id="getProcess"  resultType="Map">
+        SELECT
+            TARGET_CD "destination",
+            SOURCE_CD "source"
+        FROM
+            M_WORK_PROCESS
+        WHERE
+            ID IN (
+                SELECT
+                    PARENT_ID
+                FROM
+                    M_WORK_PROCESS
+                WHERE
+                    PROCESS_CD = #{processCode,jdbcType=VARCHAR}
+            )
+    </select>
+
+    <select id="getStorehouseByMassId"  resultType="Map">
+        SELECT
+            CONCAT(CONCAT(CONCAT(CONCAT(M3.STORAGE_YARD_NM, '/'), M2.STORAGE_YARD_NM), '/'), M1.STORAGE_YARD_NM) as "label",
+            M1.ID as "value",
+            M3.ID as "storehouseId",
+            M3.STORAGE_YARD_NM as "storehouseName",
+            M2.ID as "regionId",
+            M2.STORAGE_YARD_NM as "regionName",
+            M1.ID as "massId",
+            M1.STORAGE_YARD_NM as "massName"
+        FROM
+            M_STORAGE_YARD M1,
+            M_STORAGE_YARD M2,
+            M_STORAGE_YARD M3
+        WHERE M1.STORAGE_YARD_LEVEL = '3'
+          AND M1.PARENT_ID = M2.ID AND M2.STORAGE_YARD_LEVEL = '2'
+          AND M2.PARENT_ID = M3.ID AND M3.STORAGE_YARD_LEVEL = '1'
+          AND M1.ID = #{id}
+    </select>
+
+    <select id="getProcessByCode"  resultType="Map">
+        SELECT mwp1.PROCESS_CD "processCd",
+               mwp1.PROCESS_NM "processNm",
+               mwp1.SOURCE_CD "sourceCd",
+               mwp1.SOURCE_NM "sourceNm",
+               mwp1.TARGET_CD "targetCd",
+               mwp1.TARGET_NM "targetNm",
+               mwp2.PROCESS_CD "processParentCd",
+               mwp2.PROCESS_NM "processParentNm"
+        FROM M_WORK_PROCESS mwp1
+        LEFT JOIN M_WORK_PROCESS mwp2 ON mwp1.parent_id = MWP2.id
+        WHERE mwp1.NEW_PROCESS = 1
+        and mwp1.PROCESS_CD = #{processCd}
+    </select>
+
+    <select id="getIsDept"  resultType="Integer">
+        SELECT
+            count(ID)
+        FROM
+            SYS_USER
+        WHERE ID = #{id,jdbcType=BIGINT} AND (
+            DEPT_ID IN (
+                1677243491865989120,
+                1677243625832058880
+            )
+            AND POST_CODE = 'ZBZR' OR POST_CODE IN ('ZKY', 'BZ', 'TJY')
+        )
+    </select>
+
+    <select id="getAdmin"  resultType="Integer">
+        SELECT
+            count(ID)
+        FROM
+            SYS_USER
+        WHERE ID = #{id,jdbcType=BIGINT} AND IS_SUPERADMIN = '1'
+    </select>
+
+    <select id="getIsPre"  resultType="Integer">
+       SELECT IS_PRE_PROCESS FROM M_WORK_PROCESS WHERE PROCESS_CD = #{processCode,jdbcType=VARCHAR}
+    </select>
+
+    <select id="getNumber" resultType="com.yy.ppm.appWork.bean.dto.AppTallyCoilNumDTO">
+        SELECT
+        A1.ID,
+        A1.NUM,
+        A1.CARGO_INFO_ID,
+        A1.COIL_NUM,
+        A1.TON,
+        A1.COIL_SIZE1,
+        A1.COIL_SIZE2,
+        A1.STATUS,
+        A1.RECEIVE_ADDRESS,
+        LISTAGG (TO_CHAR (A3.CREATE_BY_NAME), ',') WITHIN GROUP (ORDER BY A1.ID) CREATE_BY_NAME,
+        LISTAGG (TO_CHAR(A3.CREATE_TIME,'yyyy-mm-dd hh24:mi'), ',') WITHIN GROUP (ORDER BY A1.ID) AS CREATE_TIMES
+        FROM
+        T_BUS_CARGO_INFO_COILNUM A1
+        LEFT JOIN T_BUS_TALLY_COILNUM A2 ON A1. ID = A2.COIL_ID
+        LEFT JOIN T_YARD_TALLY A3 ON A3. ID = A2.TALLY_ID
+        WHERE CARGO_INFO_ID = #{cargoInfoId,jdbcType=BIGINT}
+        <if test="num != null">
+            <bind name="num_like" value="'%'+num+'%'"/>
+            AND  A1.NUM like  #{num_like}
+        </if>
+        <if test="coilNum != null">
+            <bind name="coilNum_like" value="'%'+coilNum+'%'"/>
+            AND  A1.COIL_NUM like  #{coilNum_like}
+        </if>
+        <if test="status != null">
+            AND  A1.STATUS =  #{status}
+        </if>
+        GROUP BY
+        A1. ID,
+        A1.NUM,
+        A1.CARGO_INFO_ID,
+        A1.COIL_NUM,
+        A1.TON,
+        A1.COIL_SIZE1,
+        A1.COIL_SIZE2,
+        A1.STATUS,
+        A1.RECEIVE_ADDRESS
+        ORDER BY A1.NUM, A1.STATUS,A1.COIL_NUM
+    </select>
+
+    <select id="getBoxList" resultType="com.yy.ppm.appWork.bean.dto.AppTallyCoilNumDTO">
+        SELECT
+        A1.ID,
+        A1.NUM,
+        A1.CARGO_INFO_ID,
+        A1.COIL_NUM,
+        A1.TON,
+        A1.COIL_SIZE1,
+        A1.COIL_SIZE2,
+        A1.STATUS,
+        A1.RECEIVE_ADDRESS,
+        LISTAGG (TO_CHAR (A3.CREATE_BY_NAME), ',') WITHIN GROUP (ORDER BY A1.ID) CREATE_BY_NAME,
+        LISTAGG (TO_CHAR(A3.CREATE_TIME,'yyyy-mm-dd hh24:mi'), ',') WITHIN GROUP (ORDER BY A1.ID) AS CREATE_TIMES
+        FROM
+        T_BUS_CARGO_INFO_COILNUM A1
+        LEFT JOIN T_BUS_TALLY_COILNUM A2 ON A1. ID = A2.COIL_ID
+        LEFT JOIN T_YARD_TALLY A3 ON A3. ID = A2.TALLY_ID
+        WHERE BUSINESS_TYPE = '2' AND CARGO_INFO_ID IN
+        <foreach collection="cargoInfoIds" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+        <if test="num != null">
+            <bind name="num_like" value="'%'+num+'%'"/>
+            AND  A1.NUM like  #{num_like}
+        </if>
+        <if test="coilNum != null">
+            <bind name="coilNum_like" value="'%'+coilNum+'%'"/>
+            AND  A1.COIL_NUM like  #{coilNum_like}
+        </if>
+        <if test="status != null">
+            AND  A1.STATUS =  #{status}
+        </if>
+        GROUP BY
+        A1. ID,
+        A1.NUM,
+        A1.CARGO_INFO_ID,
+        A1.COIL_NUM,
+        A1.TON,
+        A1.COIL_SIZE1,
+        A1.COIL_SIZE2,
+        A1.STATUS,
+        A1.RECEIVE_ADDRESS
+        ORDER BY A1.NUM, A1.STATUS,A1.COIL_NUM
+    </select>
+
+    <select id="getIsStackPosition" resultType="Long">
+        SELECT
+           to_char(ID) "id"
+        FROM
+            M_STORAGE_YARD
+        WHERE
+         PARENT_ID = #{locationId,jdbcType=BIGINT}
+        AND STORAGE_YARD_NM = #{stackPositionName,jdbcType=VARCHAR}
+    </select>
+
+    <select id="getWorkType" resultType="Map">
+           SELECT
+	            TO_CHAR(WORK_TYPE) "workType"
+            FROM
+	            M_CARGO
+            WHERE
+                CARGO_CODE IN (
+                    SELECT
+                        CARGO_CODE
+                    FROM
+                        T_BUS_CARGO_INFO
+                    WHERE
+                        ID IN (
+                            SELECT
+                                CARGO_INFO_ID
+                            FROM
+                                T_BUS_TRUST_CARGO
+                            WHERE
+                                TRUST_ID = #{trustId,jdbcType=BIGINT}
+                        )
+                )
+    </select>
+
+    <update id="deleteNotes">
+        UPDATE T_YARD_TALLY
+        <set>
+            DELETE_BY = #{loginUserId,jdbcType=BIGINT},
+            DELETE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            DELETE_TIME = #{now,jdbcType=TIMESTAMP},
+            DEL_FLAG = 1
+        </set>
+        WHERE ID = #{id,jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteNotesItem" parameterType="Long">
+        delete from T_YARD_TALLY_ITEM where TALLY_ID=#{tallyId,jdbcType=BIGINT}
+    </delete>
+
+    <update id="updateNotesRelationId">
+        UPDATE T_YARD_TALLY
+        <set>
+            RELATION_ID = null
+        </set>
+        WHERE RELATION_ID = #{tallyId,jdbcType=BIGINT}
+    </update>
+
+    <update id="updateWeight">
+        UPDATE t_weight_info
+        <set>
+            tallying_status = '1',
+            tallying_time = #{now},
+            weight_status = '3',
+            tallyman_1st = #{loginUserName,jdbcType=VARCHAR},
+            mark = '2',
+            wqmemo = wqmemo + #{remark,jdbcType=VARCHAR}
+        </set>
+        WHERE id = #{weighbridgeId}
+    </update>
+
+    <update id="updateWeightNew">
+        UPDATE WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND
+        <set>
+            <if test="remark != null and remark != ''">
+                INV_REM = NVL(INV_REM, '')  || #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="isDirection!=null">
+                IS_DIRECTION = #{isDirection,jdbcType=BIGINT},
+            </if>
+            IS_TALLY = 1
+        </set>
+        WHERE NOTE_ID = #{weighbridgeId}
+    </update>
+
+    <update id="updateWeightStatusNew">
+        UPDATE WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND
+        <set>
+            INV_REM = null,
+            IS_TALLY = 0
+        </set>
+        WHERE NOTE_ID = #{id}
+    </update>
+
+    <update id="updateWeightRemark">
+        UPDATE WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND
+        <set>
+            INV_REM = #{remark,jdbcType=VARCHAR}
+        </set>
+        WHERE NOTE_ID = #{weightId}
+    </update>
+
+    <update id="updateDeparture">
+        UPDATE WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND
+        <set>
+            IS_TALLY = 9
+        </set>
+        WHERE NOTE_ID = #{id}
+    </update>
+
+    <update id="updateWeightStatus">
+        UPDATE t_weight_info
+        <set>
+            tallying_status = '0',
+            weight_status = '2',
+            mark = '0'
+        </set>
+        WHERE id = #{weighbridgeId}
+    </update>
+
+    <update id="updateCoilList" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" open="begin" separator=";" close=";end;" >
+            UPDATE
+            T_BUS_CARGO_INFO_COILNUM
+            SET
+            STATUS = #{item.status,jdbcType=VARCHAR},
+            <if test="item.status == '20'">
+                WARE_HOUSING_BY = #{item.loginUserId, jdbcType=BIGINT},
+                WARE_HOUSING_BY_NAME = #{item.loginUserName, jdbcType=VARCHAR},
+                WARE_HOUSING_TIME = #{item.now}
+            </if>
+            <if test="item.status == '30'">
+                OUT_BOUND_BY = #{item.loginUserId, jdbcType=BIGINT},
+                OUT_BOUND_BY_NAME = #{item.loginUserName, jdbcType=VARCHAR},
+                OUT_BOUND_TIME = #{item.now}
+            </if>
+
+            <where>
+                ID = #{item.id}
+            </where>
+        </foreach>
+    </update>
+
+    <update id="updateCoilNum" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" open="begin" separator=";" close=";end;" >
+            UPDATE
+            T_BUS_CARGO_INFO_COILNUM
+            SET
+            STATUS = #{status},
+            UPDATE_BY = #{item.loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{item.loginUserName, jdbcType=VARCHAR},
+            <if test="status == '10'">
+                WARE_HOUSING_BY = null,
+                WARE_HOUSING_BY_NAME = null,
+                WARE_HOUSING_TIME = null,
+                OUT_BOUND_BY = null,
+                OUT_BOUND_BY_NAME = null,
+                OUT_BOUND_TIME = null,
+            </if>
+            <if test="status == '30'">
+                WARE_HOUSING_BY = null,
+                WARE_HOUSING_BY_NAME = null,
+                WARE_HOUSING_TIME = null,
+            </if>
+            <if test="status == '20'">
+                OUT_BOUND_BY = null,
+                OUT_BOUND_BY_NAME = null,
+                OUT_BOUND_TIME = null,
+            </if>
+            UPDATE_TIME = #{item.now}
+            <where>
+                ID = #{item.id}
+            </where>
+        </foreach>
+    </update>
+
+    <insert id="insertCoilList" parameterType="java.util.List">
+        INSERT INTO T_BUS_TALLY_COILNUM(
+        TALLY_ID,
+        COIL_ID,
+        COIL_NUM
+        )
+        (
+        <foreach collection="list" item="item" index="" separator="union all">
+            select
+            #{item.tallyId,jdbcType=BIGINT},
+            #{item.id,jdbcType=BIGINT},
+            #{item.coilNum,jdbcType=VARCHAR}
+            from dual
+        </foreach>
+        )
+    </insert>
+
+    <update id="updateTally">
+        UPDATE T_YARD_TALLY
+        <set>
+            EQUIPMENT_ID = #{equipmentId,jdbcType=BIGINT},
+            EQUIPMENT_NO = #{equipmentNo,jdbcType=BIGINT},
+            DEPT_PARENT_ID = #{deptParentId,jdbcType=BIGINT},
+            DEPT_PARENT_NAME = #{deptParentName,jdbcType=BIGINT},
+            TRANSPORT_EQUIPMENT_ID = #{transportEquipmentId,jdbcType=BIGINT},
+            TRANSPORT_EQUIPMENT_NO = #{transportEquipmentNo,jdbcType=BIGINT},
+            QUANTITY = #{quantity},
+            TON = #{ton,jdbcType=DOUBLE},
+            OPERATORS_ID = #{operatorsId,jdbcType=BIGINT},
+            OPERATORS_NAME = #{operatorsName,jdbcType=VARCHAR},
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now}
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateTallyItem">
+        UPDATE T_YARD_TALLY_ITEM
+        <set>
+            CARGO_NAME = #{cargoName,jdbcType=VARCHAR},
+            CARGO_CODE = #{cargoCode,jdbcType=VARCHAR},
+            CARGO_INFO_ID = #{cargoInfoId,jdbcType=BIGINT},
+            STOREHOUSE_ID = #{storehouseId,jdbcType=BIGINT},
+            STOREHOUSE_NAME = #{storehouseName,jdbcType=BIGINT},
+            QUANTITY = #{quantity},
+            TON = #{ton,jdbcType=DOUBLE},
+            LOCATION_ID = #{locationId,jdbcType=BIGINT},
+            LOCATION_NO = #{locationNo,jdbcType=VARCHAR},
+            STACK_POSITION_NAME = #{stackPositionName,jdbcType=VARCHAR},
+            STACK_POSITION_ID = #{stackPositionId,jdbcType=VARCHAR},
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now}
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateSourceOrTargetFlag">
+        UPDATE T_YARD_TALLY_ITEM
+        <set>
+            SOURCE_OR_TARGET_FLAG = #{flag,jdbcType=VARCHAR}
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="getTrustPlan" resultType="java.util.Map">
+    	SELECT
+			b.PLAN_QUANTITY "planQuantity",
+			b.PLAN_TON "planTon"
+		FROM
+			T_BUS_TRUST b
+		WHERE
+			b."ID" = #{trustId}
+    </select>
+
+    <select id="getCargoInfoList" resultType="java.util.Map">
+        SELECT
+        A.CARGO_INFO_NO || '/' || A.CARGO_OWNER_NAME || '/' || A.CARGO_NAME "cargoInfoLabel",
+        A.QUANTITY "cargoQuantity",
+        A.TON "cargoTon",
+        A.ID "cargoInfoId"
+        FROM
+        T_BUS_CARGO_INFO A,
+        T_BUS_TRUST_CARGO AA
+        WHERE
+        AA.TRUST_ID = #{trustId}
+        AND A.ID = AA.CARGO_INFO_ID
+        <if test="cargoInfoNo != null and cargoInfoNo != ''">
+            <bind name="cargoInfoNoLike" value="'%' + cargoInfoNo + '%'"/>
+            AND A.CARGO_INFO_NO like #{cargoInfoNoLike}
+        </if>
+        ORDER BY
+        A.CARGO_INFO_NO
+    </select>
+    <select id="getCargoInfoListNew" resultType="java.util.Map">
+        SELECT
+        A.CARGO_INFO_NO || '/' || A.CARGO_OWNER_NAME || '/' || A.CARGO_NAME "cargoInfoLabel",
+        A.QUANTITY "cargoQuantity",
+        A.TON "cargoTon",
+        A.ID "cargoInfoId",
+        A.CARGO_INFO_NO "cargoInfoNo",
+        AA.TRUST_ID "trustId"
+        FROM
+        T_BUS_CARGO_INFO A,
+        T_BUS_TRUST_CARGO AA
+        WHERE
+        AA.TRUST_ID = #{trustId}
+        AND A.ID = AA.CARGO_INFO_ID
+        <if test="cargoInfoNo != null and cargoInfoNo != ''">
+            <bind name="cargoInfoNoLike" value="'%' + cargoInfoNo + '%'"/>
+            AND A.CARGO_INFO_NO like #{cargoInfoNoLike}
+        </if>
+        ORDER BY
+        A.CARGO_INFO_NO
+    </select>
+
+    <select id="getProgressWorkData" resultType="java.util.Map">
+        SELECT
+        T2.CARGO_INFO_ID "cargoInfoId",
+        SUM (T2.QUANTITY) "quantity",
+        SUM (T2.TON) "ton",
+        COUNT (DISTINCT T1. ID) "cars"
+        FROM
+        T_YARD_TALLY T1,
+        T_YARD_TALLY_ITEM T2,
+        T_PRD_WORK_PLAN T4,
+        T_BUS_CARGO_INFO T3
+        WHERE
+        T1. ID = T2.TALLY_ID
+        AND T1.DEL_FLAG = 0
+        AND T1.PLAN_ID = T4. ID
+        AND T3.ID = T2.CARGO_INFO_ID
+        AND T2.CARGO_INFO_ID = #{cargoInfoId}
+        <if test="workDate != null and workDate != ''">
+            AND T4.WORK_DATE = TO_DATE(#{workDate},'YYYY-MM-DD')
+        </if>
+        <if test="classCode != null and classCode != ''">
+            AND T4.CLASS_CODE = #{classCode}
+        </if>
+        AND T1.PROCESS_CODE IN
+        <foreach collection="paramList" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+        GROUP BY
+        T2.CARGO_INFO_ID
+    </select>
+
+    <select id="getShipName" resultType="java.util.Map">
+        SELECT
+        TBTC.TRUST_ID "trustId",
+        TDSI.ID "id",
+        TDS.SHIP_NAME || '_' || TDSI.VOYAGE "shipNameVoyage",
+        TDS.SCN "scn"
+        FROM
+        T_BUS_TRUST_CARGO TBTC
+        JOIN T_BUS_CARGO_INFO TBCI ON TBTC.CARGO_INFO_ID = TBCI.ID
+        JOIN T_DIS_SHIPVOYAGE TDS on TBCI.SHIPVOYAGE_ID = TDS.ID
+        JOIN T_DIS_SHIPVOYAGE_ITEM TDSI on TBCI.SHIPVOYAGE_ITEM_ID = TDSI.ID
+        WHERE
+        TBTC.TRUST_ID = #{trustId,jdbcType=BIGINT}
+        GROUP BY
+        TBTC.TRUST_ID,
+        TDSI.ID,
+        TDS.SHIP_NAME,
+        TDSI.VOYAGE,
+        TDS.SCN
+    </select>
+
+    <select id="getCoilNumIdList" resultType="com.yy.ppm.appWork.bean.dto.AppTallyCoilNumDTO">
+        SELECT TALLY_ID,COIL_ID ID FROM T_BUS_TALLY_COILNUM WHERE TALLY_ID = #{tallyId,jdbcType=VARCHAR}
+    </select>
+
+    <select id="getNoteTally" resultType="Long">
+        SELECT ID FROM T_YARD_TALLY WHERE WEIGHBRIDGE_ID = #{noteId,jdbcType=BIGINT} AND DEL_FLAG = 0
+    </select>
+
+    <select id="getCargoDeparture" resultType="Map">
+        SELECT
+            ID "id",
+            CARGO_CODE "cargoCode",
+            CARGO_NAME "cargoName"
+        FROM
+            T_BUS_CARGO_INFO
+        WHERE
+            ID = (
+                SELECT
+                    CARGO_INFO_ID
+                FROM
+                    T_BUS_TRUST_CARGO
+                WHERE
+                    BUSINESS_NO = #{planNo,jdbcType=VARCHAR}
+            )
+    </select>
+
+    <select id="getDepartureList" resultType="com.yy.ppm.appWork.bean.dto.DepartureDTO">
+        SELECT
+            NOTE_ID,
+            WORK_ERWEI_ID,
+            TSPT_ID,
+            UNION_NO,
+            WEIGH_IN_DT,
+            CHECKER_IN_NAME,
+            WEIGH_OUT_DT,
+            CHECKER_OUT_NAME,
+            INV_NO,
+            PLAN_NO,
+            GOODS_NAME,
+            TRUCK_PLATE,
+            COM_NAME,
+            OUT_BANG_NO,
+            IN_BANG_NO,
+            WEIGHT_ALL
+        FROM
+            (
+                SELECT
+                    *
+                FROM
+                    WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND
+                WHERE
+                    TRUCK_PLATE = #{truckPlate}
+                AND IS_FINISHED = 0
+                AND IS_DELETE = 0
+                AND IS_TALLY != 9
+
+                ORDER BY
+                    WEIGH_IN_DT DESC
+            )
+        WHERE
+            ROWNUM = 1
+    </select>
+
+    <select id="getTransportEquipmentCargoInfo" resultType="java.util.Map">
+    	SELECT
+			*
+		FROM
+			(SELECT
+					c."ID" "cargoInfoId",
+					c.CARGO_CODE "cargoCode",
+					c.CARGO_NAME "cargoName"
+				FROM
+					T_BUS_VEHICLE_RESERVATION A,
+					T_BUS_TRUST_CARGO b,
+					T_BUS_CARGO_INFO c
+				WHERE
+					A .TRUST_CARGO_ID = b."ID"
+				AND b.CARGO_INFO_ID = c."ID"
+				AND A .VEHICLE_NO = #{vehicleNo}
+                AND A .TRUST_ID = #{trustId}
+                AND A.STATUS = '0'
+				ORDER BY
+                    A . ID DESC
+			)
+		WHERE
+			ROWNUM = 1
+    </select>
+
+    <select id="getTransportEquipmentCargoInfoZ" resultType="java.util.Map">
+    	SELECT
+			c."ID" "cargoInfoId",
+			c.CARGO_CODE "cargoCode",
+			c.CARGO_NAME "cargoName",
+			c.CARGO_INFO_NO,
+			A .PLAN_NO
+		FROM
+			WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND A,
+			T_BUS_TRUST_CARGO b,
+			T_BUS_CARGO_INFO c
+		WHERE
+			A .PLAN_NO = b.BUSINESS_NO
+		AND b.CARGO_INFO_ID = c."ID"
+		AND A .TRUCK_PLATE = #{vehicleNo,jdbcType=VARCHAR}
+		AND A .IS_TALLY = 0
+    </select>
+
+    <delete id="deleteCoilNum">
+        DELETE
+        FROM T_BUS_TALLY_COILNUM
+        WHERE TALLY_ID = #{tallyId,jdbcType=VARCHAR}
+    </delete>
+    <delete id="deleteDbTallyItemByDbId" parameterType="java.lang.Long">
+        DELETE
+        FROM T_DB_TALLY_ITEM
+        WHERE TALLY_ID = #{id}
+    </delete>
+
+    <select id="getWeightInfo" resultType="com.yy.ppm.appWork.bean.po.TYardTallyPO">
+        SELECT
+            WORK_ERWEI_ID "workErWeiId",
+            TSPT_ID "tsptId",
+            PLAN_NO "planNo",
+            WEIGH_OUT_DT "weighOutDt",
+            IS_FINISHED "isFinished"
+        FROM
+            WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND
+        WHERE
+            NOTE_ID = #{weighbridgeId}
+    </select>
+
+    <select id="getNote" resultType="com.yy.ppm.appWork.bean.dto.DepartureDTO">
+        select  TOP 1
+        id noteId,<!-- ID -->
+        weightCode unionNo, <!-- 榜单号 -->
+        planCode planNo, <!-- 计划号 -->
+        platenumber truckPlate,<!--车牌号 -->
+        weight_1st weightAll, <!--一次过磅重量 -->
+        weight_1st_time weighInDt <!--一次过磅时间 -->
+        from t_weight_info where  platenumber= #{carNo,jdbcType=VARCHAR} and weight_status != 0 and weight_status != 7 and weight_status != 9 and invalid != 1
+        order by weight_1st_time desc
+    </select>
+
+    <update id="updateWeightInfo">
+        <!--   truckPlate:车牌号 unionNo:磅单号    -->
+        UPDATE t_weight_info
+        <set>
+            tallying_status='9',
+            weight_status = '3',
+            mark = '3'
+        </set>
+        WHERE platenumber = #{truckPlate,jdbcType=VARCHAR} and weightCode = #{unionNo,jdbcType=VARCHAR}
+    </update>
+
+    <insert id="insertEmptyTruck">
+        insert into t_emptyTruck_record(weightCode,oper,operTime,operate,remark)
+         values(#{unionNo,jdbcType=VARCHAR},'test',#{now},2,'')
+    </insert>
+    <insert id="saveDbTally" parameterType="com.yy.ppm.appWork.bean.dto.DunBaoTallyDTO">
+        INSERT INTO T_DB_TALLY (
+            ID,
+            SHIP_VOYAGE_ITEM_ID,
+            TRUST_CARGO_INFO_ID,
+            WORK_TYPE,
+            WORK_DATE,
+            CLASS_CODE,
+            CLASS_NAME,
+            EQUIPMENT_ID,
+            EQUIPMENT_NO,
+            TRANSPORT_EQUIPMENT_NO,
+            QUANTITY,
+            TON,
+            CARGO_INFO_ID,
+            WEIGHBRIDGE_ID,
+            DEPT_PARENT_ID,
+            DEPT_PARENT_NAME,
+            OPERATORS_NAME,
+            RESERVATION_POUND_ID,
+            SC_TALLY_ID,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )
+        VALUES (
+              #{id},
+              #{shipVoyageItemId},
+              #{trustCargoInfoId},
+              #{workType},
+              #{workDate},
+              #{classCode},
+              #{className},
+              #{equipmentId},
+              #{equipmentNo},
+              #{transportEquipmentNo},
+              #{quantity},
+              #{ton},
+              #{cargoInfoId},
+              #{weighbridgeId},
+              #{deptParentId},
+              #{deptParentName},
+              #{operatorsName},
+              #{reservationPoundId},
+              #{scTallyId},
+              #{loginUserId},
+              #{loginUserName},
+              #{now}
+        )
+    </insert>
+
+    <insert id="saveDbTallyItem" parameterType="com.yy.ppm.appWork.bean.dto.DunBaoTallyItemDTO">
+        INSERT INTO T_DB_TALLY_ITEM(
+            ID,
+            TALLY_ID,
+            CARGO_INFO_ID,
+            STACK_POSITION_ID,
+            STACK_POSITION_NAME,
+            QUANTITY,
+            TON,
+            CABIN_NO,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )
+        (
+        <foreach collection="list" item="item" index="" separator="union all">
+            select
+            #{item.id,jdbcType=BIGINT},
+            #{item.tallyId},
+            #{item.cargoInfoId},
+            #{item.stackPositionId},
+            #{item.stackPositionName},
+            #{item.quantity},
+            #{item.ton},
+            #{item.cabinNo},
+            #{item.loginUserId,jdbcType=VARCHAR},
+            #{item.loginUserName,jdbcType=VARCHAR},
+            #{item.now}
+            from dual
+        </foreach>
+        )
+    </insert>
+
+    <select id="getMWorkProcessList" resultType="com.yy.ppm.master.bean.po.MWorkProcessPO">
+    	SELECT * FROM M_WORK_PROCESS WHERE TALLY_DATA_STAT IS NOT NULL
+    </select>
+
+    <select id="getIsBdTally" resultType="Integer">
+    	SELECT
+            COUNT(*)
+        FROM
+            T_YARD_TALLY
+        WHERE
+            TRANSPORT_EQUIPMENT_NO = #{transportEquipmentNo,jdbcType=VARCHAR}
+        AND WEIGHBRIDGE_ID = #{weighbridgeId,jdbcType=BIGINT} AND DEL_FLAG = 0
+    </select>
+
+    <select id="poByCondition" resultType="com.yy.ppm.appWork.bean.po.TYardTallyPO">
+        SELECT
+            *
+        FROM
+            T_YARD_TALLY
+        WHERE
+            TRANSPORT_EQUIPMENT_NO = #{transportEquipmentNo,jdbcType=VARCHAR}
+          AND WEIGHBRIDGE_ID = #{weighbridgeId,jdbcType=BIGINT} AND DEL_FLAG = 0
+    </select>
+
+    <select id="poByPoundId" resultType="com.yy.ppm.appWork.bean.po.TYardTallyPO">
+        SELECT
+            *
+        FROM
+            T_YARD_TALLY
+        WHERE
+            RESERVATION_POUND_ID = #{reservationPoundId} AND DEL_FLAG = 0
+    </select>
+
+    <select id="getByWeighbridgeId" resultType="Integer">
+    	SELECT
+            COUNT(*)
+        FROM
+            T_YARD_TALLY
+        WHERE
+            DEL_FLAG = 0
+        AND WEIGHBRIDGE_ID = #{weighbridgeId,jdbcType=BIGINT}
+    </select>
+
+    <select id="getWeightId" resultType="String">
+    	SELECT
+            WEIGHBRIDGE_ID
+        FROM
+            T_YARD_TALLY
+        WHERE
+         ID = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="getProcessIsFrontier" resultType="String">
+    	SELECT
+            IS_FRONTIER
+        FROM
+            M_WORK_PROCESS
+        WHERE
+         PROCESS_CD = #{processCode,jdbcType=VARCHAR}
+    </select>
+
+    <select id="getStorage" resultType="com.yy.ppm.appWork.bean.po.TYardTallyItemPO">
+    	SELECT
+            STOREHOUSE_ID storehouseTargetId,
+            STOREHOUSE_NAME storehouseTargetName,
+            REGION_ID locationTargetId ,
+            REGION_NAME locationTargetNo ,
+            MASS_ID stackPositionTargetId,
+            MASS_NAME stackPositionTargetName
+        FROM
+            T_PRD_PORT_STORAGE
+        WHERE
+            ID IN (
+                SELECT
+                    IN_OUT_ID
+                FROM
+                    T_YARD_TALLY_ITEM
+                WHERE
+                    ID = #{id}
+            )
+    </select>
+
+    <select id="getDepartureRecordList"  resultType="com.yy.ppm.appWork.bean.dto.DepartureDTO">
+        SELECT
+        A1. ID tallyId,
+        A1.CREATE_BY_NAME,
+        A1.CREATE_TIME,
+        A1.WEIGHBRIDGE_ID noteId,
+        A1.TRANSPORT_EQUIPMENT_NO truckPlate,
+        A3.GOODS_NAME,
+        A3.PLAN_NO,
+        A3.WEIGH_IN_DT,
+        A3.WEIGH_OUT_DT
+        FROM
+        T_YARD_TALLY a1
+        LEFT JOIN T_YARD_TALLY_ITEM A2 ON A1. ID = A2.TALLY_ID
+        LEFT JOIN WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND A3 ON A3.NOTE_ID = A1.WEIGHBRIDGE_ID
+        WHERE
+        A1.TALLY_STATUS = 9 AND A1.DEL_FLAG = 0
+        AND TO_CHAR (
+        A1.CREATE_TIME,
+        'YYYY-MM-DD'
+        ) >= #{startDate,jdbcType=VARCHAR}
+        AND TO_CHAR (
+        A1.CREATE_TIME,
+        'YYYY-MM-DD'
+        ) &lt;= #{endDate,jdbcType=VARCHAR}
+        ORDER BY
+        A1.CREATE_TIME DESC
+    </select>
+
+    <update id="updateWeightRevoke">
+        UPDATE WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND
+        <set>
+            IS_TALLY = 0
+        </set>
+        WHERE NOTE_ID = #{weighbridgeId}
+    </update>
+    <update id="updateDbTally" parameterType="com.yy.ppm.appWork.bean.dto.DunBaoTallyDTO">
+        UPDATE T_DB_TALLY
+        <set>
+            SHIP_VOYAGE_ITEM_ID = #{shipVoyageItemId},
+            TRUST_CARGO_INFO_ID = #{trustCargoInfoId},
+            WORK_TYPE = #{workType},
+            WORK_DATE = #{workDate},
+            CLASS_CODE = #{classCode},
+            CLASS_NAME = #{className},
+            EQUIPMENT_ID = #{equipmentId},
+            EQUIPMENT_NO = #{equipmentNo},
+            TRANSPORT_EQUIPMENT_NO = #{transportEquipmentNo},
+            QUANTITY = #{quantity},
+            TON = #{ton},
+            CARGO_INFO_ID = #{cargoInfoId},
+            WEIGHBRIDGE_ID = #{weighbridgeId},
+            DEPT_PARENT_ID = #{deptParentId},
+            DEPT_PARENT_NAME = #{deptParentName},
+            OPERATORS_NAME = #{operatorsName},
+            RESERVATION_POUND_ID = #{reservationPoundId},
+            SC_TALLY_ID = #{scTallyId},
+            CREATE_BY = #{loginUserId,jdbcType=BIGINT},
+            CREATE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            CREATE_TIME = #{now,jdbcType=TIMESTAMP}
+        </set>
+        WHERE ID = #{id}
+    </update>
+
+
+    <select id="listDisShipVoyageApp" resultType="Map">
+       SELECT
+            A2.ID "id",
+            A1.SHIP_NAME "shipName",
+            A2.VOYAGE "voyage",
+            A2.LOAD_UNLOAD "loadUnLoad",
+            A1.BERTH_TIME "berthTime",
+            A1.SHIP_STATUS_CODE "shipStatusCode",
+            A1.SHIP_STATUS_NAME "shipStatusName"
+        FROM
+            T_DIS_SHIPVOYAGE A1
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM A2 ON A1. ID = A2.SHIPVOYAGE_ID
+        WHERE
+            A1.SHIP_STATUS_CODE IN (
+                10,
+                20,
+                30,
+                50,
+                60,
+                70,
+                80,
+                90,
+                100
+            )
+        ORDER BY A2.CREATE_TIME DESC
+    </select>
+
+    <select id="getCoilTallyList" resultType="com.yy.ppm.appWork.bean.dto.AppTallyCoilNumDTO">
+        SELECT
+            ID,
+            NUM,
+            CARGO_INFO_ID,
+            COIL_NUM,
+            TON,
+            COIL_SIZE1,
+            COIL_SIZE2,
+            STATUS,
+            RECEIVE_ADDRESS
+        FROM
+            T_BUS_CARGO_INFO_COILNUM
+        WHERE
+            ID IN (
+                SELECT
+                    COIL_ID
+                FROM
+                    T_BUS_TALLY_COILNUM
+                WHERE
+                    TALLY_ID = #{id,jdbcType=BIGINT}
+            )
+    </select>
+
+    <select id="getWeightCargo" resultType="String">
+      SELECT
+            CARGO_INFO_ID
+        FROM
+            T_BUS_TRUST_CARGO
+        WHERE
+            BUSINESS_NO = (
+                SELECT
+                    PLAN_NO
+                FROM
+                   WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND
+                WHERE
+                    NOTE_ID = #{weighbridgeId,jdbcType=BIGINT}
+            )
+    </select>
+    <select id="getTicketById" resultType="java.lang.Integer" parameterType="java.lang.Long">
+        SELECT COUNT(0) "count" FROM T_PRD_WORK_TICKET tpwt
+        LEFT JOIN T_YARD_TALLY tyt ON TPWT.WORK_PLAN_ID = tyt.PLAN_ID
+        WHERE tyt.id = #{id}
+    </select>
+    <select id="getWorkInfoByCargoInfoNo" resultType="java.util.Map" parameterType="java.lang.String">
+        SELECT
+            DISTINCT tbt.ID "trustId",
+            tbt.TRUST_NO "trustNo",
+            tbci.CARGO_INFO_NO "cargoInfoNo",
+            tyt.PROCESS_CODE "processCode",
+            tyt.PROCESS_NAME "processName",
+            CASE WHEN max(tbt.SHIPVOYAGE_ITEM_ID) IS NOT NULL THEN MAX(tds.SHIP_NAME) || '_' || MAX(tdsi.VOYAGE) END "shipVoyage",
+            SUM(NVL(tyti.QUANTITY, 0)) "quantity",
+            CASE
+                WHEN SUM(NVL(tyti.TON, 0)) != 0 THEN SUM(NVL(tyti.TON, 0))
+                ELSE SUM(NVL(wrp.WEIGHT_GOODS, 0))
+            END "ton"
+        FROM
+            T_YARD_TALLY_ITEM tyti
+            LEFT JOIN T_YARD_TALLY tyt ON tyt.id = tyti.TALLY_ID
+            LEFT JOIN T_PRD_WORK_PLAN tpwp ON TPWP.ID = tyt.PLAN_ID
+            LEFT JOIN T_BUS_TRUST tbt ON TBT.ID = tpwp.TRUST_ID
+            LEFT JOIN T_BUS_CARGO_INFO tbci ON TBCI.ID = tyti.CARGO_INFO_ID
+            LEFT JOIN WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND wrp ON wrp.NOTE_ID = tyt.WEIGHBRIDGE_ID
+            LEFT JOIN T_DIS_SHIPVOYAGE_ITEM tdsi ON tbt.SHIPVOYAGE_ITEM_ID = tdsi.ID
+            LEFT JOIN T_DIS_SHIPVOYAGE tds ON tdsi.SHIPVOYAGE_ID = tds.ID
+        WHERE TRUST_NO IS NOT NULL AND tbci.CARGO_INFO_NO = #{cargoInfoNo}
+        GROUP BY
+            tbt.ID,
+            tyt.PROCESS_CODE ,
+            tyt.PROCESS_NAME ,
+            tbt.TRUST_NO,
+            tbci.CARGO_INFO_NO,
+            tyti.SOURCE_OR_TARGET_FLAG
+        ORDER BY
+            tbt.TRUST_NO DESC
+    </select>
+    <select id="getCabinNoList" resultType="java.util.Map" parameterType="java.lang.Long">
+        SELECT MAX(TBCI.SHIP_NAME) || '_' || MAX(tdsi.VOYAGE) "shipVoyage",
+               sum(tyti.QUANTITY)                             "quantity",
+               sum(tyti.TON)                                  "ton",
+               tyti.CABIN_NO                                  "cabinNo"
+        FROM T_YARD_TALLY_ITEM tyti
+                 LEFT JOIN T_YARD_TALLY tyt ON TYT.ID = TYTI.TALLY_ID
+                 LEFT JOIN T_BUS_CARGO_INFO tbci ON TBCI.ID = TYTI.CARGO_INFO_ID
+                 LEFT JOIN T_DIS_SHIPVOYAGE_ITEM tdsi ON TDSI.ID = TBCI.SHIPVOYAGE_ITEM_ID
+                 LEFT JOIN T_PRD_WORK_PLAN tpwp ON tyt.PLAN_ID = TPWP.ID
+        WHERE TYTI.CABIN_NO IS NOT NULL
+          AND tpwp.TRUST_ID = #{trustId}
+        GROUP BY TYTI.CABIN_NO
+        ORDER BY TYTI.CABIN_NO
+    </select>
+    <!--    AND TBCI.SHIPVOYAGE_ITEM_ID IS NOT NULL-->
+    <select id="getTallyByPlanId" resultType="java.util.Map" parameterType="java.lang.Long">
+        SELECT MAX(PROCESS_NAME) "processName", sum(QUANTITY) "quantity", sum(TON) "ton"
+        FROM T_YARD_TALLY tyt
+        WHERE
+            DEL_FLAG = 0
+            and PLAN_ID = #{planId}
+    </select>
+
+    <!--    <select id="">-->
+    <!--        SELECT-->
+    <!--            tbt.ID "trustId",-->
+    <!--            tbt.TRUST_NO "trustNo",-->
+    <!--            tbci.CARGO_INFO_NO "cargoInfoNo",-->
+    <!--            tyt.PROCESS_CODE "processCode",-->
+    <!--            tyt.PROCESS_NAME "processName",-->
+    <!--            SUM(NVL(tyti.QUANTITY, 0)) "quantity",-->
+    <!--            CASE-->
+    <!--                WHEN SUM(NVL(tyti.TON, 0)) != 0 THEN SUM(NVL(tyti.TON, 0))-->
+    <!--                ELSE SUM(NVL(wrp.WEIGHT_GOODS, 0))-->
+    <!--                END "ton"-->
+    <!--        FROM-->
+    <!--            T_YARD_TALLY_ITEM tyti-->
+    <!--                LEFT JOIN T_YARD_TALLY tyt ON tyt.id = tyti.TALLY_ID-->
+    <!--                LEFT JOIN T_PRD_WORK_PLAN tpwp ON TPWP.ID = tyt.PLAN_ID-->
+    <!--                LEFT JOIN T_BUS_TRUST tbt ON TBT.ID = tpwp.TRUST_ID-->
+    <!--                LEFT JOIN T_BUS_CARGO_INFO tbci ON TBCI.ID = tyti.CARGO_INFO_ID-->
+    <!--                LEFT JOIN WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND wrp ON wrp.NOTE_ID = tyt.WEIGHBRIDGE_ID-->
+    <!--        WHERE-->
+    <!--            TRUST_NO IS NOT NULL-->
+    <!--          AND tbci.CARGO_INFO_NO = 'PH240806003'-->
+    <!--        GROUP BY-->
+    <!--            tbt.ID,-->
+    <!--            tyt.PROCESS_CODE ,-->
+    <!--            tyt.PROCESS_NAME ,-->
+    <!--            tbt.TRUST_NO,-->
+    <!--            tbci.CARGO_INFO_NO-->
+    <!--        ORDER BY-->
+    <!--            tbt.TRUST_NO DESC-->
+    <!--    </select>-->
+
+    <select id="getWorkPlanById" resultType="java.lang.String">
+        select mwp.IS_DIRECT_ACCESS
+        from T_PRD_WORK_PLAN TPWP
+                 join M_WORK_PROCESS MWP on TPWP.PROCESS_CODE = MWP.PROCESS_CD
+        where tpwp.id  = #{planId,jdbcType=BIGINT}
+    </select>
+    <select id="getIdByNo" resultType="java.lang.Long">
+        SELECT ID
+        FROM M_MACHINE
+        WHERE MAC_CODE = #{equipmentNo}
+    </select>
+    <select id="getTonByTrustIdAndCargoInfoId" resultType="com.yy.ppm.business.bean.dto.TBusTrustCargoDTO">
+        SELECT QUANTITY,TON
+        FROM T_BUS_TRUST_CARGO
+        WHERE TRUST_ID = #{trustId} and CARGO_INFO_ID = #{cargoInfoId}
+    </select>
+    <select id="getStackIdByStackName" resultType="java.lang.Long">
+        SELECT ID
+        FROM M_STORAGE_YARD
+        WHERE STORAGE_YARD_NM = #{stackPositionName}
+    </select>
+
+    <select id="getProcessDetail"  resultType="Map">
+        SELECT
+            TARGET_CD "destination",
+            SOURCE_CD "source"
+        FROM
+            M_WORK_PROCESS
+        WHERE
+            PROCESS_CD = #{processCode,jdbcType=VARCHAR}
+    </select>
+    <select id="getDbTallyById" resultType="com.yy.ppm.appWork.bean.dto.DunBaoTallyDTO" parameterType="java.lang.Long">
+        select * from T_DB_TALLY where id = #{id}
+    </select>
+
+    <select id="dbTallyByWeighbridgeId" resultType="com.yy.ppm.appWork.bean.dto.DunBaoTallyDTO" >
+        select * from T_DB_TALLY where WEIGHBRIDGE_ID = #{id}
+    </select>
+
+    <select id="dbTallyByPoundId" resultType="com.yy.ppm.appWork.bean.dto.DunBaoTallyDTO" >
+        select * from T_DB_TALLY where RESERVATION_POUND_ID = #{reservationPoundId}
+    </select>
+    <select id="getDbTallyItemByDbTallyId" resultType="com.yy.ppm.appWork.bean.dto.DunBaoTallyItemDTO" >
+        select * from T_DB_TALLY_ITEM where TALLY_ID IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+    <select id="getIsLogout" resultType="java.lang.String" parameterType="java.lang.Long">
+        SELECT IS_LOGOUT "isLogout" FROM T_BUS_CARGO_INFO tbci WHERE id = #{cargoInfoId}
+    </select>
+    <select id="getHqTallyRecord" resultType="com.yy.ppm.appWork.bean.po.THqYardTallyPO" parameterType="com.yy.ppm.appWork.bean.dto.TallyRecordSearchDTO">
+        WITH port_storage AS (
+        SELECT
+        TPPS.CARGO_INFO_ID,
+        sum(tppsd.QUANTITY) quantity,
+        SUM(CASE WHEN tppsd.INOUT_TYPE = '2' THEN tppsd.quantity ELSE 0 end) in_quantity,
+        SUM(CASE WHEN tppsd.INOUT_TYPE = '1' THEN -1*tppsd.quantity ELSE 0 end) out_quantity,
+        sum(tppsd.TON) ton,
+        SUM(CASE WHEN tppsd.INOUT_TYPE = '2' THEN tppsd.ton ELSE 0 end) in_ton,
+        SUM(CASE WHEN tppsd.INOUT_TYPE = '1' THEN -1*tppsd.ton ELSE 0 end) out_ton
+        FROM
+        T_PRD_PORT_STORAGE_DETAIL tppsd ,
+        T_PRD_PORT_STORAGE tpps
+        WHERE tppsd.PORT_STORAGE_ID = TPPS.ID(+)
+        GROUP BY TPPS.CARGO_INFO_ID
+        )
+        SELECT
+        DISTINCT tyt.ID tally_id,
+        tbci.ID CARGO_INFO_ID,
+        tpwp.WORK_DATE ,
+        tpwp.CLASS_CODE ,
+        tpwp.CLASS_NAME ,
+        tbci.CARGO_INFO_NO,
+        port_storage.quantity,
+        port_storage.ton,
+        port_storage.in_quantity,
+        port_storage.in_ton,
+        port_storage.out_quantity,
+        port_storage.out_ton,
+        TYT.QUANTITY tally_quantity,
+        TYT.ton tally_ton,
+        tyt.EQUIPMENT_ID,
+        tyt.EQUIPMENT_NO,
+        tyt.TRANSPORT_EQUIPMENT_ID,
+        tyt.TRANSPORT_EQUIPMENT_NO,
+        tyt.DEPT_ID,
+        tyt.DEPT_NAME,
+        tyt.DEPT_PARENT_ID,
+        tyt.DEPT_PARENT_NAME,
+        source_mass_name,
+        target_mass_name,
+        tyt.CREATE_BY_NAME,
+        tyt.CREATE_TIME
+        FROM T_YARD_TALLY tyt,
+        T_YARD_TALLY_ITEM tyti,
+        T_PRD_WORK_PLAN tpwp,
+        T_BUS_CARGO_INFO tbci,
+        port_storage,
+        (SELECT
+        TALLY_ID,
+        LISTAGG(source_mass_name) WITHIN GROUP (ORDER BY TALLY_ID) source_mass_name,
+        LISTAGG(target_mass_name) WITHIN GROUP (ORDER BY TALLY_ID) target_mass_name
+        FROM (
+        SELECT TALLY_ID ,
+        CASE WHEN tytis.SOURCE_OR_TARGET_FLAG = '1' THEN LISTAGG(STACK_POSITION_NAME) WITHIN GROUP (ORDER BY TALLY_ID) END source_mass_name,
+        CASE WHEN tytis.SOURCE_OR_TARGET_FLAG = '2' THEN LISTAGG(STACK_POSITION_NAME) WITHIN GROUP (ORDER BY TALLY_ID) END target_mass_name
+        FROM T_YARD_TALLY_ITEM tytis
+        LEFT JOIN T_YARD_TALLY tyt ON tyt.id = tytis.TALLY_ID
+        GROUP BY TALLY_ID ,SOURCE_OR_TARGET_FLAG
+        ) GROUP BY TALLY_ID) mass_tally
+        WHERE
+        tyt.PLAN_ID = TPWP.ID(+)
+        AND tyt.ID = tyti.TALLY_ID(+)
+        AND tyti.CARGO_INFO_ID = tbci.ID(+)
+        AND tbci.ID = port_storage.CARGO_INFO_ID(+)
+        AND tyt.id = mass_tally.tally_id
+        AND TYT.DEL_FLAG = 0
+        <if test="planId != null">
+            AND tyt.PLAN_ID = #{planId}
+        </if>
+        <if test="workDate != null">
+            AND to_char(tpwp.WORK_DATE,'YYYY-MM-DD') = #{workDate}
+        </if>
+        <if test="classCode != null">
+            AND tpwp.CLASS_CODE = #{classCode}
+        </if>
+        <if test="className != null">
+            AND tpwp.CLASS_NAME = #{className}
+        </if>
+        <if test="trustId != null">
+            AND tpwp.TRUST_ID = #{trustId}
+        </if>
+        <if test="cargoInfoNo != null">
+            AND tbci.CARGO_INFO_NO = #{cargoInfoNo}
+        </if>
+        <if test="tallyId != null">
+            AND tyt.ID = #{tallyId}
+        </if>
+    </select>
+
+    <select id="getHqTallyData" resultType="com.yy.ppm.produce.bean.dto.THqDataDTO" parameterType="com.yy.ppm.appWork.bean.dto.TallyRecordSearchDTO">
+        SELECT
+        tyt.ID tally_id,
+        tbci.ID CARGO_INFO_ID,
+        tbci.CARGO_INFO_NO,
+        TYT.QUANTITY tally_quantity,
+        TYT.ton tally_ton,
+        tppsd.INOUT_TYPE,
+        TPPSD.CREATE_TIME "inPortTime",
+        tppsd.CREATE_BY_NAME "inPortName",
+        tyt.CREATE_BY_NAME TALLY_NAME,
+        tyt.CREATE_TIME TALLY_TIME,
+        tds.SHIP_NAME || CASE WHEN tds.SHIP_NAME IS NULL THEN '' ELSE '_' END || tdsi.VOYAGE SHIP_VOYAGE
+        FROM T_YARD_TALLY tyt,
+        T_YARD_TALLY_ITEM tyti,
+        T_PRD_WORK_PLAN tpwp,
+        T_BUS_CARGO_INFO tbci,
+        T_PRD_PORT_STORAGE_DETAIL tppsd,
+        T_DIS_SHIPVOYAGE tds,
+        T_DIS_SHIPVOYAGE_ITEM tdsi
+        WHERE
+        tyt.PLAN_ID = TPWP.ID(+)
+        AND tyt.ID = tyti.TALLY_ID(+)
+        AND tyti.CARGO_INFO_ID = tbci.ID(+)
+        AND tyt.ID = tppsd.CARGO_TALLY_ID(+)
+        AND tbci.SHIPVOYAGE_ITEM_ID  = tdsi.id(+)
+        AND tdsi.SHIPVOYAGE_ID = tds.id(+)
+        <if test="tallyId != null">
+            AND tyt.ID = #{tallyId}
+        </if>
+    </select>
+
+    <select id="getHqYard" resultType="java.util.Map">
+        SELECT
+            STORAGE_YARD_NM "text",
+            ID "value"
+        FROM M_HQ_STORAGE_YARD mhsy
+    </select>
+    <select id="getHqCargoName" resultType="java.util.Map">
+        SELECT
+            CARGO_NAME "name",
+            ID "id"
+        FROM M_HQ_CARGO mhc
+    </select>
+
+    <select id="getCoilMaxStatus" resultType="java.lang.String" parameterType="java.lang.String">
+        SELECT MAX(STATUS) STATUS FROM T_BUS_CARGO_INFO_COILNUM tbcic
+        WHERE TBCIC.id IN (
+            SELECT COIL_ID FROM T_BUS_TALLY_COILNUM WHERE TALLY_ID = #{tallyId,jdbcType=VARCHAR}
+        )
+    </select>
+
+
+</mapper>

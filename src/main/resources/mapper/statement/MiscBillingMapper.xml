@@ -1,0 +1,699 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.statement.mapper.MiscBillingMapper">
+
+    <select id="getRateList" parameterType="com.yy.ppm.business.bean.dto.TBusRateDTO"
+            resultType="com.yy.ppm.business.bean.dto.TBusRateDTO">
+        select TBR.ID,
+               TBR.RATE_ITEM_CODE,
+               TBR.RATE_ITEM_NAME,
+               TBR.SERVICE_CONTENT_ID,
+               TBR.SERVICE_CONTENT_NAME,
+               TBR.PROCESS_CODE,
+               TBR.PROCESS_NAME,
+               TBR.CARGO_CODE,
+               TBR.CARGO_NAME,
+               TBR.INTE_FORE,
+               TBR.RATE,
+               TBR.TAX_RATE,
+               TBR.MEASUREMENT_UNIT_CODE1,
+               MDD.DICT_LABEL MEASUREMENT_UNIT_NAME1,
+               TBR.MEASUREMENT_UNIT_CODE2,
+               TBR.START_DATE,
+               TBR.END_DATE,
+               CASE WHEN TBR.DATA_SOURCE = '1'
+                   THEN CONCAT(CONCAT(CONCAT(TBR.RATE_ITEM_NAME,DECODE(TBR.PROCESS_NAME,NULL,'','('||TBR.PROCESS_NAME||')')),':'),TO_CHAR(tbr.rate,'99999990.9999'))
+               ELSE TBR.RATE_ITEM_NAME || '-' || TBR.SERVICE_CONTENT_NAME || '-' || DECODE(TBR.CARGO_NAME,NULL,'',TBR.CARGO_NAME) || ':' || TO_CHAR(tbr.rate,'99999990.9999') END AS RATE_ITEM_AND_RATE,
+        TBR.DATA_SOURCE
+        from
+            T_BUS_RATE TBR
+            LEFT JOIN M_DICT_DATA MDD ON MDD.DICT_TYPE = 'UNIT' AND TBR.MEASUREMENT_UNIT_CODE1 = MDD.DICT_VALUE
+            LEFT JOIN M_FEE_ITEM MFI ON MFI.ITEM_CD = TBR.RATE_ITEM_CODE
+        <where>
+            <if test="dataSource != null">
+                and TBR.DATA_SOURCE = #{dataSource}
+            </if>
+            and TBR.STATUS='10' and TO_DATE(TO_CHAR(SYSDATE, 'yyyy-MM-dd'),'yyyy-MM-dd') between TBR.START_DATE and TBR.END_DATE
+            <if test="routeType == 1 or routeType == 3 ">
+                and MFI.IS_MAIN_INCOME = 1
+            </if>
+            <if test="routeType == 2">
+                and MFI.IS_MAIN_INCOME = 0
+            </if>
+        </where>
+
+        order by TBR.id desc
+    </select>
+
+    <insert id="addMiscBilling" parameterType="com.yy.ppm.statement.bean.po.TMiscBillingPO">
+        insert into T_MISC_BILLING (ID, RATE_ITEM_CODE, RATE_NAME,
+            RATE, TAX_RATE, BILL_DATE,
+            VOYAGE_ID, RATE_ID, SHIP_VOYAGE, BILL_QUANTITY, BILL_QUANTITY2,
+            AMOUNT_MONEY, TAX_AMOUNT, TRUST_ORDER_ID,
+            CREATE_BY, CREATE_BY_NAME, CREATE_TIME,
+            CUSTOMER_ID,COMPANY_ID,COMPANY_NAME,UNIT_CODE,UNIT_NAME,
+            REMARK,PROCESS_CODE,PROCESS_NAME,CARGO_INFO_ID,CARGO_INFO_NAME,
+            TAXATION_INVOICE_CODE,TAXATION_INVOICE_NAME,OTHER_STATEMENT_ID,STATUS,VEHICLE_TRANSFER_FLAG)
+        values (#{id,jdbcType=BIGINT}, #{rateItemCode,jdbcType=BIGINT}, #{rateName,jdbcType=VARCHAR},
+        #{rate,jdbcType=DECIMAL}, #{taxRate,jdbcType=DECIMAL}, #{billDate,jdbcType=TIMESTAMP},
+        #{voyageId,jdbcType=DECIMAL}, #{rateId,jdbcType=DECIMAL}, #{shipVoyage,jdbcType=VARCHAR}, #{billQuantity,jdbcType=DECIMAL}, #{billQuantity2,jdbcType=DECIMAL},
+        #{amountMoney,jdbcType=DECIMAL}, #{taxAmount,jdbcType=DECIMAL}, #{trustOrderId,jdbcType=DECIMAL},
+        #{loginUserId,jdbcType=BIGINT}, #{loginUserName,jdbcType=VARCHAR}, #{now,jdbcType=TIMESTAMP},
+        #{customerId,jdbcType=BIGINT}, #{companyId,jdbcType=BIGINT}, #{companyName,jdbcType=VARCHAR}
+                   , #{unitCode,jdbcType=VARCHAR}, #{unitName,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR},
+        #{processCode,jdbcType=VARCHAR},#{processName,jdbcType=VARCHAR},
+        #{cargoInfoId,jdbcType=BIGINT},#{cargoInfoName,jdbcType=VARCHAR},
+        #{taxationInvoiceCode,jdbcType=VARCHAR},#{taxationInvoiceName,jdbcType=VARCHAR},
+        #{otherStatementId,jdbcType=BIGINT},#{status,jdbcType=BIGINT},#{vehicleTransferFlag,jdbcType=VARCHAR})
+    </insert>
+
+    <update id="updateByPrimaryKey" parameterType="com.yy.ppm.statement.bean.po.TMiscBillingPO">
+        update
+            T_MISC_BILLING
+        set
+            COMPANY_ID=#{companyId,jdbcType=BIGINT},
+            COMPANY_NAME= #{companyName,jdbcType=VARCHAR},
+            RATE_ITEM_CODE = #{rateItemCode,jdbcType=VARCHAR},
+            RATE_NAME = #{rateName,jdbcType=VARCHAR},
+            RATE = #{rate,jdbcType=DECIMAL},
+            TAX_RATE = #{taxRate,jdbcType=DECIMAL},
+            BILL_DATE = #{billDate,jdbcType=TIMESTAMP},
+            VOYAGE_ID = #{voyageId,jdbcType=DECIMAL},
+            RATE_ID = #{rateId,jdbcType=DECIMAL},
+            SHIP_VOYAGE = #{shipVoyage,jdbcType=VARCHAR},
+            BILL_QUANTITY = #{billQuantity,jdbcType=DECIMAL},
+            BILL_QUANTITY2 = #{billQuantity2,jdbcType=DECIMAL},
+            AMOUNT_MONEY = #{amountMoney,jdbcType=DECIMAL},
+            TAX_AMOUNT = #{taxAmount,jdbcType=DECIMAL},
+            TRUST_ORDER_ID = #{trustOrderId,jdbcType=DECIMAL},
+            UPDATE_BY = #{loginUserId,jdbcType=DECIMAL},
+            UPDATE_TIME = #{now,jdbcType=TIMESTAMP},
+            UPDATE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            CUSTOMER_ID = #{customerId,jdbcType=DECIMAL},
+            UNIT_CODE = #{unitCode,jdbcType=VARCHAR},
+            UNIT_NAME = #{unitName,jdbcType=VARCHAR},
+            REMARK = #{remark,jdbcType=VARCHAR},
+            PROCESS_CODE = #{processCode,jdbcType=VARCHAR},
+            PROCESS_NAME = #{processName,jdbcType=VARCHAR},
+            CARGO_INFO_ID = #{cargoInfoId,jdbcType=BIGINT},
+            CARGO_INFO_NAME = #{cargoInfoName,jdbcType=VARCHAR},
+            TAXATION_INVOICE_CODE = #{taxationInvoiceCode,jdbcType=VARCHAR},
+            TAXATION_INVOICE_NAME = #{taxationInvoiceName,jdbcType=VARCHAR}
+        where
+            ID = #{id,jdbcType=DECIMAL}
+    </update>
+
+    <select id="getList" parameterType="com.yy.ppm.statement.bean.dto.MiscSearchDTO" resultType="com.yy.ppm.statement.bean.dto.TMiscBillingDTO">
+        select
+        a.ID,
+        a.RATE_ITEM_CODE,
+        a.RATE_NAME,
+        a.RATE,
+        a.TAX_RATE,
+        a.BILL_DATE,
+        a.RATE_ID,
+        a.VOYAGE_ID,
+        a.SHIP_VOYAGE,
+        a.BILL_QUANTITY,
+        a.BILL_QUANTITY2,
+        a.AMOUNT_MONEY,
+        a.TAX_AMOUNT,
+        a.TRUST_ORDER_ID,
+        a.CREATE_BY,
+        a.CREATE_BY_NAME,
+        a.CREATE_TIME,
+        a.UPDATE_BY,
+        a.UPDATE_TIME,
+        a.UPDATE_BY_NAME,
+        a.CUSTOMER_ID,
+        a.STATEMENT_BY,
+        a.STATEMENT_TIME,
+        a.STATEMENT_BY_NAME,
+        b.CUSTOMER_NAME,
+        CASE
+        WHEN a.STATEMENT_ID IS NOT NULL THEN
+        (CASE WHEN TO_NUMBER(TCS.STATUS) >= 31 THEN TO_NUMBER(TCS.STATUS) ELSE TO_NUMBER(a.STATUS) END)
+        ELSE
+        TO_NUMBER(a.STATUS)
+        END AS STATUS,
+        a.company_id,
+        a.company_name,
+        TBR.PROCESS_NAME,
+        TBR.PROCESS_CODE,
+        TCS.STATEMENT_NO,
+        TBCI.CARGO_NAME,
+        A.REJECT_BY,
+        A.REJECT_BY_NAME,
+        A.REJECT_TIME,
+        A.REJECT_REASON
+        from
+        T_MISC_BILLING a inner join T_BUS_CUSTOMER b on a.CUSTOMER_ID=b.id
+        LEFT JOIN M_FEE_ITEM MFI ON MFI.ITEM_CD = a.RATE_ITEM_CODE
+        LEFT JOIN T_BUS_RATE TBR ON a.RATE_ID = TBR.ID
+        LEFT JOIN T_COST_STATEMENT TCS ON TCS.ID = a.STATEMENT_ID
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM TDSI ON TDSI.ID = a.VOYAGE_ID
+        LEFT JOIN T_DIS_SHIPVOYAGE TDS ON TDS.ID = TDSI.SHIPVOYAGE_ID
+        left JOIN T_BUS_CARGO_INFO TBCI ON  TBCI.ID  = a.CARGO_INFO_ID
+        <where>
+            MFI.IS_MAIN_INCOME = 1
+            <if test="shipName!=null and shipName !=''">
+                <bind name="shipName_like" value="'%'+shipName+'%'"/>
+                AND TDS.SHIP_NAME LIKE #{shipName_like}
+            </if>
+            <if test="voyage!=null and voyage !=''">
+                <bind name="voyage_like" value="'%'+voyage+'%'"/>
+                AND TDSI.VOYAGE LIKE #{voyage_like}
+            </if>
+            <if test="shipvoyageItemId!=null and shipvoyageItemId!=''">
+                and a.VOYAGE_ID=#{shipvoyageItemId}
+            </if>
+            <if test="customerId!=null and customerId!=''">
+                and a.CUSTOMER_ID=#{customerId}
+            </if>
+            <if test="status!=null and status!=''">
+                AND CASE WHEN a.STATEMENT_ID IS NOT NULL
+                THEN ( CASE WHEN TO_NUMBER( TCS.STATUS ) >= 31 THEN TO_NUMBER( TCS.STATUS ) ELSE TO_NUMBER( a.STATUS ) END )
+                ELSE TO_NUMBER( a.STATUS )
+                END =#{status}
+            </if>
+            <if test="rateItemCode!=null and rateItemCode!=''">
+                and a.RATE_ITEM_CODE=#{rateItemCode}
+            </if>
+            <if test="statementNo!=null and statementNo!=''">
+                and TCS.STATEMENT_NO=#{statementNo}
+            </if>
+            <if test="processCode!=null and processCode!=''">
+                and TBR.PROCESS_CODE=#{processCode}
+            </if>
+        </where>
+        ORDER BY
+            a.CREATE_TIME DESC
+    </select>
+    <select id="pageExportList" parameterType="com.yy.ppm.statement.bean.dto.MiscSearchDTO" resultType="com.yy.ppm.statement.bean.dto.TMiscBillingExportDTO">
+        select
+        a.ID,
+        a.RATE_ITEM_CODE,
+        a.RATE_NAME,
+        a.RATE,
+        a.TAX_RATE,
+        a.BILL_DATE,
+        a.RATE_ID,
+        a.VOYAGE_ID,
+        a.SHIP_VOYAGE,
+        a.BILL_QUANTITY,
+        a.BILL_QUANTITY2,
+        a.AMOUNT_MONEY,
+        a.TAX_AMOUNT,
+        a.TRUST_ORDER_ID,
+        a.CREATE_BY,
+        a.CREATE_BY_NAME,
+        a.CREATE_TIME,
+        a.UPDATE_BY,
+        a.UPDATE_TIME,
+        a.UPDATE_BY_NAME,
+        a.CUSTOMER_ID,
+        a.STATEMENT_BY,
+        a.STATEMENT_TIME,
+        a.STATEMENT_BY_NAME,
+        b.CUSTOMER_NAME,
+        CASE
+        WHEN a.STATEMENT_ID IS NOT NULL THEN
+        (CASE WHEN TO_NUMBER(TCS.STATUS) >= 31 THEN TO_NUMBER(TCS.STATUS) ELSE TO_NUMBER(a.STATUS) END)
+        ELSE
+        TO_NUMBER(a.STATUS)
+        END AS STATUS,
+        a.company_id,
+        a.company_name,
+        TBR.PROCESS_NAME,
+        TBR.PROCESS_CODE,
+        TCS.STATEMENT_NO,
+        TBCI.CARGO_NAME,
+        A.REJECT_BY,
+        A.REJECT_BY_NAME,
+        A.REJECT_TIME,
+        A.REJECT_REASON
+        from
+        T_MISC_BILLING a inner join T_BUS_CUSTOMER b on a.CUSTOMER_ID=b.id
+        LEFT JOIN M_FEE_ITEM MFI ON MFI.ITEM_CD = a.RATE_ITEM_CODE
+        LEFT JOIN T_BUS_RATE TBR ON a.RATE_ID = TBR.ID
+        LEFT JOIN T_COST_STATEMENT TCS ON TCS.ID = a.STATEMENT_ID
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM TDSI ON TDSI.ID = a.VOYAGE_ID
+        LEFT JOIN T_DIS_SHIPVOYAGE TDS ON TDS.ID = TDSI.SHIPVOYAGE_ID
+        left JOIN T_BUS_CARGO_INFO TBCI ON  TBCI.ID  = a.CARGO_INFO_ID
+        <where>
+            MFI.IS_MAIN_INCOME = 1
+            <if test="shipName!=null and shipName !=''">
+                <bind name="shipName_like" value="'%'+shipName+'%'"/>
+                AND TDS.SHIP_NAME LIKE #{shipName_like}
+            </if>
+            <if test="voyage!=null and voyage !=''">
+                <bind name="voyage_like" value="'%'+voyage+'%'"/>
+                AND TDSI.VOYAGE LIKE #{voyage_like}
+            </if>
+            <if test="shipvoyageItemId!=null and shipvoyageItemId!=''">
+                and a.VOYAGE_ID=#{shipvoyageItemId}
+            </if>
+            <if test="customerId!=null and customerId!=''">
+                and a.CUSTOMER_ID=#{customerId}
+            </if>
+            <if test="status!=null and status!=''">
+                AND CASE WHEN a.STATEMENT_ID IS NOT NULL
+                THEN ( CASE WHEN TO_NUMBER( TCS.STATUS ) >= 31 THEN TO_NUMBER( TCS.STATUS ) ELSE TO_NUMBER( a.STATUS ) END )
+                ELSE TO_NUMBER( a.STATUS )
+                END =#{status}
+            </if>
+            <if test="rateItemCode!=null and rateItemCode!=''">
+                and a.RATE_ITEM_CODE=#{rateItemCode}
+            </if>
+            <if test="statementNo!=null and statementNo!=''">
+                and TCS.STATEMENT_NO=#{statementNo}
+            </if>
+            <if test="processCode!=null and processCode!=''">
+                and TBR.PROCESS_CODE=#{processCode}
+            </if>
+        </where>
+        ORDER BY
+            a.CREATE_TIME DESC
+    </select>
+
+    <select id="getMiscBillingById" resultType="com.yy.ppm.statement.bean.dto.TMiscBillingDTO">
+        select
+            a.ID,RATE_ITEM_CODE,RATE_NAME,RATE,TAX_RATE,BILL_DATE,RATE_ID,
+            VOYAGE_ID,SHIP_VOYAGE,BILL_QUANTITY,BILL_QUANTITY2,AMOUNT_MONEY,TAX_AMOUNT,TRUST_ORDER_ID,
+            a.CREATE_BY,a.CREATE_BY_NAME,a.CREATE_TIME,a.UPDATE_BY,a.UPDATE_TIME,a.UPDATE_BY_NAME,CUSTOMER_ID,b.CUSTOMER_NAME,a.STATUS,
+            a.company_id,a.company_name,a.STATEMENT_ID,a.UNIT_CODE,a.UNIT_NAME,a.REMARK,PROCESS_CODE, PROCESS_NAME,
+            A.CARGO_INFO_ID,A.CARGO_INFO_NAME,A.TAXATION_INVOICE_CODE,A.TAXATION_INVOICE_NAME,
+               MFI.ITEM_TYPE_CD FEE_TYPE,
+                MFI.IS_MAIN_INCOME
+        from
+            T_MISC_BILLING a inner join T_BUS_CUSTOMER b on a.CUSTOMER_ID=b.id
+            LEFT JOIN M_FEE_ITEM MFI ON MFI.ITEM_CD = a.RATE_ITEM_CODE
+        <where>
+            a.ID=#{id}
+        </where>
+    </select>
+
+    <delete id="deleteMisc">
+        delete from T_MISC_BILLING where id=#{id}
+    </delete>
+
+    <update id="updateStatus" parameterType="com.yy.ppm.statement.bean.dto.TMiscBillingDTO">
+        update
+            T_MISC_BILLING
+        set
+            status=#{status},
+            STATEMENT_ID=#{statementId},
+            publish_by=#{loginUserId,jdbcType=DECIMAL},
+            publish_time= #{now,jdbcType=TIMESTAMP},
+            publish_by_name= #{loginUserName,jdbcType=VARCHAR},
+            REJECT_BY = NULL,
+            REJECT_BY_NAME = NULL,
+            REJECT_TIME = NULL,
+            REJECT_REASON = NULL
+        where
+            id=#{id}
+    </update>
+
+    <insert id="insertCostStatement" parameterType="com.yy.ppm.statement.bean.po.TCostStatementPO">
+        INSERT INTO T_COST_STATEMENT(ID, COMPANY_ID, COMPANY_NAME, STATEMENT_NO, CUSTOMER_ID, CUSTOMER_NAME, TYPE,
+            TRUST_ID, TRUST_CARGO_ID, HANDOVERLIST_ID, SHIPVOYAGE_ID, SHIPVOYAGE_ITEM_ID,
+            CARGO_CODE, CARGO_NAME, TRADE_TYPE, SETTLEMENT_DATE, STATUS, RECEIPT_REMARK, TAX_INVOICE_CODE,TAX_INVOICE_NAME,
+            CREATE_BY, CREATE_BY_NAME, CREATE_TIME, IS_FINAL)
+        VALUES (#{id, jdbcType=BIGINT}, #{companyId, jdbcType=BIGINT}, #{companyName, jdbcType=VARCHAR},
+        #{statementNo, jdbcType=VARCHAR}, #{customerId, jdbcType=BIGINT}, #{customerName, jdbcType=VARCHAR},
+        #{type, jdbcType=VARCHAR}, #{trustId, jdbcType=BIGINT}, #{trustCargoId, jdbcType=BIGINT},
+        #{handoverlistId, jdbcType=BIGINT}, (select SHIPVOYAGE_ID FROM T_DIS_SHIPVOYAGE_ITEM where ID = #{shipvoyageItemId, jdbcType=BIGINT} ),
+        #{shipvoyageItemId, jdbcType=BIGINT}, #{cargoCode, jdbcType=VARCHAR}, #{cargoName, jdbcType=VARCHAR},
+        #{tradeType, jdbcType=VARCHAR}, #{settlementDate, jdbcType=TIMESTAMP}, #{status, jdbcType=VARCHAR},
+        #{receiptRemark, jdbcType=VARCHAR},#{taxInvoiceCode, jdbcType=VARCHAR},#{taxInvoiceName, jdbcType=VARCHAR},
+        #{loginUserId, jdbcType=BIGINT}, #{loginUserName, jdbcType=VARCHAR}, #{now, jdbcType=TIMESTAMP}, #{isFinal, jdbcType=VARCHAR})
+    </insert>
+
+    <insert id="insertCostStatementDetail" parameterType="com.yy.ppm.statement.bean.po.TCostStatementDetailPO">
+            INSERT INTO T_COST_STATEMENT_DETAIL(ID, STATEMENT, CONTRACT_ID, RATE_ITEM_CODE, RATE_ITEM_NAME,
+            SERVICE_CONTENT_ID, SERVICE_CONTENT_NAME, PROCESS_CODE, PROCESS_NAME, RATE, UNIT_CODE, UNIT_NAME, "NUMBER", NUMBER2, RATE_ID,
+            AMOUNT, TAX, TAX_AMOUNT, REMARK, CREATE_BY, CREATE_BY_NAME, CREATE_TIME)
+            VALUES
+            (#{id, jdbcType=BIGINT}, #{statement, jdbcType=BIGINT}, #{contractId, jdbcType=BIGINT},
+            #{rateItemCode, jdbcType=VARCHAR},
+            #{rateItemName, jdbcType=VARCHAR}, #{serviceContentId, jdbcType=BIGINT},
+            #{serviceContentName, jdbcType=VARCHAR}, #{processCode, jdbcType=VARCHAR},
+            #{processName, jdbcType=VARCHAR}, #{rate, jdbcType=DECIMAL},
+            #{unitCode, jdbcType=VARCHAR}, #{unitName, jdbcType=VARCHAR},
+            #{number, jdbcType=DECIMAL}, #{number2, jdbcType=DECIMAL}, #{rateId, jdbcType=BIGINT}, #{amount, jdbcType=DECIMAL}, #{tax, jdbcType=DECIMAL},
+            #{taxAmount, jdbcType=DECIMAL}, #{remark, jdbcType=VARCHAR},
+            #{loginUserId, jdbcType=BIGINT}, #{loginUserName, jdbcType=VARCHAR},
+            #{now, jdbcType=TIMESTAMP})
+    </insert>
+
+
+    <delete id="deleteCostStatement">
+        delete from T_COST_STATEMENT where id=#{id}
+    </delete>
+
+    <delete id="deleteCostStatementDetail">
+        delete from T_COST_STATEMENT_DETAIL where STATEMENT =#{id}
+    </delete>
+
+    <select id="getCostStatementList" resultType="com.yy.ppm.statement.bean.po.TCostStatementPO">
+        select TCSD.RATE_ITEM_CODE,TCSD.AMOUNT,MFI.ITEM_NM RATE_ITEM_NAME,CUSTOMER_NAME,TCS.STATEMENT_NO,TCSD.REMARK,TCSD."NUMBER",TCSD.RATE,TCSD.AMOUNT
+        from T_COST_STATEMENT_DETAIL TCSD
+        left join T_COST_STATEMENT TCS  on TCSD.STATEMENT = TCS.ID
+        left join M_FEE_ITEM MFI on MFI.ITEM_CD = TCSD.RATE_ITEM_CODE
+        where TYPE = '40' and TCSD.RATE_ITEM_CODE in (
+                                      'MS00289',
+                                      'MS00290',
+                                      'MS00288',
+                                      'MS00274',
+                                      'MS00287',
+                                      'MS00308',
+                                      'MS00325',
+                                      'MS00309',
+                                      'MS00276',
+                                      'BO00100',
+                                      'BO00101',
+                                      'MS00260',
+                                      'MS00261'
+            )
+             AND SHIPVOYAGE_ID = #{shipvoyageId,jdbcType=BIGINT}
+        <if test="shipvoyageItemId != null and shipvoyageItemId != ''">
+            AND TCS.SHIPVOYAGE_ITEM_ID = #{shipvoyageItemId,jdbcType=BIGINT}
+        </if>
+    </select>
+    <select id="getProcessByRateId" resultType="com.yy.ppm.statement.bean.dto.TMiscBillingDTO">
+        select
+        TBR.PROCESS_NAME,
+        TBR.PROCESS_CODE,
+        TBR.MEASUREMENT_UNIT_CODE1 UNIT_CODE,
+        MDD.DICT_LABEL  UNIT_NAME,
+        TBR.MEASUREMENT_UNIT_CODE2
+        from T_BUS_RATE TBR
+        LEFT JOIN M_DICT_DATA MDD ON MDD.DICT_TYPE = 'UNIT' AND TBR.MEASUREMENT_UNIT_CODE1 = MDD.DICT_VALUE
+        <where>
+        <if test="rateId!=null and rateId!=''">
+            TBR.ID = #{rateId}
+        </if>
+        </where>
+        group by
+        TBR.PROCESS_NAME,
+        TBR.PROCESS_CODE,
+        TBR.MEASUREMENT_UNIT_CODE1,
+        MDD.DICT_LABEL,
+        TBR.MEASUREMENT_UNIT_CODE2
+    </select>
+
+
+    <select id="getListForCargo" resultType="com.yy.ppm.statement.bean.dto.TMiscBillingDTO">
+        select
+        a.ID,
+        a.RATE_ITEM_CODE,
+        a.RATE_NAME,
+        a.RATE,
+        a.TAX_RATE,
+        a.BILL_DATE,
+        a.RATE_ID,
+        a.VOYAGE_ID,
+        a.SHIP_VOYAGE,
+        a.BILL_QUANTITY,
+        a.BILL_QUANTITY2,
+        a.AMOUNT_MONEY,
+        a.TAX_AMOUNT,
+        a.TRUST_ORDER_ID,
+        a.CREATE_BY,
+        a.CREATE_BY_NAME,
+        a.CREATE_TIME,
+        a.UPDATE_BY,
+        a.UPDATE_TIME,
+        a.UPDATE_BY_NAME,
+        a.CUSTOMER_ID,
+        b.CUSTOMER_NAME,
+        CASE
+        WHEN a.STATEMENT_ID IS NOT NULL THEN
+        (CASE WHEN TO_NUMBER(TCS.STATUS) >= 31 THEN TO_NUMBER(TCS.STATUS) ELSE TO_NUMBER(a.STATUS) END)
+        ELSE
+        TO_NUMBER(a.STATUS)
+        END AS STATUS,
+        a.company_id,
+        a.company_name,
+        TBR.PROCESS_NAME,
+        TBR.PROCESS_CODE,
+        TCS.STATEMENT_NO,
+        TCS.ID STATEMENT_ID,
+        TCS.STATUS STATEMENT_STATUS,
+        TCS.REJECT_REASON,
+        TCS.REJECT_BY_NAME,
+        TCS.REJECT_TIME
+        from
+        T_MISC_BILLING a inner join T_BUS_CUSTOMER b on a.CUSTOMER_ID=b.id
+        LEFT JOIN M_FEE_ITEM MFI ON MFI.ITEM_CD = a.RATE_ITEM_CODE
+        LEFT JOIN T_BUS_RATE TBR ON a.RATE_ID = TBR.ID
+        LEFT JOIN T_COST_STATEMENT TCS ON TCS.ID = a.STATEMENT_ID
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM TDSI ON TDSI.ID = a.VOYAGE_ID
+        LEFT JOIN T_DIS_SHIPVOYAGE TDS ON TDS.ID = TDSI.SHIPVOYAGE_ID
+        <where>
+            MFI.ITEM_TYPE_CD = '2' AND MFI.IS_MAIN_INCOME = 1
+            <if test="status != null and status != '' ">
+                AND         CASE
+                WHEN a.STATEMENT_ID IS NOT NULL THEN
+                (CASE WHEN TO_NUMBER(TCS.STATUS) >= 31 THEN TO_NUMBER(TCS.STATUS) ELSE TO_NUMBER(a.STATUS) END)
+                ELSE
+                TO_NUMBER(a.STATUS)
+                END = #{status,jdbcType=VARCHAR}
+            </if>
+            <if test="shipName!=null and shipName !=''">
+                <bind name="shipName_like" value="'%'+shipName+'%'"/>
+                AND TDS.SHIP_NAME LIKE #{shipName_like}
+            </if>
+            <if test="voyage!=null and voyage !=''">
+                <bind name="voyage_like" value="'%'+voyage+'%'"/>
+                AND TDSI.VOYAGE LIKE #{voyage_like}
+            </if>
+            <if test="shipvoyageItemId!=null and shipvoyageItemId!=''">
+                and a.VOYAGE_ID=#{shipvoyageItemId}
+            </if>
+            <if test="customerId!=null and customerId!=''">
+                and a.CUSTOMER_ID=#{customerId}
+            </if>
+            <if test="rateItemCode!=null and rateItemCode!=''">
+                and a.RATE_ITEM_CODE=#{rateItemCode}
+            </if>
+            <if test="statementNo!=null and statementNo!=''">
+                and TCS.STATEMENT_NO=#{statementNo}
+            </if>
+            <if test="processCode!=null and processCode!=''">
+                and TBR.PROCESS_CODE=#{processCode}
+            </if>
+        </where>
+        ORDER BY
+        a.CREATE_TIME DESC
+    </select>
+
+    <select id="getCostStatementById" resultType="com.yy.ppm.statement.bean.dto.bizCostStatement.TCostStatementDTO">
+        SELECT  * FROM T_COST_STATEMENT where ID  = #{statementId,jdbcType=BIGINT}
+    </select>
+
+    <select id="getListByStatementIdAndRate" resultType="com.yy.ppm.statement.bean.dto.TMiscBillingDTO">
+        SELECT
+        ID,
+        RATE_ITEM_CODE,
+        RATE_NAME,
+        RATE,
+        TAX_RATE,
+        BILL_DATE,
+        RATE_ID,
+        VOYAGE_ID,
+        SHIP_VOYAGE,
+        BILL_QUANTITY,
+        BILL_QUANTITY2,
+        AMOUNT_MONEY,
+        TAX_AMOUNT,
+        TRUST_ORDER_ID,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_TIME,
+        UPDATE_BY_NAME,
+        CUSTOMER_ID,
+        VEHICLE_TRANSFER_FLAG,
+        STATUS
+        FROM T_MISC_BILLING
+        WHERE (VEHICLE_TRANSFER_FLAG IS NOT NULL AND VEHICLE_TRANSFER_FLAG = '1')
+        AND OTHER_STATEMENT_ID = #{otherStatementId,jdbcType=BIGINT}
+        AND PROCESS_CODE = #{processCode,jdbcType=VARCHAR}
+    </select>
+
+    <update id="chargingUpdate" parameterType="com.yy.ppm.statement.bean.po.TMiscBillingPO">
+        update T_MISC_BILLING
+        set status = #{status,jdbcType=INTEGER} ,
+            STATEMENT_BY =#{statementBy},
+            STATEMENT_BY_NAME =#{statementByName},
+            STATEMENT_TIME =  #{statementTime}
+        where ID = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="getlistForInvoiceApply" parameterType="com.yy.ppm.statement.bean.dto.MiscSearchDTO" resultType="com.yy.ppm.statement.bean.dto.TMiscBillingDTO">
+        select
+        a.ID,
+        a.RATE_ITEM_CODE,
+        a.RATE_NAME,
+        a.RATE,
+        a.TAX_RATE,
+        a.BILL_DATE,
+        a.RATE_ID,
+        a.VOYAGE_ID,
+        a.SHIP_VOYAGE,
+        a.BILL_QUANTITY,
+        a.BILL_QUANTITY2,
+        a.AMOUNT_MONEY,
+        a.TAX_AMOUNT,
+        a.TRUST_ORDER_ID,
+        a.CREATE_BY,
+        a.CREATE_BY_NAME,
+        a.CREATE_TIME,
+        a.UPDATE_BY,
+        a.UPDATE_TIME,
+        a.UPDATE_BY_NAME,
+        a.CUSTOMER_ID,
+        b.CUSTOMER_NAME,
+        CASE
+        WHEN a.STATEMENT_ID IS NOT NULL THEN
+        (CASE WHEN TO_NUMBER(TCS.STATUS) >= 40 THEN TO_NUMBER(TCS.STATUS) ELSE TO_NUMBER(a.STATUS) END)
+        ELSE
+        TO_NUMBER(a.STATUS)
+        END AS STATUS,
+        a.company_id,
+        a.company_name,
+        TBR.PROCESS_NAME,
+        TBR.PROCESS_CODE,
+        TCS.STATEMENT_NO
+        from
+        T_MISC_BILLING a inner join T_BUS_CUSTOMER b on a.CUSTOMER_ID=b.id
+        LEFT JOIN M_FEE_ITEM MFI ON MFI.ITEM_CD = a.RATE_ITEM_CODE
+        LEFT JOIN T_BUS_RATE TBR ON a.RATE_ID = TBR.ID
+        LEFT JOIN T_COST_STATEMENT TCS ON TCS.ID = a.STATEMENT_ID
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM TDSI ON TDSI.ID = a.VOYAGE_ID
+        LEFT JOIN T_DIS_SHIPVOYAGE TDS ON TDS.ID = TDSI.SHIPVOYAGE_ID
+        <where>
+             MFI.IS_MAIN_INCOME = 0
+            <if test="shipName!=null and shipName !=''">
+                <bind name="shipName_like" value="'%'+shipName+'%'"/>
+                AND TDS.SHIP_NAME LIKE #{shipName_like}
+            </if>
+            <if test="voyage!=null and voyage !=''">
+                <bind name="voyage_like" value="'%'+voyage+'%'"/>
+                AND TDSI.VOYAGE LIKE #{voyage_like}
+            </if>
+            <if test="shipvoyageItemId!=null and shipvoyageItemId!=''">
+                and a.VOYAGE_ID=#{shipvoyageItemId}
+            </if>
+            <if test="customerId!=null and customerId!=''">
+                and a.CUSTOMER_ID=#{customerId}
+            </if>
+            <if test="status!=null and status!=''">
+                AND CASE WHEN a.STATEMENT_ID IS NOT NULL
+                THEN ( CASE WHEN TO_NUMBER( TCS.STATUS ) >=  40 THEN TO_NUMBER( TCS.STATUS ) ELSE TO_NUMBER( a.STATUS ) END )
+                ELSE TO_NUMBER( a.STATUS )
+                END =#{status}
+            </if>
+            <if test="rateItemCode!=null and rateItemCode!=''">
+                and a.RATE_ITEM_CODE=#{rateItemCode}
+            </if>
+            <if test="statementNo!=null and statementNo!=''">
+                and TCS.STATEMENT_NO=#{statementNo}
+            </if>
+            <if test="processCode!=null and processCode!=''">
+                and TBR.PROCESS_CODE=#{processCode}
+            </if>
+        </where>
+        ORDER BY
+        a.CREATE_TIME DESC
+    </select>
+
+    <select id="getMiscFeeListByIds" resultType="com.yy.ppm.statement.bean.dto.TMiscBillingDTO">
+        SELECT
+        a.ID,
+        a.RATE_ITEM_CODE,
+        a.RATE_NAME,
+        a.RATE,
+        a.TAX_RATE,
+        a.BILL_DATE,
+        a.RATE_ID,
+        a.VOYAGE_ID,
+        a.BILL_QUANTITY,
+        a.BILL_QUANTITY2,
+        a.AMOUNT_MONEY,
+        a.TAX_AMOUNT,
+        a.TRUST_ORDER_ID,
+        a.CREATE_BY,
+        a.CREATE_BY_NAME,
+        a.CREATE_TIME,
+        a.UPDATE_BY,
+        a.UPDATE_TIME,
+        a.UPDATE_BY_NAME,
+        a.CUSTOMER_ID,
+        b.CUSTOMER_NAME,
+        a.STATUS,
+        a.company_id,
+        a.company_name,
+        a.STATEMENT_ID,
+        a.UNIT_CODE,
+        a.UNIT_NAME,
+        a.REMARK,
+        a.PROCESS_CODE,
+        a.PROCESS_NAME,
+        A.CARGO_INFO_ID,
+        A.CARGO_INFO_NAME,
+        A.TAXATION_INVOICE_CODE,
+        A.TAXATION_INVOICE_NAME,
+        MFI.ITEM_TYPE_CD FEE_TYPE,
+        b.TIN,
+        b.BANK,
+        b.BANK_ACCOUNT,
+        b.TELEPHONE_NUMBER,
+        b.CONTACT,
+        b.ADDRESS,
+        b.CONTACT_NUMBER,
+        TBCI.CARGO_NAME,
+        a.CREATE_BY_NAME STATEMENT_BY_NAME,
+        TCS.CREATE_BY_NAME REVIEW_BY_NAME,
+        to_char(TCS.CREATE_TIME,'yyyy-MM-dd') REVIEW_TIME,
+        TCS.CONFIRM_BY_NAME ,
+        CASE WHEN
+        a.SHIP_VOYAGE IS NULL and a.CARGO_INFO_ID IS NOT NULL
+        THEN TO_CHAR(TDS.SHIP_NAME) || '_' || TO_CHAR(TDSI.VOYAGE)
+        ELSE TO_CHAR(a.SHIP_VOYAGE)
+        END SHIP_VOYAGE
+
+        from
+        T_MISC_BILLING a
+        INNER JOIN T_BUS_CUSTOMER b on a.CUSTOMER_ID=b.id
+        LEFT JOIN M_FEE_ITEM MFI ON MFI.ITEM_CD = a.RATE_ITEM_CODE
+        LEFT JOIN T_BUS_CARGO_INFO TBCI ON  TBCI.ID  = a.CARGO_INFO_ID
+        LEFT JOIN T_DIS_SHIPVOYAGE TDS ON TBCI.SHIPVOYAGE_ID = TDS.ID
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM TDSI ON  TBCI.SHIPVOYAGE_ITEM_ID = TDSI.ID
+        left join T_COST_STATEMENT TCS on a.STATEMENT_ID = TCS.ID
+        <where>
+            b.status = '10' and
+
+            a.ID IN
+            <foreach collection="list" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </where>
+    </select>
+
+    <select id="getShipAllBerthName" resultType="java.lang.String">
+        select DISTINCT NVL(TDSD.BERTH_NAME,'')
+        FROM T_DIS_SHIP_DYNAMIC TDSD
+        where (TDSD.DYNAMIC_TYPE_NAME = '靠泊' OR TDSD.DYNAMIC_TYPE_NAME = '移泊') and TDSD.BERTH_NAME is not null AND TDSD.SHIPVOYAGE_ITEM_ID = #{shipvoyageItemId}
+    </select>
+
+    <select id="getCustomerInfoByMiscId" resultType="com.yy.ppm.business.bean.dto.TBusCustomerDTO">
+        select TBC.CUSTOMER_NAME,TBC.id,TBC.TAXATION_INVOICE_CODE,TBC.TAXATION_INVOICE
+        from T_MISC_BILLING TMB
+                 left join T_BUS_CUSTOMER TBC on TMB.CUSTOMER_ID = TBC.ID
+        where TMB.ID = #{id,jdbcType=BIGINT}
+    </select>
+
+</mapper>

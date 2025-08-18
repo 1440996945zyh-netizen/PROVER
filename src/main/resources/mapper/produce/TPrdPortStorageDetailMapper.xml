@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.produce.mapper.TPrdPortStorageDetailMapper">
+
+    <resultMap id="listPortStorageDetail" type="com.yy.ppm.produce.bean.dto.portStorage.TPrdPortStorageDTO">
+        <result property="workDate" column="WORK_DATE" jdbcType="TIMESTAMP"/>
+        <result property="classCode" column="CLASS_CODE" jdbcType="VARCHAR"/>
+        <result property="className" column="CLASS_NAME" jdbcType="VARCHAR"/>
+        <result property="cargoInfoId" column="CARGO_INFO_ID" jdbcType="BIGINT"/>
+        <result property="processDetailName" column="PROCESS_DETAIL_NAME" jdbcType="VARCHAR"/>
+        <result property="storehouseId" column="STOREHOUSE_ID" jdbcType="BIGINT"/>
+        <result property="storehouseName" column="STOREHOUSE_NAME" jdbcType="VARCHAR"/>
+        <result property="regionId" column="REGION_ID" jdbcType="BIGINT"/>
+        <result property="regionName" column="REGION_NAME" jdbcType="VARCHAR"/>
+        <result property="massId" column="MASS_ID" jdbcType="BIGINT"/>
+        <result property="massName" column="MASS_NAME" jdbcType="VARCHAR"/>
+        <result property="companyId" column="COMPANY_ID" jdbcType="BIGINT"/>
+        <result property="companyName" column="COMPANY_NAME" jdbcType="VARCHAR"/>
+        <result property="shipNameVoyage" column="SHIP_NAME_VOYAGE" jdbcType="VARCHAR"/>
+        <result property="tradeType" column="TRADE_TYPE" jdbcType="VARCHAR"/>
+        <result property="cargoOwnerName" column="CARGO_OWNER_NAME" jdbcType="VARCHAR"/>
+        <result property="cargoAgentName" column="CARGO_AGENT_NAME" jdbcType="VARCHAR"/>
+        <result property="cargoName" column="CARGO_NAME" jdbcType="VARCHAR"/>
+        <result property="inoutDate" column="INOUT_DATE" jdbcType="VARCHAR"/>
+        <result property="packingName" column="PACKING_NAME" jdbcType="VARCHAR"/>
+        <result property="quantity" column="QUANTITY" jdbcType="INTEGER"/>
+        <result property="ton" column="TON" jdbcType="DECIMAL"/>
+        <result property="cargoInfoLabel" column="CARGO_INFO_LABEL" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="listPortStorageDetail" resultMap="listPortStorageDetail">
+        SELECT
+        	T.ID,
+			T.PORT_STORAGE_ID,
+			T.CARGO_INFO_ID,
+			T.WORK_DATE,
+			T.CLASS_CODE,
+			T.CLASS_NAME,
+			T.PROCESS_DETAIL_CODE,
+			T.PROCESS_DETAIL_NAME,
+			T.STOREHOUSE_ID,
+			T.STOREHOUSE_NAME,
+			T.REGION_ID,
+			T.REGION_NAME,
+			T.MASS_ID,
+			T.MASS_NAME,
+			T.QUANTITY,
+			T.TON,
+			T.INOUT_TYPE,
+			T.INOUT_STORAGE_CODE,
+			T.INOUT_STORAGE_NAME,
+			T.WORK_TICKET_ID,
+			T.WORK_TICKET_DETAIL_ID,
+			T.CARGO_TALLY_ID,
+			T.CARGO_TALLY_DETAIL_ID,
+			T.INOUT_DATE,
+			T.COMPANY_ID,
+			T.COMPANY_NAME,
+			T.CLEAN_MASS_SIGN,
+			T.CLEAN_MASS_BY,
+			T.CLEAN_MASS_BY_NAME,
+			T.CLEAN_MASS_TIME,
+			T1.SHIP_NAME || '_' || T2.VOYAGE SHIP_NAME_VOYAGE,
+			T1.CARGO_INFO_NO || '/' || T1.SHIP_NAME || '/' || T2.VOYAGE || '/' || T1.CARGO_OWNER_NAME || '/' || T1.CARGO_NAME
+			|| '/' || T1.TRADE_TYPE || '/' || T1.PACKING_NAME || '/' || T1.QUANTITY || '/' || T1.TON CARGO_INFO_LABEL
+		FROM T_PRD_PORT_STORAGE_DETAIL T
+        JOIN T_BUS_CARGO_INFO T1 ON T.CARGO_INFO_ID = T1.ID
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM T2 ON T1.SHIPVOYAGE_ITEM_ID = T2.ID
+        <where>
+        	T.INOUT_STORAGE_CODE = '40'
+            <if test="workDate != null">
+                AND T.WORK_DATE = #{workDate, jdbcType=TIMESTAMP}
+            </if>
+            <if test="classCode != null and classCode != ''">
+                AND T.CLASS_CODE = #{classCode, jdbcType=VARCHAR}
+            </if>
+            <if test="companyId != null">
+                AND T.COMPANY_ID = #{companyId, jdbcType=BIGINT}
+            </if>
+            <if test="shipvoyageItemId != null">
+                AND T.SHIPVOYAGE_ITEM_ID = #{shipvoyageItemId, jdbcType=BIGINT}
+            </if>
+            <if test="storehouseId != null">
+                AND T.STOREHOUSE_ID = #{storehouseId, jdbcType=BIGINT}
+            </if>
+            <if test="regionId != null">
+                AND T.REGION_ID = #{regionId, jdbcType=BIGINT}
+            </if>
+            <if test="massId != null">
+                AND T.MASS_ID = #{massId, jdbcType=BIGINT}
+            </if>
+        </where>
+    </select>
+
+    <resultMap id="listPortStorage" type="com.yy.ppm.produce.bean.dto.portStorage.TPrdPortStorageDTO">
+        <result property="companyId" column="COMPANY_ID" jdbcType="BIGINT"/>
+        <result property="companyName" column="COMPANY_NAME" jdbcType="VARCHAR"/>
+        <result property="cargoInfoId" column="CARGO_INFO_ID" jdbcType="BIGINT"/>
+        <result property="storehouseId" column="STOREHOUSE_ID" jdbcType="BIGINT"/>
+        <result property="storehouseName" column="STOREHOUSE_NAME" jdbcType="VARCHAR"/>
+        <result property="regionId" column="REGION_ID" jdbcType="BIGINT"/>
+        <result property="regionName" column="REGION_NAME" jdbcType="VARCHAR"/>
+        <result property="massId" column="MASS_ID" jdbcType="BIGINT"/>
+        <result property="massName" column="MASS_NAME" jdbcType="VARCHAR"/>
+        <result property="shipNameVoyage" column="SHIP_NAME_VOYAGE" jdbcType="VARCHAR"/>
+        <result property="quantity" column="QUANTITY" jdbcType="INTEGER"/>
+        <result property="ton" column="TON" jdbcType="DECIMAL"/>
+        <result property="cargoInfoLabel" column="CARGO_INFO_LABEL" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="listPortStorage" resultMap="listPortStorage">
+        SELECT 
+			T1.COMPANY_ID,
+			T1.COMPANY_NAME,
+			T1.CARGO_INFO_ID,
+			T1.STOREHOUSE_ID,
+			T1.STOREHOUSE_NAME,
+			T1.REGION_ID,
+			T1.REGION_NAME,
+			T1.MASS_ID,
+			T1.MASS_NAME,
+			T1.QUANTITY,
+			T1.TON,
+			T.SHIP_NAME || '_' || T3.VOYAGE SHIP_NAME_VOYAGE,
+			T.CARGO_INFO_NO || '/' || T.SHIP_NAME || '/' || T3.VOYAGE || '/' || T.CARGO_OWNER_NAME || '/' || T.CARGO_NAME
+			|| '/' || T.TRADE_TYPE || '/' || T.PACKING_NAME || '/' || T.QUANTITY || '/' || T.TON CARGO_INFO_LABEL
+        FROM T_PRD_PORT_STORAGE T1
+        JOIN T_BUS_CARGO_INFO T ON T1.CARGO_INFO_ID = T.ID
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM T3 ON T.SHIPVOYAGE_ITEM_ID = T3.ID
+        <where>
+            <if test="companyId != null">
+                AND T1.COMPANY_ID = #{companyId, jdbcType=BIGINT}
+            </if>
+            <if test="cargoInfoNo != null and cargoInfoNo != ''">
+                <bind name="cargoInfoNo_like" value="'%'+cargoInfoNo+'%'"/>
+                and T.CARGO_INFO_NO LIKE #{cargoInfoNo_like}
+            </if>
+            <if test="shipvoyageItemId!=null and shipvoyageItemId!=''">
+                and T3.ID=#{shipvoyageItemId}
+            </if>
+            <if test="cargoInfoId != null">
+                AND T1.CARGO_INFO_ID = #{cargoInfoId, jdbcType=BIGINT}
+            </if>
+            <if test="storehouseId != null">
+                AND T1.STOREHOUSE_ID = #{storehouseId, jdbcType=BIGINT}
+            </if>
+            <if test="regionId != null">
+                AND T1.REGION_ID = #{regionId, jdbcType=BIGINT}
+            </if>
+            <if test="massId != null">
+                AND T1.MASS_ID = #{massId, jdbcType=BIGINT}
+            </if>
+        </where>
+    </select>
+    
+    <select id="getPortStorage" resultMap="listPortStorage">
+        SELECT 
+			T1.COMPANY_ID,
+			T1.COMPANY_NAME,
+			T1.CARGO_INFO_ID,
+			T1.STOREHOUSE_ID,
+			T1.STOREHOUSE_NAME,
+			T1.REGION_ID,
+			T1.REGION_NAME,
+			T1.MASS_ID,
+			T1.MASS_NAME,
+			T1.QUANTITY,
+			T1.TON,
+			T.SHIP_NAME || '_' || T3.VOYAGE SHIP_NAME_VOYAGE,
+			T.QUANTITY || '/' || T.TON || '/' || T.TRADE_TYPE || '/' || T.PACKING_NAME || '/' || 
+			T.CARGO_NAME || '/' || T.CARGO_AGENT_NAME || '/' || T.CARGO_OWNER_NAME || '/' || T.CARGO_INFO_NO CARGO_INFO_LABEL
+        FROM T_PRD_PORT_STORAGE T1
+        JOIN T_BUS_CARGO_INFO T ON T1.CARGO_INFO_ID = T.ID
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM T3 ON T.SHIPVOYAGE_ITEM_ID = T3.ID
+        <where>
+            <if test="companyId != null">
+                AND T1.COMPANY_ID = #{companyId, jdbcType=BIGINT}
+            </if>
+            <if test="cargoInfoId != null">
+                AND T1.CARGO_INFO_ID = #{cargoInfoId, jdbcType=BIGINT}
+            </if>
+            <if test="storehouseId != null">
+                AND T1.STOREHOUSE_ID = #{storehouseId, jdbcType=BIGINT}
+            </if>
+            <if test="regionId != null">
+                AND T1.REGION_ID = #{regionId, jdbcType=BIGINT}
+            </if>
+            <if test="massId != null">
+                AND T1.MASS_ID = #{massId, jdbcType=BIGINT}
+            </if>
+        </where>
+    </select>
+</mapper>

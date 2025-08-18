@@ -1,0 +1,4 @@
+2025-08-07 15:38:35 |INFO  |SpringApplicationShutdownHook |GracefulShutdown.java:54 |org.springframework.boot.web.embedded.tomcat.GracefulShutdown |Commencing graceful shutdown. Waiting for active requests to complete
+2025-08-07 15:38:35 |INFO  |tomcat-shutdown |GracefulShutdown.java:76 |org.springframework.boot.web.embedded.tomcat.GracefulShutdown |Graceful shutdown complete
+2025-08-07 15:38:35 |INFO  |SpringApplicationShutdownHook |DruidDataSource.java:2212 |com.alibaba.druid.pool.DruidDataSource |{dataSource-1} closing ...
+2025-08-07 15:38:36 |INFO  |SpringApplicationShutdownHook |DruidDataSource.java:2285 |com.alibaba.druid.pool.DruidDataSource |{dataSource-1} closed

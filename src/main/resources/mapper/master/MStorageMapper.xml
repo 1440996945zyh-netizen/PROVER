@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.master.mapper.MStorageMapper">
+
+    <sql id="commonList">
+        SELECT
+            a.ID,
+            a.STORAGE_CODE,
+            a.STORAGE_NAME,
+            a.STORAGE_TYPE_CODE,
+            a.STORAGE_TYPE_NAME,
+            a.ROW_COUNT,
+            a.COLUMN_COUNT,
+            a.STATUS,
+            a.CREATE_BY,
+            a.CREATE_TIME,
+            a.UPDATE_BY,
+            a.UPDATE_TIME,
+            (select count(*) from M_STORAGE_STACK where STORAGE_CODE = a.STORAGE_CODE) CHILD_COUNT
+        FROM
+        M_STORAGE a
+        <where>
+            <if test="storageCode != null and storageCode != ''">
+                <bind name="storageCode" value="'%'+storageCode+'%'"/>
+                and a.STORAGE_CODE LIKE #{storageCode}
+            </if>
+            <if test="storageName != null and storageName != ''">
+                <bind name="storageName" value="'%'+storageName+'%'"/>
+                and a.STORAGE_NAME LIKE #{storageName}
+            </if>
+            <if test="storageTypeCode != null and storageTypeCode != ''">
+                and a.STORAGE_TYPE_CODE = #{storageTypeCode}
+            </if>
+            <if test="storageTypeName != null and storageTypeName != ''">
+                and a.STORAGE_TYPE_NAME = #{storageTypeName}
+            </if>
+            <if test="rowCount != null">
+                and a.ROW_COUNT = #{rowCount}
+            </if>
+            <if test="columnCount != null">
+                and a.COLUMN_COUNT = #{columnCount}
+            </if>
+            <if test="status != null">
+                and a.STATUS = #{status}
+            </if>
+        </where>
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.master.bean.dto.MStorageDTO"
+            parameterType="com.yy.ppm.master.bean.dto.MStorageSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.master.bean.dto.MStorageDTO"
+            parameterType="com.yy.ppm.master.bean.dto.MStorageSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.master.bean.dto.MStorageDTO" parameterType="java.lang.Long">
+        SELECT
+            ID,
+            STORAGE_CODE,
+            STORAGE_NAME,
+            STORAGE_TYPE_CODE,
+            STORAGE_TYPE_NAME,
+            ROW_COUNT,
+            COLUMN_COUNT,
+            STATUS,
+            CREATE_BY,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_TIME
+        FROM
+            M_STORAGE
+        <where>
+            id = #{id}
+        </where>
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.master.bean.dto.MStorageDTO">
+        INSERT INTO M_STORAGE(
+            ID,
+            STORAGE_CODE,
+            STORAGE_NAME,
+            STORAGE_TYPE_CODE,
+            STORAGE_TYPE_NAME,
+            ROW_COUNT,
+            COLUMN_COUNT,
+            STATUS,
+            CREATE_BY,
+            CREATE_TIME
+        )VALUES (
+            #{id, jdbcType=BIGINT},
+            #{storageCode, jdbcType=VARCHAR},
+            #{storageName, jdbcType=VARCHAR},
+            #{storageTypeCode, jdbcType=VARCHAR},
+            #{storageTypeName, jdbcType=VARCHAR},
+            #{rowCount,jdbcType=BIGINT},
+            #{columnCount,jdbcType=BIGINT},
+            #{status,jdbcType=BIGINT},
+            #{loginUserId},
+            #{now}
+        )
+    </insert>
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.master.bean.dto.MStorageDTO">
+        UPDATE
+            M_STORAGE
+        SET
+            ID = #{id,jdbcType=BIGINT},
+            STORAGE_CODE = #{storageCode,jdbcType=VARCHAR},
+            STORAGE_NAME = #{storageName,jdbcType=VARCHAR},
+            STORAGE_TYPE_CODE = #{storageTypeCode,jdbcType=VARCHAR},
+            STORAGE_TYPE_NAME = #{storageTypeName,jdbcType=VARCHAR},
+            ROW_COUNT = #{rowCount,jdbcType=BIGINT},
+            COLUMN_COUNT = #{columnCount,jdbcType=BIGINT},
+            STATUS = #{status,jdbcType=BIGINT},
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM
+            M_STORAGE
+        WHERE
+            id = #{id}
+    </delete>
+
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getStackList" resultType="com.yy.ppm.master.bean.dto.MStorageStackDTO" parameterType="java.lang.String">
+        SELECT
+            ID,
+            STORAGE_CODE,
+            STACK_CODE,
+            STACK_NAME,
+            STATUS,
+            CREATE_BY,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_TIME
+        FROM
+            M_STORAGE_STACK
+        WHERE
+            STORAGE_CODE = #{storageCode}
+        <if test="stackName != null and stackName !=''">
+            <bind name="stackName" value="'%'+stackName+'%'"/>
+            and STACK_NAME LIKE #{stackName}
+        </if>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getStackById" resultType="com.yy.ppm.master.bean.dto.MStorageStackDTO" parameterType="java.lang.Long">
+        SELECT
+            ID,
+            STORAGE_CODE,
+            STACK_CODE,
+            STACK_NAME,
+            STATUS,
+            CREATE_BY,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_TIME
+        FROM
+            M_STORAGE_STACK
+        <where>
+            id = #{id}
+        </where>
+    </select>
+    <select id="getChildrenData" resultType="java.lang.Integer">
+        select count(*) from M_STORAGE_STACK where STORAGE_CODE = #{storageCode}
+    </select>
+    <!-- 新增 -->
+    <insert id="insertStack" parameterType="com.yy.ppm.master.bean.dto.MStorageStackDTO">
+        INSERT INTO M_STORAGE_STACK(
+            ID,
+            STORAGE_CODE,
+            STACK_CODE,
+            STACK_NAME,
+            STATUS,
+            CREATE_BY,
+            CREATE_TIME
+        )VALUES (
+            #{id, jdbcType=BIGINT},
+            #{storageCode, jdbcType=VARCHAR},
+            #{stackCode, jdbcType=VARCHAR},
+            #{stackName, jdbcType=VARCHAR},
+            #{status,jdbcType=BIGINT},
+            #{loginUserId},
+            #{now}
+            )
+    </insert>
+    <!-- 修改 -->
+    <update id="updateStack" parameterType="com.yy.ppm.master.bean.dto.MStorageStackDTO">
+        UPDATE
+            M_STORAGE_STACK
+        SET
+            STORAGE_CODE = #{storageCode,jdbcType=VARCHAR},
+            STACK_CODE = #{stackCode,jdbcType=VARCHAR},
+            STACK_NAME = #{stackName,jdbcType=VARCHAR},
+            STATUS = #{status,jdbcType=BIGINT},
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteStackById" parameterType="java.lang.Long">
+        DELETE FROM
+            M_STORAGE_STACK
+        WHERE
+            id = #{id}
+    </delete>
+</mapper>
+

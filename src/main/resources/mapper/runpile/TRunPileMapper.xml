@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.runpile.mapper.TRunPileMapper">
+
+	<select id="getStorageYardList" resultType="com.yy.ppm.runpile.bean.dto.TStorageYardDTO">
+		SELECT
+			ID,
+			PARENT_ID,
+			STORAGE_YARD_NM,
+			SHORT_CD,
+			AREA,
+			STORAGE_YARD_TYPE_CD,
+			IS_INNER_STORAGE_YARD,
+			UNIT_AREA_TON,
+			IS_RENT,
+			WORK_AREA_CD,
+			SORT_NUM,
+			STORAGE_YARD_LEVEL
+		FROM M_STORAGE_YARD 
+		<where>
+			<if test="storageYardLevel != null and storageYardLevel != ''">
+				AND STORAGE_YARD_LEVEL = #{storageYardLevel}
+			</if>
+			<if test="parentId != null and parentId != ''">
+				AND PARENT_ID = #{parentId}
+			</if>
+		</where>
+		ORDER BY STORAGE_YARD_NM
+	</select>
+	
+	<select id="getStackPositionList" resultType="com.yy.ppm.machine.bean.dto.TMacTerminalStackPositionDTO">
+		SELECT
+			T2.STACK_ID,
+			T2.STACK_CODE,
+			T2.STACK_NAME,
+			T2.POSITION,
+			T2.POSITION_FROM,
+			T1.POSITION_TIME
+		FROM
+			(
+				SELECT
+					STACK_ID STACK_ID,
+					MAX (POSITION_TIME) POSITION_TIME
+				FROM
+					M_STORAGE_STACK_POSITION
+				WHERE DEL_FLAG = '0'
+				GROUP BY
+					STACK_ID
+				ORDER BY STACK_ID
+			) T1
+		LEFT JOIN M_STORAGE_STACK_POSITION T2 ON T1.STACK_ID = T2.STACK_ID AND T1.POSITION_TIME = T2.POSITION_TIME
+	</select>
+	<select id="listByCondition" resultType="com.yy.ppm.machine.bean.dto.TMacTerminalStackPositionDTO">
+		SELECT
+			T2.STACK_ID,
+			T2.STACK_CODE,
+			T2.STACK_NAME,
+			T2.POSITION,
+			T2.POSITION_FROM,
+			T1.POSITION_TIME
+		FROM
+			(
+				SELECT
+					STACK_ID STACK_ID,
+					MAX (POSITION_TIME) POSITION_TIME
+				FROM
+					M_STORAGE_STACK_POSITION
+				WHERE DEL_FLAG = '0'
+				and STACK_ID != #{stackId}
+				GROUP BY
+					STACK_ID
+				ORDER BY STACK_ID
+			) T1
+		LEFT JOIN M_STORAGE_STACK_POSITION T2 ON T1.STACK_ID = T2.STACK_ID AND T1.POSITION_TIME = T2.POSITION_TIME
+	</select>
+
+	<insert id="saveStackPosition">
+		INSERT INTO M_STORAGE_STACK_POSITION (
+			ID,
+			STACK_ID,
+			STACK_CODE,
+			STACK_NAME,
+			POSITION,
+			POSITION_FROM,
+			POSITION_TIME,
+			CREATE_BY,
+			CREATE_TIME,
+			UPDATE_BY,
+			UPDATE_TIME
+		) VALUES (
+			#{id},
+			#{stackId},
+			#{stackCode},
+			#{stackName},
+			#{position},
+			#{positionFrom},
+			#{positionTime},
+			#{loginUserId, jdbcType=BIGINT},
+			#{now, jdbcType=TIMESTAMP},
+			#{updateBy},
+			#{updateTime}
+		)
+	</insert>
+	
+	<update id="updateStackPositionDelFlag" parameterType="com.yy.ppm.runpile.bean.dto.MStorageStackPositionDTO">
+		UPDATE M_STORAGE_STACK_POSITION 
+		SET DEL_FLAG = '1'
+		WHERE STACK_ID = #{stackId}
+	</update>
+	
+	<select id="getNeedRunpileQuantity" resultType="java.lang.Integer">
+		SELECT PARAM_VAL FROM SYS_PARAMETER WHERE PARAM_CD = 'NEED_RUNPILE_QUANTITY'
+	</select>
+	
+	<select id="getPortStorageDetailList" resultType="com.yy.ppm.runpile.bean.dto.TRunPilePortStorageDetailDTO">
+		SELECT
+			temp_t1.STOREHOUSE_ID,
+			temp_t1.STOREHOUSE_NAME,
+			temp_t1.REGION_ID,
+			temp_t1.REGION_NAME,
+			temp_t1.MASS_ID,
+			temp_t1.MASS_NAME,
+			temp_t1.TON,
+			temp_t2.STACK_ID,
+			temp_t2.POSITION_TIME,
+			temp_t3.LAST_REFRESH_TIME
+		FROM
+			(
+				SELECT
+					STOREHOUSE_ID,
+					STOREHOUSE_NAME,
+					REGION_ID,
+					REGION_NAME,
+					MASS_ID,
+					MASS_NAME,
+					SUM (TON) TON
+				FROM
+					T_PRD_PORT_STORAGE_DETAIL
+				GROUP BY
+					STOREHOUSE_ID,
+					STOREHOUSE_NAME,
+					REGION_ID,
+					REGION_NAME,
+					MASS_ID,
+					MASS_NAME
+			) temp_t1
+		LEFT JOIN (
+			SELECT
+				T2.STACK_ID STACK_ID,
+				T2.STACK_CODE STACK_CODE,
+				T2.STACK_NAME STACK_NAME,
+				T2.POSITION POSITION,
+				T2.POSITION_FROM POSITION_FROM,
+				T1.POSITION_TIME POSITION_TIME
+			FROM
+				(
+					SELECT
+						STACK_ID STACK_ID,
+						MAX (POSITION_TIME) POSITION_TIME
+					FROM
+						M_STORAGE_STACK_POSITION
+					WHERE
+						DEL_FLAG = '0'
+					GROUP BY
+						STACK_ID
+					ORDER BY
+						STACK_ID
+				) T1
+			LEFT JOIN M_STORAGE_STACK_POSITION T2 ON T1.STACK_ID = T2.STACK_ID
+			AND T1.POSITION_TIME = T2.POSITION_TIME
+		) temp_t2 ON temp_t1.MASS_ID = temp_t2.STACK_ID
+		LEFT JOIN (
+			SELECT
+				STOREHOUSE_ID,
+				STOREHOUSE_NAME,
+				REGION_ID,
+				REGION_NAME,
+				MASS_ID,
+				MASS_NAME,
+				"MAX" (CREATE_TIME) LAST_REFRESH_TIME
+			FROM
+				T_PRD_PORT_STORAGE_DETAIL
+			GROUP BY
+				STOREHOUSE_ID,
+				STOREHOUSE_NAME,
+				REGION_ID,
+				REGION_NAME,
+				MASS_ID,
+				MASS_NAME
+		) temp_t3 ON temp_t1.MASS_ID = temp_t3.MASS_ID
+		<where>
+			<if test="massId != null">
+				AND temp_t1.MASS_ID = #{massId}
+			</if>
+		</where>
+	</select>
+	
+	<select id="getPrePortStorageDetailList" resultType="com.yy.ppm.runpile.bean.dto.TRunPilePortStorageDetailDTO">
+		SELECT
+			temp_t1.STOREHOUSE_ID,
+			temp_t1.STOREHOUSE_NAME,
+			temp_t1.REGION_ID,
+			temp_t1.REGION_NAME,
+			temp_t1.MASS_ID,
+			temp_t1.MASS_NAME,
+			SUM (temp_t1.TON) TON
+		FROM
+			(
+				SELECT
+					t1.STOREHOUSE_ID,
+					t1.STOREHOUSE_NAME,
+					t1.REGION_ID,
+					t1.REGION_NAME,
+					t1.MASS_ID,
+					t1.MASS_NAME,
+					t1.TON
+				FROM
+					T_PRD_PORT_STORAGE_DETAIL t1,
+					(SELECT STACK_ID ,DEL_FLAG,max(CREATE_TIME) CREATE_TIME FROM M_STORAGE_STACK_POSITION GROUP BY STACK_ID,DEL_FLAG) t2
+				WHERE
+					T2.DEL_FLAG = 0
+				AND T2.STACK_ID = T1.MASS_ID
+				AND T2.CREATE_TIME &lt;= T1.CREATE_TIME
+			) temp_t1
+		<where>
+			<if test="massId != null">
+				AND temp_t1.MASS_ID = #{massId}
+			</if>
+		</where>
+		GROUP BY
+			temp_t1.STOREHOUSE_ID,
+			temp_t1.STOREHOUSE_NAME,
+			temp_t1.REGION_ID,
+			temp_t1.REGION_NAME,
+			temp_t1.MASS_ID,
+			temp_t1.MASS_NAME
+	</select>
+</mapper>

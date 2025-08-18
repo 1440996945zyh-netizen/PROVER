@@ -1,0 +1,1783 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.business.mapper.TBusCargoInfoMapper">
+
+    <sql id="commonList">
+        SELECT
+        t.ID,
+        t.SHIPVOYAGE_ID,
+        t.SHIPVOYAGE_ITEM_ID,
+        t.SCN,
+        t.SHIP_NAME,
+        t.CARGO_INFO_NO,
+        t.CARGO_OWNER_ID,
+        t.CARGO_OWNER_NAME,
+        t.CARGO_AGENT_ID,
+        t.CARGO_AGENT_NAME,
+        t.CARGO_CODE,
+        t.CARGO_NAME,
+        t.TRADE_TYPE,
+        t.PACKING_CODE,
+        t.PACKING_NAME,
+        t.COMPANY_ID,
+        t.COMPANY_NAME,
+        t.PARENT_ID,
+        t.ROOT_ID,
+        t.QUANTITY,
+        t.TON,
+        t.RIGHTS_QUANTITY,
+        t.SURPLUS_RIGHTS_QUANTITY,
+        t.IS_CLEAR,
+        t.CLEAR_BY,
+        t.CLEAR_BY_NAME,
+        t.CLEAR_DATE,
+        t.CREATE_BY,
+        t.CREATE_BY_NAME,
+        t.CREATE_TIME,
+        t.UPDATE_BY,
+        t.UPDATE_BY_NAME,
+        t.UPDATE_TIME,
+        t.CONTRACT_CODE,
+        t.VOYAGE,
+        m.TALLY,
+        t.RESIDUE_STORAGE,
+        t.TRANSFER_DATE,
+        CASE WHEN TBT.TYPE IN ('集港', '拆箱集港')
+        THEN TO_CHAR(REGEXP_REPLACE(RTRIM(XMLCAST(XMLAGG(XMLELEMENT(E, TEMP."shipNameVoyage" || ',') ORDER
+        BY TEMP."shipNameVoyage") AS CLOB), ','), '([^,]+)(,\1)+', '\1'))
+        ELSE TO_CHAR(CASE WHEN t.SHIPVOYAGE_ITEM_ID IS NULL THEN NULL ELSE t.SHIP_NAME || '_' || TDSI.VOYAGE END)
+        END "shipNameVoyage",
+        m.WORK_TYPE,
+        t.IS_HQ
+        FROM
+            T_BUS_CARGO_INFO t
+            LEFT JOIN M_CARGO m ON t.CARGO_CODE = m.CARGO_CODE
+            LEFT JOIN T_BUS_TRUST TBT ON t.TRUST_ID = TBT.ID
+            LEFT JOIN T_DIS_SHIPVOYAGE_ITEM TDSI ON t.SHIPVOYAGE_ITEM_ID = TDSI.ID
+            LEFT JOIN (SELECT TBTC.ID, TBTC.CARGO_INFO_ID, TBT2.SHIPVOYAGE_ITEM_ID, CASE WHEN TBT2.SHIPVOYAGE_ITEM_ID IS
+            NULL THEN NULL ELSE TBT2.SHIP_NAME || '_' || TDSI2.VOYAGE END "shipNameVoyage" FROM T_BUS_TRUST_CARGO TBTC JOIN
+            T_BUS_TRUST TBT2 ON TBTC.TRUST_ID = TBT2.ID AND TBT2.TYPE = '装船' LEFT JOIN T_DIS_SHIPVOYAGE_ITEM TDSI2 ON
+            TBT2.SHIPVOYAGE_ITEM_ID = TDSI2.ID GROUP BY TBTC.ID, TBTC.CARGO_INFO_ID, TBT2.SHIPVOYAGE_ITEM_ID,
+            TBT2.SHIP_NAME, TDSI2.VOYAGE ) TEMP ON t.ID = TEMP.CARGO_INFO_ID
+        <where>
+            <if test="shipvoyageItemId != null">
+                AND CASE WHEN TBT.TYPE IN ('集港', '拆箱集港') THEN TEMP.SHIPVOYAGE_ITEM_ID ELSE t.SHIPVOYAGE_ITEM_ID END = #{shipvoyageItemId}
+            </if>
+            <if test="shipvoyageId != null">
+                and t.SHIPVOYAGE_ID = #{shipvoyageId}
+            </if>
+            <if test="scn != null and scn != ''">
+                and t.SCN = #{scn}
+            </if>
+
+            <if test="cargoInfoNo != null and cargoInfoNo != ''">
+                <bind name="cargoInfoNo_like" value="'%'+cargoInfoNo+'%'"/>
+                  and t.CARGO_INFO_NO LIKE #{cargoInfoNo_like}
+            </if>
+            <if test="contractCode != null and contractCode != ''">
+                <bind name="contractCode_like" value="'%'+contractCode+'%'"/>
+                and t.CONTRACT_CODE LIKE #{contractCode_like}
+            </if>
+            <if test="cargoOwnerId != null">
+                and t.CARGO_OWNER_ID = #{cargoOwnerId}
+            </if>
+            <if test="cargoOwnerName != null and cargoOwnerName != ''">
+                and t.CARGO_OWNER_NAME = #{cargoOwnerName}
+            </if>
+            <if test="cargoAgentId != null">
+                and t.CARGO_AGENT_ID = #{cargoAgentId}
+            </if>
+            <if test="cargoAgentName != null and cargoAgentName != ''">
+                and t.CARGO_AGENT_NAME = #{cargoAgentName}
+            </if>
+            <if test="cargoCode != null and cargoCode != ''">
+                and t.CARGO_CODE = #{cargoCode}
+            </if>
+            <if test="cargoName != null and cargoName != ''">
+                <bind name="cargoNameLike" value="'%' + cargoName + '%'"/>
+                and t.CARGO_NAME LIKE #{cargoNameLike,jdbcType=VARCHAR}
+            </if>
+            <if test="tradeType != null and tradeType != ''">
+                and t.TRADE_TYPE = #{tradeType}
+            </if>
+            <if test="packingCode != null and packingCode != ''">
+                and t.PACKING_CODE = #{packingCode}
+            </if>
+            <if test="packingName != null and packingName != ''">
+                and t.PACKING_NAME = #{packingName}
+            </if>
+            <if test="companyId != null">
+                and t.COMPANY_ID = #{companyId}
+            </if>
+            <if test="companyName != null and companyName != ''">
+                and t.COMPANY_NAME = #{companyName}
+            </if>
+            <if test="parentId != null">
+                and t.PARENT_ID = #{parentId}
+            </if>
+            <if test="rootId != null">
+                and t.ROOT_ID = #{rootId}
+            </if>
+            <if test="isClear != null">
+                and t.IS_CLEAR = #{isClear} OR IS_CLEAR IS NULL
+            </if>
+            <if test="workType != null and workType != ''">
+                and m.WORK_TYPE = #{workType,jdbcType=VARCHAR}
+            </if>
+        </where>
+        GROUP BY
+            t.ID,
+            t.SHIPVOYAGE_ID,
+            t.SHIPVOYAGE_ITEM_ID,
+            t.SCN,
+            t.SHIP_NAME,
+            t.CARGO_INFO_NO,
+            t.CARGO_OWNER_ID,
+            t.CARGO_OWNER_NAME,
+            t.CARGO_AGENT_ID,
+            t.CARGO_AGENT_NAME,
+            t.CARGO_CODE,
+            t.CARGO_NAME,
+            t.TRADE_TYPE,
+            t.PACKING_CODE,
+            t.PACKING_NAME,
+            t.COMPANY_ID,
+            t.COMPANY_NAME,
+            t.PARENT_ID,
+            t.ROOT_ID,
+            t.QUANTITY,
+            t.TON,
+            t.RIGHTS_QUANTITY,
+            t.SURPLUS_RIGHTS_QUANTITY,
+            t.IS_CLEAR,
+            t.CLEAR_BY,
+            t.CLEAR_BY_NAME,
+            t.CLEAR_DATE,
+            t.CREATE_BY,
+            t.CREATE_BY_NAME,
+            t.CREATE_TIME,
+            t.UPDATE_BY,
+            t.UPDATE_BY_NAME,
+            t.UPDATE_TIME,
+            t.CONTRACT_CODE,
+            t.VOYAGE,
+            m.TALLY,
+            TBT.TYPE,
+            t.SHIPVOYAGE_ITEM_ID,
+            t.SHIP_NAME,
+            t.RESIDUE_STORAGE,
+            t.TRANSFER_DATE,
+            TDSI.VOYAGE,
+            m.WORK_TYPE,
+            t.IS_HQ
+        ORDER BY
+            CREATE_TIME DESC
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.business.bean.dto.TBusCargoInfoDTO" parameterType="com.yy.ppm.business.bean.dto.TBusCargoInfoSearchDTO">
+        WITH SOURCE AS (
+        SELECT
+        TBCI.ID,
+        CASE
+        WHEN TBCI.SOURCE = '30' THEN '货转'
+        WHEN TBCI.SOURCE = '50' THEN '混配'
+        WHEN TBCI.SOURCE = '20' THEN '集港'
+        WHEN tbci.SOURCE = '10' THEN '卸船'
+        ELSE COALESCE(TBCI.IS_TOS, CASE WHEN TBT.TYPE = '拆箱集港' THEN '集港' ELSE TBT.TYPE END)
+        END "source"
+        FROM T_BUS_CARGO_INFO TBCI
+        LEFT JOIN T_BUS_TRUST TBT ON TBCI.TRUST_ID = TBT.ID),
+        STORAGE_RATE AS (
+        SELECT
+        TBCC.COMPANY_ID,
+        TBC.CUSTOMER_ID,
+        TBC.START_TIME,
+        TBC.END_TIME,
+        TBCR.CARGO_CODE,
+        TBCR.FREE_STORAGE_DAYS
+        FROM
+        T_BUS_CONTRACT_COMPANY TBCC
+        JOIN T_BUS_CONTRACT TBC ON
+        (TBC.STATUS = '20'
+        AND TBCC.CONTRACT_ID = TBC.ID)
+        JOIN T_BUS_CONTRACT_RATE TBCR ON
+        (TBCR.TYPE = '10'
+        AND TBCR.RATE_ITEM_CODE = 'MS00240'
+        AND TBC.ID = TBCR.CONTRACT_ID)
+        GROUP BY
+        TBCC.COMPANY_ID,
+        TBC.CUSTOMER_ID,
+        TBC.START_TIME,
+        TBC.END_TIME,
+        TBCR.CARGO_CODE,
+        TBCR.FREE_STORAGE_DAYS
+        ORDER BY
+        TBCR.FREE_STORAGE_DAYS DESC)
+        SELECT
+        CASE WHEN TEMP_TABLE.STATEMENT_STATUS = '30' THEN -999
+        WHEN TEMP_TABLE.IS_CLEAR = '0' AND "overdueDays" &lt;=0 THEN -888
+        WHEN TEMP_TABLE.IS_CLEAR = '1' AND "overdueDays" &lt;=0 THEN -777
+        WHEN TEMP_TABLE.IS_CLEAR = '0' AND "overdueDays" >0 THEN -666
+        WHEN TEMP_TABLE.IS_CLEAR = '1' AND "overdueDays" >0 THEN -555
+        ELSE -900
+        END ORDER_NUM,
+        TEMP_TABLE.*
+        FROM (
+        SELECT
+        t.ID,
+        t.SHIPVOYAGE_ID,
+        t.SHIPVOYAGE_ITEM_ID,
+        t.SCN,
+        t.SHIP_NAME,
+        t.CARGO_INFO_NO,
+        t.CARGO_OWNER_ID,
+        t.CARGO_OWNER_NAME,
+        t.CARGO_AGENT_ID,
+        t.CARGO_AGENT_NAME,
+        t.CARGO_CODE,
+        t.CARGO_NAME,
+        t.TRADE_TYPE,
+        t.PACKING_CODE,
+        t.PACKING_NAME,
+        t.COMPANY_ID,
+        t.COMPANY_NAME,
+        t.PARENT_ID,
+        t.ROOT_ID,
+        t.QUANTITY,
+        t.TON,
+        t.RIGHTS_QUANTITY,
+        t.SURPLUS_RIGHTS_QUANTITY,
+        t.IS_CLEAR,
+        t.CLEAR_BY,
+        t.CLEAR_BY_NAME,
+        t.CLEAR_DATE,
+        t.CREATE_BY,
+        t.CREATE_BY_NAME,
+        t.CREATE_TIME,
+        t.UPDATE_BY,
+        t.UPDATE_BY_NAME,
+        t.UPDATE_TIME,
+        t.CONTRACT_CODE,
+        t.VOYAGE,
+        t.RESIDUE_STORAGE,
+        t.TRANSFER_DATE,
+        m.TALLY,
+        CASE WHEN TBT.TYPE IN ('集港', '拆箱集港')
+        THEN TO_CHAR(REGEXP_REPLACE(RTRIM(XMLCAST(XMLAGG(XMLELEMENT(E, TEMP."shipNameVoyage" || ',') ORDER
+        BY TEMP."shipNameVoyage") AS CLOB), ','), '([^,]+)(,\1)+', '\1'))
+        ELSE TO_CHAR(CASE WHEN t.SHIPVOYAGE_ITEM_ID IS NULL THEN NULL ELSE t.SHIP_NAME || '_' || TDSI.VOYAGE END)
+        END "shipNameVoyage",
+        CASE WHEN t.IS_TOS IS NOT NULL THEN t.IS_TOS ELSE TBT.TYPE END "type",
+        m.WORK_TYPE,
+        t.IS_LOGOUT,
+        t.LOGOUT_BY_NAME,
+        t.LOGOUT_BY,
+        t.LOGOUT_TIME,
+        t.REAL_CLEAR_DATE,
+        NVL(tppss.balancePortStorageTon,0) balancePortStorageTon,
+        t.IMP_EXP,
+        decode(t.IS_PRE_PAY,'10','未预缴','20','部分预缴','30','已预缴') PRE_PAY_STATUS,
+        TRUNC(NVL( t.REAL_CLEAR_DATE, SYSDATE) -
+        CASE SOURCE."source"
+        WHEN '卸船' THEN TDSI.WORK_START_TIME
+        WHEN '集港' THEN WEIGH_JG."minWeighOutDt"
+        WHEN '货转' THEN t.TRANSFER_DATE
+        WHEN '混配' THEN TBCMR.MIX_TIME END
+        -
+        CASE SOURCE."source"
+        WHEN '货转' THEN t.RESIDUE_STORAGE
+        WHEN '混配' THEN t.MIX_FREE_STORAGE_DAYS
+        WHEN '货转' THEN t.RESIDUE_STORAGE
+        WHEN '混配' THEN t.MIX_FREE_STORAGE_DAYS
+        END
+        , 0) "overdueDays",
+        t.STATEMENT_STATUS_CODE STATEMENT_STATUS,
+        t.IS_HQ
+        FROM
+        T_BUS_CARGO_INFO t
+        LEFT JOIN STORAGE_RATE ON (t.COMPANY_ID = STORAGE_RATE.COMPANY_ID AND t.CARGO_OWNER_ID = STORAGE_RATE.CUSTOMER_ID AND t.CARGO_CODE = STORAGE_RATE.CARGO_CODE)
+        LEFT JOIN SOURCE ON (t.ID = SOURCE.ID AND SOURCE."source" IN ('卸船', '集港', '货转', '混配'))
+        LEFT JOIN T_BUS_CARGO_MIX_RECORD TBCMR ON t.ID = TBCMR.CARGO_INFO_ID
+        LEFT JOIN (
+            SELECT
+            TEMP.CARGO_INFO_ID,
+            MIN(TEMP.WEIGH_OUT_DT) "minWeighOutDt"
+            FROM
+            (
+            SELECT
+            TEMP.CARGO_INFO_ID,
+            VWI.WEIGH_OUT_DT
+            FROM
+            (
+            SELECT
+            TBTC.BUSINESS_NO,
+            TBTC.CARGO_INFO_ID
+            FROM
+            T_BUS_TRUST_CARGO TBTC
+            JOIN T_BUS_TRUST TBT ON
+            TBTC.TRUST_ID = TBT.ID
+            AND TBT.TYPE IN ('集港', '拆箱集港')) TEMP
+            JOIN V_WEIGHT_INFO VWI ON
+            VWI.IS_OLD = '否'
+            AND TEMP.BUSINESS_NO = VWI.PLAN_NO
+            UNION ALL
+            SELECT
+            TO_NUMBER(VWI2.CARGO_INFO_ID),
+            VWI2.WEIGH_OUT_DT
+            FROM
+            V_WEIGHT_INFO VWI2
+            WHERE
+            VWI2.IS_OLD = '是'
+            AND VWI2.PLAN_TYPE IN ('集港', '拆箱集港')) TEMP
+            GROUP BY TEMP.CARGO_INFO_ID
+            ) WEIGH_JG ON t.ID = WEIGH_JG.CARGO_INFO_ID
+        LEFT JOIN M_CARGO m ON t.CARGO_CODE = m.CARGO_CODE
+        LEFT JOIN T_BUS_TRUST TBT ON t.TRUST_ID = TBT.ID
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM TDSI ON t.SHIPVOYAGE_ITEM_ID = TDSI.ID
+        LEFT JOIN T_FD_BANK_CUSTOMER_PREPAYMENT TFBCP ON TFBCP.STATUS = '1' AND TFBCP.BUS_TRUST_ID = t.TRUST_ID
+        LEFT JOIN (SELECT TBTC.ID, TBTC.CARGO_INFO_ID, TBT2.SHIPVOYAGE_ITEM_ID, CASE WHEN TBT2.SHIPVOYAGE_ITEM_ID IS
+        NULL THEN NULL ELSE TBT2.SHIP_NAME || '_' || TDSI2.VOYAGE END "shipNameVoyage" FROM T_BUS_TRUST_CARGO TBTC JOIN
+        T_BUS_TRUST TBT2 ON TBTC.TRUST_ID = TBT2.ID AND TBT2.TYPE = '装船' LEFT JOIN T_DIS_SHIPVOYAGE_ITEM TDSI2 ON
+        TBT2.SHIPVOYAGE_ITEM_ID = TDSI2.ID GROUP BY TBTC.ID, TBTC.CARGO_INFO_ID, TBT2.SHIPVOYAGE_ITEM_ID,
+        TBT2.SHIP_NAME, TDSI2.VOYAGE ) TEMP ON t.ID = TEMP.CARGO_INFO_ID
+        LEFT JOIN T_BUS_TRUST_CARGO TBTC ON t.ID = TBTC.CARGO_INFO_ID
+        LEFT JOIN T_BUS_TRUST TBT2 ON TBTC.TRUST_ID = TBT2.ID
+        LEFT JOIN ( SELECT CARGO_INFO_ID, sum( ton ) balancePortStorageTon FROM T_PRD_PORT_STORAGE TPPS
+        WHERE TPPS.CLEAN_MASS_SIGN = '0' GROUP BY CARGO_INFO_ID ) tppss ON tppss.CARGO_INFO_ID = t.id
+        <where>
+            <if test="shipvoyageItemId != null">
+                AND CASE WHEN TBT.TYPE IN ('集港', '拆箱集港') THEN TEMP.SHIPVOYAGE_ITEM_ID ELSE t.SHIPVOYAGE_ITEM_ID
+                END = #{shipvoyageItemId}
+            </if>
+            <if test="shipvoyageId != null">
+                and t.SHIPVOYAGE_ID = #{shipvoyageId}
+            </if>
+            <if test="scn != null and scn != ''">
+                and t.SCN = #{scn}
+            </if>
+            <if test="isLogout != null and isLogout != ''">
+                and (t.IS_LOGOUT = #{isLogout} or t.IS_LOGOUT is null)
+            </if>
+            <if test="businessNo != null and businessNo != ''">
+                <bind name="businessNoLike" value="'%' + businessNo + '%'"/>
+                and TBTC.BUSINESS_NO LIKE #{businessNoLike}
+            </if>
+            <if test="cargoInfoNo != null and cargoInfoNo != ''">
+                <bind name="cargoInfoNo_like" value="'%'+cargoInfoNo+'%'"/>
+                and t.CARGO_INFO_NO LIKE #{cargoInfoNo_like}
+            </if>
+            <if test="contractCode != null and contractCode != ''">
+                <bind name="contractCode_like" value="'%'+contractCode+'%'"/>
+                and t.CONTRACT_CODE LIKE #{contractCode_like}
+            </if>
+            <if test="cargoOwnerId != null">
+                and t.CARGO_OWNER_ID = #{cargoOwnerId}
+            </if>
+            <if test="cargoOwnerName != null and cargoOwnerName != ''">
+                and t.CARGO_OWNER_NAME = #{cargoOwnerName}
+            </if>
+            <if test="cargoAgentId != null">
+                and t.CARGO_AGENT_ID = #{cargoAgentId}
+            </if>
+            <if test="cargoAgentName != null and cargoAgentName != ''">
+                and t.CARGO_AGENT_NAME = #{cargoAgentName}
+            </if>
+            <if test="cargoCode != null and cargoCode != ''">
+                and t.CARGO_CODE = #{cargoCode}
+            </if>
+            <if test="cargoName != null and cargoName != ''">
+                <bind name="cargoNameLike" value="'%' + cargoName + '%'"/>
+                and t.CARGO_NAME LIKE #{cargoNameLike,jdbcType=VARCHAR}
+            </if>
+            <if test="tradeType != null and tradeType != ''">
+                and t.TRADE_TYPE = #{tradeType}
+            </if>
+            <if test="packingCode != null and packingCode != ''">
+                and t.PACKING_CODE = #{packingCode}
+            </if>
+            <if test="packingName != null and packingName != ''">
+                and t.PACKING_NAME = #{packingName}
+            </if>
+            <if test="companyId != null">
+                and t.COMPANY_ID = #{companyId}
+            </if>
+            <if test="companyName != null and companyName != ''">
+                and t.COMPANY_NAME = #{companyName}
+            </if>
+            <if test="parentId != null">
+                and t.PARENT_ID = #{parentId}
+            </if>
+            <if test="rootId != null">
+                and t.ROOT_ID = #{rootId}
+            </if>
+            <if test="isClear != null">
+                and t.IS_CLEAR = #{isClear} OR IS_CLEAR IS NULL
+            </if>
+            <if test="workType != null and workType != ''">
+                and m.WORK_TYPE = #{workType,jdbcType=VARCHAR}
+            </if>
+            <if test="startDate != null and startDate != ''">
+                and to_char(t.CREATE_TIME,'YYYY-MM-DD') >= #{startDate,jdbcType=VARCHAR}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                and to_char(t.CREATE_TIME,'YYYY-MM-DD') &lt; #{endDate,jdbcType=VARCHAR}
+            </if>
+        </where>
+        GROUP BY
+        SOURCE."source",
+        WEIGH_JG."minWeighOutDt",
+        t.TRANSFER_DATE,
+        TBCMR.MIX_TIME,
+        t.MIX_FREE_STORAGE_DAYS,
+        t.STATEMENT_STATUS_CODE,
+        t.IS_HQ,
+        t.RESIDUE_STORAGE,
+        t.REAL_CLEAR_DATE,
+        TDSI.WORK_START_TIME,
+        t.ID,
+        t.SHIPVOYAGE_ID,
+        t.SHIPVOYAGE_ITEM_ID,
+        t.SCN,
+        t.SHIP_NAME,
+        t.CARGO_INFO_NO,
+        t.CARGO_OWNER_ID,
+        t.CARGO_OWNER_NAME,
+        t.CARGO_AGENT_ID,
+        t.CARGO_AGENT_NAME,
+        t.CARGO_CODE,
+        t.CARGO_NAME,
+        t.TRADE_TYPE,
+        t.PACKING_CODE,
+        t.PACKING_NAME,
+        t.COMPANY_ID,
+        t.COMPANY_NAME,
+        t.PARENT_ID,
+        t.ROOT_ID,
+        t.QUANTITY,
+        t.TON,
+        t.RIGHTS_QUANTITY,
+        t.SURPLUS_RIGHTS_QUANTITY,
+        t.IS_CLEAR,
+        t.CLEAR_BY,
+        t.CLEAR_BY_NAME,
+        t.CLEAR_DATE,
+        t.CREATE_BY,
+        t.CREATE_BY_NAME,
+        t.CREATE_TIME,
+        t.UPDATE_BY,
+        t.UPDATE_BY_NAME,
+        t.UPDATE_TIME,
+        t.CONTRACT_CODE,
+        t.VOYAGE,
+        t.RESIDUE_STORAGE,
+        t.TRANSFER_DATE,
+        m.TALLY,
+        TBT.TYPE,
+        t.SHIPVOYAGE_ITEM_ID,
+        t.SHIP_NAME,
+        TDSI.VOYAGE,
+        t.IS_TOS,
+        m.WORK_TYPE,
+        t.IS_LOGOUT,
+        t.LOGOUT_BY_NAME,
+        t.LOGOUT_BY,
+        t.LOGOUT_TIME,
+        t.REAL_CLEAR_DATE,
+        tppss.balancePortStorageTon,
+        t.IMP_EXP,
+        t.IS_PRE_PAY
+        <if test="shipName!=null and shipName !=''">
+            <bind name="shipName_like" value="'%'+shipName+'%'"/>
+            HAVING CASE WHEN TBT.TYPE IN ('集港', '拆箱集港')
+            THEN TO_CHAR(REGEXP_REPLACE(RTRIM(XMLCAST(XMLAGG(XMLELEMENT(E, TEMP."shipNameVoyage" || ',') ORDER
+            BY TEMP."shipNameVoyage") AS CLOB), ','), '([^,]+)(,\1)+', '\1'))
+            ELSE TO_CHAR(CASE WHEN t.SHIPVOYAGE_ITEM_ID IS NULL THEN NULL ELSE t.SHIP_NAME || '_' || TDSI.VOYAGE END)
+            END LIKE #{shipName_like}
+            <if test="voyage!=null and voyage !=''">
+                <bind name="voyage_like" value="'%'+voyage+'%'"/>
+                AND CASE WHEN TBT.TYPE IN ('集港', '拆箱集港')
+                THEN TO_CHAR(REGEXP_REPLACE(RTRIM(XMLCAST(XMLAGG(XMLELEMENT(E, TEMP."shipNameVoyage" || ',') ORDER
+                BY TEMP."shipNameVoyage") AS CLOB), ','), '([^,]+)(,\1)+', '\1'))
+                ELSE TO_CHAR(CASE WHEN t.SHIPVOYAGE_ITEM_ID IS NULL THEN NULL ELSE t.SHIP_NAME || '_' || TDSI.VOYAGE END)
+                END LIKE #{voyage_like}
+            </if>
+        </if>
+        <if test="shipName == null and voyage!=null and voyage !=''">
+            <bind name="voyage_like" value="'%'+voyage+'%'"/>
+            HAVING CASE WHEN TBT.TYPE IN ('集港', '拆箱集港')
+            THEN TO_CHAR(REGEXP_REPLACE(RTRIM(XMLCAST(XMLAGG(XMLELEMENT(E, TEMP."shipNameVoyage" || ',') ORDER
+            BY TEMP."shipNameVoyage") AS CLOB), ','), '([^,]+)(,\1)+', '\1'))
+            ELSE TO_CHAR(CASE WHEN t.SHIPVOYAGE_ITEM_ID IS NULL THEN NULL ELSE t.SHIP_NAME || '_' || TDSI.VOYAGE END)
+            END LIKE #{voyage_like}
+        </if>
+        ORDER BY
+        CREATE_TIME DESC
+        ) TEMP_TABLE
+        order by ORDER_NUM DESC NULLS LAST
+    </select>
+
+    <select id="cursorListCargoInfo" resultType="com.yy.ppm.business.bean.dto.cargoInfo.ExportDTO" parameterType="com.yy.ppm.business.bean.dto.TBusCargoInfoSearchDTO">
+        SELECT
+        t.ID,
+        t.SHIPVOYAGE_ID,
+        t.SHIPVOYAGE_ITEM_ID,
+        t.SCN,
+        t.SHIP_NAME,
+        t.CARGO_INFO_NO,
+        t.CARGO_OWNER_ID,
+        t.CARGO_OWNER_NAME,
+        t.CARGO_AGENT_ID,
+        t.CARGO_AGENT_NAME,
+        t.CARGO_CODE,
+        t.CARGO_NAME,
+        t.TRADE_TYPE,
+        t.PACKING_CODE,
+        t.PACKING_NAME,
+        t.COMPANY_ID,
+        t.COMPANY_NAME,
+        t.PARENT_ID,
+        t.ROOT_ID,
+        t.QUANTITY,
+        t.TON,
+        t.RIGHTS_QUANTITY,
+        t.SURPLUS_RIGHTS_QUANTITY,
+        t.IS_CLEAR,
+        CASE WHEN t.IS_CLEAR = '1' THEN '是' ELSE '否' END "isClearLabel",
+        t.CLEAR_BY,
+        t.CLEAR_BY_NAME,
+        t.CLEAR_DATE,
+        t.CREATE_BY,
+        t.CREATE_BY_NAME,
+        t.CREATE_TIME,
+        t.UPDATE_BY,
+        t.UPDATE_BY_NAME,
+        t.UPDATE_TIME,
+        t.CONTRACT_CODE,
+        t.VOYAGE,
+        t.RESIDUE_STORAGE,
+        t.TRANSFER_DATE,
+        m.TALLY,
+        REGEXP_REPLACE(
+        LISTAGG(DECODE(TFBCP.STATUS, '1', '正常', '2', '作废', ''), ',') WITHIN GROUP ( ORDER BY TFBCP.STATUS ),
+        '([^,]+)(,\1)+', '\1') "prePayStatus",
+        REGEXP_REPLACE(LISTAGG(TFBCP.PREPAYMENT_CODE, ',') WITHIN GROUP ( ORDER BY TFBCP.PREPAYMENT_CODE ),
+        '([^,]+)(,\1)+', '\1') "prePayNo",
+        CASE WHEN TBT.TYPE IN ('集港', '拆箱集港')
+        THEN TO_CHAR(REGEXP_REPLACE(RTRIM(XMLCAST(XMLAGG(XMLELEMENT(E, TEMP."shipNameVoyage" || ',') ORDER
+        BY TEMP."shipNameVoyage") AS CLOB), ','), '([^,]+)(,\1)+', '\1'))
+        ELSE TO_CHAR(CASE WHEN t.SHIPVOYAGE_ITEM_ID IS NULL THEN NULL ELSE t.SHIP_NAME || '_' || TDSI.VOYAGE END)
+        END "shipNameVoyage",
+        CASE WHEN t.IS_TOS IS NOT NULL THEN t.IS_TOS ELSE TBT.TYPE END "type",
+        m.WORK_TYPE
+        FROM
+        T_BUS_CARGO_INFO t
+        LEFT JOIN M_CARGO m ON t.CARGO_CODE = m.CARGO_CODE
+        LEFT JOIN T_BUS_TRUST TBT ON t.TRUST_ID = TBT.ID
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM TDSI ON t.SHIPVOYAGE_ITEM_ID = TDSI.ID
+        LEFT JOIN T_FD_BANK_CUSTOMER_PREPAYMENT TFBCP ON TFBCP.STATUS = '1' AND TFBCP.BUS_TRUST_ID = t.TRUST_ID
+        LEFT JOIN (SELECT TBTC.ID, TBTC.CARGO_INFO_ID, TBT2.SHIPVOYAGE_ITEM_ID, CASE WHEN TBT2.SHIPVOYAGE_ITEM_ID IS
+        NULL THEN NULL ELSE TBT2.SHIP_NAME || '_' || TDSI2.VOYAGE END "shipNameVoyage" FROM T_BUS_TRUST_CARGO TBTC JOIN
+        T_BUS_TRUST TBT2 ON TBTC.TRUST_ID = TBT2.ID AND TBT2.TYPE = '装船' LEFT JOIN T_DIS_SHIPVOYAGE_ITEM TDSI2 ON
+        TBT2.SHIPVOYAGE_ITEM_ID = TDSI2.ID GROUP BY TBTC.ID, TBTC.CARGO_INFO_ID, TBT2.SHIPVOYAGE_ITEM_ID,
+        TBT2.SHIP_NAME, TDSI2.VOYAGE ) TEMP ON t.ID = TEMP.CARGO_INFO_ID
+        <where>
+            <if test="shipvoyageItemId != null">
+                AND CASE WHEN TBT.TYPE IN ('集港', '拆箱集港') THEN TEMP.SHIPVOYAGE_ITEM_ID ELSE t.SHIPVOYAGE_ITEM_ID
+                END = #{shipvoyageItemId}
+            </if>
+            <if test="shipvoyageId != null">
+                and t.SHIPVOYAGE_ID = #{shipvoyageId}
+            </if>
+            <if test="scn != null and scn != ''">
+                and t.SCN = #{scn}
+            </if>
+
+            <if test="cargoInfoNo != null and cargoInfoNo != ''">
+                <bind name="cargoInfoNo_like" value="'%'+cargoInfoNo+'%'"/>
+                and t.CARGO_INFO_NO LIKE #{cargoInfoNo_like}
+            </if>
+            <if test="contractCode != null and contractCode != ''">
+                <bind name="contractCode_like" value="'%'+contractCode+'%'"/>
+                and t.CONTRACT_CODE LIKE #{contractCode_like}
+            </if>
+            <if test="cargoOwnerId != null">
+                and t.CARGO_OWNER_ID = #{cargoOwnerId}
+            </if>
+            <if test="cargoOwnerName != null and cargoOwnerName != ''">
+                and t.CARGO_OWNER_NAME = #{cargoOwnerName}
+            </if>
+            <if test="cargoAgentId != null">
+                and t.CARGO_AGENT_ID = #{cargoAgentId}
+            </if>
+            <if test="cargoAgentName != null and cargoAgentName != ''">
+                and t.CARGO_AGENT_NAME = #{cargoAgentName}
+            </if>
+            <if test="cargoCode != null and cargoCode != ''">
+                and t.CARGO_CODE = #{cargoCode}
+            </if>
+            <if test="cargoName != null and cargoName != ''">
+                <bind name="cargoNameLike" value="'%' + cargoName + '%'"/>
+                and t.CARGO_NAME LIKE #{cargoNameLike,jdbcType=VARCHAR}
+            </if>
+            <if test="tradeType != null and tradeType != ''">
+                and t.TRADE_TYPE = #{tradeType}
+            </if>
+            <if test="packingCode != null and packingCode != ''">
+                and t.PACKING_CODE = #{packingCode}
+            </if>
+            <if test="packingName != null and packingName != ''">
+                and t.PACKING_NAME = #{packingName}
+            </if>
+            <if test="companyId != null">
+                and t.COMPANY_ID = #{companyId}
+            </if>
+            <if test="companyName != null and companyName != ''">
+                and t.COMPANY_NAME = #{companyName}
+            </if>
+            <if test="parentId != null">
+                and t.PARENT_ID = #{parentId}
+            </if>
+            <if test="rootId != null">
+                and t.ROOT_ID = #{rootId}
+            </if>
+            <if test="isClear != null">
+                and t.IS_CLEAR = #{isClear} OR IS_CLEAR IS NULL
+            </if>
+            <if test="workType != null and workType != ''">
+                and m.WORK_TYPE = #{workType,jdbcType=VARCHAR}
+            </if>
+        </where>
+        GROUP BY
+        t.ID,
+        t.SHIPVOYAGE_ID,
+        t.SHIPVOYAGE_ITEM_ID,
+        t.SCN,
+        t.SHIP_NAME,
+        t.CARGO_INFO_NO,
+        t.CARGO_OWNER_ID,
+        t.CARGO_OWNER_NAME,
+        t.CARGO_AGENT_ID,
+        t.CARGO_AGENT_NAME,
+        t.CARGO_CODE,
+        t.CARGO_NAME,
+        t.TRADE_TYPE,
+        t.PACKING_CODE,
+        t.PACKING_NAME,
+        t.COMPANY_ID,
+        t.COMPANY_NAME,
+        t.PARENT_ID,
+        t.ROOT_ID,
+        t.QUANTITY,
+        t.TON,
+        t.RIGHTS_QUANTITY,
+        t.SURPLUS_RIGHTS_QUANTITY,
+        t.IS_CLEAR,
+        t.CLEAR_BY,
+        t.CLEAR_BY_NAME,
+        t.CLEAR_DATE,
+        t.CREATE_BY,
+        t.CREATE_BY_NAME,
+        t.CREATE_TIME,
+        t.UPDATE_BY,
+        t.UPDATE_BY_NAME,
+        t.UPDATE_TIME,
+        t.CONTRACT_CODE,
+        t.VOYAGE,
+        t.RESIDUE_STORAGE,
+        t.TRANSFER_DATE,
+        m.TALLY,
+        TBT.TYPE,
+        t.SHIPVOYAGE_ITEM_ID,
+        t.SHIP_NAME,
+        TDSI.VOYAGE,
+        t.IS_TOS,
+        m.WORK_TYPE
+        ORDER BY
+        CREATE_TIME DESC
+    </select>
+
+    <select id="listHandoverlistTon" resultType="java.util.Map">
+        SELECT TBCI.ID "id", TBH.LOAD_UNLOAD "loadUnload", NVL(TBH.TON, 0) "handoverlistTon"
+        FROM T_BUS_CARGO_INFO TBCI
+        JOIN T_BUS_HANDOVERLIST TBH ON TBCI.ID = TBH.CARGO_INFO_ID
+        WHERE TBCI.ID IN
+        <foreach collection="ids" item="id" separator=", " open="(" close=")">
+            #{id, jdbcType=BIGINT}
+        </foreach>
+    </select>
+
+    <select id="listTrustCargoTon" resultType="java.util.Map">
+        SELECT TBCI.ID "id", SUM(TEMP.TRUST_CARGO_TON) "trustCargoTon"
+        FROM T_BUS_CARGO_INFO TBCI
+        JOIN (SELECT TBTC.CARGO_INFO_ID,
+                     TBTC.TON TRUST_CARGO_TON
+                FROM T_BUS_TRUST_CARGO TBTC
+                JOIN T_BUS_TRUST TBT ON TBTC.TRUST_ID = TBT.ID AND TBT.TYPE IN ('集港','拆箱集港','疏港')
+            ) TEMP ON TBCI.ID = TEMP.CARGO_INFO_ID
+        WHERE TBCI.ID IN
+        <foreach collection="ids" item="id" separator=", " open="(" close=")">
+            #{id, jdbcType=BIGINT}
+        </foreach>
+        GROUP BY TBCI.ID
+    </select>
+    <select id="listTrustCargoTonJG" resultType="java.util.Map">
+        SELECT TBCI.ID "id", SUM(TEMP.TRUST_CARGO_TON) "trustCargoTon"
+        FROM T_BUS_CARGO_INFO TBCI
+        JOIN (SELECT TBTC.CARGO_INFO_ID,
+                     TBTC.TON TRUST_CARGO_TON
+                FROM T_BUS_TRUST_CARGO TBTC
+                JOIN T_BUS_TRUST TBT ON TBTC.TRUST_ID = TBT.ID AND TBT.TYPE IN ('集港','拆箱集港')
+            ) TEMP ON TBCI.ID = TEMP.CARGO_INFO_ID
+        WHERE TBCI.ID IN
+        <foreach collection="ids" item="id" separator=", " open="(" close=")">
+            #{id, jdbcType=BIGINT}
+        </foreach>
+        GROUP BY TBCI.ID
+    </select>
+    <select id="listTrustCargoTonSG" resultType="java.util.Map">
+        SELECT TBCI.ID "id", SUM(TEMP.TRUST_CARGO_TON) "trustCargoTon"
+        FROM T_BUS_CARGO_INFO TBCI
+        JOIN (SELECT TBTC.CARGO_INFO_ID,
+                     TBTC.TON TRUST_CARGO_TON
+                FROM T_BUS_TRUST_CARGO TBTC
+                JOIN T_BUS_TRUST TBT ON TBTC.TRUST_ID = TBT.ID AND TBT.TYPE IN ('疏港')
+            ) TEMP ON TBCI.ID = TEMP.CARGO_INFO_ID
+        WHERE TBCI.ID IN
+        <foreach collection="ids" item="id" separator=", " open="(" close=")">
+            #{id, jdbcType=BIGINT}
+        </foreach>
+        GROUP BY TBCI.ID
+    </select>
+
+    <select id="listWeightGoodss" resultType="java.util.Map">
+        SELECT TBCI.ID "id", CASE WHEN TEMP2.WEIGHT_GOODS IS NULL THEN 0 ELSE TEMP2.WEIGHT_GOODS END +
+        CASE WHEN TEMP3.WEIGHT_GOODS IS NULL THEN 0 ELSE TEMP3.WEIGHT_GOODS END "weightGoods"
+        FROM T_BUS_CARGO_INFO TBCI
+        LEFT JOIN (SELECT TEMP.CARGO_INFO_ID, SUM(VWI.WEIGHT_GOODS) WEIGHT_GOODS
+        FROM (SELECT TBTC.BUSINESS_NO, TBTC.CARGO_INFO_ID
+        FROM T_BUS_TRUST_CARGO TBTC
+        JOIN T_BUS_TRUST TBT ON TBTC.TRUST_ID = TBT.ID AND TBT.TYPE IN ('集港', '拆箱集港', '疏港')) TEMP
+        JOIN V_WEIGHT_INFO VWI ON VWI.IS_OLD = '否' AND TEMP.BUSINESS_NO = VWI.PLAN_NO
+        GROUP BY TEMP.CARGO_INFO_ID) TEMP2 ON TBCI.ID = TEMP2.CARGO_INFO_ID
+        LEFT JOIN(SELECT VWI2.CARGO_INFO_ID, SUM(VWI2.WEIGHT_GOODS) WEIGHT_GOODS
+        FROM V_WEIGHT_INFO VWI2
+        WHERE VWI2.IS_OLD = '是' AND VWI2.PLAN_TYPE IN ('集港', '拆箱集港', '疏港')
+        GROUP BY VWI2.CARGO_INFO_ID) TEMP3 ON TBCI.ID = TEMP3.CARGO_INFO_ID
+        WHERE TBCI.ID IN
+        <foreach collection="ids" item="id" separator=", " open="(" close=")">
+            #{id, jdbcType=BIGINT}
+        </foreach>
+    </select>
+
+    <select id="listWeightGoodssJG" resultType="java.util.Map">
+        SELECT TBCI.ID "id", CASE WHEN TEMP2.WEIGHT_GOODS IS NULL THEN 0 ELSE TEMP2.WEIGHT_GOODS END +
+        CASE WHEN TEMP3.WEIGHT_GOODS IS NULL THEN 0 ELSE TEMP3.WEIGHT_GOODS END "weightGoods"
+        FROM T_BUS_CARGO_INFO TBCI
+        LEFT JOIN (SELECT TEMP.CARGO_INFO_ID, SUM(VWI.WEIGHT_GOODS) WEIGHT_GOODS
+        FROM (SELECT TBTC.BUSINESS_NO, TBTC.CARGO_INFO_ID
+        FROM T_BUS_TRUST_CARGO TBTC
+        JOIN T_BUS_TRUST TBT ON TBTC.TRUST_ID = TBT.ID AND TBT.TYPE IN ('集港', '拆箱集港')) TEMP
+        JOIN V_WEIGHT_INFO VWI ON VWI.IS_OLD = '否' AND TEMP.BUSINESS_NO = VWI.PLAN_NO
+        GROUP BY TEMP.CARGO_INFO_ID) TEMP2 ON TBCI.ID = TEMP2.CARGO_INFO_ID
+        LEFT JOIN(SELECT VWI2.CARGO_INFO_ID, SUM(VWI2.WEIGHT_GOODS) WEIGHT_GOODS
+        FROM V_WEIGHT_INFO VWI2
+        WHERE VWI2.IS_OLD = '是' AND VWI2.PLAN_TYPE IN ('集港', '拆箱集港')
+        GROUP BY VWI2.CARGO_INFO_ID) TEMP3 ON TBCI.ID = TEMP3.CARGO_INFO_ID
+        WHERE TBCI.ID IN
+        <foreach collection="ids" item="id" separator=", " open="(" close=")">
+            #{id, jdbcType=BIGINT}
+        </foreach>
+    </select>
+
+    <select id="listWeightGoodssSG" resultType="java.util.Map">
+        SELECT TBCI.ID "id", CASE WHEN TEMP2.WEIGHT_GOODS IS NULL THEN 0 ELSE TEMP2.WEIGHT_GOODS END +
+        CASE WHEN TEMP3.WEIGHT_GOODS IS NULL THEN 0 ELSE TEMP3.WEIGHT_GOODS END "weightGoods"
+        FROM T_BUS_CARGO_INFO TBCI
+        LEFT JOIN (SELECT TEMP.CARGO_INFO_ID, SUM(VWI.WEIGHT_GOODS) WEIGHT_GOODS
+        FROM (SELECT TBTC.BUSINESS_NO, TBTC.CARGO_INFO_ID
+        FROM T_BUS_TRUST_CARGO TBTC
+        JOIN T_BUS_TRUST TBT ON TBTC.TRUST_ID = TBT.ID AND TBT.TYPE IN ( '疏港')) TEMP
+        JOIN V_WEIGHT_INFO VWI ON VWI.IS_OLD = '否' AND TEMP.BUSINESS_NO = VWI.PLAN_NO
+        GROUP BY TEMP.CARGO_INFO_ID) TEMP2 ON TBCI.ID = TEMP2.CARGO_INFO_ID
+        LEFT JOIN(SELECT VWI2.CARGO_INFO_ID, SUM(VWI2.WEIGHT_GOODS) WEIGHT_GOODS
+        FROM V_WEIGHT_INFO VWI2
+        WHERE VWI2.IS_OLD = '是' AND VWI2.PLAN_TYPE IN ( '疏港')
+        GROUP BY VWI2.CARGO_INFO_ID) TEMP3 ON TBCI.ID = TEMP3.CARGO_INFO_ID
+        WHERE TBCI.ID IN
+        <foreach collection="ids" item="id" separator=", " open="(" close=")">
+            #{id, jdbcType=BIGINT}
+        </foreach>
+    </select>
+
+    <select id="listReleaseNameTime" resultType="java.util.Map">
+        SELECT TBCI.ID "id",
+        TBT.CREATE_BY_NAME "releaseByName",
+        TO_CHAR(TBT.CREATE_TIME, 'YYYY-MM-DD HH24:MI:SS') "releaseTime"
+        FROM T_BUS_CARGO_INFO TBCI
+        JOIN T_BUS_TRUST_CARGO TBTC ON TBCI.ID = TBTC.CARGO_INFO_ID
+        JOIN T_BUS_TRUST TBT ON (TBTC.TRUST_ID = TBT.ID AND TBCI.TRUST_ID != TBT.ID)
+        WHERE TBCI.ID IN
+        <foreach collection="ids" item="id" separator=", " open="(" close=")">
+            #{id, jdbcType=BIGINT}
+        </foreach>
+        ORDER BY TBCI.ID, TBT.ID, TBT.CREATE_TIME
+    </select>
+
+    <select id="summary" resultType="java.util.Map">
+        with  TMP577 as (SELECT VWI2.PLAN_TYPE, VWI2.CARGO_INFO_ID, SUM(VWI2.WEIGHT_GOODS) WEIGHT_GOODS
+        FROM V_WEIGHT_INFO VWI2
+        WHERE VWI2.IS_OLD = '是'
+        GROUP BY VWI2.CARGO_INFO_ID, VWI2.PLAN_TYPE ),
+        TMP399 as (SELECT TBTC.CARGO_INFO_ID, SUM(TBTC.TON) TRUST_CARGO_TON,TBT.TYPE TYPE
+        FROM T_BUS_TRUST_CARGO TBTC
+        JOIN T_BUS_TRUST TBT ON TBTC.TRUST_ID = TBT.ID group by TBTC.CARGO_INFO_ID,TBT.TYPE )
+
+        SELECT SUM(CASE WHEN (CASE WHEN t.IS_TOS IS NOT NULL THEN t.IS_TOS ELSE TBT.TYPE END) = '卸船' THEN TEMP6.TON ELSE TEMP2.TON END) "handoverlistTon",
+        SUM(TEMP3.TRUST_CARGO_TON) "trustCargoTonJG",
+        SUM(TEMP99.TRUST_CARGO_TON) "trustCargoTonSG",
+        SUM( CASE WHEN TEMP5.WEIGHT_GOODS IS NULL THEN 0 ELSE TEMP5.WEIGHT_GOODS END + CASE WHEN TEMP4.WEIGHT_GOODS IS NULL THEN 0 ELSE TEMP4.WEIGHT_GOODS END) "weightGoodsJG",
+        SUM( CASE WHEN TEMP88.WEIGHT_GOODS IS NULL THEN 0 ELSE TEMP88.WEIGHT_GOODS END  + CASE WHEN TEMP77.WEIGHT_GOODS IS NULL THEN 0 ELSE TEMP77.WEIGHT_GOODS END) "weightGoodsSG",
+        (CASE WHEN SUM(TEMP3.TRUST_CARGO_TON) IS NULL THEN 0 ELSE SUM(TEMP3.TRUST_CARGO_TON) END) -
+        (CASE WHEN SUM( CASE WHEN TEMP5.WEIGHT_GOODS IS NULL THEN 0 ELSE TEMP5.WEIGHT_GOODS END + CASE WHEN TEMP4.WEIGHT_GOODS IS NULL THEN 0  ELSE TEMP4.WEIGHT_GOODS END) IS NULL THEN 0 ELSE SUM( CASE WHEN TEMP5.WEIGHT_GOODS IS NULL THEN 0 ELSE TEMP5.WEIGHT_GOODS END  + CASE WHEN TEMP4.WEIGHT_GOODS IS NULL THEN 0  ELSE TEMP4.WEIGHT_GOODS END) END ) "balanceTonJG",
+        (CASE WHEN SUM(TEMP99.TRUST_CARGO_TON) IS NULL THEN 0 ELSE SUM(TEMP99.TRUST_CARGO_TON) END) -
+        (CASE WHEN SUM(CASE WHEN TEMP88.WEIGHT_GOODS IS NULL THEN 0 ELSE TEMP88.WEIGHT_GOODS END  + CASE WHEN TEMP77.WEIGHT_GOODS IS NULL THEN 0 ELSE TEMP77.WEIGHT_GOODS END) IS NULL THEN 0 ELSE SUM(CASE WHEN TEMP88.WEIGHT_GOODS IS NULL THEN 0ELSE TEMP88.WEIGHT_GOODS END + CASE WHEN TEMP77.WEIGHT_GOODS IS NULL THEN 0  ELSE TEMP77.WEIGHT_GOODS END) END ) "balanceTonSG",
+        SUM(CASE
+        WHEN t.IS_CLEAR = '0' THEN tppss.balancePortStorageTon
+        WHEN t.IS_CLEAR = '1' THEN 0 END  ) "balancePortStorageTon"
+        FROM
+        T_BUS_CARGO_INFO t
+        LEFT JOIN M_CARGO m ON t.CARGO_CODE = m.CARGO_CODE
+        <if test="businessNo != null and businessNo != ''">
+            LEFT JOIN T_BUS_TRUST_CARGO TBTC ON t.ID = TBTC.CARGO_INFO_ID
+        </if>
+        LEFT JOIN T_BUS_TRUST TBT ON t.TRUST_ID = TBT.ID
+        LEFT JOIN (select CARGO_INFO_ID,sum(ton) balancePortStorageTon FROM T_PRD_PORT_STORAGE TPPS
+        WHERE TPPS.CLEAN_MASS_SIGN = '0' GROUP BY CARGO_INFO_ID) tppss on tppss.CARGO_INFO_ID = t.id
+        <!--LEFT JOIN (SELECT TBTC.ID, TBTC.CARGO_INFO_ID, TBT2.SHIPVOYAGE_ITEM_ID, CASE WHEN TBT2.SHIPVOYAGE_ITEM_ID IS
+                NULL THEN NULL ELSE TBT2.SHIP_NAME || '_' || TDSI2.VOYAGE END "shipNameVoyage"
+                FROM T_BUS_TRUST_CARGO TBTC
+                    JOIN T_BUS_TRUST TBT2 ON TBTC.TRUST_ID = TBT2.ID AND TBT2.TYPE = '装船'
+                    LEFT JOIN T_DIS_SHIPVOYAGE_ITEM TDSI2 ON TBT2.SHIPVOYAGE_ITEM_ID = TDSI2.ID
+                GROUP BY TBTC.ID, TBTC.CARGO_INFO_ID, TBT2.SHIPVOYAGE_ITEM_ID,TBT2.SHIP_NAME, TDSI2.VOYAGE
+            ) TEMP ON t.ID = TEMP.CARGO_INFO_ID-->
+
+        LEFT JOIN (SELECT CARGO_INFO_ID, SUM(TON) TON
+                    FROM T_BUS_HANDOVERLIST GROUP BY CARGO_INFO_ID) TEMP2 ON t.ID = TEMP2.CARGO_INFO_ID
+        LEFT JOIN (SELECT CARGO_INFO_ID, SUM(CASE WHEN LOAD_UNLOAD = '卸' THEN TON ELSE 0 END) TON
+                    FROM T_BUS_HANDOVERLIST GROUP BY CARGO_INFO_ID) TEMP6 ON t.ID = TEMP6.CARGO_INFO_ID
+
+        LEFT JOIN (SELECT TMP399.CARGO_INFO_ID, SUM(TMP399.TRUST_CARGO_TON) TRUST_CARGO_TON
+                    FROM TMP399 where TMP399.TYPE IN ('集港','拆箱集港')
+                    GROUP BY TMP399.CARGO_INFO_ID) TEMP3 ON t.ID = TEMP3.CARGO_INFO_ID
+        LEFT JOIN (SELECT TMP399.CARGO_INFO_ID, SUM(TMP399.TRUST_CARGO_TON) TRUST_CARGO_TON
+                    FROM TMP399 where TMP399.TYPE = '疏港'
+                    GROUP BY TMP399.CARGO_INFO_ID) TEMP99 ON t.ID = TEMP99.CARGO_INFO_ID
+        LEFT JOIN (SELECT TEMP.CARGO_INFO_ID, SUM(VWI.WEIGHT_GOODS) WEIGHT_GOODS
+                    FROM (SELECT TBTC.BUSINESS_NO, TBTC.CARGO_INFO_ID
+                    FROM T_BUS_TRUST_CARGO TBTC
+                    JOIN T_BUS_TRUST TBT ON TBTC.TRUST_ID = TBT.ID AND TBT.TYPE IN ('集港', '拆箱集港')) TEMP
+                    JOIN V_WEIGHT_INFO VWI ON VWI.IS_OLD = '否' AND TEMP.BUSINESS_NO = VWI.PLAN_NO
+                    GROUP BY TEMP.CARGO_INFO_ID) TEMP4 ON t.ID = TEMP4.CARGO_INFO_ID
+        LEFT JOIN (SELECT TEMP.CARGO_INFO_ID, SUM(VWI.WEIGHT_GOODS) WEIGHT_GOODS
+                    FROM (SELECT TBTC.BUSINESS_NO, TBTC.CARGO_INFO_ID
+                    FROM T_BUS_TRUST_CARGO TBTC
+                    JOIN T_BUS_TRUST TBT ON TBTC.TRUST_ID = TBT.ID AND TBT.TYPE IN ('疏港')) TEMP
+                    JOIN V_WEIGHT_INFO VWI ON VWI.IS_OLD = '否' AND TEMP.BUSINESS_NO = VWI.PLAN_NO
+                    GROUP BY TEMP.CARGO_INFO_ID) TEMP88 ON t.ID = TEMP88.CARGO_INFO_ID
+        LEFT JOIN (select tmp577.CARGO_INFO_ID,sum(tmp577.WEIGHT_GOODS) WEIGHT_GOODS FROM  TMP577
+                  where TMP577.PLAN_TYPE  in ('集港' , '拆箱集港') group by TMP577.CARGO_INFO_ID ) TEMP5 ON t.ID = TEMP5.CARGO_INFO_ID
+        LEFT JOIN(select TMP577.CARGO_INFO_ID,sum(TMP577.WEIGHT_GOODS) WEIGHT_GOODS FROM  TMP577
+                  where TMP577.PLAN_TYPE  = '疏港' group by TMP577.CARGO_INFO_ID ) TEMP77 ON t.ID = TEMP77.CARGO_INFO_ID
+        <where>
+            <if test="shipvoyageItemId != null">
+                AND CASE WHEN TBT.TYPE IN ('集港', '拆箱集港') THEN TEMP.SHIPVOYAGE_ITEM_ID ELSE t.SHIPVOYAGE_ITEM_ID END = #{shipvoyageItemId}
+            </if>
+            <if test="shipvoyageId != null">
+                and t.SHIPVOYAGE_ID = #{shipvoyageId}
+            </if>
+            <if test="scn != null and scn != ''">
+                and t.SCN = #{scn}
+            </if>
+
+            <if test="cargoInfoNo != null and cargoInfoNo != ''">
+                <bind name="cargoInfoNo_like" value="'%'+cargoInfoNo+'%'"/>
+                and t.CARGO_INFO_NO LIKE #{cargoInfoNo_like}
+            </if>
+            <if test="contractCode != null and contractCode != ''">
+                <bind name="contractCode_like" value="'%'+contractCode+'%'"/>
+                and t.CONTRACT_CODE LIKE #{contractCode_like}
+            </if>
+            <if test="cargoOwnerId != null">
+                and t.CARGO_OWNER_ID = #{cargoOwnerId}
+            </if>
+            <if test="cargoOwnerName != null and cargoOwnerName != ''">
+                and t.CARGO_OWNER_NAME = #{cargoOwnerName}
+            </if>
+            <if test="cargoAgentId != null">
+                and t.CARGO_AGENT_ID = #{cargoAgentId}
+            </if>
+            <if test="cargoAgentName != null and cargoAgentName != ''">
+                and t.CARGO_AGENT_NAME = #{cargoAgentName}
+            </if>
+            <if test="businessNo != null and businessNo != ''">
+                <bind name="businessNoLike" value="'%' + businessNo + '%'"/>
+                and TBTC.BUSINESS_NO LIKE #{businessNoLike}
+            </if>
+            <if test="cargoCode != null and cargoCode != ''">
+                and t.CARGO_CODE = #{cargoCode}
+            </if>
+            <if test="cargoName != null and cargoName != ''">
+                <bind name="cargoNameLike" value="'%' + cargoName + '%'"/>
+                and t.CARGO_NAME LIKE #{cargoNameLike,jdbcType=VARCHAR}
+            </if>
+            <if test="tradeType != null and tradeType != ''">
+                and t.TRADE_TYPE = #{tradeType}
+            </if>
+            <if test="packingCode != null and packingCode != ''">
+                and t.PACKING_CODE = #{packingCode}
+            </if>
+            <if test="packingName != null and packingName != ''">
+                and t.PACKING_NAME = #{packingName}
+            </if>
+            <if test="companyId != null">
+                and t.COMPANY_ID = #{companyId}
+            </if>
+            <if test="companyName != null and companyName != ''">
+                and t.COMPANY_NAME = #{companyName}
+            </if>
+            <if test="parentId != null">
+                and t.PARENT_ID = #{parentId}
+            </if>
+            <if test="rootId != null">
+                and t.ROOT_ID = #{rootId}
+            </if>
+            <if test="isClear != null">
+                and t.IS_CLEAR = #{isClear} OR IS_CLEAR IS NULL
+            </if>
+            <if test="workType != null and workType != ''">
+                and m.WORK_TYPE = #{workType,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.business.bean.dto.TBusCargoInfoDTO" parameterType="com.yy.ppm.business.bean.dto.TBusCargoInfoSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.business.bean.dto.TBusCargoInfoDTO" parameterType="java.lang.Long">
+        SELECT
+            ID,
+            SHIPVOYAGE_ID,
+            SHIPVOYAGE_ITEM_ID,
+            SCN,
+            SHIP_NAME,
+            CARGO_INFO_NO,
+            CARGO_OWNER_ID,
+            CARGO_OWNER_NAME,
+            CARGO_AGENT_ID,
+            CARGO_AGENT_NAME,
+            CARGO_CODE,
+            CARGO_NAME,
+            TRADE_TYPE,
+            PACKING_CODE,
+            PACKING_NAME,
+            COMPANY_ID,
+            COMPANY_NAME,
+            PARENT_ID,
+            ROOT_ID,
+            QUANTITY,
+            TON,
+            RIGHTS_QUANTITY,
+            SURPLUS_RIGHTS_QUANTITY,
+            IS_CLEAR,
+            CLEAR_BY,
+            CLEAR_BY_NAME,
+            CLEAR_DATE,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME,
+            RESIDUE_STORAGE,
+            TRANSFER_DATE,
+            VOYAGE,
+            TRUST_ID
+        FROM
+            T_BUS_CARGO_INFO
+        <where>
+            id = #{id}
+        </where>
+    </select>
+
+    <select id="getCargoVoyageById" resultType="com.yy.ppm.business.bean.dto.TBusCargoInfoDTO" parameterType="java.lang.Long">
+        SELECT
+            (CASE WHEN TBCI.SHIP_NAME IS NOT NULL AND TDSI.VOYAGE IS NOT NULL
+            THEN TO_CHAR(TBCI.SHIP_NAME||'_'||TDSI.VOYAGE)
+            ELSE ''
+            END) SHIP_NAME_VOYAGE,
+            TDSI.IMP_EXP,
+            TDSI.LOAD_UNLOAD,
+            TDSI.VOYAGE,
+            TBT.TYPE TRUST_TYPE,
+            TDS.BERTH_TIME,
+            TBCI.ID,
+            TBCI.SHIPVOYAGE_ID,
+            TBCI.SHIPVOYAGE_ITEM_ID,
+            TBCI.SCN,
+            TBCI.SHIP_NAME,
+            TBCI.CARGO_INFO_NO,
+            TBCI.CARGO_OWNER_ID,
+            TBCI.CARGO_OWNER_NAME,
+            TBCI.CARGO_AGENT_ID,
+            TBCI.CARGO_AGENT_NAME,
+            TBCI.CARGO_CODE,
+            TBCI.CARGO_NAME,
+            TBCI.TRADE_TYPE,
+            TBCI.PACKING_CODE,
+            TBCI.PACKING_NAME,
+            TBCI.COMPANY_ID,
+            TBCI.COMPANY_NAME,
+            TBCI.PARENT_ID,
+            TBCI.ROOT_ID,
+            TBCI.QUANTITY,
+            TBCI.TON,
+            TBCI.RIGHTS_QUANTITY,
+            TBCI.SURPLUS_RIGHTS_QUANTITY,
+            TBCI.IS_CLEAR,
+            TBCI.CLEAR_BY,
+            TBCI.CLEAR_BY_NAME,
+            TBCI.CLEAR_DATE,
+            TBCI.CREATE_BY,
+            TBCI.CREATE_BY_NAME,
+            TBCI.CREATE_TIME,
+            TBCI.UPDATE_BY,
+            TBCI.UPDATE_BY_NAME,
+            TBCI.UPDATE_TIME,
+            TBCI.RESIDUE_STORAGE,
+            TBCI.TRANSFER_DATE,
+            TBCI.TRUST_ID
+        FROM T_BUS_CARGO_INFO TBCI
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM TDSI ON TBCI.SHIPVOYAGE_ITEM_ID = TDSI.ID
+        LEFT JOIN T_DIS_SHIPVOYAGE TDS ON TDS.ID = TDSI.SHIPVOYAGE_ID
+        LEFT JOIN T_BUS_TRUST TBT ON TBT.ID = TBCI.TRUST_ID
+        <where>
+            TBCI.id = #{id}
+        </where>
+    </select>
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.business.bean.dto.TBusCargoInfoDTO">
+        INSERT INTO T_BUS_CARGO_INFO(
+            ID,
+            SHIPVOYAGE_ID,
+            SHIPVOYAGE_ITEM_ID,
+            SCN,
+            SHIP_NAME,
+            CARGO_INFO_NO,
+            CARGO_OWNER_ID,
+            CARGO_OWNER_NAME,
+            CARGO_AGENT_ID,
+            CARGO_AGENT_NAME,
+            CARGO_CODE,
+            CARGO_NAME,
+            TRADE_TYPE,
+            PACKING_CODE,
+            PACKING_NAME,
+            COMPANY_ID,
+            COMPANY_NAME,
+            PARENT_ID,
+            ROOT_ID,
+            QUANTITY,
+            TON,
+            RIGHTS_QUANTITY,
+            SURPLUS_RIGHTS_QUANTITY,
+            IS_CLEAR,
+            CLEAR_BY,
+            CLEAR_BY_NAME,
+            CLEAR_DATE,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            SOURCE,
+            TRUST_ID,
+            VOYAGE,
+            STORAGE_DATE,
+            RESIDUE_STORAGE,
+            TRANSFER_DATE
+        )VALUES (
+            #{id, jdbcType=BIGINT},
+            #{shipvoyageId, jdbcType=BIGINT},
+            #{shipvoyageItemId, jdbcType=BIGINT},
+            #{scn, jdbcType=VARCHAR},
+            #{shipName, jdbcType=VARCHAR},
+            #{cargoInfoNo, jdbcType=VARCHAR},
+            #{cargoOwnerId, jdbcType=BIGINT},
+            #{cargoOwnerName, jdbcType=VARCHAR},
+            #{cargoAgentId, jdbcType=BIGINT},
+            #{cargoAgentName, jdbcType=VARCHAR},
+            #{cargoCode, jdbcType=VARCHAR},
+            #{cargoName, jdbcType=VARCHAR},
+            #{tradeType, jdbcType=VARCHAR},
+            #{packingCode, jdbcType=VARCHAR},
+            #{packingName, jdbcType=VARCHAR},
+            #{companyId, jdbcType=BIGINT},
+            #{companyName, jdbcType=VARCHAR},
+            #{parentId, jdbcType=BIGINT},
+            #{rootId, jdbcType=BIGINT},
+            #{quantity, jdbcType=BIGINT},
+            #{ton,jdbcType=DECIMAL},
+            #{rightsQuantity, jdbcType=DECIMAL},
+            #{surplusRightsQuantity, jdbcType=DECIMAL},
+            '0',
+            #{clearBy, jdbcType=BIGINT},
+            #{clearByName, jdbcType=VARCHAR},
+            #{clearDate, jdbcType=DATE},
+            #{loginUserId, jdbcType=BIGINT},
+            #{loginUserName, jdbcType=VARCHAR},
+            #{now},
+            #{source, jdbcType=VARCHAR},
+            #{trustId, jdbcType=BIGINT},
+            #{voyage, jdbcType=VARCHAR},
+            #{storageDate, jdbcType=DATE},
+            #{residueStorage, jdbcType=INTEGER},
+            #{transferDate, jdbcType=DATE}
+        )
+    </insert>
+    <!-- 修改 -->
+   <update id="update" parameterType="com.yy.ppm.business.bean.dto.TBusCargoInfoDTO">
+        UPDATE
+            T_BUS_CARGO_INFO
+        SET
+            SHIPVOYAGE_ID = #{shipvoyageId,jdbcType=BIGINT},
+            SHIPVOYAGE_ITEM_ID = #{shipvoyageItemId,jdbcType=BIGINT},
+            SCN = #{scn,jdbcType=VARCHAR},
+            SHIP_NAME = #{shipName,jdbcType=VARCHAR},
+            CARGO_OWNER_ID = #{cargoOwnerId,jdbcType=BIGINT},
+            CARGO_OWNER_NAME = #{cargoOwnerName,jdbcType=VARCHAR},
+            CARGO_AGENT_ID = #{cargoAgentId,jdbcType=BIGINT},
+            CARGO_AGENT_NAME = #{cargoAgentName,jdbcType=VARCHAR},
+            CARGO_CODE = #{cargoCode,jdbcType=VARCHAR},
+            CARGO_NAME = #{cargoName,jdbcType=VARCHAR},
+            TRADE_TYPE = #{tradeType,jdbcType=VARCHAR},
+            PACKING_CODE = #{packingCode,jdbcType=VARCHAR},
+            PACKING_NAME = #{packingName,jdbcType=VARCHAR},
+            COMPANY_ID = #{companyId,jdbcType=BIGINT},
+            COMPANY_NAME = #{companyName,jdbcType=VARCHAR},
+            PARENT_ID = #{parentId,jdbcType=BIGINT},
+            ROOT_ID = #{rootId,jdbcType=BIGINT},
+            QUANTITY = #{quantity,jdbcType=BIGINT},
+            TON = #{ton,jdbcType=DECIMAL},
+            RIGHTS_QUANTITY = #{rightsQuantity,jdbcType=DECIMAL},
+            SURPLUS_RIGHTS_QUANTITY = #{surplusRightsQuantity,jdbcType=DECIMAL},
+            IS_CLEAR = #{isClear,jdbcType=VARCHAR},
+            CLEAR_BY = #{clearBy,jdbcType=BIGINT},
+            CLEAR_BY_NAME = #{clearByName,jdbcType=VARCHAR},
+            CLEAR_DATE = #{clearDate,jdbcType=VARCHAR},
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+   <update id="updateIsPrePay" parameterType="com.yy.ppm.business.bean.dto.TBusCargoInfoDTO">
+        UPDATE
+            T_BUS_CARGO_INFO
+        SET
+            IS_PRE_PAY = #{isPrePay,jdbcType=VARCHAR},
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <update id="updateSurplusRightsQuantity" parameterType="com.yy.ppm.business.bean.dto.TBusCargoInfoDTO">
+        UPDATE
+        T_BUS_CARGO_INFO
+        SET
+        SURPLUS_RIGHTS_QUANTITY = #{surplusRightsQuantity,jdbcType=DECIMAL},
+        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+   <!-- 删除 -->
+   <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM
+            T_BUS_CARGO_INFO
+        WHERE
+            id = #{id}
+    </delete>
+
+    <update id="clean">
+        UPDATE
+            T_BUS_CARGO_INFO
+        SET IS_CLEAR        = '1',
+            CLEAR_BY        = #{loginUserId,jdbcType=BIGINT},
+            CLEAR_BY_NAME   = #{loginUserName,jdbcType=VARCHAR},
+            CLEAR_DATE      = #{now,jdbcType=TIMESTAMP},
+            REAL_CLEAR_DATE = #{realClearDate,jdbcType=TIMESTAMP}
+        WHERE ID = #{id, jdbcType=BIGINT}
+    </update>
+
+    <select id="listAllMass" resultType="java.util.Map">
+        SELECT STOREHOUSE_ID "storehouseId",
+               REGION_ID     "regionId",
+               MASS_ID       "massId"
+        FROM T_PRD_PORT_STORAGE_DETAIL
+        WHERE CARGO_INFO_ID = #{cargoInfoId, jdbcType=BIGINT}
+        GROUP BY STOREHOUSE_ID,
+                 REGION_ID,
+                 MASS_ID
+    </select>
+    <select id="getCargoListCountByCargoId" resultType="java.lang.Integer">
+        SELECT
+        COUNT(*)
+         FROM
+          T_BUS_CARGO_INFO_COILNUM
+        WHERE CARGO_INFO_ID = #{id,jdbcType=BIGINT} AND BUSINESS_TYPE = #{businessType}
+    </select>
+    <select id="getQuantityByParentId" resultType="java.lang.Long">
+        SELECT NVL(SUM(QUANTITY),0)
+        FROM T_BUS_CARGO_INFO
+        WHERE PARENT_ID = #{parentId,jdbcType=BIGINT}
+    </select>
+    <select id="getCargoListDataByCargoId" resultType="com.yy.ppm.business.bean.dto.CargoListInfoDTO">
+        SELECT
+        ID,
+        NUM,
+        CARGO_INFO_ID,
+        COIL_NUM,
+        TON,
+        COIL_SIZE1,
+        COIL_SIZE2,
+        STATUS,
+        RECEIVE_ADDRESS,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        WARE_HOUSING_BY,
+        WARE_HOUSING_BY_NAME,
+        WARE_HOUSING_TIME,
+        OUT_BOUND_BY,
+        OUT_BOUND_BY_NAME,
+        OUT_BOUND_TIME
+         FROM
+          T_BUS_CARGO_INFO_COILNUM
+        WHERE CARGO_INFO_ID = #{cargoId,jdbcType=BIGINT} AND BUSINESS_TYPE = #{businessType}
+        ORDER BY NUM
+    </select>
+
+    <resultMap id="listStorageYard" type="java.util.Map">
+        <result column="ID" property="id" jdbcType="BIGINT"/>
+        <result column="PARENT_ID" property="parentId" jdbcType="BIGINT"/>
+        <result column="STORAGE_YARD_NM" property="storageYardNm" jdbcType="VARCHAR"/>
+        <result column="SHORT_CD" property="shortCd" jdbcType="VARCHAR"/>
+        <result column="AREA" property="area" jdbcType="DECIMAL"/>
+        <result column="STORAGE_YARD_TYPE_CD" property="storageYardTypeCd" jdbcType="VARCHAR"/>
+        <result column="IS_INNER_STORAGE_YARD" property="isInnerStorageYard" jdbcType="VARCHAR"/>
+        <result column="UNIT_AREA_TON" property="unitAreaTon" jdbcType="DECIMAL"/>
+        <result column="IS_RENT" property="isRent" jdbcType="VARCHAR"/>
+        <result column="WORK_AREA_CD" property="workAreaCd" jdbcType="VARCHAR"/>
+        <result column="SORT_NUM" property="sortNum" jdbcType="INTEGER"/>
+        <result column="STORAGE_YARD_LEVEL" property="storageYardLevel" jdbcType="VARCHAR"/>
+        <result column="CREATE_BY" property="createBy" jdbcType="BIGINT"/>
+        <result column="CREATE_BY_NAME" property="createByName" jdbcType="VARCHAR"/>
+        <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="UPDATE_BY" property="updateBy" jdbcType="BIGINT"/>
+        <result column="UPDATE_BY_NAME" property="updateByName" jdbcType="VARCHAR"/>
+        <result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="BHT_ID" property="bhtId" jdbcType="BIGINT"/>
+        <result column="IS_CLEARS" property="isClears" jdbcType="VARCHAR" javaType="java.lang.String"/>
+    </resultMap>
+
+    <select id="listStorageYard" resultMap="listStorageYard">
+        SELECT MSY.ID,
+               MSY.PARENT_ID,
+               MSY.STORAGE_YARD_NM,
+               MSY.SHORT_CD,
+               MSY.AREA,
+               MSY.STORAGE_YARD_TYPE_CD,
+               MSY.IS_INNER_STORAGE_YARD,
+               MSY.UNIT_AREA_TON,
+               MSY.IS_RENT,
+               MSY.WORK_AREA_CD,
+               MSY.SORT_NUM,
+               MSY.STORAGE_YARD_LEVEL,
+               MSY.CREATE_BY,
+               MSY.CREATE_BY_NAME,
+               MSY.CREATE_TIME,
+               MSY.UPDATE_BY,
+               MSY.UPDATE_BY_NAME,
+               MSY.UPDATE_TIME,
+               MSY.BHT_ID,
+               REGEXP_REPLACE(RTRIM(XMLCAST(XMLAGG(XMLELEMENT(E, TBCI.IS_CLEAR || ',') ORDER BY TBCI.IS_CLEAR) AS CLOB), ','), '([^,]+)(,\1)+', '\1') "IS_CLEARS"
+        FROM T_PRD_PORT_STORAGE_DETAIL TPPSD
+                 JOIN M_STORAGE_YARD MSY ON TPPSD.MASS_ID = MSY.ID
+                 JOIN T_PRD_PORT_STORAGE_DETAIL TPPSD2 ON MSY.ID = TPPSD2.MASS_ID
+                 JOIN T_BUS_CARGO_INFO TBCI ON TPPSD2.CARGO_INFO_ID = TBCI.ID
+        WHERE TPPSD.CARGO_INFO_ID = #{cargoInfoId,jdbcType=BIGINT}
+        GROUP BY MSY.ID,
+                 MSY.PARENT_ID,
+                 MSY.STORAGE_YARD_NM,
+                 MSY.SHORT_CD,
+                 MSY.AREA,
+                 MSY.STORAGE_YARD_TYPE_CD,
+                 MSY.IS_INNER_STORAGE_YARD,
+                 MSY.UNIT_AREA_TON,
+                 MSY.IS_RENT,
+                 MSY.WORK_AREA_CD,
+                 MSY.SORT_NUM,
+                 MSY.STORAGE_YARD_LEVEL,
+                 MSY.CREATE_BY,
+                 MSY.CREATE_BY_NAME,
+                 MSY.CREATE_TIME,
+                 MSY.UPDATE_BY,
+                 MSY.UPDATE_BY_NAME,
+                 MSY.UPDATE_TIME,
+                 MSY.BHT_ID
+    </select>
+
+    <select id="listStorageSettle" resultType="com.yy.ppm.statement.bean.po.TCostStorageSettlePO">
+        SELECT ID,
+               COMPANY_ID,
+               COMPANY_NAME,
+               SHIPVOYAGE_ID,
+               SHIPVOYAGE_ITEM_ID,
+               CARGO_OWNER_ID,
+               CARGO_OWNER_NAME,
+               CARGO_INFO_ID,
+               HANDOVERLIST_ID,
+               CONTRACT_ID,
+               RATE,
+               FREE_STORAGE_DAYS,
+               AMOUNT,
+               START_DATE,
+               END_DATE,
+               STATUS,
+               REVIEW_BY,
+               REVIEW_BY_NAME,
+               REVIEW_BY_TIME,
+               CREATE_BY,
+               CREATE_BY_NAME,
+               CREATE_TIME,
+               UPDATE_BY,
+               UPDATE_BY_NAME,
+               UPDATE_TIME,
+               CONTRACT_RATE_ID,
+               TAX,
+               TAX_AMOUNT,
+               IS_USE_REDUCE,
+               IS_FINAL,
+               REDUCE_AMOUNT
+        FROM T_COST_STORAGE_SETTLE
+        WHERE IS_FINAL = '1'
+          AND CARGO_INFO_ID = #{cargoInfoId,jdbcType=BIGINT}
+    </select>
+
+    <update id="cancelClean">
+        UPDATE
+            T_BUS_CARGO_INFO
+        SET IS_CLEAR        = '0',
+            CLEAR_BY        = NULL,
+            CLEAR_BY_NAME   = NULL,
+            CLEAR_DATE      = NULL,
+            REAL_CLEAR_DATE = NULL
+        WHERE ID = #{id, jdbcType=BIGINT}
+    </update>
+
+    <update id="cancelDeleteStorageStackPosition">
+        UPDATE M_STORAGE_STACK_POSITION
+        SET DEL_FLAG = '0'
+        WHERE STACK_ID IN
+        <foreach collection="stackIds" close=")" open="(" separator=", " item="stackId">
+            #{stackId,jdbcType=BIGINT}
+        </foreach>
+    </update>
+
+    <delete id="deleteCargoCoilnumByCargoId">
+        DELETE FROM
+          T_BUS_CARGO_INFO_COILNUM
+        WHERE CARGO_INFO_ID = #{id,jdbcType=BIGINT}
+    </delete>
+
+    <insert id="importCargoList">
+        INSERT INTO T_BUS_CARGO_INFO_COILNUM(
+        ID,
+        NUM,
+        CARGO_INFO_ID,
+        COIL_NUM,
+        TON,
+        COIL_SIZE1,
+        COIL_SIZE2,
+        STATUS,
+        BUSINESS_TYPE,
+        RECEIVE_ADDRESS,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME
+        )(
+        <foreach collection="list" open="(" close=")" separator="union all" item="item">
+            SELECT
+            #{item.id, jdbcType=BIGINT},
+            #{item.num, jdbcType=VARCHAR},
+            #{item.cargoInfoId, jdbcType=VARCHAR},
+            #{item.coilNum, jdbcType=VARCHAR},
+            #{item.ton, jdbcType=VARCHAR},
+            #{item.coilSize1, jdbcType=VARCHAR},
+            #{item.coilSize2, jdbcType=VARCHAR},
+            #{item.status, jdbcType=VARCHAR},
+            #{item.businessType, jdbcType=VARCHAR},
+            #{item.receiveAddress, jdbcType=VARCHAR},
+            #{item.loginUserId, jdbcType=BIGINT},
+            #{item.loginUserName, jdbcType=VARCHAR},
+            #{item.now}
+            FROM DUAL
+        </foreach>
+        )
+    </insert>
+    <insert id="importCargoBoxList">
+        INSERT INTO T_BUS_CARGO_INFO_COILNUM(
+        ID,
+        NUM,
+        CARGO_INFO_ID,
+        COIL_NUM,
+        TON,
+        COIL_SIZE1,
+        COIL_SIZE2,
+        STATUS,
+        BUSINESS_TYPE,
+        RECEIVE_ADDRESS,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME
+        )(
+        <foreach collection="list" open="(" close=")" separator="union all" item="item">
+            SELECT
+            #{item.id, jdbcType=BIGINT},
+            #{item.num, jdbcType=VARCHAR},
+            #{item.cargoInfoId, jdbcType=VARCHAR},
+            #{item.coilNum, jdbcType=VARCHAR},
+            #{item.ton, jdbcType=VARCHAR},
+            #{item.coilSize1, jdbcType=VARCHAR},
+            #{item.coilSize2, jdbcType=VARCHAR},
+            #{item.status, jdbcType=VARCHAR},
+            #{item.businessType, jdbcType=VARCHAR},
+            #{item.receiveAddress, jdbcType=VARCHAR},
+            #{item.loginUserId, jdbcType=BIGINT},
+            #{item.loginUserName, jdbcType=VARCHAR},
+            #{item.now}
+            FROM DUAL
+        </foreach>
+        )
+    </insert>
+
+    <select id="getCargoListDataByVoyageItemId" resultType="com.yy.ppm.business.bean.dto.TBusCargoInfoDTO">
+        SELECT
+            ID
+        FROM
+            T_BUS_CARGO_INFO
+        WHERE SHIPVOYAGE_ITEM_ID = #{shipVoyageItemId,jdbcType=BIGINT}
+    </select>
+
+    <select id="getCargoListByCustomerId" resultType="com.yy.ppm.business.bean.dto.TBusCargoInfoDTO" parameterType="java.lang.Long">
+        SELECT TBCI.ID,TBCI.CARGO_NAME,TBCI.IS_CLEAR,CARGO_INFO_NO||'-'||TBCI.CARGO_NAME||'-'
+            ||DECODE(TBCI.SHIPVOYAGE_ITEM_ID,NULL,'',TBCI.SHIP_NAME||'_'||TDSI.VOYAGE||'-')
+            ||TBCI.TRADE_TYPE CARGO_INFO_NAME
+        FROM T_BUS_CARGO_INFO TBCI
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM TDSI ON TBCI.SHIPVOYAGE_ITEM_ID = TDSI.ID
+        WHERE TBCI.IS_CLEAR = '0' AND TBCI.CARGO_OWNER_ID = #{customerId,jdbcType=BIGINT}
+        <if test="shipvoyageItemId != null and shipvoyageItemId != ''">
+            AND (TBCI.SHIPVOYAGE_ITEM_ID = #{shipvoyageItemId,jdbcType=BIGINT} OR TBCI.SHIPVOYAGE_ITEM_ID IS NULL)
+        </if>
+    </select>
+    <select id="getPoundbillList" resultType="java.util.HashMap">
+        SELECT
+        t.UNION_NO,
+        t.WEIGH_IN_DT,
+        t.WEIGH_OUT_DT,
+        t.GOODS_NAME,
+        t.COM_NAME,
+        t.VOYAGE,
+        t.TRUCK_PLATE,
+        CASE
+        translate( t2.TYPE USING NCHAR_CS )
+        WHEN translate( '装船' USING NCHAR_CS ) THEN
+        translate( '倒运' USING NCHAR_CS )
+        WHEN translate( '卸船' USING NCHAR_CS ) THEN
+        translate( '倒运' USING NCHAR_CS ) ELSE translate( t2.TYPE USING NCHAR_CS )
+        END PLAN_TYPE,
+        t.IN_BANG_NO,
+        t.OUT_BANG_NO,
+        t.WEIGHT_ALL,
+        t.WEIGHT_SELF,
+        t.WEIGHT_GOODS,
+        t.CONSIGNOR_NAME,
+        t.CONSIGNEE_NAME,
+        t.AGENT_NAME,
+        t.INV_REM
+        FROM
+        V_WEIGHT_INFO t
+        LEFT JOIN T_BUS_TRUST_CARGO t1 ON t.PLAN_NO = t1.BUSINESS_NO
+        LEFT JOIN T_BUS_TRUST t2 ON t1.TRUST_ID = t2.ID
+        WHERE
+        t.IS_OLD = '否'
+        <if test="cargoInfoId!=null">
+            and t1.CARGO_INFO_ID = #{cargoInfoId}
+        </if>
+        <if test="cargoInfoIds != null and cargoInfoIds.size() > 0">
+            AND t1.CARGO_INFO_ID IN
+            <foreach collection="cargoInfoIds" open="(" separator="," item="id" close=")">
+                #{id, jdbcType=BIGINT}
+            </foreach>
+        </if>
+        <if test="truckPlate!=null">
+            and t.TRUCK_PLATE = #{truckPlate}
+        </if>
+        <if test="shipName!=null">
+            and t.COM_NAME = #{shipName}
+        </if>
+        <if test="voyage!=null">
+            and t.VOYAGE = #{voyage}
+        </if>
+        <if test="unionNo!=null">
+            and t.UNION_NO = #{unionNo}
+        </if>
+        <if test="planNo!=null">
+            and t.PLAN_NO = #{planNo}
+        </if>
+        <if test="startTime!=null">
+            and t.WEIGH_IN_DT >= to_date(#{startTime}, 'yyyy-mm-dd hh24:mi:ss')
+        </if>
+        <if test="endTime!=null">
+            and to_date(#{endTime}, 'yyyy-mm-dd hh24:mi:ss') >= t.WEIGH_OUT_DT
+        </if>
+        UNION ALL
+        SELECT
+        UNION_NO,
+        WEIGH_IN_DT,
+        WEIGH_OUT_DT,
+        GOODS_NAME,
+        COM_NAME,
+        VOYAGE,
+        TRUCK_PLATE,
+        SCN PLAN_TYPE,
+        IN_BANG_NO,
+        OUT_BANG_NO,
+        WEIGHT_ALL,
+        WEIGHT_SELF,
+        WEIGHT_GOODS,
+        CONSIGNOR_NAME,
+        CONSIGNEE_NAME,
+        AGENT_NAME,
+        INV_REM
+        FROM
+        V_WEIGHT_INFO
+        WHERE
+        IS_OLD = '是'
+        <if test="cargoInfoId!=null">
+            and CARGO_INFO_ID = #{cargoInfoId}
+        </if>
+        <if test="cargoInfoIds != null and cargoInfoIds.size() > 0">
+            AND CARGO_INFO_ID IN
+            <foreach collection="cargoInfoIds" open="(" separator="," item="id" close=")">
+                #{id, jdbcType=BIGINT}
+            </foreach>
+        </if>
+        <if test="truckPlate!=null">
+            and TRUCK_PLATE = #{truckPlate}
+        </if>
+        <if test="shipName!=null">
+            and COM_NAME = #{shipName}
+        </if>
+        <if test="voyage!=null">
+            and VOYAGE = #{voyage}
+        </if>
+        <if test="unionNo!=null">
+            and UNION_NO = #{unionNo}
+        </if>
+        <if test="planNo!=null">
+            and PLAN_NO = #{planNo}
+        </if>
+        <if test="startTime!=null">
+            and WEIGH_IN_DT >= to_date(#{startTime}, 'yyyy-mm-dd hh24:mi:ss')
+        </if>
+        <if test="endTime!=null">
+            and to_date(#{endTime}, 'yyyy-mm-dd hh24:mi:ss') >= WEIGH_OUT_DT
+        </if>
+    </select>
+    <select id="getCargoListByCargoId" resultType="com.yy.ppm.business.bean.dto.CargoListInfoDTO">
+       SELECT * FROM  T_BUS_CARGO_INFO_COILNUM
+       WHERE CARGO_INFO_ID = #{cargoInfoId,jdbcType=BIGINT} AND BUSINESS_TYPE = #{businessType}
+    </select>
+    <select id="getCargoBoxListByCargoId" resultType="com.yy.ppm.business.bean.dto.CargoBoxListInfoDTO">
+        SELECT * FROM  T_BUS_CARGO_INFO_COILNUM
+       WHERE CARGO_INFO_ID = #{cargoInfoId,jdbcType=BIGINT} AND BUSINESS_TYPE = #{businessType}
+    </select>
+    <select id="getTrustCargoIdByCargoInfoId" resultType="java.lang.Long">
+    SELECT TBTC.ID
+    FROM T_BUS_CARGO_INFO TBCI
+    LEFT JOIN T_BUS_TRUST_CARGO TBTC on TBCI.ID = TBTC.CARGO_INFO_ID
+    LEFT JOIN T_BUS_TRUST TBT on TBTC.TRUST_ID = TBT.ID
+    WHERE TBT.TYPE IN ('集港','拆箱集港','疏港','陆销') AND
+    TBCI.ID = #{cargoInfoId}
+    </select>
+
+    <select id="getPoundByCargoInfoId" resultType="java.lang.Integer">
+    SELECT COUNT(*)
+    FROM T_BUS_TRUST_CARGO TBTC
+    LEFT JOIN T_BUS_TRUST TBT on TBTC.TRUST_ID = TBT.ID
+    LEFT JOIN WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND WPP ON TBTC.BUSINESS_NO = WPP.PLAN_NO
+    WHERE TBT.TYPE IN ('集港','拆箱集港','疏港','陆销') AND TBTC.CARGO_INFO_ID = #{cargoInfoId}
+    </select>
+
+    <select id="getCargoTransferByCargoInfoId" resultType="java.lang.Integer">
+    SELECT COUNT(*)
+    FROM T_BUS_CARGO_TRANSFER
+    WHERE CARGO_INFO_ID_SOURCE = #{cargoInfoId} or CARGO_INFO_ID_TARGET = #{cargoInfoId}
+    </select>
+
+    <select id="getMixByCargoInfoId" resultType="java.lang.Integer">
+    SELECT COUNT(*)
+    FROM T_BUS_CARGO_MIX_RECORD TBCMR LEFT JOIN T_BUS_CARGO_MIX_DETAIL TBCMD ON TBCMR.ID = TBCMD.MIX_RECORD_ID
+    WHERE TBCMR.CARGO_INFO_ID = #{cargoInfoId} OR TBCMD.CARGO_INFO_ID = #{cargoInfoId}
+    </select>
+
+    <select id="getPortStorageByCargoInfoId" resultType="java.lang.Integer">
+    SELECT COUNT(*)
+    FROM T_PRD_PORT_STORAGE TPPS
+    WHERE TPPS.CLEAN_MASS_SIGN = '0' AND TPPS.CARGO_INFO_ID =#{cargoInfoId}
+    </select>
+    <select id="getRealClearDateById" resultType="java.util.Date">
+        SELECT REAL_CLEAR_DATE FROM T_BUS_CARGO_INFO WHERE ID =#{cargoInfoId}
+    </select>
+    <select id="getFinishTimeById" resultType="java.util.Date">
+    SELECT TDSI.WORK_END_TIME FROM T_BUS_CARGO_INFO  TBCI
+    LEFT JOIN T_DIS_SHIPVOYAGE_ITEM tdsi ON TDSI.id =TBCI.SHIPVOYAGE_ITEM_ID
+    WHERE TBCI.ID =#{cargoInfoId}
+    </select>
+
+     <select id="getRateInfo" resultType="java.util.Map" parameterType="java.lang.Long">
+        SELECT
+            DISTINCT tbr.RATE_CODE_EAS "rateCodeEas" ,
+                     TBR.RATE_NAME_EAS "rateNameEas",
+                     TBCI.CARGO_CODE "cargoCode",
+                     TBCI.CARGO_NAME "cargoName",
+                     MCC.CARGO_CATEGORY_CODE "cargoCategoryCode",
+                     MCC.CARGO_CATEGORY_NAME "cargoCategoryName",
+                     CASE WHEN mc.WORK_TYPE = '1' THEN '件杂'
+                     WHEN mc.WORK_TYPE = '1' THEN '散杂' END "packing"
+        FROM
+            T_BUS_RATE tbr
+            LEFT JOIN T_BUS_CARGO_INFO tbci ON TBCI.CARGO_CODE = TBR.CARGO_CODE
+            LEFT JOIN M_CARGO MC ON MC.CARGO_CODE = TBCI.CARGO_CODE
+            LEFT JOIN M_CARGO_CATEGORY mcc ON MC.CARGO_CATEGORY_CODE = MCC.CARGO_CATEGORY_CODE
+        WHERE TBCI.ID= #{id}
+    </select>
+    <select id="getTallyByCargoInfoId" resultType="java.lang.Integer" parameterType="java.lang.Long">
+        SELECT COUNT(0)  FROM T_YARD_TALLY_ITEM tyti
+        LEFT JOIN T_YARD_TALLY tyt ON tyti.TALLY_ID = tyt.ID
+        WHERE tyt.DEL_FLAG = 0 and CARGO_INFO_ID = #{cargoInfoId}
+    </select>
+    <select id="getTrustKM" resultType="java.util.Map">
+        SELECT TBTC.CARGO_INFO_ID "key", LISTAGG( TO_CHAR(tbt.TRUST_NO), ', ') WITHIN GROUP (ORDER BY  tbt.TRUST_NO) AS "value" FROM T_BUS_TRUST tbt
+            LEFT JOIN T_BUS_TRUST_CARGO tbtc ON tbt.id = TBTC.TRUST_ID
+        WHERE TBTC.CARGO_INFO_ID in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+         GROUP BY  TBTC.CARGO_INFO_ID
+    </select>
+
+    <delete id="deleteCargoCoilnumByCoilList" parameterType="com.yy.ppm.business.bean.dto.CargoListInfoDTO">
+        DELETE
+        FROM
+        T_BUS_CARGO_INFO_COILNUM
+        WHERE ID IN
+        <foreach collection="list" item="dto" separator=", " open="(" close=")">
+            #{dto.id, jdbcType=BIGINT}
+        </foreach>
+    </delete>
+    <delete id="deleteCargoBoxnumByBoxList">
+        DELETE
+        FROM
+        T_BUS_CARGO_INFO_COILNUM
+        WHERE ID IN
+        <foreach collection="list" item="dto" separator=", " open="(" close=")">
+            #{dto.id, jdbcType=BIGINT}
+        </foreach>
+    </delete>
+
+    <update id="updateBatchByCoilList" parameterType="com.yy.ppm.business.bean.dto.CargoListInfoDTO">
+        begin
+        <foreach collection="list" item="item" separator=" ">
+            UPDATE
+            T_BUS_CARGO_INFO_COILNUM
+            SET
+            NUM             =   #{item.num, jdbcType=VARCHAR},
+            CARGO_INFO_ID   =   #{item.cargoInfoId, jdbcType=VARCHAR},
+            COIL_NUM        =   #{item.coilNum, jdbcType=VARCHAR},
+            TON             =   #{item.ton, jdbcType=VARCHAR},
+            COIL_SIZE1      =   #{item.coilSize1, jdbcType=VARCHAR},
+            COIL_SIZE2      =   #{item.coilSize2, jdbcType=VARCHAR},
+            STATUS          =   #{item.status, jdbcType=VARCHAR},
+            RECEIVE_ADDRESS =   #{item.receiveAddress, jdbcType=VARCHAR},
+            UPDATE_BY       =   #{item.loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME  =   #{item.loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME     =   #{item.now}
+            <where>
+                ID = #{item.id, jdbcType=BIGINT};
+            </where>
+        </foreach>
+        end;
+    </update>
+    <update id="updateBatchByBoxList">
+        begin
+        <foreach collection="list" item="item" separator=" ">
+            UPDATE
+            T_BUS_CARGO_INFO_COILNUM
+            SET
+            NUM             =   #{item.num, jdbcType=VARCHAR},
+            CARGO_INFO_ID   =   #{item.cargoInfoId, jdbcType=VARCHAR},
+            COIL_NUM        =   #{item.coilNum, jdbcType=VARCHAR},
+            TON             =   #{item.ton, jdbcType=VARCHAR},
+            COIL_SIZE1      =   #{item.coilSize1, jdbcType=VARCHAR},
+            COIL_SIZE2      =   #{item.coilSize2, jdbcType=VARCHAR},
+            STATUS          =   #{item.status, jdbcType=VARCHAR},
+            RECEIVE_ADDRESS =   #{item.receiveAddress, jdbcType=VARCHAR},
+            UPDATE_BY       =   #{item.loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME  =   #{item.loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME     =   #{item.now}
+            <where>
+                ID = #{item.id, jdbcType=BIGINT};
+            </where>
+        </foreach>
+        end;
+    </update>
+    <update id="isLogoutStatus">
+        UPDATE T_BUS_CARGO_INFO
+        SET IS_LOGOUT = #{isLogout,jdbcType=VARCHAR},
+        IS_SETTLE_STORAGE = #{isSettleStorage,jdbcType=VARCHAR},
+        LOGOUT_BY = #{loginUserId, jdbcType=BIGINT},
+        LOGOUT_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        LOGOUT_TIME = #{now, jdbcType=TIMESTAMP}
+        WHERE ID = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateIsHq">
+        UPDATE T_BUS_CARGO_INFO
+        SET IS_HQ = #{isHq,jdbcType=VARCHAR}
+        WHERE ID = #{cargoInfoId,jdbcType=BIGINT}
+    </update>
+
+
+</mapper>
+<!--<bind name="truckPlateLike" value="'%'+truckPlate+'%'"/>-->

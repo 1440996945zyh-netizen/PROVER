@@ -1,0 +1,482 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.produce.mapper.THqDataMapper">
+
+    <sql id="commonList">
+        SELECT
+        ID
+
+        PQ_NO
+
+        CARGO_NAME
+
+        YARD_NAME
+
+        QUANTITY
+
+        TON
+
+        IN_PORT_TIME
+
+        IN_PORT_NAME
+
+        OUT_PORT_TIME
+
+        OUT_PORT_NAME
+
+        STATUS
+
+        IN_SHIP_NAME
+
+        IN_VOYAGE
+
+        OUT_SHIP_NAME
+
+        OUT_VOYAGE
+
+        DEL_FLAG
+
+        CREATE_BY
+
+        CREATE_BY_NAME
+
+        CREATE_TIME
+
+        UPDATE_BY
+
+        UPDATE_BY_NAME
+
+        UPDATE_TIME
+
+        FROM
+        T_HQ_DATA
+        <where>
+            <if test="id != null">
+                and ID = #{id}
+            </if>
+            <if test="pqNo != null and pqNo != ''">
+                and PQ_NO = #{pqNo}
+            </if>
+            <if test="cargoName != null and cargoName != ''">
+                and CARGO_NAME = #{cargoName}
+            </if>
+            <if test="yardName != null and yardName != ''">
+                and YARD_NAME = #{yardName}
+            </if>
+            <if test="quantity != null">
+                and QUANTITY = #{quantity}
+            </if>
+            <if test="ton != null">
+                and TON = #{ton}
+            </if>
+            <if test="inPortTime != null">
+                and IN_PORT_TIME = #{inPortTime}
+            </if>
+            <if test="inPortName != null and inPortName != ''">
+                and IN_PORT_NAME = #{inPortName}
+            </if>
+            <if test="outPortTime != null">
+                and OUT_PORT_TIME = #{outPortTime}
+            </if>
+            <if test="outPortName != null and outPortName != ''">
+                and OUT_PORT_NAME = #{outPortName}
+            </if>
+            <if test="status != null and status != ''">
+                and STATUS = #{status}
+            </if>
+            <if test="inShipName != null and inShipName != ''">
+                and IN_SHIP_NAME = #{inShipName}
+            </if>
+            <if test="inVoyage != null and inVoyage != ''">
+                and IN_VOYAGE = #{inVoyage}
+            </if>
+            <if test="outShipName != null and outShipName != ''">
+                and OUT_SHIP_NAME = #{outShipName}
+            </if>
+            <if test="outVoyage != null and outVoyage != ''">
+                and OUT_VOYAGE = #{outVoyage}
+            </if>
+            <if test="delFlag != null and delFlag != ''">
+                and DEL_FLAG = #{delFlag}
+            </if>
+        </where>
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.produce.bean.dto.THqDataDTO"
+            parameterType="com.yy.ppm.produce.bean.dto.THqDataSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.produce.bean.dto.THqDataDTO"
+            parameterType="com.yy.ppm.produce.bean.dto.THqDataSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.produce.bean.dto.THqDataDTO" parameterType="java.lang.Long">
+        SELECT
+        ID,
+        PQ_NO,
+        HQ_CARGO_ID,
+        CARGO_NAME,
+        HQ_YARD_ID,
+        YARD_NAME,
+        QUANTITY,
+        TON,
+        HQ_LENGTH,
+        WIDTH,
+        HEIGHT,
+        VOLUME,
+        IN_PORT_TIME,
+        IN_PORT_NAME,
+        OUT_PORT_TIME,
+        OUT_PORT_NAME,
+        STATUS,
+        IN_SHIP_NAME,
+        IN_VOYAGE,
+        IN_SHIP_NAME || '_' || IN_VOYAGE "inShipVoyage",
+        OUT_SHIP_NAME,
+        OUT_VOYAGE,
+        OUT_SHIP_NAME || '_' || OUT_VOYAGE "outShipVoyage",
+        DEL_FLAG,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME
+        FROM
+        T_HQ_DATA
+        <where>
+            id = #{id}
+        </where>
+    </select>
+    <select id="getHqTallyData" resultType="com.yy.ppm.produce.bean.dto.THqDataDTO" parameterType="java.lang.Long">
+        SELECT thd.*,tht.ID "hqTallyId" FROM T_HQ_DATA thd ,
+                          T_HQ_TALLY tht
+        WHERE THD.ID = THT.HQ_DATA_ID(+)
+          AND THT.TALLY_ID = #{tallyId}
+    </select>
+    <select id="getHqByCargoInfoId" resultType="java.util.Map" parameterType="java.lang.Long">
+        SELECT
+        id "id",
+        PQ_NO "pqNo",
+        MAX(YARD_NAME) "yardName",
+        REGEXP_REPLACE( LISTAGG(STACK_POSITION_NAME, ', ') WITHIN GROUP (ORDER BY STACK_POSITION_NAME), '([^,]+)(,\1)+', '\1' ) "stackPositionName",
+        REGEXP_REPLACE( LISTAGG(CARGO_NAME, ', ') WITHIN GROUP (ORDER BY CARGO_NAME), '([^,]+)(,\1)+', '\1' ) "cargoName"
+        FROM (
+        SELECT
+        DISTINCT thd.id,
+        thd.PQ_NO,
+        tyti.STACK_POSITION_NAME,
+        thd.YARD_NAME,
+        thd.CARGO_NAME
+        FROM
+        T_HQ_DATA thd,
+        T_HQ_TALLY tht,
+        T_YARD_TALLY tyt,
+        T_YARD_TALLY_ITEM tyti
+        WHERE
+        thd.ID = THT.HQ_DATA_ID(+)
+        AND tht.TALLY_ID = tyt.ID(+)
+        AND tyt.ID = tyti.TALLY_ID(+)
+        AND thd.STATUS = '10'
+        AND thd.DEL_FLAG != '0'
+        AND THT.TALLY_ID = tyt.ID
+        <foreach collection="ids" open="AND tyti.CARGO_INFO_ID IN (" separator="," item="id" close=")">
+            #{id}
+        </foreach>
+        )
+        GROUP BY id,PQ_NO
+    </select>
+    <select id="getHqDataId" resultType="java.lang.Long" parameterType="java.lang.Long">
+        SELECT HQ_DATA_ID FROM T_HQ_TALLY tht WHERE TALLY_ID = #{tallyId}
+    </select>
+    <select id="getProcess" resultType="java.util.Map" parameterType="java.lang.Long">
+        SELECT
+            mwp.source_cd "sourceCd",
+            mwp.SOURCE_nm "sourceNm",
+            mwp.target_cd "targetCd",
+            mwp.target_nm "targetNm"
+        FROM M_WORK_PROCESS mwp ,
+             T_YARD_TALLY tyt
+        WHERE tyt.PROCESS_CODE = MWP.PROCESS_CD
+          AND tyt.ID = #{tallyId}
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.produce.bean.dto.THqDataDTO">
+        INSERT INTO T_HQ_DATA(ID,
+                              PQ_NO,
+                              CARGO_NAME,
+                              YARD_NAME,
+                              QUANTITY,
+                              TON,
+                              IN_PORT_TIME,
+                              IN_PORT_NAME,
+                              OUT_PORT_TIME,
+                              OUT_PORT_NAME,
+                              STATUS,
+                              IN_SHIP_NAME,
+                              IN_VOYAGE,
+                              OUT_SHIP_NAME,
+                              OUT_VOYAGE,
+                              DEL_FLAG,
+                              CREATE_BY,
+                              CREATE_BY_NAME,
+                              CREATE_TIME)
+        VALUES (#{pqNo, jdbcType=VARCHAR},
+                #{cargoName, jdbcType=VARCHAR},
+                #{yardName, jdbcType=VARCHAR},
+                #{quantity, jdbcType=VARCHAR},
+                #{ton, jdbcType=VARCHAR},
+                #{inPortTime, jdbcType=VARCHAR},
+                #{inPortName, jdbcType=VARCHAR},
+                #{outPortTime, jdbcType=VARCHAR},
+                #{outPortName, jdbcType=VARCHAR},
+                #{status, jdbcType=VARCHAR},
+                #{inShipName, jdbcType=VARCHAR},
+                #{inVoyage, jdbcType=VARCHAR},
+                #{outShipName, jdbcType=VARCHAR},
+                #{outVoyage, jdbcType=VARCHAR},
+                #{delFlag, jdbcType=VARCHAR},
+                #{loginUserId, jdbcType=BIGINT},
+                #{loginUserName, jdbcType=VARCHAR},
+                #{now})
+    </insert>
+
+
+    <insert id="insertList" parameterType="com.yy.ppm.produce.bean.dto.THqDataDTO">
+        INSERT INTO T_HQ_DATA(
+        ID,
+        PQ_NO,
+        HQ_CARGO_ID,
+        CARGO_NAME,
+        HQ_YARD_ID,
+        YARD_NAME,
+        QUANTITY,
+        TON,
+        HQ_LENGTH,
+        WIDTH,
+        HEIGHT,
+        VOLUME,
+        IN_PORT_TIME,
+        IN_PORT_NAME,
+        OUT_PORT_TIME,
+        OUT_PORT_NAME,
+        STATUS,
+        IN_SHIP_NAME,
+        IN_VOYAGE,
+        OUT_SHIP_NAME,
+        OUT_VOYAGE,
+        DEL_FLAG,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME) (
+        <foreach collection="list" item="item"  open="" close="" separator=" UNION ALL " >
+            SELECT
+            #{item.id},
+            #{item.pqNo, jdbcType=VARCHAR},
+            #{item.hqCargoId},
+            #{item.cargoName, jdbcType=VARCHAR},
+            #{item.hqYardId},
+            #{item.yardName, jdbcType=VARCHAR},
+            #{item.quantity, jdbcType=VARCHAR},
+            #{item.ton, jdbcType=VARCHAR},
+            #{item.hqLength, jdbcType=VARCHAR},
+            #{item.width, jdbcType=VARCHAR},
+            #{item.height, jdbcType=VARCHAR},
+            #{item.volume, jdbcType=VARCHAR},
+            #{item.inPortTime, jdbcType=VARCHAR},
+            #{item.inPortName, jdbcType=VARCHAR},
+            #{item.outPortTime, jdbcType=VARCHAR},
+            #{item.outPortName, jdbcType=VARCHAR},
+            #{item.status, jdbcType=VARCHAR},
+            #{item.inShipName, jdbcType=VARCHAR},
+            #{item.inVoyage, jdbcType=VARCHAR},
+            #{item.outShipName, jdbcType=VARCHAR},
+            #{item.outVoyage, jdbcType=VARCHAR},
+            #{item.delFlag, jdbcType=VARCHAR},
+            #{item.loginUserId, jdbcType=BIGINT},
+            #{item.loginUserName, jdbcType=VARCHAR},
+            #{item.now}
+            from dual
+        </foreach>
+        )
+    </insert>
+
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.produce.bean.dto.THqDataDTO">
+        UPDATE
+        T_HQ_DATA
+        SET
+        PQ_NO = #{pqNo,jdbcType=VARCHAR},
+        CARGO_NAME = #{cargoName,jdbcType=VARCHAR},
+        YARD_NAME = #{yardName,jdbcType=VARCHAR},
+        QUANTITY = #{quantity,jdbcType=VARCHAR},
+        TON = #{ton,jdbcType=VARCHAR},
+        IN_PORT_TIME = #{inPortTime,jdbcType=VARCHAR},
+        IN_PORT_NAME = #{inPortName,jdbcType=VARCHAR},
+        OUT_PORT_TIME = #{outPortTime,jdbcType=VARCHAR},
+        OUT_PORT_NAME = #{outPortName,jdbcType=VARCHAR},
+        STATUS = #{status,jdbcType=VARCHAR},
+        IN_SHIP_NAME = #{inShipName,jdbcType=VARCHAR},
+        IN_VOYAGE = #{inVoyage,jdbcType=VARCHAR},
+        OUT_SHIP_NAME = #{outShipName,jdbcType=VARCHAR},
+        OUT_VOYAGE = #{outVoyage,jdbcType=VARCHAR},
+        DEL_FLAG = #{delFlag,jdbcType=VARCHAR},
+        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <select id="getShipVoyage" resultType="java.util.Map">
+        SELECT
+            tds.SHIP_NAME || NVL2(tds.SHIP_NAME,'_','') || tdsi.VOYAGE "shipVoyage",
+            tds.SHIP_NAME "shipName",
+            tdsi.VOYAGE "voyage"
+        FROM
+            T_DIS_SHIPVOYAGE_ITEM tdsi ,
+            T_DIS_SHIPVOYAGE tds,
+            T_PRD_WORK_PLAN tpwp ,
+            T_YARD_TALLY tyt
+        WHERE tdsi.SHIPVOYAGE_ID = tds.ID(+)
+          AND tdsi.ID = TPWP.SHIPVOYAGE_ITEM_ID(+)
+          AND TPWP.ID = tyt.PLAN_ID(+)
+          AND tyt.ID = #{tallyId}
+    </select>
+    <select id="getByIds" resultType="com.yy.ppm.produce.bean.dto.THqDataDTO" parameterType="java.lang.Long">
+        SELECT
+        ID,
+        PQ_NO,
+        HQ_CARGO_ID,
+        CARGO_NAME,
+        HQ_YARD_ID,
+        YARD_NAME,
+        QUANTITY,
+        TON,
+        HQ_LENGTH,
+        WIDTH,
+        HEIGHT,
+        VOLUME,
+        IN_PORT_TIME,
+        IN_PORT_NAME,
+        OUT_PORT_TIME,
+        OUT_PORT_NAME,
+        STATUS,
+        IN_SHIP_NAME,
+        IN_VOYAGE,
+        IN_SHIP_NAME || '_' || IN_VOYAGE "inShipVoyage",
+        OUT_SHIP_NAME,
+        OUT_VOYAGE,
+        OUT_SHIP_NAME || '_' || OUT_VOYAGE "outShipVoyage",
+        DEL_FLAG,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME
+        FROM
+        T_HQ_DATA
+        <where>
+            id in
+            <foreach collection="ids" separator="," open="(" close=")" item="id">
+                #{id}
+            </foreach>
+        </where>
+    </select>
+
+    <update id="updateList" parameterType="com.yy.ppm.produce.bean.dto.THqDataDTO">
+        begin
+        <foreach collection="list" item="item" separator=" ">
+            UPDATE T_HQ_DATA
+            <set>
+                PQ_NO = #{item.pqNo,jdbcType=VARCHAR},
+                HQ_CARGO_ID = #{item.hqCargoId},
+                CARGO_NAME = #{item.cargoName,jdbcType=VARCHAR},
+                HQ_YARD_ID = #{item.hqYardId},
+                YARD_NAME = #{item.yardName,jdbcType=VARCHAR},
+                QUANTITY = #{item.quantity,jdbcType=VARCHAR},
+                TON = #{item.ton,jdbcType=VARCHAR},
+                HQ_LENGTH = #{item.hqLength, jdbcType=VARCHAR},
+                WIDTH = #{item.width, jdbcType=VARCHAR},
+                HEIGHT = #{item.height, jdbcType=VARCHAR},
+                VOLUME = #{item.volume, jdbcType=VARCHAR},
+                IN_PORT_TIME = #{item.inPortTime,jdbcType=VARCHAR},
+                IN_PORT_NAME = #{item.inPortName,jdbcType=VARCHAR},
+                OUT_PORT_TIME = #{item.outPortTime,jdbcType=VARCHAR},
+                OUT_PORT_NAME = #{item.outPortName,jdbcType=VARCHAR},
+                STATUS = #{item.status,jdbcType=VARCHAR},
+                IN_SHIP_NAME = #{item.inShipName,jdbcType=VARCHAR},
+                IN_VOYAGE = #{item.inVoyage,jdbcType=VARCHAR},
+                OUT_SHIP_NAME = #{item.outShipName,jdbcType=VARCHAR},
+                OUT_VOYAGE = #{item.outVoyage,jdbcType=VARCHAR},
+                DEL_FLAG = #{item.delFlag,jdbcType=VARCHAR},
+                UPDATE_BY = #{item.loginUserId, jdbcType=BIGINT},
+                UPDATE_BY_NAME = #{item.loginUserName, jdbcType=VARCHAR},
+                UPDATE_TIME = #{item.now}
+            </set>
+            WHERE ID = #{item.id, jdbcType=BIGINT};
+        </foreach>
+        end;
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE
+        FROM T_HQ_DATA
+        WHERE id = #{id}
+    </delete>
+    <delete id="deleteByIds">
+        <foreach collection="list" item="item" index="index" open="begin" separator=";" close=";end;" >
+            UPDATE T_HQ_DATA
+            <set>
+                <if test="item.status == '10'">
+                    OUT_VOYAGE = null,
+                    OUT_SHIP_NAME = null,
+                    OUT_PORT_NAME = null,
+                    OUT_PORT_TIME = null,
+                </if>
+                DEL_FLAG = #{item.delFlag},
+                STATUS = #{item.status}
+            </set>
+            <where>
+                id = #{item.id}
+            </where>
+        </foreach>
+    </delete>
+    <delete id="deleteHqTallyByDataIds">
+        DELETE
+        FROM T_HQ_TALLY
+        where id in
+        <foreach collection="list" separator="," open="(" close=")" item="item">
+            #{item.hqTallyId}
+        </foreach>
+    </delete>
+    <delete id="updateByIds" parameterType="java.lang.Long">
+        UPDATE
+            T_HQ_DATA
+        <set>
+            status = #{status},
+            <if test="status == 0">
+                IN_PORT_TIME = NULL,
+                IN_PORT_NAME = NULL
+            </if>
+            <if test="status == 10">
+                OUT_PORT_TIME = NULL,
+                OUT_PORT_NAME = NULL
+            </if>
+        </set>
+        where id in
+        <foreach collection="ids" separator="," open="(" close=")" item="id">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
+

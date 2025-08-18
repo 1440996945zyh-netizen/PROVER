@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.master.mapper.MHqStorageStackMapper">
+
+    <sql id="commonList">
+        SELECT
+        ID,
+        STORAGE_YARD_NM,
+        SHORT_CD,
+        AREA,
+        WORK_AREA_CD,
+        SORT_NUM,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_TIME,
+        UPDATE_BY_NAME
+        FROM
+        M_HQ_STORAGE_YARD
+        <where>
+            <if test="storageYardNm != null and storageYardNm != ''">
+                <bind name="storageYardNm" value="'%'+storageYardNm+'%'"/>
+                  and STORAGE_YARD_NM LIKE #{storageYardNm}
+            </if>
+        </where>
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.master.bean.dto.MHqStorageStackDTO"
+            parameterType="com.yy.ppm.master.bean.dto.MHqStorageStackSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.master.bean.dto.MHqStorageStackDTO" parameterType="java.lang.Long">
+        SELECT
+        ID,
+        STORAGE_YARD_NM,
+        SHORT_CD,
+        AREA,
+        WORK_AREA_CD,
+        SORT_NUM,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_TIME,
+        UPDATE_BY_NAME
+        FROM
+        M_HQ_STORAGE_YARD
+        <where>
+            id = #{id}
+        </where>
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.master.bean.dto.MHqStorageStackDTO">
+        INSERT INTO M_HQ_STORAGE_YARD(ID,
+                    STORAGE_YARD_NM,
+                    SHORT_CD,
+                    AREA,
+                    WORK_AREA_CD,
+                    SORT_NUM,
+                    CREATE_BY,
+                    CREATE_BY_NAME,
+                    CREATE_TIME
+                              )
+        VALUES (
+                #{id, jdbcType=BIGINT},
+                #{storageYardNm, jdbcType=VARCHAR},
+                #{shortCd, jdbcType=VARCHAR},
+                #{area, jdbcType=DECIMAL},
+                #{workAreaCd, jdbcType=VARCHAR},
+                #{sortNum, jdbcType=INTEGER},
+                #{loginUserId, jdbcType=BIGINT},
+                #{loginUserName, jdbcType=VARCHAR},
+                #{now}
+                )
+    </insert>
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.master.bean.dto.MHqStorageStackDTO">
+        UPDATE
+        M_HQ_STORAGE_YARD
+        SET
+        ID = #{id,jdbcType=BIGINT},
+        STORAGE_YARD_NM = #{storageYardNm,jdbcType=VARCHAR},
+        SHORT_CD = #{shortCd,jdbcType=VARCHAR},
+        AREA = #{area,jdbcType=DECIMAL},
+        WORK_AREA_CD = #{workAreaCd,jdbcType=VARCHAR},
+        SORT_NUM = #{sortNum,jdbcType=INTEGER},
+        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE
+        FROM M_HQ_STORAGE_YARD
+        WHERE id = #{id}
+    </delete>
+</mapper>

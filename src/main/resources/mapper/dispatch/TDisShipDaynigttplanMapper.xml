@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.dispatch.mapper.TDisShipDaynigttplanMapper">
+
+    <sql id="commonList">
+        SELECT T.ID,
+               T.TRUST_ID,
+               T.PLAN_DATE,
+               T.SHIPVOYAGE_ID,
+               T.SHIPVOYAGE_ITEM_ID,
+               T.LOAD_UNLOAD,
+               T.CARGO_CATEGORY_CODE,
+               T.CARGO_CATEGORY_NAME,
+               T.LOAD_NUM,
+               T.MORN_WORK_NUM,
+               T.NIGHT_WORK_NUM,
+               T.RESIDUE_NUM,
+               T.BERTHING_TIME_PLAN,
+               T.LEAVE_BERTH_TIME_PLAN,
+               T.STARTTIME_PLAN,
+               T.ENDTIME_PLAN,
+               T.MOVE_BERTH_TIME_PLAN,
+               T.MOVE_IN_BERTH_ID,
+               T.MOVE_IN_BERTH_NAME,
+               T.BERTH_ID,
+               T.BERTH_NAME,
+               T.CREATE_BY,
+               T.CREATE_BY_NAME,
+               T.CREATE_TIME,
+               T.UPDATE_BY,
+               T.UPDATE_BY_NAME,
+               T.UPDATE_TIME,
+               CONCAT(CONCAT(S.SHIP_NAME, '_'), F.VOYAGE) AS SHIPVOYAGE_LABEL,
+               S.SCN
+        FROM T_DIS_SHIP_DAYNIGTTPLAN T
+                 INNER JOIN T_DIS_SHIPVOYAGE S ON T.SHIPVOYAGE_ID = S.ID
+                 INNER JOIN T_DIS_SHIPVOYAGE_ITEM F ON F.ID = T.SHIPVOYAGE_ITEM_ID
+        where TO_CHAR(PLAN_DATE, 'YYYY-MM-DD') = #{planDate, jdbcType=VARCHAR}
+        ORDER BY T.BERTH_NAME
+    </sql>
+<!--    AND-->
+<!--    S.SHIP_STATUS_CODE NOT IN ('120')-->
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.dispatch.bean.dto.TDisShipDaynigttplanDTO"
+            parameterType="java.lang.String">
+        <include refid="commonList"></include>
+    </select>
+
+    <select id="getByShipvoyageId" resultType="com.yy.ppm.dispatch.bean.po.TDisShipvoyageItemPO">
+        SELECT CARGO_CATEGORY_CODE,
+               CARGO_CATEGORY_NAME,
+               CARGO_NUM
+        FROM T_DIS_SHIPVOYAGE_ITEM
+        WHERE SHIPVOYAGE_ID = #{shipvoyageId}
+    </select>
+
+    <!--通过子表id获取作业量-->
+    <select id="getWorkNum" resultType="java.lang.Long">
+        SELECT SUM(RESIDUE_NUM) AS total
+        FROM T_DIS_SHIP_DAYNIGTTPLAN
+        WHERE SHIPVOYAGE_ITEM_ID = #{shipvoyageItemId} AND TO_CHAR(PLAN_DATE, 'YYYY-MM-DD') = #{planDate}
+        GROUP BY SHIPVOYAGE_ITEM_ID
+    </select>
+
+    <select id="getList2" resultType="com.yy.ppm.dispatch.bean.dto.TDisShipDaynigttplanDTO"
+            parameterType="java.lang.String">
+        SELECT T.ID,
+               T.TRUST_ID,
+               T.PLAN_DATE,
+               T.SHIPVOYAGE_ID,
+               T.SHIPVOYAGE_ITEM_ID,
+               T.LOAD_UNLOAD,
+               T.CARGO_CATEGORY_CODE,
+               T.CARGO_CATEGORY_NAME,
+               T.LOAD_NUM,
+               T.MORN_WORK_NUM,
+               T.NIGHT_WORK_NUM,
+               T.RESIDUE_NUM,
+               T.BERTHING_TIME_PLAN,
+               T.LEAVE_BERTH_TIME_PLAN,
+               T.STARTTIME_PLAN,
+               T.ENDTIME_PLAN,
+               T.MOVE_BERTH_TIME_PLAN,
+               T.MOVE_IN_BERTH_ID,
+               T.MOVE_IN_BERTH_NAME,
+               T.BERTH_ID,
+               T.BERTH_NAME,
+               T.CREATE_BY,
+               T.CREATE_BY_NAME,
+               T.CREATE_TIME,
+               T.UPDATE_BY,
+               T.UPDATE_BY_NAME,
+               T.UPDATE_TIME,
+               CONCAT(CONCAT(S.SHIP_NAME, '_'), F.VOYAGE) AS SHIPVOYAGE_LABEL,
+               S.SCN
+        FROM T_DIS_SHIP_DAYNIGTTPLAN T
+                 INNER JOIN T_DIS_SHIPVOYAGE S ON T.SHIPVOYAGE_ID = S.ID
+                 INNER JOIN T_DIS_SHIPVOYAGE_ITEM F ON F.ID = T.SHIPVOYAGE_ITEM_ID
+        where TO_CHAR(PLAN_DATE, 'YYYY-MM-DD') = to_char( to_date(#{planDate, jdbcType=VARCHAR}, 'YYYY-MM-DD' ) - 1, 'YYYY-MM-DD' )
+        AND
+	    S.SHIP_STATUS_CODE NOT IN ('120')
+        ORDER BY T.BERTH_NAME
+    </select>
+    <select id="getShipVoyage" resultType="java.util.Map">
+        	SELECT
+                T1.ID AS "shipvoyageId",
+                T2.ID AS "value",
+                CONCAT(CONCAT(T1.SHIP_NAME, '_') , T2.VOYAGE) as "label",
+                T2.CARGO_CATEGORY_NAME as "cargoCategoryName",
+                T2.CUSTOMER_NAME as "shipAgentName",
+                T1.START_PORT_NAME as "startPortName",
+                T1.END_PORT_NAME as "endPortName",
+                TO_CHAR(T1.ARRIVAL_TIME_PLAN, 'YYYY-MM-DD') as "arrivalTimePlan",
+                T1.SCN as "scn",
+                T1.SHIP_NAME as "shipName",
+                T2.VOYAGE as "voyage",
+                T2.LOAD_UNLOAD as "loadUnload",
+                T2.CARGO_CATEGORY_CODE as "cargoCategoryCode",
+                T2.CARGO_CATEGORY_NAME as "cargoCategoryName",
+                CARGO_NUM as "cargoNum"
+            FROM
+                T_DIS_SHIPVOYAGE T1 JOIN
+                T_DIS_SHIPVOYAGE_ITEM T2 ON T1.ID = T2.SHIPVOYAGE_ID
+            WHERE
+            T1.SHIP_STATUS_CODE IN ('20','30','50','60', '70','80','90','100','110')
+            ORDER BY TO_CHAR(T1.ARRIVAL_TIME_PLAN, 'YYYY-MM-DD') DESC
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.dispatch.bean.dto.TDisShipDaynigttplanDTO">
+        INSERT INTO T_DIS_SHIP_DAYNIGTTPLAN(ID,
+                                            TRUST_ID,
+                                            PLAN_DATE,
+                                            SHIPVOYAGE_ID,
+                                            SHIPVOYAGE_ITEM_ID,
+                                            LOAD_UNLOAD,
+                                            CARGO_CATEGORY_CODE,
+                                            CARGO_CATEGORY_NAME,
+                                            LOAD_NUM,
+                                            MORN_WORK_NUM,
+                                            NIGHT_WORK_NUM,
+                                            RESIDUE_NUM,
+                                            BERTHING_TIME_PLAN,
+                                            LEAVE_BERTH_TIME_PLAN,
+                                            STARTTIME_PLAN,
+                                            ENDTIME_PLAN,
+                                            MOVE_BERTH_TIME_PLAN,
+                                            MOVE_IN_BERTH_ID,
+                                            MOVE_IN_BERTH_NAME,
+                                            BERTH_ID,
+                                            BERTH_NAME,
+                                            CREATE_BY,
+                                            CREATE_BY_NAME,
+                                            CREATE_TIME)
+        VALUES (#{id, jdbcType=BIGINT},
+                #{trustId, jdbcType=BIGINT},
+                #{planDate, jdbcType=DATE},
+                #{shipvoyageId, jdbcType=BIGINT},
+                #{shipvoyageItemId, jdbcType=BIGINT},
+                #{loadUnload, jdbcType=DECIMAL},
+                #{cargoCategoryCode, jdbcType=VARCHAR},
+                #{cargoCategoryName, jdbcType=VARCHAR},
+                #{loadNum, jdbcType=DECIMAL},
+                #{mornWorkNum, jdbcType=DECIMAL},
+                #{nightWorkNum, jdbcType=DECIMAL},
+                #{residueNum, jdbcType=DECIMAL},
+                #{berthingTimePlan, jdbcType=DATE},
+                #{leaveBerthTimePlan, jdbcType=DATE},
+                #{starttimePlan, jdbcType=DATE},
+                #{endtimePlan, jdbcType=DATE},
+                #{moveBerthTimePlan, jdbcType=DATE},
+                #{moveInBerthId, jdbcType=BIGINT},
+                #{moveInBerthName, jdbcType=VARCHAR},
+                #{berthId, jdbcType=BIGINT},
+                #{berthName, jdbcType=VARCHAR},
+                #{loginUserId, jdbcType=BIGINT},
+                #{loginUserName, jdbcType=VARCHAR},
+                #{now})
+    </insert>
+
+    <!-- 删除 -->
+    <delete id="deleteByPlanDate" parameterType="java.lang.String">
+        DELETE
+        FROM T_DIS_SHIP_DAYNIGTTPLAN
+        where TO_CHAR(PLAN_DATE, 'YYYY-MM-DD') = #{planDate}
+    </delete>
+</mapper>
+

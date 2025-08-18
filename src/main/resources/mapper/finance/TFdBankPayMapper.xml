@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.finance.mapper.TFdBankPayMapper">
+
+    <sql id="commonList">
+        SELECT
+        ID,
+        COMPANY_ID,
+        COMPANY_NAME,
+        OPEN_ACCOUNT_BANK,
+        BANK_CODE,
+        BANK_NAME,
+        BANK_NAME_ENGLISH,
+        BANK_NUMBER,
+        BANK_TYPE_CODE,
+        BANK_TYPE_NAME,
+        BANK_ACCOUNT_CODE,
+        BANK_ACCOUNT_NAME,
+        CURRENCY_CODE,
+        CURRENCY_NAME,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME
+        FROM
+        T_FD_BANK_PAY
+        <where>
+            <if test="id != null">
+                and ID = #{id}
+            </if>
+            <if test="companyId != null">
+                and COMPANY_ID = #{companyId}
+            </if>
+            <if test="companyName != null and companyName != ''">
+                and COMPANY_NAME = #{companyName}
+            </if>
+            <if test="openAccountBank != null and openAccountBank != ''">
+                <bind name="openAB" value="'%'+openAccountBank+'%'"/>
+                and OPEN_ACCOUNT_BANK LIKE #{openAB}
+            </if>
+            <if test="bankCode != null">
+                and BANK_CODE = #{bankCode}
+            </if>
+            <if test="bankName != null and bankName != ''">
+                and BANK_NAME = #{bankName}
+            </if>
+<!--            <if test="bankName != null and bankName != ''">-->
+<!--                <bind name="bankNm" value="'%'+bankName+'%'"/>-->
+<!--                and BANK_NAME LIKE #{bankNm}-->
+<!--            </if>-->
+            <if test="bankNameEnglish != null and bankNameEnglish != ''">
+                and BANK_NAME_ENGLISH = #{bankNameEnglish}
+            </if>
+            <if test="bankNumber != null and bankNumber != ''">
+                <bind name="bankNm" value="'%'+bankNumber+'%'"/>
+                and BANK_NUMBER LIKE #{bankNm}
+            </if>
+            <if test="bankTypeCode != null">
+                and BANK_TYPE_CODE = #{bankTypeCode}
+            </if>
+            <if test="bankTypeName != null and bankTypeName != ''">
+                and BANK_TYPE_NAME = #{bankTypeName}
+            </if>
+            <if test="bankAccountCode != null">
+                and BANK_ACCOUNT_CODE = #{bankAccountCode}
+            </if>
+            <if test="bankAccountName != null and bankAccountName != ''">
+                and BANK_ACCOUNT_NAME = #{bankAccountName}
+            </if>
+            <if test="currencyCode != null">
+                and CURRENCY_CODE = #{currencyCode}
+            </if>
+            <if test="currencyName != null and currencyName != ''">
+                and CURRENCY_NAME = #{currencyName}
+            </if>
+        </where>
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.finance.bean.dto.TFdBankPayDTO"
+            parameterType="com.yy.ppm.finance.bean.dto.TFdBankPaySearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.finance.bean.dto.TFdBankPayDTO"
+            parameterType="com.yy.ppm.finance.bean.dto.TFdBankPaySearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.finance.bean.dto.TFdBankPayDTO" parameterType="java.lang.Long">
+        SELECT
+        ID, COMPANY_ID, COMPANY_NAME, OPEN_ACCOUNT_BANK, BANK_CODE, BANK_NAME, BANK_NAME_ENGLISH, BANK_NUMBER,
+        BANK_TYPE_CODE, BANK_TYPE_NAME, BANK_ACCOUNT_CODE, BANK_ACCOUNT_NAME, CURRENCY_CODE, CURRENCY_NAME, CREATE_BY,
+        CREATE_BY_NAME, CREATE_TIME, UPDATE_BY, UPDATE_BY_NAME, UPDATE_TIME FROM
+        T_FD_BANK_PAY
+        <where>
+            id = #{id}
+        </where>
+    </select>
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.finance.bean.dto.TFdBankPayDTO">
+        INSERT INTO T_FD_BANK_PAY(
+                ID,
+                    COMPANY_ID,
+                    COMPANY_NAME,
+                    OPEN_ACCOUNT_BANK,
+                    BANK_CODE,
+                    BANK_NAME,
+                    BANK_NAME_ENGLISH,
+                    BANK_NUMBER,
+                    BANK_TYPE_CODE,
+                    BANK_TYPE_NAME,
+                    BANK_ACCOUNT_CODE,
+                    BANK_ACCOUNT_NAME,
+                    CURRENCY_CODE,
+                    CURRENCY_NAME,
+                    CREATE_BY,
+                    CREATE_BY_NAME,
+                    CREATE_TIME
+                    )VALUES (
+                    #{id, jdbcType=VARCHAR},
+                    #{companyId, jdbcType=VARCHAR},
+                    #{companyName, jdbcType=VARCHAR},
+                    #{openAccountBank, jdbcType=VARCHAR},
+                    #{bankCode, jdbcType=VARCHAR},
+                    #{bankName, jdbcType=VARCHAR},
+                    #{bankNameEnglish, jdbcType=VARCHAR},
+                    #{bankNumber, jdbcType=VARCHAR},
+                    #{bankTypeCode, jdbcType=VARCHAR},
+                    #{bankTypeName, jdbcType=VARCHAR},
+                    #{bankAccountCode, jdbcType=VARCHAR},
+                    #{bankAccountName, jdbcType=VARCHAR},
+                    #{currencyCode, jdbcType=VARCHAR},
+                    #{currencyName, jdbcType=VARCHAR},
+                    #{loginUserId, jdbcType=BIGINT},
+                    #{loginUserName, jdbcType=VARCHAR},
+                    #{now}
+)
+    </insert>
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.finance.bean.dto.TFdBankPayDTO">
+        UPDATE
+        T_FD_BANK_PAY
+        SET
+        ID = #{id,jdbcType=VARCHAR},
+        COMPANY_ID = #{companyId,jdbcType=VARCHAR},
+        COMPANY_NAME = #{companyName,jdbcType=VARCHAR},
+        OPEN_ACCOUNT_BANK = #{openAccountBank,jdbcType=VARCHAR},
+        BANK_CODE = #{bankCode,jdbcType=VARCHAR},
+        BANK_NAME = #{bankName,jdbcType=VARCHAR},
+        BANK_NAME_ENGLISH = #{bankNameEnglish,jdbcType=VARCHAR},
+        BANK_NUMBER = #{bankNumber,jdbcType=VARCHAR},
+        BANK_TYPE_CODE = #{bankTypeCode,jdbcType=VARCHAR},
+        BANK_TYPE_NAME = #{bankTypeName,jdbcType=VARCHAR},
+        BANK_ACCOUNT_CODE = #{bankAccountCode,jdbcType=VARCHAR},
+        BANK_ACCOUNT_NAME = #{bankAccountName,jdbcType=VARCHAR},
+        CURRENCY_CODE = #{currencyCode,jdbcType=VARCHAR},
+        CURRENCY_NAME = #{currencyName,jdbcType=VARCHAR},
+        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM
+            T_FD_BANK_PAY
+        WHERE
+            id = #{id}
+    </delete>
+</mapper>
+

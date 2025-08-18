@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.tallyExtrinsic.mapper.TBusReservationConfirmMapper">
+    <!--通过实体作为筛选条件查询-->
+    <select id="getConfirm" resultType="com.yy.ppm.tallyExtrinsic.bean.dto.TBusReservationConfirmDTO"
+            parameterType="com.yy.ppm.tallyExtrinsic.bean.dto.TBusReservationConfirmSearchDTO">
+        SELECT
+            TBRC.ID,
+            TBRC.POUND_ID,
+            TBRC.POUND_NO,
+            TBRC.PLAN_NO,
+            TBRC.GOODS_NAME,
+            TBRC.QUANTITY,
+            TBRC.STATUS,
+            TBRC.MAC_NO,
+            TBRC.TRUCK_NO,
+            TBRC.TALLY_ID,
+            TBRC.PLAN_ID,
+            TBRC.CONFIRM_START_TIME,
+            TBRC.CONFIRM_END_TIME,
+            TBRC.CREATE_BY,
+            TBRC.CREATE_BY_NAME,
+            TBRC.CREATE_TIME,
+            TBRC.UPDATE_BY,
+            TBRC.UPDATE_BY_NAME,
+            TBRC.UPDATE_TIME,
+            TBCI.ID AS CARGO_INFO_ID,
+            TBCI.CARGO_INFO_NO,
+            TBRC.STORAGE_YARD_NM,
+            TBRC.RESERVATION_POUND_ID
+        FROM T_BUS_RESERVATION_CONFIRM TBRC
+        LEFT JOIN T_BUS_TRUST_CARGO TBTC ON TBRC.PLAN_NO = TBTC.BUSINESS_NO
+        LEFT JOIN T_BUS_CARGO_INFO TBCI ON TBTC.CARGO_INFO_ID = TBCI.ID
+        <where>
+            <if test="status != null and status != ''">
+                AND TBRC.STATUS = #{status}
+            </if>
+            <if test="macNo != null and macNo != ''">
+                AND TBRC.MAC_NO = #{macNo}
+            </if>
+            <if test="workType != null and workType != ''">
+                AND NVL(TBRC.WORK_TYPE,'2') = #{workType}
+            </if>
+        </where>
+    </select>
+    <update id="confirmEnd">
+        UPDATE
+        T_BUS_RESERVATION_CONFIRM
+        SET
+        UPDATE_TIME = sysdate,
+        CONFIRM_END_TIME = sysdate,
+        STATUS = '2'
+        WHERE
+        ID = #{id}
+    </update>
+    <select id="getConfirmList" resultType="com.yy.ppm.tallyExtrinsic.bean.dto.TBusReservationConfirmDTO"
+            parameterType="com.yy.ppm.tallyExtrinsic.bean.dto.TBusReservationConfirmSearchDTO">
+        SELECT
+            TBRC.ID,
+            TBRC.POUND_ID,
+            TBRC.POUND_NO,
+            TBRC.PLAN_NO,
+            TBRC.GOODS_NAME,
+            TBRC.QUANTITY,
+            TBRC.STATUS,
+            TBRC.MAC_NO,
+            TBRC.TRUCK_NO,
+            TBRC.TALLY_ID,
+            TBRC.PLAN_ID,
+            TBRC.CONFIRM_START_TIME,
+            TBRC.CONFIRM_END_TIME,
+            TBRC.CREATE_BY,
+            TBRC.CREATE_BY_NAME,
+            TBRC.CREATE_TIME,
+            TBRC.UPDATE_BY,
+            TBRC.UPDATE_BY_NAME,
+            TBRC.UPDATE_TIME,
+            TBCI.ID AS CARGO_INFO_ID,
+            TBCI.CARGO_INFO_NO,
+            TBRC.STORAGE_YARD_NM,
+            TBRC.RESERVATION_POUND_ID
+        FROM T_BUS_RESERVATION_CONFIRM TBRC
+        LEFT JOIN T_BUS_TRUST_CARGO TBTC ON TBRC.PLAN_NO = TBTC.BUSINESS_NO
+        LEFT JOIN T_BUS_CARGO_INFO TBCI ON TBTC.CARGO_INFO_ID = TBCI.ID
+        <where>
+            TBRC.STATUS = '1'
+            <if test="workType != null and workType != ''">
+                AND NVL(TBRC.WORK_TYPE,'2') = #{workType}
+            </if>
+            <if test="macNo != null and macNo != ''">
+                AND TBRC.MAC_NO = #{macNo}
+            </if>
+        </where>
+    </select>
+
+    <select id="getPhByShip" resultType="com.yy.ppm.tallyExtrinsic.bean.dto.DbCargoInfoDTO">
+        SELECT
+            T2.ID,
+            T2.CARGO_NAME,
+            T2.CARGO_OWNER_NAME,
+            T2.TON,
+            T2.QUANTITY,
+            T2.CARGO_INFO_ID,
+            T3.CARGO_INFO_NO || '/' || T4.PLAN_NO AS CARGO_INFO_NO
+        FROM
+            T_BUS_TRUST T1
+                LEFT JOIN T_BUS_TRUST_CARGO T2 ON T1.ID = T2.TRUST_ID
+                LEFT JOIN T_BUS_CARGO_INFO T3 ON T2.CARGO_INFO_ID = T3.ID
+                LEFT JOIN (
+                SELECT
+                    TT2.CARGO_INFO_ID,
+                    LISTAGG(TT2.BUSINESS_NO, ',') WITHIN GROUP (ORDER BY TT2.BUSINESS_NO) AS PLAN_NO
+                FROM
+                    T_BUS_TRUST TT1
+                    LEFT JOIN T_BUS_TRUST_CARGO TT2 ON TT1.ID = TT2.TRUST_ID
+                WHERE
+                    ( TT1.TYPE = '集港' OR TT1.TYPE = '卸船' )
+                GROUP BY TT2.CARGO_INFO_ID
+            ) T4 ON T3.ID = T4.CARGO_INFO_ID
+        WHERE
+            T1.SHIPVOYAGE_ITEM_ID = #{shipVoyageItemId}
+          AND ( T1.TYPE = '卸船' OR T1.TYPE = '装船' )
+    </select>
+    <select id="getById" resultType="com.yy.ppm.tallyExtrinsic.bean.dto.TBusReservationConfirmDTO"
+            parameterType="com.yy.ppm.tallyExtrinsic.bean.dto.TBusReservationConfirmSearchDTO">
+        SELECT
+        ID,
+        POUND_ID,
+        POUND_NO,
+        PLAN_NO,
+        GOODS_NAME,
+        QUANTITY,
+        STATUS,
+        MAC_NO,
+        TRUCK_NO,
+        TALLY_ID,
+        PLAN_ID,
+        CONFIRM_START_TIME,
+        CONFIRM_END_TIME,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME
+        FROM T_BUS_RESERVATION_CONFIRM
+        <where>
+            ID = #{id}
+            <if test="status != null and status != ''">
+                AND STATUS = #{status}
+            </if>
+            <if test="macNo != null and macNo != ''">
+                AND MAC_NO = #{macNo}
+            </if>
+        </where>
+    </select>
+    <delete id="deleteConfirm">
+        DELETE FROM T_BUS_RESERVATION_CONFIRM
+        WHERE ID = #{id}
+    </delete>
+    <select id="getTruckList" resultType="com.yy.ppm.tallyExtrinsic.bean.dto.DbTruckDTO">
+        SELECT
+            T1.NOTE_ID AS ID,
+            T1.TRUCK_PLATE AS TRUCK_NO,
+            T1.WEIGH_IN_DT AS IN_TIME,
+            T1.GOODS_NAME AS CARGO_NAME,
+            T2.DRIVER_NAME_ONE AS DRIVER,
+            T2.DRIVER_PHONE_ONE AS PHONE,
+            T1.CON_UNIT AS CARGO_OWNER_NAME,
+            T4.CARGO_INFO_NO,
+            NVL(T6.QUANTITY,0) QUANTITY
+        FROM
+            WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND T1
+                LEFT JOIN T_BUS_VEHICLE_RESERVATION T2 ON T1.TSPT_ID = T2.TASK_NO
+                LEFT JOIN T_BUS_TRUST_CARGO T3 ON T1.PLAN_NO = T3.BUSINESS_NO
+                LEFT JOIN T_BUS_CARGO_INFO T4 ON T3.CARGO_INFO_ID = T4.ID
+                LEFT JOIN T_BUS_RESERVATION_CONFIRM T6 ON T1.NOTE_ID = T6.POUND_ID
+        <where>
+            T1.IS_FINISHED = 0 AND T1.PORT_CODE = '01' AND T2.DRIVER_NAME_ONE IS NOT NULL
+            <if test="cargoInfoId != null and cargoInfoId != ''">
+                AND T3.CARGO_INFO_ID = #{cargoInfoId}
+            </if>
+            <if test="truckNo != null and truckNo != ''">
+                <bind name="truckNoLike" value="'%' + truckNo + '%'"/>
+                AND T1.TRUCK_PLATE LIKE #{truckNoLike}
+            </if>
+            <if test="shipVoyageItemId != null and shipVoyageItemId != ''">
+                AND T3.CARGO_INFO_ID in (SELECT
+                T2.CARGO_INFO_ID
+                FROM
+                T_BUS_TRUST T1
+                LEFT JOIN T_BUS_TRUST_CARGO T2 ON T1.ID = T2.TRUST_ID
+                WHERE
+                T1.SHIPVOYAGE_ITEM_ID = #{shipVoyageItemId}
+                AND ( T1.TYPE = '装船' OR T1.TYPE = '卸船' ))
+            </if>
+        </where>
+        ORDER BY T1.WEIGH_IN_DT
+    </select>
+</mapper>

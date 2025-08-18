@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.finance.mapper.TFdBankAffiliatedMapper">
+
+    <sql id="commonList">
+        SELECT
+        ID,
+        PAYMENT_METHOD_CODE,
+        PAYMENT_METHOD_NAME,
+        PAYMENT_TYPE_CODE,
+        PAYMENT_TYPE_NAME,
+        BANK_CODE,
+        BANK_ID,
+        BANK_NAME,
+        COMPANY_NAME,
+        COMPANY_ID,
+        IS_DEFAULT,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME
+        FROM
+        T_FD_BANK_AFFILIATED
+        <where>
+            <if test="id != null">
+                and ID = #{id}
+            </if>
+            <if test="paymentMethodCode != null and paymentMethodCode != ''">
+                and PAYMENT_METHOD_CODE = #{paymentMethodCode}
+            </if>
+            <if test="bankId != null">
+                and BANK_ID = #{bankId}
+            </if>
+            <if test="paymentMethodName != null and paymentMethodName != ''">
+                and PAYMENT_METHOD_NAME = #{paymentMethodName}
+            </if>
+            <if test="paymentTypeCode != null and paymentTypeCode != ''">
+                and PAYMENT_TYPE_CODE = #{paymentTypeCode}
+            </if>
+            <if test="paymentTypeName != null and paymentTypeName != ''">
+                and PAYMENT_TYPE_NAME = #{paymentTypeName}
+            </if>
+            <if test="bankCode != null and bankCode != ''">
+                and BANK_CODE = #{bankCode}
+            </if>
+            <if test="bankName != null and bankName != ''">
+                and BANK_NAME = #{bankName}
+            </if>
+            <if test="companyName != null and companyName != ''">
+                and COMPANY_NAME = #{companyName}
+            </if>
+            <if test="companyId != null">
+                and COMPANY_ID = #{companyId}
+            </if>
+            <if test="isDefault != null">
+                and IS_DEFAULT = #{isDefault}
+            </if>
+        </where>
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.finance.bean.dto.TFdBankAffiliatedDTO"
+            parameterType="com.yy.ppm.finance.bean.dto.TFdBankAffiliatedSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.finance.bean.dto.TFdBankAffiliatedDTO"
+            parameterType="com.yy.ppm.finance.bean.dto.TFdBankAffiliatedSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.finance.bean.dto.TFdBankAffiliatedDTO" parameterType="java.lang.Long">
+        SELECT
+        ID, PAYMENT_METHOD_CODE, PAYMENT_METHOD_NAME, PAYMENT_TYPE_CODE, PAYMENT_TYPE_NAME, BANK_CODE,BANK_ID, BANK_NAME,
+        COMPANY_NAME, COMPANY_ID, IS_DEFAULT, CREATE_BY, CREATE_BY_NAME, CREATE_TIME, UPDATE_BY, UPDATE_BY_NAME,
+        UPDATE_TIME FROM
+        T_FD_BANK_AFFILIATED
+        <where>
+            id = #{id}
+        </where>
+    </select>
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.finance.bean.dto.TFdBankAffiliatedDTO">
+        INSERT INTO T_FD_BANK_AFFILIATED(
+                ID,
+                    PAYMENT_METHOD_CODE,
+                    PAYMENT_METHOD_NAME,
+                    PAYMENT_TYPE_CODE,
+                    PAYMENT_TYPE_NAME,
+                    BANK_CODE,
+                    BANK_ID,
+                    BANK_NAME,
+                    COMPANY_NAME,
+                    COMPANY_ID,
+                    IS_DEFAULT,
+                    CREATE_BY,
+                    CREATE_BY_NAME,
+                    CREATE_TIME
+        )VALUES (
+                                    #{id, jdbcType=VARCHAR},
+                                                #{paymentMethodCode, jdbcType=VARCHAR},
+                                                #{paymentMethodName, jdbcType=VARCHAR},
+                                                #{paymentTypeCode, jdbcType=VARCHAR},
+                                                #{paymentTypeName, jdbcType=VARCHAR},
+                                                #{bankCode, jdbcType=VARCHAR},
+                                                #{bankId, jdbcType=VARCHAR},
+                                                #{bankName, jdbcType=VARCHAR},
+                                                #{companyName, jdbcType=VARCHAR},
+                                                #{companyId, jdbcType=VARCHAR},
+                                                #{isDefault, jdbcType=VARCHAR},
+                                                                                                                                                #{loginUserId, jdbcType=BIGINT},
+    #{loginUserName, jdbcType=VARCHAR},
+    #{now}
+)
+    </insert>
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.finance.bean.dto.TFdBankAffiliatedDTO">
+        UPDATE
+        T_FD_BANK_AFFILIATED
+        SET
+        ID = #{id,jdbcType=VARCHAR},
+        PAYMENT_METHOD_CODE = #{paymentMethodCode,jdbcType=VARCHAR},
+        PAYMENT_METHOD_NAME = #{paymentMethodName,jdbcType=VARCHAR},
+        PAYMENT_TYPE_CODE = #{paymentTypeCode,jdbcType=VARCHAR},
+        PAYMENT_TYPE_NAME = #{paymentTypeName,jdbcType=VARCHAR},
+        BANK_CODE = #{bankCode,jdbcType=VARCHAR},
+        BANK_ID = #{bankId,jdbcType=BIGINT},
+        BANK_NAME = #{bankName,jdbcType=VARCHAR},
+        COMPANY_NAME = #{companyName,jdbcType=VARCHAR},
+        COMPANY_ID = #{companyId,jdbcType=VARCHAR},
+        IS_DEFAULT = #{isDefault,jdbcType=VARCHAR},
+        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM
+            T_FD_BANK_AFFILIATED
+        WHERE
+            id = #{id}
+    </delete>
+</mapper>
+

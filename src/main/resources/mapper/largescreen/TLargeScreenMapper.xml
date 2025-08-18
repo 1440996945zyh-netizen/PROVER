@@ -1,0 +1,534 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.largescreen.mapper.TLargeScreenMapper">
+
+	<select id="getYyyyThroughput" resultType="int">
+		SELECT
+			TRUNC("SUM" (TON))
+		FROM
+			(
+				SELECT
+					"ABS" (TON) "TON"
+				FROM
+					T_PRD_PORT_STORAGE_DETAIL
+				WHERE
+					TO_CHAR (CREATE_TIME, 'YYYY') = #{value}
+			)
+	</select>
+
+	<select id="getYyyyMMThroughput" resultType="int">
+		SELECT
+			TRUNC("SUM" (TON))
+		FROM
+			(
+				SELECT
+					"ABS" (TON) "TON"
+				FROM
+					T_PRD_PORT_STORAGE_DETAIL
+				WHERE
+					TO_CHAR (CREATE_TIME, 'YYYY-MM') = #{value}
+			)
+	</select>
+
+	<select id="getYyyyMMddThroughput" resultType="int">
+		SELECT
+			TRUNC("SUM" (TON))
+		FROM
+			(
+				SELECT
+					"ABS" (TON) "TON"
+				FROM
+					T_PRD_PORT_STORAGE_DETAIL
+				WHERE
+					TO_CHAR (CREATE_TIME, 'YYYY-MM-DD') = #{value}
+			)
+	</select>
+
+	<select id="getYyyyThroughputS" resultType="int">
+		SELECT
+			SUM(TON)
+		FROM
+			S_PORT_THROIGHPUT
+		WHERE CARGO_TYPE = #{cargoType}
+		<if test="portCode != null and portCode != ''">
+			AND PORT_CODE = #{portCode}
+		</if>
+		AND TO_CHAR (DATE_TIME, 'YYYY') = #{dateTime}
+		AND DATE_TYPE = '1'
+	</select>
+
+	<select id="getYyyyMMThroughputS1" resultType="int">
+		SELECT
+			SUM(TON)
+		FROM
+			S_PORT_THROIGHPUT
+		WHERE CARGO_TYPE = #{cargoType}
+		<if test="portCode != null and portCode != ''">
+			AND PORT_CODE = #{portCode}
+		</if>
+		AND TO_CHAR (DATE_TIME, 'YYYY-MM') >= #{startTime}
+		AND TO_CHAR (DATE_TIME, 'YYYY-MM') &lt;= #{endTime}
+		AND DATE_TYPE = '2'
+	</select>
+
+	<select id="getYyyyMMThroughputS" resultType="int">
+		SELECT
+		SUM(TON)
+		FROM
+			S_PORT_THROIGHPUT
+		WHERE CARGO_TYPE = #{cargoType}
+		<if test="portCode != null and portCode != ''">
+			AND PORT_CODE = #{portCode}
+		</if>
+		AND TO_CHAR (DATE_TIME, 'YYYY-MM') = #{dateTime}
+		AND DATE_TYPE = '2'
+	</select>
+
+	<select id="getYyyyMMddThroughputS" resultType="int">
+		SELECT
+			SUM(TON)
+		FROM
+			S_PORT_THROIGHPUT
+		WHERE CARGO_TYPE = #{cargoType}
+		<if test="portCode != null and portCode != ''">
+			AND PORT_CODE = #{portCode}
+		</if>
+		AND TO_CHAR (DATE_TIME, 'YYYY-MM-DD') = #{dateTime}
+		AND DATE_TYPE = '3'
+	</select>
+
+	<!-- 以上是吞吐量相关查询 -->
+
+	<select id="getThroughputSList_MM" resultType="java.util.Map">
+		SELECT
+			TRUNC("SUM" (TON)) "ton",
+			TO_CHAR (CREATE_TIME, 'YYYY-MM') "month"
+		FROM
+			(
+				SELECT
+					"ABS" (TON) "TON",
+					CREATE_TIME "CREATE_TIME"
+				FROM
+					T_PRD_PORT_STORAGE_DETAIL
+				WHERE
+					TO_CHAR (CREATE_TIME, 'YYYY-MM') IN
+					<foreach collection="monthList" item="month" separator="," open="(" close=")">
+						#{month}
+					</foreach>
+			)
+		GROUP BY TO_CHAR (CREATE_TIME, 'YYYY-MM')
+		ORDER BY TO_CHAR (CREATE_TIME, 'YYYY-MM')
+	</select>
+
+	<select id="getThroughputSList_DD" resultType="java.util.Map">
+		SELECT
+			TRUNC("SUM" (TON)) "ton",
+			TO_CHAR (CREATE_TIME, 'YYYY-MM-DD') "day"
+		FROM
+			(
+				SELECT
+					"ABS" (TON) "TON",
+					CREATE_TIME "CREATE_TIME"
+				FROM
+					T_PRD_PORT_STORAGE_DETAIL
+				WHERE
+					TO_CHAR (CREATE_TIME, 'YYYY-MM-DD') IN
+					<foreach collection="daysList" item="day" separator="," open="(" close=")">
+						#{day}
+					</foreach>
+			)
+		GROUP BY TO_CHAR (CREATE_TIME, 'YYYY-MM-DD')
+		ORDER BY TO_CHAR (CREATE_TIME, 'YYYY-MM-DD')
+	</select>
+
+	<select id="getThroughputSList_MM_S" resultType="java.util.Map">
+		SELECT
+			SUM(TON) "ton",
+			TO_CHAR (DATE_TIME, 'YYYY-MM') "month"
+		FROM
+			S_PORT_THROIGHPUT
+		WHERE
+			CARGO_TYPE = #{cargoType}
+			<if test="portCode != null and portCode != ''">
+				AND PORT_CODE = #{portCode}
+			</if>
+			AND DATE_TYPE = '2'
+			AND TO_CHAR (DATE_TIME, 'YYYY-MM') IN
+			<foreach collection="monthList" item="month" separator="," open="(" close=")">
+				#{month}
+			</foreach>
+		GROUP BY TO_CHAR (DATE_TIME, 'YYYY-MM')
+		ORDER BY TO_CHAR (DATE_TIME, 'YYYY-MM')
+	</select>
+
+	<select id="getThroughputSList_DD_S" resultType="java.util.Map">
+		SELECT
+			SUM(TON) "ton",
+			TO_CHAR (DATE_TIME, 'YYYY-MM-DD') "day"
+		FROM
+			S_PORT_THROIGHPUT
+		WHERE
+			CARGO_TYPE = #{cargoType}
+			<if test="portCode != null and portCode != ''">
+				AND PORT_CODE = #{portCode}
+			</if>
+			AND DATE_TYPE = '3'
+			AND TO_CHAR (DATE_TIME, 'YYYY-MM-DD') IN
+			<foreach collection="daysList" item="day" separator="," open="(" close=")">
+				#{day}
+			</foreach>
+		GROUP BY TO_CHAR (DATE_TIME, 'YYYY-MM-DD')
+		ORDER BY TO_CHAR (DATE_TIME, 'YYYY-MM-DD')
+	</select>
+	<!-- 以上是吞吐量列表 -->
+
+
+	<select id="getInPortCarNum" resultType="int">
+		SELECT
+			COUNT (*) "inPortCarNum"
+		FROM
+			WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND
+		WHERE
+			WEIGH_OUT_DT IS NULL
+		AND WEIGH_IN_DT IS NOT NULL
+		AND INV_NO IS NOT NULL
+	</select>
+
+	<select id="getDuration" resultType="int">
+		SELECT
+			ROUND ("SUM"("time") / count(*), 0) "inPortCarDuration"
+		FROM
+			(
+				SELECT
+					ROUND (
+						TO_NUMBER (SYSDATE - WEIGH_IN_DT) * 24 * 60,
+						0
+					) "time"
+				FROM
+					WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND
+				WHERE
+					IS_TALLY = 0
+				AND INV_NO IS NOT NULL
+				AND "TO_CHAR" (WEIGH_IN_DT, 'YYYY-MM-DD') = TO_CHAR (SYSDATE, 'YYYY-MM-DD')
+				UNION
+					SELECT
+						ROUND (
+							TO_NUMBER (
+								b.CREATE_TIME - A .WEIGH_IN_DT
+							) * 24 * 60,
+							0
+						) "time"
+					FROM
+						WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND A,
+						T_YARD_TALLY b
+					WHERE
+						A .note_id = b.WEIGHBRIDGE_ID
+					AND A .IS_TALLY = 1
+					AND "TO_CHAR" (A .WEIGH_IN_DT, 'YYYY-MM-DD') = TO_CHAR (SYSDATE, 'YYYY-MM-DD')
+					AND A .INV_NO IS NOT NULL
+			)
+	</select>
+
+	<select id="getInPortCarList" resultType="java.util.Map">
+		SELECT
+			A .TRUCK_PLATE "carNum",
+			TO_CHAR (
+				A .WEIGH_IN_DT,
+				'YYYY-MM-DD hh24:mi'
+			) "inPortDate",
+			A .GOODS_NAME "cargoName",
+			A .COM_NAME "shipName",
+			B.WEIGHT "planTon",
+			A .REC_UNIT "cargoOwner",
+			ROUND (
+				TO_NUMBER (SYSDATE - WEIGH_IN_DT) * 24 * 60,
+				0
+			) "inPortTime"
+		FROM
+			WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND A 
+			LEFT JOIN T_BUS_VEHICLE_RESERVATION B ON A.TSPT_ID = B.TASK_NO
+		WHERE
+			A .WEIGH_OUT_DT IS NULL
+		AND A .WEIGH_IN_DT IS NOT NULL
+		AND A .INV_NO IS NOT NULL
+	</select>
+
+	<select id="getInPortCarNum_S" resultType="int">
+		SELECT
+			COUNT (*) "inPortCarNum"
+		FROM
+			S_INPORT_CAR
+		WHERE
+			TO_CHAR (IN_PORT_DATE, 'YYYY-MM-DD') = TO_CHAR (SYSDATE, 'YYYY-MM-DD')
+		<if test="portCode != null and portCode != ''">
+			AND PORT_CODE = #{portCode}
+		</if>
+	</select>
+
+	<select id="getDuration_S" resultType="int">
+		SELECT
+			ROUND (SUM(IN_PORT_TIME), 0) "inPortCarDuration"
+		FROM
+			S_INPORT_CAR
+		WHERE
+			TO_CHAR (IN_PORT_DATE, 'YYYY-MM-DD') = TO_CHAR (SYSDATE, 'YYYY-MM-DD')
+		<if test="portCode != null and portCode != ''">
+			AND PORT_CODE = #{portCode}
+		</if>
+	</select>
+
+	<select id="getInPortCarList_S" resultType="java.util.Map">
+		SELECT
+			CAR_NUM "carNum",
+			SHIP_NAME "shipName",
+			CARGO_NAME "cargoName",
+			PLAN_TON "planTon",
+			CARGO_OWNER "cargoOwner",
+			TO_CHAR (
+				IN_PORT_DATE,
+				'YYYY-MM-DD hh24:mi'
+			) "inPortDate",
+			IN_PORT_TIME "inPortTime"
+		FROM
+			S_INPORT_CAR
+		WHERE
+			TO_CHAR (IN_PORT_DATE, 'YYYY-MM-DD') = TO_CHAR (SYSDATE, 'YYYY-MM-DD')
+		<if test="portCode != null and portCode != ''">
+			AND PORT_CODE = #{portCode}
+		</if>
+	</select>
+	<!-- 以上是查询在港车辆信息 -->
+
+	<select id="getLeftPieChartList" resultType="java.util.Map">
+		SELECT
+			"SUM" (B.TON) "ton",
+			A .PACKING_CODE "packingCode",
+			A .PACKING_NAME "packingName"
+		FROM
+			T_BUS_CARGO_INFO A,
+			T_PRD_PORT_STORAGE_DETAIL b
+		WHERE
+			A . ID = b.CARGO_INFO_ID
+		GROUP BY
+			A .PACKING_CODE,
+			A .PACKING_NAME
+	</select>
+
+	<select id="getRightPieChartList" resultType="java.util.Map">
+		SELECT
+			"SUM" (B.TON) "ton",
+			A .CARGO_NAME "cargoName"
+		FROM
+			T_BUS_CARGO_INFO A,
+			T_PRD_PORT_STORAGE_DETAIL b
+		WHERE
+			A . ID = b.CARGO_INFO_ID
+		HAVING
+			"SUM" (B.TON) > 0
+		GROUP BY
+			A .CARGO_NAME
+	</select>
+	<!-- 以上为饼状图 -->
+
+	<select id="getShipPlan" resultType="java.util.Map">
+		SELECT
+			A .BERTH_NAME "berthName",
+			A .SHIP_NAME "shipName",
+			TO_CHAR(A .BERTH_TIME, 'YYYY-MM-DD')  "berthTime" ,
+			B .LOAD_UNLOAD "loadOrUnload",
+			B.CARGO_CATEGORY_NAME "cargoName",
+			"SUM" (B.CARGO_NUM) "ton",
+			B. ID "id"
+		FROM
+			T_DIS_SHIP_DAYNIGTTPLAN TDSD,
+			T_DIS_SHIPVOYAGE A,
+			T_DIS_SHIPVOYAGE_ITEM B
+		WHERE
+			A .SHIP_STATUS_CODE != '120'
+			AND TDSD.SHIPVOYAGE_ID = A.ID
+			AND B.SHIPVOYAGE_ID = A . ID
+			AND TDSD.PLAN_DATE > TO_DATE (#{searchDate}, 'YYYY-MM-DD')
+		GROUP BY
+			B. ID,
+			A .BERTH_NAME,
+			A .SHIP_NAME,
+			A .BERTH_TIME,
+			B .LOAD_UNLOAD,
+			B.CARGO_CATEGORY_NAME
+	</select>
+
+	<select id="getWorkTon" resultType="java.math.BigDecimal">
+		SELECT
+			"SUM" (c.TON)
+		FROM
+			T_BUS_TRUST A,
+			T_PRD_WORK_PLAN B,
+			T_PRD_WORK_TICKET c
+		WHERE
+			A . ID = b.TRUST_ID
+		AND c.WORK_PLAN_ID = b. ID
+		AND A .SHIPVOYAGE_ITEM_ID = #{shipvoyageItemId}
+		AND a.TYPE = #{type}
+	</select>
+
+	<select id="getShipPlan_S" resultType="java.util.Map">
+		SELECT
+			SHIP_NAME "shipName",
+			CARGO_NAME "cargoName",
+			LOAD_OR_UNLOAD "loadOrUnload",
+			TON	"ton",
+			SHIP_STATUS "shipStatus",
+			BERTH_TIME "berthTime",
+			BERTH_NAME "berthName",
+			SCHEDULE "schedule"
+		FROM S_SHIP_TRENDS
+		WHERE SHIP_STATUS != '9'
+		<if test="portCode != null and portCode != ''">
+			AND PORT_CODE = #{portCode}
+		</if>
+		ORDER BY BERTH_TIME DESC
+	</select>
+	<!-- 以上是查询船舶计划 -->
+
+	<select id="getShipDynamics" resultType="java.util.Map">
+		SELECT
+			A .SHIP_NAME "shipName",
+			TO_CHAR (A.BERTH_TIME, 'YYYY-MM-DD HH24:MI') "berthTime",
+			'' "leaveTime",
+			A . ID "id",
+			A .SHIP_STATUS_CODE "shipStatusCode",
+			A .SHIP_STATUS_NAME "shipStatusName"
+		FROM
+			T_DIS_SHIPVOYAGE A
+		WHERE
+			A .SHIP_STATUS_CODE != '20'
+		AND A .SHIP_NAME NOT LIKE '%测试%'
+		AND A .CREATE_TIME > TO_DATE (#{searchDate}, 'YYYY-MM-DD')
+		ORDER BY A .BERTH_TIME DESC 
+	</select>
+
+	<select id="getShipLeaveTime" resultType="java.lang.String">
+		SELECT
+			TO_CHAR (
+				DYNAMIC_START_TIME,
+				'YYYY-MM-DD HH24:MI'
+			)
+		FROM
+			T_DIS_SHIP_DYNAMIC
+		WHERE
+			SHIPVOYAGE_ID = #{id}
+		AND DYNAMIC_TYPE_CODE = '120'
+		AND ROWNUM = 1
+	</select>
+
+	<select id="getShipberthTime" resultType="java.lang.String">
+		SELECT
+			TO_CHAR (
+				DYNAMIC_START_TIME,
+				'YYYY-MM-DD HH24:MI'
+			)
+		FROM
+			T_DIS_SHIP_DYNAMIC
+		WHERE
+			SHIPVOYAGE_ID = #{id}
+		AND DYNAMIC_TYPE_CODE = '50'
+		AND ROWNUM = 1
+		ORDER BY DYNAMIC_START_TIME
+	</select>
+
+	<select id="getShipDynamics_S" resultType="java.util.Map">
+		SELECT
+			SHIP_NAME "shipName",
+			CARGO_NAME "cargoName",
+			LOAD_OR_UNLOAD "loadOrUnload",
+			TON	"ton",
+			SHIP_STATUS "shipStatus",
+			TO_CHAR (BERTH_TIME, 'YYYY-MM-DD HH24:MI') "berthTime",
+			TO_CHAR (LEAVE_TIME, 'YYYY-MM-DD HH24:MI') "leaveTime",
+			BERTH_NAME "berthName",	
+			SCHEDULE "schedule"	
+		FROM S_SHIP_TRENDS
+		<where>
+			<if test="portCode != null and portCode != ''">
+			 	PORT_CODE = #{portCode}
+			</if>
+		</where>
+		ORDER BY BERTH_TIME DESC
+	</select>
+	<select id="getDurationAll" resultType="java.lang.Integer">
+		SELECT
+			ROUND ("SUM"("time") / count(*), 0) "inPortCarDuration"
+		FROM
+			(
+				SELECT
+					ROUND (
+						TO_NUMBER (SYSDATE - WEIGH_IN_DT) * 24 * 60,
+						0
+					) "time"
+				FROM
+					WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND
+				WHERE
+					IS_TALLY = 0
+				AND INV_NO IS NOT NULL
+				AND "TO_CHAR" (WEIGH_IN_DT, 'YYYY-MM-DD') = TO_CHAR (SYSDATE, 'YYYY-MM-DD')
+				UNION
+					SELECT
+						ROUND (
+							TO_NUMBER (
+								b.CREATE_TIME - A .WEIGH_IN_DT
+							) * 24 * 60,
+							0
+						) "time"
+					FROM
+						WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND A,
+						T_YARD_TALLY b
+					WHERE
+						A .note_id = b.WEIGHBRIDGE_ID
+					AND A .IS_TALLY = 1
+					AND "TO_CHAR" (A .WEIGH_IN_DT, 'YYYY-MM-DD') = TO_CHAR (SYSDATE, 'YYYY-MM-DD')
+					AND A .INV_NO IS NOT NULL
+				UNION
+					SELECT
+					IN_PORT_TIME "time"
+					FROM
+					S_INPORT_CAR
+					WHERE
+					TO_CHAR (IN_PORT_DATE, 'YYYY-MM-DD') = TO_CHAR (SYSDATE, 'YYYY-MM-DD')
+			)
+	</select>
+	<select id="getLeftPieChartList_S" resultType="java.util.Map">
+		SELECT
+			"SUM" (TON) "ton",
+			CASE
+			WHEN CARGO_TYPE = 1 THEN '件'
+			WHEN CARGO_TYPE = 2 THEN '散'
+			ELSE '其他'
+			END AS "packingName"
+		FROM
+			S_PORT_STORAGE
+		<where>
+			<if test="portCode != null and portCode != ''">
+				PORT_CODE = #{portCode}
+			</if>
+		</where>
+		GROUP BY
+			CARGO_TYPE
+	</select>
+	<select id="getRightPieChartList_S" resultType="java.util.Map">
+		SELECT
+			"SUM" (TON) "ton",
+			CARGO_NAME "cargoName"
+		FROM
+			S_PORT_STORAGE
+		<where>
+			<if test="portCode != null and portCode != ''">
+				PORT_CODE = #{portCode}
+			</if>
+		</where>
+		HAVING
+			"SUM" (TON) > 0
+		GROUP BY
+			CARGO_NAME
+	</select>
+
+</mapper>

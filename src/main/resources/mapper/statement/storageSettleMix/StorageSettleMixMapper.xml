@@ -1,0 +1,1141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.statement.mapper.storageSettleMix.StorageSettleMixMapper">
+
+    <select id="listCargoInfo" resultType="com.yy.ppm.statement.bean.dto.storageSettleMix.TBusCargoInfoDTO">
+        SELECT TBCI.ID,
+        TBCI.CARGO_INFO_NO,
+        TBCI.COMPANY_ID,
+        TBCI.COMPANY_NAME,
+        TBCI.SHIPVOYAGE_ID,
+        TBCI.SHIPVOYAGE_ITEM_ID,
+        CASE WHEN TBCI.SHIPVOYAGE_ID IS NOT NULL THEN MAX(TDS.SHIP_NAME) || '_' || MAX(TDSI.VOYAGE) END
+        "shipNameVoyage",
+        MAX(TDS.SCN) "scn",
+        REGEXP_REPLACE(LISTAGG(TBT.ID, ',') WITHIN GROUP (ORDER BY TBT.ID), '([^,]+)(,\1)+',
+        '\1') "trustIds",
+        REGEXP_REPLACE(LISTAGG(TO_CHAR(TBT.TRUST_NO), ',') WITHIN GROUP (ORDER BY TBT.TRUST_NO),
+        '([^,]+)(,\1)+',
+        '\1') "trustNos",
+        TBCI.CARGO_OWNER_ID,
+        TBCI.CARGO_OWNER_NAME,
+        MC.WORK_TYPE,
+        DECODE(MC.WORK_TYPE, '1', '件杂', '2', '散杂', '3', '木材', NULL) "workTypeLabel",
+        TBCI.CARGO_CODE,
+        TBCI.CARGO_NAME,
+        TBCI.TRADE_TYPE,
+        MAX(TDS.BERTH_TIME) "berthTime",
+        MAX(TDS.LEAVE_BERTH_TIME) "leaveBerthTime",
+        MAX(TDS.LEAVE_PORT_TIME),
+        REGEXP_REPLACE(LISTAGG(TO_CHAR(TBT.RELEASE_TIME, 'yyyy-MM-dd HH:mm:ss'), ',')
+        WITHIN GROUP (ORDER BY TBT.RELEASE_TIME), '([^,]+)(,\1)+',
+        '\1') "releaseTimes",
+        MAX(TDSI.LOAD_UNLOAD) "loadUnload",
+        MAX(TDSI.IMP_EXP) "impExp",
+        MAX(DECODE(TDSI.IMP_EXP, 'IN', '进口', '出口')) "impExpLabel",
+        MAX(TDSI.WORK_END_TIME) "workEndTime",
+        CASE
+        WHEN TBCI.SHIPVOYAGE_ID IS NOT NULL THEN NVL2(TBCI.CLEAR_DATE, TEMP.MAX_WEIGH_OUT_DT, SYSDATE) -
+        MAX(TDS.BERTH_TIME)
+        ELSE NVL2(TBCI.CLEAR_DATE, GREATEST(MAX(TDSI.WORK_END_TIME), TEMP3.MAX_WEIGH_OUT_DT), SYSDATE) -
+        TEMP2.MIN_WEIGH_OUT_DT END - CASE
+        WHEN TBCI.ROOT_ID IS NOT NULL THEN TBCI.RESIDUE_STORAGE
+        ELSE TEMP4.FREE_STORAGE_DAYS END "overdueDays",
+        TBCI.IS_CLEAR,
+        TBCI.CLEAR_BY_NAME,
+        TBCI.CLEAR_DATE
+        FROM T_BUS_CARGO_INFO TBCI
+        LEFT JOIN (SELECT TEMP.CARGO_INFO_ID, MIN(TEMP.WEIGH_OUT_DT) WEIGH_OUT_DT
+        FROM (SELECT TEMP.CARGO_INFO_ID, VWI.WEIGH_OUT_DT
+        FROM (SELECT TBTC.BUSINESS_NO, TBTC.CARGO_INFO_ID
+        FROM T_BUS_TRUST_CARGO TBTC
+        JOIN T_BUS_TRUST TBT
+        ON TBTC.TRUST_ID = TBT.ID
+        AND TBT.TYPE IN ('集港', '拆箱集港')) TEMP
+        JOIN V_WEIGHT_INFO VWI
+        ON VWI.IS_OLD = '否'
+        AND TEMP.BUSINESS_NO = VWI.PLAN_NO
+        UNION ALL
+        SELECT TO_NUMBER(VWI2.CARGO_INFO_ID), VWI2.WEIGH_OUT_DT
+        FROM V_WEIGHT_INFO VWI2
+        WHERE VWI2.IS_OLD = '是'
+        AND VWI2.PLAN_TYPE IN ('集港', '拆箱集港')) TEMP
+        GROUP BY TEMP.CARGO_INFO_ID) TEMP5
+        ON TBCI.ID = TEMP5.CARGO_INFO_ID
+        JOIN M_CARGO MC
+        ON TBCI.CARGO_CODE = MC.CARGO_CODE
+        LEFT JOIN T_DIS_SHIPVOYAGE TDS
+        ON TBCI.SHIPVOYAGE_ID = TDS.ID
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM TDSI
+        ON TBCI.SHIPVOYAGE_ITEM_ID = TDSI.ID
+        LEFT JOIN T_BUS_TRUST_CARGO TBTC
+        ON TBCI.ID = TBTC.CARGO_INFO_ID
+        LEFT JOIN T_BUS_TRUST TBT
+        ON TBTC.TRUST_ID = TBT.ID
+        LEFT JOIN (SELECT ID,
+        TYPE,
+        CARGO_INFO_ID,
+        TRUST_ID,
+        TRUST_CARGO_ID,
+        SHIPVOYAGE_ID,
+        SHIPVOYAGE_ITEM_ID,
+        SHIP_NAME,
+        TRADE_TYPE,
+        LOAD_UNLOAD,
+        CARGO_OWNER_ID,
+        CARGO_OWNER_NAME,
+        CARGO_AGENT_ID,
+        CARGO_AGENT_NAME,
+        CARGO_CODE,
+        CARGO_NAME,
+        QUANTITY,
+        TON,
+        TICKET_NUM,
+        STATEMENT_STATUS_CODE,
+        STATEMENT_STATUS_NAME,
+        REMARK,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME,
+        VOYAGE,
+        CONTRACT_ITEM_ID,
+        CONTRACT_CODE,
+        PRE_WEIGHT,
+        VOLUME_TON
+        FROM T_BUS_HANDOVERLIST
+        WHERE CHARGE_STATUS != '30'
+        UNION
+        SELECT ID,
+        TYPE,
+        CARGO_INFO_ID,
+        TRUST_ID,
+        TRUST_CARGO_ID,
+        SHIPVOYAGE_ID,
+        SHIPVOYAGE_ITEM_ID,
+        SHIP_NAME,
+        TRADE_TYPE,
+        LOAD_UNLOAD,
+        CARGO_OWNER_ID,
+        CARGO_OWNER_NAME,
+        CARGO_AGENT_ID,
+        CARGO_AGENT_NAME,
+        CARGO_CODE,
+        CARGO_NAME,
+        QUANTITY,
+        TON,
+        TICKET_NUM,
+        STATEMENT_STATUS_CODE,
+        STATEMENT_STATUS_NAME,
+        REMARK,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME,
+        VOYAGE,
+        CONTRACT_ITEM_ID,
+        CONTRACT_CODE,
+        PRE_WEIGHT,
+        VOLUME_TON
+        FROM T_BUS_HANDOVERLIST_TRANSFER
+        WHERE CHARGE_STATUS != '30') TBH
+        ON TBCI.ID = TBH.CARGO_INFO_ID
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM TDSI
+        ON TBCI.SHIPVOYAGE_ITEM_ID = TDSI.ID
+        LEFT JOIN (SELECT TEMP.CARGO_INFO_ID,
+        MIN(TEMP.WEIGH_OUT_DT) MIN_WEIGH_OUT_DT,
+        MAX(TEMP.WEIGH_OUT_DT) MAX_WEIGH_OUT_DT
+        FROM (SELECT TEMP.CARGO_INFO_ID, VWI.WEIGH_OUT_DT
+        FROM (SELECT TBTC.BUSINESS_NO, TBTC.CARGO_INFO_ID
+        FROM T_BUS_TRUST_CARGO TBTC
+        JOIN T_BUS_TRUST TBT
+        ON TBTC.TRUST_ID = TBT.ID AND TBT.TYPE = '疏港') TEMP
+        JOIN V_WEIGHT_INFO VWI
+        ON VWI.IS_OLD = '否'
+        AND TEMP.BUSINESS_NO = VWI.PLAN_NO
+        UNION ALL
+        SELECT TO_NUMBER(VWI2.CARGO_INFO_ID), VWI2.WEIGH_OUT_DT
+        FROM V_WEIGHT_INFO VWI2
+        WHERE VWI2.IS_OLD = '是' AND VWI2.PLAN_TYPE = '疏港') TEMP
+        GROUP BY TEMP.CARGO_INFO_ID) TEMP
+        ON TBCI.ID = TEMP.CARGO_INFO_ID
+        LEFT JOIN (SELECT TEMP.CARGO_INFO_ID,
+        MIN(TEMP.WEIGH_OUT_DT) MIN_WEIGH_OUT_DT,
+        MAX(TEMP.WEIGH_OUT_DT) MAX_WEIGH_OUT_DT
+        FROM (SELECT TEMP.CARGO_INFO_ID, VWI.WEIGH_OUT_DT
+        FROM (SELECT TBTC.BUSINESS_NO, TBTC.CARGO_INFO_ID
+        FROM T_BUS_TRUST_CARGO TBTC
+        JOIN T_BUS_TRUST TBT
+        ON TBTC.TRUST_ID = TBT.ID
+        AND TBT.TYPE IN ('集港', '拆箱集港')) TEMP
+        JOIN V_WEIGHT_INFO VWI
+        ON VWI.IS_OLD = '否'
+        AND TEMP.BUSINESS_NO = VWI.PLAN_NO
+        UNION ALL
+        SELECT TO_NUMBER(VWI2.CARGO_INFO_ID), VWI2.WEIGH_OUT_DT
+        FROM V_WEIGHT_INFO VWI2
+        WHERE VWI2.IS_OLD = '是'
+        AND VWI2.PLAN_TYPE IN ('集港', '拆箱集港')) TEMP
+        GROUP BY TEMP.CARGO_INFO_ID) TEMP2
+        ON TBCI.ID = TEMP2.CARGO_INFO_ID
+        LEFT JOIN (SELECT TEMP.CARGO_INFO_ID,
+        MIN(TEMP.WEIGH_OUT_DT) MIN_WEIGH_OUT_DT,
+        MAX(TEMP.WEIGH_OUT_DT) MAX_WEIGH_OUT_DT
+        FROM (SELECT TEMP.CARGO_INFO_ID, VWI.WEIGH_OUT_DT
+        FROM (SELECT TBTC.BUSINESS_NO, TBTC.CARGO_INFO_ID
+        FROM T_BUS_TRUST_CARGO TBTC
+        JOIN T_BUS_TRUST TBT
+        ON TBTC.TRUST_ID = TBT.ID
+        AND TBT.TYPE = '陆销') TEMP
+        JOIN V_WEIGHT_INFO VWI
+        ON VWI.IS_OLD = '否'
+        AND TEMP.BUSINESS_NO = VWI.PLAN_NO
+        UNION ALL
+        SELECT TO_NUMBER(VWI2.CARGO_INFO_ID), VWI2.WEIGH_OUT_DT
+        FROM V_WEIGHT_INFO VWI2
+        WHERE VWI2.IS_OLD = '是'
+        AND VWI2.PLAN_TYPE = '陆销') TEMP
+        GROUP BY TEMP.CARGO_INFO_ID) TEMP3
+        ON TBCI.ID = TEMP3.CARGO_INFO_ID
+        LEFT JOIN (SELECT TBCC.COMPANY_ID,
+        TBC.CUSTOMER_ID,
+        TBC.START_TIME,
+        TBC.END_TIME,
+        TBCR.CARGO_CODE,
+        MIN(TBCR.FREE_STORAGE_DAYS) FREE_STORAGE_DAYS
+        FROM T_BUS_CONTRACT_COMPANY TBCC
+        JOIN T_BUS_CONTRACT TBC
+        ON (TBC.STATUS = '20'
+        AND TBCC.CONTRACT_ID = TBC.ID)
+        JOIN T_BUS_CONTRACT_RATE TBCR
+        ON (TBCR.RATE_ITEM_CODE = 'MS00240'
+        AND TBC.ID = TBCR.CONTRACT_ID)
+        GROUP BY TBCC.COMPANY_ID, TBC.CUSTOMER_ID, TBC.START_TIME, TBC.END_TIME,
+        TBCR.CARGO_CODE) TEMP4
+        ON (TBCI.COMPANY_ID = TEMP4.COMPANY_ID
+        AND TBCI.CARGO_OWNER_ID = TEMP4.CUSTOMER_ID
+        AND CASE
+        WHEN TBCI.SHIPVOYAGE_ID IS NOT NULL THEN TDS.BERTH_TIME
+        ELSE TEMP5.WEIGH_OUT_DT END >= TEMP4.START_TIME
+        AND CASE
+        WHEN TBCI.SHIPVOYAGE_ID IS NOT NULL THEN TDS.BERTH_TIME
+        ELSE TEMP5.WEIGH_OUT_DT END &lt;= TEMP4.END_TIME
+        AND TBCI.CARGO_CODE = TEMP4.CARGO_CODE)
+        <where>
+            AND TBCI.SOURCE = '50'
+            <if test="cargoInfoNo != null and cargoInfoNo != ''">
+                <bind name="cargoInfoNoLike" value="'%' + cargoInfoNo + '%'"/>
+                AND TBCI.CARGO_INFO_NO LIKE #{cargoInfoNoLike,jdbcType=VARCHAR}
+            </if>
+            <if test="shipvoyageItemId != null">
+                AND TBCI.SHIPVOYAGE_ITEM_ID = #{shipvoyageItemId,jdbcType=BIGINT}
+            </if>
+            <if test="cargoOwnerId != null">
+                AND TBCI.CARGO_OWNER_ID = #{cargoOwnerId,jdbcType=BIGINT}
+            </if>
+            <if test="shipStatusCode != null and shipStatusCode != ''">
+                AND TDSI.SHIP_STATUS_CODE = #{shipStatusCode,jdbcType=BIGINT}
+            </if>
+            <if test="beginLeaveBerthTime != null">
+                AND TDS.LEAVE_BERTH_TIME >= #{beginLeaveBerthTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="endLeaveBerthTime != null">
+                AND TDS.LEAVE_BERTH_TIME &lt;= #{endLeaveBerthTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="cargoName != null and cargoName != ''">
+                <bind name="cargoNameLike" value="'%' + cargoName + '%'"/>
+                AND TBCI.CARGO_NAME LIKE #{cargoNameLike, jdbcType=VARCHAR}
+            </if>
+            <if test="isOverdue == '1'.toString()">
+                AND CASE
+                WHEN TBCI.SHIPVOYAGE_ID IS NOT NULL THEN NVL2(TBCI.CLEAR_DATE, TEMP.MAX_WEIGH_OUT_DT, SYSDATE) -
+                TDS.BERTH_TIME
+                ELSE NVL2(TBCI.CLEAR_DATE, GREATEST(TDSI.WORK_END_TIME, TEMP3.MAX_WEIGH_OUT_DT), SYSDATE) -
+                TEMP2.MIN_WEIGH_OUT_DT END - CASE WHEN TBCI.ROOT_ID IS NOT NULL THEN TBCI.RESIDUE_STORAGE ELSE
+                TEMP4.FREE_STORAGE_DAYS END
+                > 0
+            </if>
+            <if test="isOverdue == '0'.toString()">
+                AND CASE
+                WHEN TBCI.SHIPVOYAGE_ID IS NOT NULL THEN NVL2(TBCI.CLEAR_DATE, TEMP.MAX_WEIGH_OUT_DT, SYSDATE) -
+                TDS.BERTH_TIME
+                ELSE NVL2(TBCI.CLEAR_DATE, GREATEST(TDSI.WORK_END_TIME, TEMP3.MAX_WEIGH_OUT_DT), SYSDATE) -
+                TEMP2.MIN_WEIGH_OUT_DT END - CASE WHEN TBCI.ROOT_ID IS NOT NULL THEN TBCI.RESIDUE_STORAGE ELSE
+                TEMP4.FREE_STORAGE_DAYS END
+                &lt;= 0
+            </if>
+            <if test="isClear != null and isClear != ''">
+                AND TBCI.IS_CLEAR = #{isClear,jdbcType=VARCHAR}
+            </if>
+            <if test="cargoCode != null and cargoCode != ''">
+                <bind name="cargoCodeLike" value="'%' + cargoCode + '%'"/>
+                AND TBCI.CARGO_CODE LIKE #{cargoCodeLike,jdbcType=VARCHAR}
+            </if>
+            <if test="impExp != null and impExp != ''">
+                AND TDSI2.IMP_EXP = #{impExp,jdbcType=VARCHAR}
+            </if>
+        </where>
+        GROUP BY TBCI.ID, TBCI.CARGO_INFO_NO, TBCI.COMPANY_ID, TBCI.COMPANY_NAME, TBCI.SHIPVOYAGE_ID,
+        TBCI.SHIPVOYAGE_ITEM_ID,
+        TBCI.CARGO_OWNER_ID, TBCI.CARGO_OWNER_NAME, TBCI.ID, MC.WORK_TYPE, TBCI.CARGO_CODE,
+        TBCI.CARGO_NAME, TBCI.TRADE_TYPE,
+        TBCI.CREATE_TIME, TEMP.MIN_WEIGH_OUT_DT, TEMP.MAX_WEIGH_OUT_DT, TEMP2.MIN_WEIGH_OUT_DT,
+        TEMP2.MAX_WEIGH_OUT_DT, TEMP3.MIN_WEIGH_OUT_DT, TEMP3.MAX_WEIGH_OUT_DT, TBCI.ROOT_ID,
+        TBCI.RESIDUE_STORAGE, TEMP4.FREE_STORAGE_DAYS, TBCI.IS_CLEAR, TBCI.CLEAR_BY_NAME, TBCI.CLEAR_DATE,
+        TBCI.CREATE_TIME
+        ORDER BY CASE
+        WHEN TBCI.SHIPVOYAGE_ID IS NOT NULL THEN
+        NVL2(TBCI.CLEAR_DATE, TEMP.MAX_WEIGH_OUT_DT, SYSDATE) - MAX(TDS.BERTH_TIME)
+        ELSE NVL2(TBCI.CLEAR_DATE, GREATEST(MAX(TDSI.WORK_END_TIME), TEMP3.MAX_WEIGH_OUT_DT), SYSDATE) -
+        TEMP2.MIN_WEIGH_OUT_DT END - CASE
+        WHEN TBCI.ROOT_ID IS NOT NULL THEN TBCI.RESIDUE_STORAGE
+        ELSE TEMP4.FREE_STORAGE_DAYS END DESC NULLS LAST
+    </select>
+
+    <select id="getCargoInfo" resultType="com.yy.ppm.business.bean.po.TBusCargoInfoPO">
+        SELECT ID,
+               SHIPVOYAGE_ID,
+               SHIPVOYAGE_ITEM_ID,
+               SCN,
+               SHIP_NAME,
+               CARGO_INFO_NO,
+               CARGO_OWNER_ID,
+               CARGO_OWNER_NAME,
+               CARGO_AGENT_ID,
+               CARGO_AGENT_NAME,
+               CARGO_CODE,
+               CARGO_NAME,
+               TRADE_TYPE,
+               PACKING_CODE,
+               PACKING_NAME,
+               COMPANY_ID,
+               COMPANY_NAME,
+               PARENT_ID,
+               ROOT_ID,
+               QUANTITY,
+               TON,
+               RIGHTS_QUANTITY,
+               SURPLUS_RIGHTS_QUANTITY,
+               IS_CLEAR,
+               CLEAR_BY,
+               CLEAR_BY_NAME,
+               CLEAR_DATE,
+               CREATE_BY,
+               CREATE_BY_NAME,
+               CREATE_TIME,
+               UPDATE_BY,
+               UPDATE_BY_NAME,
+               UPDATE_TIME,
+               SOURCE,
+               STATEMENT_STATUS_CODE,
+               STATEMENT_STATUS_NAME,
+               TRUST_ID,
+               CONTRACT_ITEM_ID,
+               CONTRACT_CODE,
+               VOYAGE,
+               STORAGE_DATE,
+               RESIDUE_STORAGE,
+               TRANSFER_DATE,
+               YSPHH,
+               JSZT,
+               TOS_CARGO_ID,
+               CDH,
+               IS_TOS,
+               MIX_FREE_STORAGE_DAYS
+        FROM T_BUS_CARGO_INFO
+        WHERE ID = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="getCargoInfo2" resultType="com.yy.ppm.statement.bean.dto.storageSettleMix.TBusCargoInfoDTO">
+        SELECT TBCI.ID,
+               TBCI.SHIPVOYAGE_ID,
+               TBCI.SHIPVOYAGE_ITEM_ID,
+               TBCI.SCN,
+               TBCI.SHIP_NAME,
+               TBCI.CARGO_INFO_NO,
+               TBCI.CARGO_OWNER_ID,
+               TBCI.CARGO_OWNER_NAME,
+               TBCI.CARGO_AGENT_ID,
+               TBCI.CARGO_AGENT_NAME,
+               TBCI.CARGO_CODE,
+               TBCI.CARGO_NAME,
+               TBCI.TRADE_TYPE,
+               TBCI.PACKING_CODE,
+               TBCI.PACKING_NAME,
+               TBCI.COMPANY_ID,
+               TBCI.COMPANY_NAME,
+               TBCI.PARENT_ID,
+               TBCI.ROOT_ID,
+               TBCI.QUANTITY,
+               TBCI.TON,
+               TBCI.RIGHTS_QUANTITY,
+               TBCI.SURPLUS_RIGHTS_QUANTITY,
+               TBCI.IS_CLEAR,
+               TBCI.CLEAR_BY,
+               TBCI.CLEAR_BY_NAME,
+               TBCI.CLEAR_DATE,
+               TBCI.CREATE_BY,
+               TBCI.CREATE_BY_NAME,
+               TBCI.CREATE_TIME,
+               TBCI.UPDATE_BY,
+               TBCI.UPDATE_BY_NAME,
+               TBCI.UPDATE_TIME,
+               TBCI.SOURCE,
+               TBCI.STATEMENT_STATUS_CODE,
+               TBCI.STATEMENT_STATUS_NAME,
+               TBCI.TRUST_ID,
+               TBCI.CONTRACT_ITEM_ID,
+               TBCI.CONTRACT_CODE,
+               TBCI.VOYAGE,
+               TBCI.STORAGE_DATE,
+               TBCMR.MIX_TIME
+        FROM T_BUS_CARGO_INFO TBCI
+        JOIN T_BUS_CARGO_MIX_RECORD TBCMR ON TBCI.ID = TBCMR.CARGO_INFO_ID
+        WHERE TBCI.ID = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="listTransferOutCargoInfo" resultType="com.yy.ppm.business.bean.po.TBusCargoInfoPO">
+        SELECT ID,
+               SHIPVOYAGE_ID,
+               SHIPVOYAGE_ITEM_ID,
+               SCN,
+               SHIP_NAME,
+               CARGO_INFO_NO,
+               CARGO_OWNER_ID,
+               CARGO_OWNER_NAME,
+               CARGO_AGENT_ID,
+               CARGO_AGENT_NAME,
+               CARGO_CODE,
+               CARGO_NAME,
+               TRADE_TYPE,
+               PACKING_CODE,
+               PACKING_NAME,
+               COMPANY_ID,
+               COMPANY_NAME,
+               PARENT_ID,
+               ROOT_ID,
+               QUANTITY,
+               TON,
+               RIGHTS_QUANTITY,
+               SURPLUS_RIGHTS_QUANTITY,
+               IS_CLEAR,
+               CLEAR_BY,
+               CLEAR_BY_NAME,
+               CLEAR_DATE,
+               CREATE_BY,
+               CREATE_BY_NAME,
+               CREATE_TIME,
+               UPDATE_BY,
+               UPDATE_BY_NAME,
+               UPDATE_TIME,
+               SOURCE,
+               STATEMENT_STATUS_CODE,
+               STATEMENT_STATUS_NAME,
+               TRUST_ID,
+               CONTRACT_ITEM_ID,
+               CONTRACT_CODE,
+               VOYAGE,
+               STORAGE_DATE,
+               RESIDUE_STORAGE,
+               TRANSFER_DATE,
+               ID,
+               SHIPVOYAGE_ID,
+               SHIPVOYAGE_ITEM_ID,
+               SCN,
+               SHIP_NAME,
+               CARGO_INFO_NO,
+               CARGO_OWNER_ID,
+               CARGO_OWNER_NAME,
+               CARGO_AGENT_ID,
+               CARGO_AGENT_NAME,
+               CARGO_CODE,
+               CARGO_NAME,
+               TRADE_TYPE,
+               PACKING_CODE,
+               PACKING_NAME,
+               COMPANY_ID,
+               COMPANY_NAME,
+               PARENT_ID,
+               ROOT_ID,
+               QUANTITY,
+               TON,
+               RIGHTS_QUANTITY,
+               SURPLUS_RIGHTS_QUANTITY,
+               IS_CLEAR,
+               CLEAR_BY,
+               CLEAR_BY_NAME,
+               CLEAR_DATE,
+               CREATE_BY,
+               CREATE_BY_NAME,
+               CREATE_TIME,
+               UPDATE_BY,
+               UPDATE_BY_NAME,
+               UPDATE_TIME,
+               SOURCE,
+               STATEMENT_STATUS_CODE,
+               STATEMENT_STATUS_NAME,
+               TRUST_ID,
+               CONTRACT_ITEM_ID,
+               CONTRACT_CODE,
+               VOYAGE,
+               STORAGE_DATE,
+               RESIDUE_STORAGE
+        FROM T_BUS_CARGO_INFO
+        WHERE PARENT_ID = #{parentId,jdbcType=BIGINT}
+    </select>
+
+    <resultMap id="listMixOutWeight" type="java.util.Map">
+        <result column="mixDate" property="mixDate" javaType="java.util.Date"/>
+        <result column="mixWeight" property="mixWeight" javaType="java.math.BigDecimal"/>
+    </resultMap>
+
+    <select id="listMixOutWeight" resultMap="listMixOutWeight">
+        SELECT TO_DATE(TO_CHAR(TBCMR.MIX_TIME, 'YYYY-MM-DD'), 'YYYY-MM-DD') "mixDate",
+               SUM(TBCMD.MIX_WEIGHT)                                        "mixWeight"
+        FROM T_BUS_CARGO_MIX_RECORD TBCMR
+                 JOIN T_BUS_CARGO_MIX_DETAIL TBCMD ON TBCMR.ID = TBCMD.MIX_RECORD_ID
+        WHERE TBCMD.CARGO_INFO_ID = #{cargoInfoId,jdbcType=BIGINT}
+        GROUP BY TO_DATE(TO_CHAR(TBCMR.MIX_TIME, 'YYYY-MM-DD'), 'YYYY-MM-DD')
+    </select>
+
+    <resultMap id="listContract" type="java.util.Map">
+        <result column="ID" property="id" jdbcType="BIGINT"/>
+        <result column="CONTRACT_NO" property="contractNo" jdbcType="VARCHAR"/>
+        <association property="rate" javaType="java.util.Map">
+            <result column="CONTRACT_RATE_ID" property="contractRateId" jdbcType="BIGINT"/>
+            <result column="FREE_STORAGE_DAYS" property="freeStorageDays" jdbcType="INTEGER"/>
+            <result column="RATE" property="rate" jdbcType="DECIMAL"/>
+            <result column="TAX" property="tax" jdbcType="DECIMAL"/>
+        </association>
+        <collection property="fileIds" ofType="java.lang.Long" javaType="java.util.List">
+            <result column="FILE_ID"/>
+        </collection>
+    </resultMap>
+
+    <select id="listContract" resultMap="listContract">
+        SELECT TBC.ID,
+        TBC.CONTACT_NO "CONTRACT_NO",
+        TBCR.ID "CONTRACT_RATE_ID",
+        TBCR.FREE_STORAGE_DAYS,
+        TBCR.RATE,
+        TBCR.TAX,
+        SFB.FILE_ID
+        FROM T_BUS_CARGO_INFO TBCI
+        LEFT JOIN (SELECT TEMP.CARGO_INFO_ID, MIN(TEMP.WEIGH_OUT_DT) WEIGH_OUT_DT
+        FROM (SELECT TEMP.CARGO_INFO_ID, VWI.WEIGH_OUT_DT
+        FROM (SELECT TBTC.BUSINESS_NO, TBTC.CARGO_INFO_ID
+        FROM T_BUS_TRUST_CARGO TBTC
+        JOIN T_BUS_TRUST TBT
+        ON TBTC.TRUST_ID = TBT.ID
+        AND TBT.TYPE IN ('集港', '拆箱集港')) TEMP
+        JOIN V_WEIGHT_INFO VWI
+        ON VWI.IS_OLD = '否' AND TEMP.BUSINESS_NO = VWI.PLAN_NO
+        UNION ALL
+        SELECT TO_NUMBER(VWI2.CARGO_INFO_ID), VWI2.WEIGH_OUT_DT
+        FROM V_WEIGHT_INFO VWI2
+        WHERE VWI2.IS_OLD = '是'
+        AND VWI2.PLAN_TYPE IN ('集港', '拆箱集港')) TEMP
+        GROUP BY TEMP.CARGO_INFO_ID) TEMP ON TBCI.ID = TEMP.CARGO_INFO_ID
+        JOIN T_BUS_CONTRACT_COMPANY TBCC ON TBCI.COMPANY_ID = TBCC.COMPANY_ID
+        LEFT JOIN T_DIS_SHIPVOYAGE TDS ON TBCI.SHIPVOYAGE_ID = TDS.ID
+        JOIN T_BUS_CONTRACT TBC
+        ON (TBC.STATUS = '20' AND TBCC.CONTRACT_ID = TBC.ID AND
+        TBCI.CARGO_OWNER_ID = TBC.CUSTOMER_ID AND
+        <choose>
+            <when test="date != null">
+                #{date} >= TBC.START_TIME
+                AND #{date} &lt;= TBC.END_TIME
+            </when>
+            <otherwise>
+                TO_DATE(TO_CHAR(CASE WHEN TBCI.SHIPVOYAGE_ID IS NOT NULL THEN TDS.BERTH_TIME ELSE TEMP.WEIGH_OUT_DT END,
+                'yyyy-MM-dd'), 'yyyy-MM-dd') >= TBC.START_TIME AND
+                TO_DATE(TO_CHAR(CASE WHEN TBCI.SHIPVOYAGE_ID IS NOT NULL THEN TDS.BERTH_TIME ELSE TEMP.WEIGH_OUT_DT END,
+                'yyyy-MM-dd'), 'yyyy-MM-dd') &lt;= TBC.END_TIME
+            </otherwise>
+        </choose>
+        )
+        JOIN T_BUS_CONTRACT_RATE TBCR
+        ON (TBCR.RATE_ITEM_CODE = 'MS00240' AND TBC.ID = TBCR.CONTRACT_ID AND
+        TBCI.CARGO_CODE = TBCR.CARGO_CODE)
+        LEFT JOIN SYS_FILE_BUSINESS SFB ON TBC.ID = SFB.BUSINESS_ID
+        WHERE TBCI.ID = #{cargoInfoId,jdbcType=BIGINT}
+        ORDER BY TBC.CREATE_TIME DESC
+    </select>
+
+    <select id="listStorageSettleDetail"
+            resultType="com.yy.ppm.statement.bean.dto.storageSettleMix.TCostStorageSettleDetailDTO">
+        SELECT
+        TCSSD.ID,
+        TCSSD.STORAGE_SETTLE_ID,
+        TCSSD."DATE",
+        TCSSD.TON,
+        TCSSD.BILLABLE_TON,
+        TCSSD.IN_TON,
+        TCSSD.OUT_TON,
+        TCSSD.AMOUNT,
+        TCSSD.TAX_AMOUNT
+        FROM T_COST_STORAGE_SETTLE_DETAIL TCSSD
+        JOIN T_COST_STORAGE_SETTLE TCSS ON TCSSD.STORAGE_SETTLE_ID = TCSS.ID
+        WHERE TCSS.CARGO_INFO_ID = #{cargoInfoId,jdbcType=BIGINT}
+        <if test="startDate != null">
+            AND TCSSD."DATE" >= #{startDate,jdbcType=TIMESTAMP}
+        </if>
+        <if test="endDate != null">
+            AND TCSSD."DATE" &lt;= #{endDate,jdbcType=TIMESTAMP}
+        </if>
+    </select>
+
+    <insert id="insertStorageSettle">
+        INSERT INTO T_COST_STORAGE_SETTLE (ID, COMPANY_ID, COMPANY_NAME, SHIPVOYAGE_ID, SHIPVOYAGE_ITEM_ID,
+                                           CARGO_OWNER_ID, CARGO_OWNER_NAME, CARGO_INFO_ID, HANDOVERLIST_ID,
+                                           CONTRACT_ID, CONTRACT_RATE_ID, RATE, TAX, FREE_STORAGE_DAYS, AMOUNT,
+                                           TAX_AMOUNT, START_DATE, END_DATE, STATUS, REVIEW_BY, REVIEW_BY_NAME,
+                                           REVIEW_BY_TIME, CREATE_BY, CREATE_BY_NAME, CREATE_TIME, UPDATE_BY,
+                                           UPDATE_BY_NAME, UPDATE_TIME)
+        VALUES (#{id,jdbcType=BIGINT},
+                #{companyId,jdbcType=BIGINT},
+                #{companyName,jdbcType=VARCHAR},
+                #{shipvoyageId,jdbcType=BIGINT},
+                #{shipvoyageItemId,jdbcType=BIGINT},
+                #{cargoOwnerId,jdbcType=BIGINT},
+                #{cargoOwnerName,jdbcType=VARCHAR},
+                #{cargoInfoId,jdbcType=BIGINT},
+                #{handoverlistId,jdbcType=BIGINT},
+                #{contractId,jdbcType=BIGINT},
+                #{contractRateId,jdbcType=BIGINT},
+                #{rate,jdbcType=DECIMAL},
+                #{tax,jdbcType=DECIMAL},
+                #{freeStorageDays,jdbcType=INTEGER},
+                #{amount,jdbcType=DECIMAL},
+                #{taxAmount,jdbcType=DECIMAL},
+                #{startDate,jdbcType=TIMESTAMP},
+                #{endDate,jdbcType=TIMESTAMP},
+                #{status,jdbcType=VARCHAR},
+                #{reviewBy,jdbcType=BIGINT},
+                #{reviewByName,jdbcType=VARCHAR},
+                #{reviewByTime,jdbcType=TIMESTAMP},
+                #{loginUserId,jdbcType=BIGINT},
+                #{loginUserName,jdbcType=VARCHAR},
+                #{now,jdbcType=TIMESTAMP},
+                #{updateBy,jdbcType=BIGINT},
+                #{updateByName,jdbcType=VARCHAR},
+                #{updateTime,jdbcType=TIMESTAMP})
+    </insert>
+
+    <insert id="insertStorageSettleDetail">
+        <foreach collection="details" open="BEGIN" close="END;" item="detail">
+            INSERT INTO T_COST_STORAGE_SETTLE_DETAIL(ID, STORAGE_SETTLE_ID, "DATE", TON, BILLABLE_TON, IN_TON, OUT_TON,
+            AMOUNT,TAX_AMOUNT)
+            VALUES (#{detail.id,jdbcType=BIGINT},
+            #{detail.storageSettleId,jdbcType=BIGINT},
+            #{detail.date,jdbcType=TIMESTAMP},
+            #{detail.ton,jdbcType=DECIMAL},
+            #{detail.billableTon,jdbcType=DECIMAL},
+            #{detail.inTon,jdbcType=DECIMAL},
+            #{detail.outTon,jdbcType=DECIMAL},
+            #{detail.amount,jdbcType=DECIMAL},
+            #{detail.taxAmount,jdbcType=DECIMAL});
+        </foreach>
+    </insert>
+
+    <resultMap id="listStorageSettle" type="com.yy.ppm.statement.bean.dto.storageSettleMix.TCostStorageSettleDTO">
+        <result column="TCSS_ID" property="id" jdbcType="BIGINT"/>
+        <result column="TCSS_COMPANY_ID" property="companyId" jdbcType="BIGINT"/>
+        <result column="TCSS_COMPANY_NAME" property="companyName" jdbcType="VARCHAR"/>
+        <result column="TCSS_SHIPVOYAGE_ID" property="shipvoyageId" jdbcType="BIGINT"/>
+        <result column="TCSS_SHIPVOYAGE_ITEM_ID" property="shipvoyageItemId" jdbcType="BIGINT"/>
+        <result column="TCSS_CARGO_OWNER_ID" property="cargoOwnerId" jdbcType="BIGINT"/>
+        <result column="TCSS_CARGO_OWNER_NAME" property="cargoOwnerName" jdbcType="VARCHAR"/>
+        <result column="TCSS_CARGO_INFO_ID" property="cargoInfoId" jdbcType="BIGINT"/>
+        <result column="TCSS_HANDOVERLIST_ID" property="handoverlistId" jdbcType="BIGINT"/>
+        <result column="TCSS_CONTRACT_ID" property="contractId" jdbcType="BIGINT"/>
+        <result column="TCSS_CONTRACT_RATE_ID" property="contractRateId" jdbcType="BIGINT"/>
+        <result column="TCSS_RATE" property="rate" jdbcType="DECIMAL"/>
+        <result column="TCSS_TAX" property="tax" jdbcType="DECIMAL"/>
+        <result column="TCSS_FREE_STORAGE_DAYS" property="freeStorageDays" jdbcType="INTEGER"/>
+        <result column="TCSS_AMOUNT" property="amount" jdbcType="DECIMAL"/>
+        <result column="TCSS_TAX_AMOUNT" property="taxAmount" jdbcType="DECIMAL"/>
+        <result column="TCSS_START_DATE" property="startDate" jdbcType="TIMESTAMP"/>
+        <result column="TCSS_END_DATE" property="endDate" jdbcType="TIMESTAMP"/>
+        <result column="TCSS_STATUS" property="status" jdbcType="VARCHAR"/>
+        <result column="TCSS_REVIEW_BY" property="reviewBy" jdbcType="BIGINT"/>
+        <result column="TCSS_REVIEW_BY_NAME" property="reviewByName" jdbcType="VARCHAR"/>
+        <result column="TCSS_REVIEW_BY_TIME" property="reviewByTime" jdbcType="TIMESTAMP"/>
+        <result column="TCSS_CREATE_BY" property="createBy" jdbcType="BIGINT"/>
+        <result column="TCSS_CREATE_BY_NAME" property="createByName" jdbcType="VARCHAR"/>
+        <result column="TCSS_CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="TCSS_UPDATE_BY" property="updateBy" jdbcType="BIGINT"/>
+        <result column="TCSS_UPDATE_BY_NAME" property="updateByName" jdbcType="VARCHAR"/>
+        <result column="TCSS_UPDATE_TIME" property="updateTime" jdbcType="VARCHAR"/>
+        <result column="CONTRACT_NO" property="contractNo" jdbcType="VARCHAR"/>
+        <result column="statementStatus" property="statementStatus" jdbcType="VARCHAR"/>
+        <result column="statementStatusLabel" property="statementStatusLabel" jdbcType="VARCHAR"/>
+        <collection property="details"
+                    ofType="com.yy.ppm.statement.bean.dto.storageSettleMix.TCostStorageSettleDetailDTO">
+            <result column="TCSSD_ID" property="id" jdbcType="BIGINT"/>
+            <result column="TCSSD_STORAGE_SETTLE_ID" property="storageSettleId" jdbcType="BIGINT"/>
+            <result column="TCSSD_DATE" property="date" jdbcType="TIMESTAMP"/>
+            <result column="TCSSD_TON" property="ton" jdbcType="DECIMAL"/>
+            <result column="TCSSD_BILLABLE_TON" property="billableTon" jdbcType="DECIMAL"/>
+            <result column="TCSSD_IN_TON" property="inTon" jdbcType="DECIMAL"/>
+            <result column="TCSSD_OUT_TON" property="outTon" jdbcType="DECIMAL"/>
+            <result column="TCSSD_AMOUNT" property="amount" jdbcType="DECIMAL"/>
+            <result column="TCSSD_TAX_AMOUNT" property="taxAmount" jdbcType="DECIMAL"/>
+        </collection>
+    </resultMap>
+
+    <select id="listStorageSettle" resultMap="listStorageSettle">
+        SELECT TCSS.ID                                                                                             TCSS_ID,
+               TCSS.COMPANY_ID                                                                                     TCSS_COMPANY_ID,
+               TCSS.COMPANY_NAME                                                                                   TCSS_COMPANY_NAME,
+               TCSS.SHIPVOYAGE_ID                                                                                  TCSS_SHIPVOYAGE_ID,
+               TCSS.SHIPVOYAGE_ITEM_ID                                                                             TCSS_SHIPVOYAGE_ITEM_ID,
+               TCSS.CARGO_OWNER_ID                                                                                 TCSS_CARGO_OWNER_ID,
+               TCSS.CARGO_OWNER_NAME                                                                               TCSS_CARGO_OWNER_NAME,
+               TCSS.CARGO_INFO_ID                                                                                  TCSS_CARGO_INFO_ID,
+               TCSS.HANDOVERLIST_ID                                                                                TCSS_HANDOVERLIST_ID,
+               TCSS.CONTRACT_ID                                                                                    TCSS_CONTRACT_ID,
+               TCSS.CONTRACT_RATE_ID                                                                               TCSS_CONTRACT_RATE_ID,
+               TCSS.RATE                                                                                           TCSS_RATE,
+               TCSS.TAX                                                                                            TCSS_TAX,
+               TCSS.FREE_STORAGE_DAYS                                                                              TCSS_FREE_STORAGE_DAYS,
+               TCSS.AMOUNT                                                                                         TCSS_AMOUNT,
+               TCSS.TAX_AMOUNT                                                                                     TCSS_TAX_AMOUNT,
+               TCSS.START_DATE                                                                                     TCSS_START_DATE,
+               TCSS.END_DATE                                                                                       TCSS_END_DATE,
+               TCSS.STATUS                                                                                         TCSS_STATUS,
+               TCSS.REVIEW_BY                                                                                      TCSS_REVIEW_BY,
+               TCSS.REVIEW_BY_NAME                                                                                 TCSS_REVIEW_BY_NAME,
+               TCSS.REVIEW_BY_TIME                                                                                 TCSS_REVIEW_BY_TIME,
+               TCSS.CREATE_BY                                                                                      TCSS_CREATE_BY,
+               TCSS.CREATE_BY_NAME                                                                                 TCSS_CREATE_BY_NAME,
+               TCSS.CREATE_TIME                                                                                    TCSS_CREATE_TIME,
+               TCSS.UPDATE_BY                                                                                      TCSS_UPDATE_BY,
+               TCSS.UPDATE_BY_NAME                                                                                 TCSS_UPDATE_BY_NAME,
+               TCSS.UPDATE_TIME                                                                                    TCSS_UPDATE_TIME,
+               TCSSD.ID                                                                                            TCSSD_ID,
+               TCSSD.STORAGE_SETTLE_ID                                                                             TCSSD_STORAGE_SETTLE_ID,
+               TCSSD."DATE"                                                                                        TCSSD_DATE,
+               TCSSD.TON                                                                                           TCSSD_TON,
+               TCSSD.BILLABLE_TON                                                                                  TCSSD_BILLABLE_TON,
+               TCSSD.IN_TON                                                                                        TCSSD_IN_TON,
+               TCSSD.OUT_TON                                                                                       TCSSD_OUT_TON,
+               TCSSD.AMOUNT                                                                                        TCSSD_AMOUNT,
+               TCSSD.TAX_AMOUNT                                                                                    TCSSD_TAX_AMOUNT,
+               TBC.CONTACT_NO                                                                                      CONTRACT_NO,
+               DECODE(TCSS.STATUS, '10', '1', TCS.STATUS)                                                          "statementStatus",
+               DECODE(TCSS.STATUS, '10', '已结算', DECODE(TCS.STATUS, '30', '计费审核',
+                                                          DECODE(TCS.STATUS, '31', '商务确认',
+                                                                 DECODE(TCS.STATUS, '40', '部分开票',
+                                                                        DECODE(TCS.STATUS, '50', '已开票', ''))))) "statementStatusLabel"
+        FROM T_COST_STORAGE_SETTLE TCSS
+                 JOIN T_COST_STORAGE_SETTLE_DETAIL TCSSD ON TCSS.ID = TCSSD.STORAGE_SETTLE_ID
+                 JOIN T_BUS_CONTRACT TBC ON TCSS.CONTRACT_ID = TBC.ID
+                 LEFT JOIN T_COST_STATEMENT_DETAIL TCSD ON TCSS.ID = TCSD.BUSINESS_ID
+                 LEFT JOIN T_COST_STATEMENT TCS ON TCSD.STATEMENT = TCS.ID
+        WHERE TCSS.CARGO_INFO_ID = #{cargoInfoId,jdbcType=BIGINT}
+        ORDER BY TCSS.CREATE_TIME DESC, TCSSD."DATE"
+    </select>
+
+    <select id="getContractRate" resultType="com.yy.ppm.business.bean.po.TBusContractRatePO">
+        SELECT ID,
+               CONTRACT_ID,
+               CARGO_CODE,
+               CARGO_NAME,
+               RATE_ITEM_CODE,
+               RATE_ITEM_NAME,
+               TRADE_TYPE,
+               SERVICE_CONTENT_ID,
+               SERVICE_CONTENT_NAME,
+               PAYMENT_TYPE_CODE,
+               PAYMENT_TYPE_NAME,
+               PAYMENT_DAYS,
+               RATE,
+               TAX,
+               UNIT_CODE,
+               UNIT_NAME,
+               CREATE_BY,
+               CREATE_BY_NAME,
+               CREATE_TIME,
+               UPDATE_BY,
+               UPDATE_BY_NAME,
+               UPDATE_TIME,
+               TYPE,
+               RATE_ID,
+               FREE_STORAGE_DAYS,
+               TRATE_ITEM_ID,
+               TRATE_ID,
+               PROCESS_CODE,
+               PROCESS_NAME
+        FROM T_BUS_CONTRACT_RATE
+        WHERE ID = #{contractId,jdbcType=BIGINT}
+    </select>
+
+    <resultMap id="getStorageSettle" type="com.yy.ppm.statement.bean.dto.storageSettleMix.TCostStorageSettleDTO">
+        <result column="TCSS_ID" property="id" jdbcType="BIGINT"/>
+        <result column="TCSS_COMPANY_ID" property="companyId" jdbcType="BIGINT"/>
+        <result column="TCSS_COMPANY_NAME" property="companyName" jdbcType="VARCHAR"/>
+        <result column="TCSS_SHIPVOYAGE_ID" property="shipvoyageId" jdbcType="BIGINT"/>
+        <result column="TCSS_SHIPVOYAGE_ITEM_ID" property="shipvoyageItemId" jdbcType="BIGINT"/>
+        <result column="TCSS_CARGO_OWNER_ID" property="cargoOwnerId" jdbcType="BIGINT"/>
+        <result column="TCSS_CARGO_OWNER_NAME" property="cargoOwnerName" jdbcType="VARCHAR"/>
+        <result column="TCSS_CARGO_INFO_ID" property="cargoInfoId" jdbcType="BIGINT"/>
+        <result column="TCSS_HANDOVERLIST_ID" property="handoverlistId" jdbcType="BIGINT"/>
+        <result column="TCSS_CONTRACT_ID" property="contractId" jdbcType="BIGINT"/>
+        <result column="TCSS_CONTRACT_RATE_ID" property="contractRateId" jdbcType="BIGINT"/>
+        <result column="TCSS_RATE" property="rate" jdbcType="DECIMAL"/>
+        <result column="TCSS_TAX" property="tax" jdbcType="DECIMAL"/>
+        <result column="TCSS_FREE_STORAGE_DAYS" property="freeStorageDays" jdbcType="INTEGER"/>
+        <result column="TCSS_AMOUNT" property="amount" jdbcType="DECIMAL"/>
+        <result column="TCSS_TAX_AMOUNT" property="taxAmount" jdbcType="DECIMAL"/>
+        <result column="TCSS_START_DATE" property="startDate" jdbcType="TIMESTAMP"/>
+        <result column="TCSS_END_DATE" property="endDate" jdbcType="TIMESTAMP"/>
+        <result column="TCSS_STATUS" property="status" jdbcType="VARCHAR"/>
+        <result column="TCSS_REVIEW_BY" property="reviewBy" jdbcType="BIGINT"/>
+        <result column="TCSS_REVIEW_BY_NAME" property="reviewByName" jdbcType="VARCHAR"/>
+        <result column="TCSS_REVIEW_BY_TIME" property="reviewByTime" jdbcType="TIMESTAMP"/>
+        <result column="TCSS_CREATE_BY" property="createBy" jdbcType="BIGINT"/>
+        <result column="TCSS_CREATE_BY_NAME" property="createByName" jdbcType="VARCHAR"/>
+        <result column="TCSS_CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="TCSS_UPDATE_BY" property="updateBy" jdbcType="BIGINT"/>
+        <result column="TCSS_UPDATE_BY_NAME" property="updateByName" jdbcType="VARCHAR"/>
+        <result column="TCSS_UPDATE_TIME" property="updateTime" jdbcType="VARCHAR"/>
+        <result column="CONTRACT_NO" property="contractNo" jdbcType="VARCHAR"/>
+        <collection property="details"
+                    ofType="com.yy.ppm.statement.bean.dto.storageSettleMix.TCostStorageSettleDetailDTO">
+            <result column="TCSSD_ID" property="id" jdbcType="BIGINT"/>
+            <result column="TCSSD_STORAGE_SETTLE_ID" property="storageSettleId" jdbcType="BIGINT"/>
+            <result column="TCSSD_DATE" property="date" jdbcType="TIMESTAMP"/>
+            <result column="TCSSD_TON" property="ton" jdbcType="DECIMAL"/>
+            <result column="TCSSD_BILLABLE_TON" property="billableTon" jdbcType="DECIMAL"/>
+            <result column="TCSSD_IN_TON" property="inTon" jdbcType="DECIMAL"/>
+            <result column="TCSSD_OUT_TON" property="outTon" jdbcType="DECIMAL"/>
+            <result column="TCSSD_AMOUNT" property="amount" jdbcType="DECIMAL"/>
+            <result column="TCSSD_TAX_AMOUNT" property="taxAmount" jdbcType="DECIMAL"/>
+        </collection>
+    </resultMap>
+
+    <select id="getStorageSettle" resultMap="getStorageSettle">
+        SELECT TCSS.ID                 TCSS_ID,
+               TCSS.COMPANY_ID         TCSS_COMPANY_ID,
+               TCSS.COMPANY_NAME       TCSS_COMPANY_NAME,
+               TCSS.SHIPVOYAGE_ID      TCSS_SHIPVOYAGE_ID,
+               TCSS.SHIPVOYAGE_ITEM_ID TCSS_SHIPVOYAGE_ITEM_ID,
+               TCSS.CARGO_OWNER_ID     TCSS_CARGO_OWNER_ID,
+               TCSS.CARGO_OWNER_NAME   TCSS_CARGO_OWNER_NAME,
+               TCSS.CARGO_INFO_ID      TCSS_CARGO_INFO_ID,
+               TCSS.HANDOVERLIST_ID    TCSS_HANDOVERLIST_ID,
+               TCSS.CONTRACT_ID        TCSS_CONTRACT_ID,
+               TCSS.CONTRACT_RATE_ID   TCSS_CONTRACT_RATE_ID,
+               TCSS.RATE               TCSS_RATE,
+               TCSS.TAX                TCSS_TAX,
+               TCSS.FREE_STORAGE_DAYS  TCSS_FREE_STORAGE_DAYS,
+               TCSS.AMOUNT             TCSS_AMOUNT,
+               TCSS.TAX_AMOUNT         TCSS_TAX_AMOUNT,
+               TCSS.START_DATE         TCSS_START_DATE,
+               TCSS.END_DATE           TCSS_END_DATE,
+               TCSS.STATUS             TCSS_STATUS,
+               TCSS.REVIEW_BY          TCSS_REVIEW_BY,
+               TCSS.REVIEW_BY_NAME     TCSS_REVIEW_BY_NAME,
+               TCSS.REVIEW_BY_TIME     TCSS_REVIEW_BY_TIME,
+               TCSS.CREATE_BY          TCSS_CREATE_BY,
+               TCSS.CREATE_BY_NAME     TCSS_CREATE_BY_NAME,
+               TCSS.CREATE_TIME        TCSS_CREATE_TIME,
+               TCSS.UPDATE_BY          TCSS_UPDATE_BY,
+               TCSS.UPDATE_BY_NAME     TCSS_UPDATE_BY_NAME,
+               TCSS.UPDATE_TIME        TCSS_UPDATE_TIME,
+               TCSSD.ID                TCSSD_ID,
+               TCSSD.STORAGE_SETTLE_ID TCSSD_STORAGE_SETTLE_ID,
+               TCSSD."DATE"            TCSSD_DATE,
+               TCSSD.TON               TCSSD_TON,
+               TCSSD.BILLABLE_TON      TCSSD_BILLABLE_TON,
+               TCSSD.IN_TON            TCSSD_IN_TON,
+               TCSSD.OUT_TON           TCSSD_OUT_TON,
+               TCSSD.AMOUNT            TCSSD_AMOUNT,
+               TCSSD.TAX_AMOUNT        TCSSD_TAX_AMOUNT
+        FROM T_COST_STORAGE_SETTLE TCSS
+                 JOIN T_COST_STORAGE_SETTLE_DETAIL TCSSD ON TCSS.ID = TCSSD.STORAGE_SETTLE_ID
+        WHERE TCSS.ID = #{id,jdbcType=BIGINT}
+    </select>
+
+    <delete id="deleteStorageSettle">
+        DELETE
+        FROM T_COST_STORAGE_SETTLE
+        WHERE ID = #{id,jdbcType=BIGINT}
+    </delete>
+
+    <delete id="deleteStorageSettleDetail">
+        DELETE
+        FROM T_COST_STORAGE_SETTLE_DETAIL
+        WHERE STORAGE_SETTLE_ID = #{storageSettleId,jdbcType=BIGINT}
+    </delete>
+
+    <update id="review">
+        UPDATE T_COST_STORAGE_SETTLE
+        SET STATUS         = #{status,jdbcType=VARCHAR},
+            REVIEW_BY      = #{loginUserId,jdbcType=BIGINT},
+            REVIEW_BY_NAME = #{loginUserName,jdbcType=BIGINT},
+            REVIEW_BY_TIME = #{now,jdbcType=BIGINT}
+        WHERE ID = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="getHandoverlist" resultType="com.yy.ppm.statement.bean.po.TBusHandoverlistPO">
+        SELECT ID,
+               TYPE,
+               CARGO_INFO_ID,
+               TRUST_ID,
+               TRUST_CARGO_ID,
+               SHIPVOYAGE_ID,
+               SHIPVOYAGE_ITEM_ID,
+               SHIP_NAME,
+               TRADE_TYPE,
+               LOAD_UNLOAD,
+               CARGO_OWNER_ID,
+               CARGO_OWNER_NAME,
+               CARGO_AGENT_ID,
+               CARGO_AGENT_NAME,
+               CARGO_CODE,
+               CARGO_NAME,
+               QUANTITY,
+               TON,
+               TICKET_NUM,
+               STATEMENT_STATUS_CODE,
+               STATEMENT_STATUS_NAME,
+               REMARK,
+               CREATE_BY,
+               CREATE_BY_NAME,
+               CREATE_TIME,
+               UPDATE_BY,
+               UPDATE_BY_NAME,
+               UPDATE_TIME,
+               VOYAGE,
+               CONTRACT_ITEM_ID,
+               CONTRACT_CODE,
+               PRE_WEIGHT,
+               VOLUME_TON
+        FROM T_BUS_HANDOVERLIST
+        WHERE ID = #{id,jdbcType=BIGINT}
+    </select>
+
+    <insert id="insertStatement">
+        INSERT INTO T_COST_STATEMENT (ID, COMPANY_ID, COMPANY_NAME, STATEMENT_NO, CUSTOMER_ID,
+                                      CUSTOMER_NAME, TYPE, TRUST_ID, TRUST_CARGO_ID, HANDOVERLIST_ID,
+                                      SHIPVOYAGE_ID, SHIPVOYAGE_ITEM_ID, CARGO_CODE, CARGO_NAME,
+                                      TRADE_TYPE, SETTLEMENT_DATE, STATUS, REMARK, CREATE_BY,
+                                      CREATE_BY_NAME, CREATE_TIME, UPDATE_BY, UPDATE_BY_NAME,
+                                      UPDATE_TIME, IS_FINAL, STATEMENT_BY, STATEMENT_BY_NAME,
+                                      STATEMENT_TIME, REVIEW_BY, REVIEW_BY_NAME, REVIEW_TIME,
+                                      CONFIRM_BY, CONFIRM_BY_NAME, CONFIRM_TIME, SETTLEMENT_BASIS_CODE,
+                                      SETTLEMENT_BASIS_NAME, TAX_INVOICE_CODE, TAX_INVOICE_NAME,
+                                      RECEIPT_REMARK)
+        VALUES (#{id,jdbcType=BIGINT},
+                #{companyId,jdbcType=BIGINT},
+                #{companyName,jdbcType=VARCHAR},
+                #{statementNo,jdbcType=VARCHAR},
+                #{customerId,jdbcType=BIGINT},
+                #{customerName,jdbcType=VARCHAR},
+                #{type,jdbcType=VARCHAR},
+                #{trustId,jdbcType=BIGINT},
+                #{trustCargoId,jdbcType=BIGINT},
+                #{handoverlistId,jdbcType=BIGINT},
+                #{shipvoyageId,jdbcType=BIGINT},
+                #{shipvoyageItemId,jdbcType=BIGINT},
+                #{cargoCode,jdbcType=VARCHAR},
+                #{cargoName,jdbcType=VARCHAR},
+                #{tradeType,jdbcType=VARCHAR},
+                #{settlementDate,jdbcType=TIMESTAMP},
+                #{status,jdbcType=VARCHAR},
+                #{remark,jdbcType=VARCHAR},
+                #{loginUserId,jdbcType=BIGINT},
+                #{loginUserName,jdbcType=VARCHAR},
+                #{now,jdbcType=TIMESTAMP},
+                #{updateBy,jdbcType=BIGINT},
+                #{updateByName,jdbcType=VARCHAR},
+                #{updateTime,jdbcType=TIMESTAMP},
+                #{isFinal,jdbcType=VARCHAR},
+                #{statementBy,jdbcType=BIGINT},
+                #{statementByName,jdbcType=VARCHAR},
+                #{statementTime,jdbcType=TIMESTAMP},
+                #{reviewBy,jdbcType=BIGINT},
+                #{reviewByName,jdbcType=VARCHAR},
+                #{reviewTime,jdbcType=TIMESTAMP},
+                #{confirmBy,jdbcType=BIGINT},
+                #{confirmByName,jdbcType=VARCHAR},
+                #{confirmTime,jdbcType=TIMESTAMP},
+                #{settlementBasisCode,jdbcType=VARCHAR},
+                #{settlementBasisName,jdbcType=VARCHAR},
+                #{taxInvoiceCode,jdbcType=VARCHAR},
+                #{taxInvoiceName,jdbcType=VARCHAR},
+                #{receiptRemark,jdbcType=VARCHAR})
+    </insert>
+
+    <insert id="insertStatementDetail">
+        INSERT INTO T_COST_STATEMENT_DETAIL(ID, STATEMENT, CONTRACT_ID, RATE_ITEM_CODE,
+                                            RATE_ITEM_NAME, SERVICE_CONTENT_ID, SERVICE_CONTENT_NAME,
+                                            PROCESS_CODE, PROCESS_NAME, RATE, UNIT_CODE, UNIT_NAME,
+                                            "NUMBER", AMOUNT, TAX, TAX_AMOUNT, REMARK, CREATE_BY,
+                                            CREATE_BY_NAME, CREATE_TIME, UPDATE_BY, UPDATE_BY_NAME,
+                                            UPDATE_TIME, INVOICE_NUMBER, INVOICE_AMOUNT, BUSINESS_ID,
+                                            RATE_ID, IS_DERIVED, TRATE_ITEM_ID, PREFERENTIAL_RATE, NUMBER2,
+                                            TRATE_ID)
+        VALUES (#{id,jdbcType=BIGINT},
+                #{statement,jdbcType=BIGINT},
+                #{contractId,jdbcType=BIGINT},
+                #{rateItemCode,jdbcType=VARCHAR},
+                #{rateItemName,jdbcType=VARCHAR},
+                #{serviceContentId,jdbcType=BIGINT},
+                #{serviceContentName,jdbcType=VARCHAR},
+                #{processCode,jdbcType=VARCHAR},
+                #{processName,jdbcType=VARCHAR},
+                #{rate,jdbcType=DECIMAL},
+                #{unitCode,jdbcType=VARCHAR},
+                #{unitName,jdbcType=VARCHAR},
+                #{number,jdbcType=DECIMAL},
+                #{amount,jdbcType=DECIMAL},
+                #{tax,jdbcType=DECIMAL},
+                #{taxAmount,jdbcType=DECIMAL},
+                #{remark,jdbcType=VARCHAR},
+                #{loginUserId,jdbcType=BIGINT},
+                #{loginUserName,jdbcType=VARCHAR},
+                #{now,jdbcType=TIMESTAMP},
+                #{updateBy,jdbcType=BIGINT},
+                #{updateByName,jdbcType=VARCHAR},
+                #{updateTime,jdbcType=TIMESTAMP},
+                #{invoiceNumber,jdbcType=DECIMAL},
+                #{invoiceAmount,jdbcType=DECIMAL},
+                #{businessId,jdbcType=BIGINT},
+                #{rateId,jdbcType=BIGINT},
+                #{isDerived,jdbcType=VARCHAR},
+                #{trateItemId,jdbcType=BIGINT},
+                #{preferentialRate,jdbcType=DECIMAL},
+                #{number2,jdbcType=DECIMAL},
+                #{trateId,jdbcType=BIGINT})
+    </insert>
+
+    <select id="getStatement" resultType="com.yy.ppm.statement.bean.po.TCostStatementPO">
+        SELECT TCS.ID,
+               TCS.COMPANY_ID,
+               TCS.COMPANY_NAME,
+               TCS.STATEMENT_NO,
+               TCS.CUSTOMER_ID,
+               TCS.CUSTOMER_NAME,
+               TCS.TYPE,
+               TCS.TRUST_ID,
+               TCS.TRUST_CARGO_ID,
+               TCS.HANDOVERLIST_ID,
+               TCS.SHIPVOYAGE_ID,
+               TCS.SHIPVOYAGE_ITEM_ID,
+               TCS.CARGO_CODE,
+               TCS.CARGO_NAME,
+               TCS.TRADE_TYPE,
+               TCS.SETTLEMENT_DATE,
+               TCS.STATUS,
+               TCS.REMARK,
+               TCS.CREATE_BY,
+               TCS.CREATE_BY_NAME,
+               TCS.CREATE_TIME,
+               TCS.UPDATE_BY,
+               TCS.UPDATE_BY_NAME,
+               TCS.UPDATE_TIME,
+               TCS.IS_FINAL,
+               TCS.STATEMENT_BY,
+               TCS.STATEMENT_BY_NAME,
+               TCS.STATEMENT_TIME,
+               TCS.REVIEW_BY,
+               TCS.REVIEW_BY_NAME,
+               TCS.REVIEW_TIME,
+               TCS.CONFIRM_BY,
+               TCS.CONFIRM_BY_NAME,
+               TCS.CONFIRM_TIME,
+               TCS.SETTLEMENT_BASIS_CODE,
+               TCS.SETTLEMENT_BASIS_NAME,
+               TCS.TAX_INVOICE_CODE,
+               TCS.TAX_INVOICE_NAME,
+               TCS.RECEIPT_REMARK
+        FROM T_COST_STATEMENT TCS
+                 JOIN T_COST_STATEMENT_DETAIL TCSD ON TCS.ID = TCSD.STATEMENT
+        WHERE TCS.TYPE = '50'
+          AND TCSD.BUSINESS_ID = #{storageSettleId,jdbcType=BIGINT}
+        GROUP BY TCS.ID,
+                 TCS.COMPANY_ID,
+                 TCS.COMPANY_NAME,
+                 TCS.STATEMENT_NO,
+                 TCS.CUSTOMER_ID,
+                 TCS.CUSTOMER_NAME,
+                 TCS.TYPE,
+                 TCS.TRUST_ID,
+                 TCS.TRUST_CARGO_ID,
+                 TCS.HANDOVERLIST_ID,
+                 TCS.SHIPVOYAGE_ID,
+                 TCS.SHIPVOYAGE_ITEM_ID,
+                 TCS.CARGO_CODE,
+                 TCS.CARGO_NAME,
+                 TCS.TRADE_TYPE,
+                 TCS.SETTLEMENT_DATE,
+                 TCS.STATUS,
+                 TCS.REMARK,
+                 TCS.CREATE_BY,
+                 TCS.CREATE_BY_NAME,
+                 TCS.CREATE_TIME,
+                 TCS.UPDATE_BY,
+                 TCS.UPDATE_BY_NAME,
+                 TCS.UPDATE_TIME,
+                 TCS.IS_FINAL,
+                 TCS.STATEMENT_BY,
+                 TCS.STATEMENT_BY_NAME,
+                 TCS.STATEMENT_TIME,
+                 TCS.REVIEW_BY,
+                 TCS.REVIEW_BY_NAME,
+                 TCS.REVIEW_TIME,
+                 TCS.CONFIRM_BY,
+                 TCS.CONFIRM_BY_NAME,
+                 TCS.CONFIRM_TIME,
+                 TCS.SETTLEMENT_BASIS_CODE,
+                 TCS.SETTLEMENT_BASIS_NAME,
+                 TCS.TAX_INVOICE_CODE,
+                 TCS.TAX_INVOICE_NAME,
+                 TCS.RECEIPT_REMARK
+    </select>
+
+    <delete id="cancelReview">
+        UPDATE T_COST_STORAGE_SETTLE
+        SET STATUS         = #{status,jdbcType=VARCHAR},
+            REVIEW_BY      = NULL,
+            REVIEW_BY_NAME = NULL,
+            REVIEW_BY_TIME = NULL
+        WHERE ID = #{id,jdbcType=BIGINT}
+    </delete>
+
+    <delete id="deleteCostStatement">
+        DELETE
+        FROM T_COST_STATEMENT
+        WHERE ID = #{id,jdbcType=BIGINT}
+    </delete>
+
+    <delete id="deleteCostStatementDetail">
+        DELETE
+        FROM T_COST_STATEMENT_DETAIL
+        WHERE STATEMENT = #{statementId,jdbcType=BIGINT}
+    </delete>
+
+    <select id="getStackFeeReduce" resultType="com.yy.ppm.statement.bean.po.TBusStackFeeReducePO">
+        SELECT ID,
+               CARGO_INFO_ID,
+               REDUCE_TYPE,
+               REDUCE_DAYS,
+               REDUCE_END_DATE,
+               REMARK,
+               CREATE_BY,
+               CREATE_BY_NAME,
+               CREATE_TIME,
+               UPDATE_BY,
+               UPDATE_BY_NAME,
+               UPDATE_TIME
+        FROM T_BUS_STACK_FEE_REDUCE
+        WHERE CARGO_INFO_ID = #{cargoInfoId,jdbcType=BIGINT}
+    </select>
+</mapper>

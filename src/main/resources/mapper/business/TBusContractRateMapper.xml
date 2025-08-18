@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.business.mapper.TBusContractRateMapper">
+
+    <sql id="commonList">
+        SELECT
+        ID,
+        CONTRACT_ID,
+        CARGO_CODE,
+        CARGO_NAME,
+        RATE_ITEM_CODE,
+        RATE_ITEM_NAME,
+        TRADE_TYPE,
+        SERVICE_CONTENT_ID,
+        SERVICE_CONTENT_NAME,
+        PAYMENT_TYPE_CODE,
+        PAYMENT_TYPE_NAME,
+        PAYMENT_DAYS,
+        RATE,
+        TAX,
+        UNIT_CODE,
+        UNIT_NAME,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME,
+        "TYPE",
+        RATE_ID,
+        FREE_STORAGE_DAYS,
+        TRATE_ITEM_ID,
+        PROCESS_CODE,
+        PROCESS_NAME
+        FROM
+        T_BUS_CONTRACT_RATE
+        where
+            CONTRACT_ID = #{contractId}
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.business.bean.dto.TBusContractRateDTO"
+            parameterType="java.lang.Long">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.business.bean.dto.TBusContractRateDTO" parameterType="java.lang.Long">
+        SELECT
+            ID, CONTRACT_ID, CARGO_CODE, CARGO_NAME, RATE_ITEM_CODE, RATE_ITEM_NAME, TRADE_TYPE, SERVICE_CONTENT_ID,
+            SERVICE_CONTENT_NAME, PAYMENT_TYPE_CODE, PAYMENT_TYPE_NAME, PAYMENT_DAYS, RATE, TAX, UNIT_CODE, UNIT_NAME,
+            CREATE_BY, CREATE_BY_NAME, CREATE_TIME, UPDATE_BY, UPDATE_BY_NAME, UPDATE_TIME, "TYPE", RATE_ID, FREE_STORAGE_DAYS, TRATE_ITEM_ID,
+            PROCESS_CODE,
+            PROCESS_NAME
+        FROM
+        T_BUS_CONTRACT_RATE
+        <where>
+            id = #{id}
+        </where>
+    </select>
+    <select id="getCargoNameByCode" resultType="java.lang.Integer">
+        SELECT
+         count(*)
+        FROM
+        T_BUS_CONTRACT_RATE
+        <where>
+            CARGO_CODE  = #{cargoCode}
+        </where>
+    </select>
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.business.bean.dto.TBusContractRateDTO">
+        INSERT INTO T_BUS_CONTRACT_RATE(
+            ID,
+            CONTRACT_ID,
+            CARGO_CODE,
+            CARGO_NAME,
+            RATE_ITEM_CODE,
+            RATE_ITEM_NAME,
+            TRADE_TYPE,
+            SERVICE_CONTENT_ID,
+            SERVICE_CONTENT_NAME,
+            PAYMENT_TYPE_CODE,
+            PAYMENT_TYPE_NAME,
+            PAYMENT_DAYS,
+            RATE,
+            TAX,
+            UNIT_CODE,
+            UNIT_NAME,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            "TYPE",
+            RATE_ID,
+            FREE_STORAGE_DAYS,
+            TRATE_ITEM_ID,
+            PROCESS_CODE,
+            PROCESS_NAME
+        )VALUES (
+            #{id, jdbcType=VARCHAR},
+            #{contractId, jdbcType=VARCHAR},
+            #{cargoCode, jdbcType=VARCHAR},
+            #{cargoName, jdbcType=VARCHAR},
+            #{rateItemCode, jdbcType=VARCHAR},
+            #{rateItemName, jdbcType=VARCHAR},
+            #{tradeType, jdbcType=VARCHAR},
+            #{serviceContentId, jdbcType=VARCHAR},
+            #{serviceContentName, jdbcType=VARCHAR},
+            #{paymentTypeCode, jdbcType=VARCHAR},
+            #{paymentTypeName, jdbcType=VARCHAR},
+            #{paymentDays, jdbcType=VARCHAR},
+            #{rate, jdbcType=VARCHAR},
+            #{tax, jdbcType=VARCHAR},
+            #{unitCode, jdbcType=VARCHAR},
+            #{unitName, jdbcType=VARCHAR},                                                                                                                                  #{loginUserId, jdbcType=BIGINT},
+            #{loginUserName, jdbcType=VARCHAR},
+            #{now},
+            #{type,jdbcType=VARCHAR},
+            #{rateId,jdbcType=BIGINT},
+            #{freeStorageDays,jdbcType=INTEGER},
+            #{trateItemId,jdbcType=BIGINT},
+            #{processCode,jdbcType=VARCHAR},
+            #{processName,jdbcType=VARCHAR}
+        )
+    </insert>
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.business.bean.dto.TBusContractRateDTO">
+        UPDATE
+            T_BUS_CONTRACT_RATE
+        SET
+            CONTRACT_ID = #{contractId,jdbcType=BIGINT},
+            CARGO_CODE = #{cargoCode,jdbcType=VARCHAR},
+            CARGO_NAME = #{cargoName,jdbcType=VARCHAR},
+            RATE_ITEM_CODE = #{rateItemCode,jdbcType=VARCHAR},
+            RATE_ITEM_NAME = #{rateItemName,jdbcType=VARCHAR},
+            TRADE_TYPE = #{tradeType,jdbcType=VARCHAR},
+            SERVICE_CONTENT_ID = #{serviceContentId,jdbcType=BIGINT},
+            SERVICE_CONTENT_NAME = #{serviceContentName,jdbcType=VARCHAR},
+            PAYMENT_TYPE_CODE = #{paymentTypeCode,jdbcType=VARCHAR},
+            PAYMENT_TYPE_NAME = #{paymentTypeName,jdbcType=VARCHAR},
+            PAYMENT_DAYS = #{paymentDays,jdbcType=BIGINT},
+            RATE = #{rate, jdbcType=DECIMAL},
+            TAX = #{tax, jdbcType=DECIMAL},
+            UNIT_CODE = #{unitCode,jdbcType=VARCHAR},
+            UNIT_NAME = #{unitName,jdbcType=VARCHAR},
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now},
+            RATE_ID = #{rateId,jdbcType=BIGINT},
+            "TYPE" = #{type,jdbcType=VARCHAR},
+            FREE_STORAGE_DAYS = #{freeStorageDays,jdbcType=INTEGER},
+            TRATE_ITEM_ID = #{trateItemId,jdbcType=BIGINT},
+            PROCESS_CODE = #{processCode,jdbcType=VARCHAR},
+            PROCESS_NAME = #{processName,jdbcType=VARCHAR}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM
+            T_BUS_CONTRACT_RATE
+        WHERE
+            id = #{id}
+    </delete>
+</mapper>
+

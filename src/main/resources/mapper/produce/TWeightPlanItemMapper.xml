@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.produce.mapper.TWeightPlanItemMapper">
+
+    <sql id="commonList">
+        SELECT
+        ID,
+        PARENT_ID,
+        ID_NUMBER,
+        TRUCK_NO,
+        DRIVER,
+        TEL,
+        STATUS
+        FROM
+        T_WEIGHT_PLAN_ITEM
+        <where>
+            <if test="id != null">
+                and ID = #{id}
+            </if>
+            <if test="parentId != null">
+                and PARENT_ID = #{parentId}
+            </if>
+            <if test="idNumber != null and idNumber != ''">
+                and ID_NUMBER = #{idNumber}
+            </if>
+            <if test="truckNo != null and truckNo != ''">
+                and TRUCK_NO = #{truckNo}
+            </if>
+            <if test="driver != null and driver != ''">
+                and DRIVER = #{driver}
+            </if>
+            <if test="tel != null and tel != ''">
+                and TEL = #{tel}
+            </if>
+            <if test="status != null">
+                and STATUS = #{status}
+            </if>
+        </where>
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.produce.bean.dto.TWeightPlanItemDTO"
+            parameterType="com.yy.ppm.produce.bean.dto.TWeightPlanItemSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.produce.bean.dto.TWeightPlanItemDTO"
+            parameterType="com.yy.ppm.produce.bean.dto.TWeightPlanItemSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.produce.bean.dto.TWeightPlanItemDTO" parameterType="java.lang.Long">
+        SELECT
+        ID, PARENT_ID, ID_NUMBER, TRUCK_NO, DRIVER, TEL, STATUS FROM
+        T_WEIGHT_PLAN_ITEM
+        <where>
+            id = #{id}
+        </where>
+    </select>
+    <select id="getByParentId" resultType="com.yy.ppm.produce.bean.dto.TWeightPlanItemDTO">
+        SELECT
+        ID,
+        PARENT_ID,
+        ID_NUMBER,
+        TRUCK_NO,
+        DRIVER,
+        TEL,
+        STATUS
+        FROM
+        T_WEIGHT_PLAN_ITEM
+        WHERE
+        PARENT_ID = #{parentId}
+    </select>
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.produce.bean.dto.TWeightPlanItemDTO">
+        INSERT INTO T_WEIGHT_PLAN_ITEM(
+                ID,
+                PARENT_ID,
+                ID_NUMBER,
+                TRUCK_NO,
+                DRIVER,
+                TEL,
+                STATUS,
+                CREATE_BY,
+                CREATE_BY_NAME,
+                CREATE_TIME
+        )VALUES (
+                #{id, jdbcType=BIGINT},
+                #{parentId, jdbcType=VARCHAR},
+                #{idNumber, jdbcType=VARCHAR},
+                #{truckNo, jdbcType=VARCHAR},
+                #{driver, jdbcType=VARCHAR},
+                #{tel, jdbcType=VARCHAR},
+                #{status, jdbcType=VARCHAR},
+                #{loginUserId, jdbcType=BIGINT},
+                #{loginUserName, jdbcType=VARCHAR},
+                #{now}
+)
+    </insert>
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.produce.bean.dto.TWeightPlanItemDTO">
+        UPDATE
+        T_WEIGHT_PLAN_ITEM
+        SET
+        PARENT_ID = #{parentId,jdbcType=VARCHAR},
+        ID_NUMBER = #{idNumber,jdbcType=VARCHAR},
+        TRUCK_NO = #{truckNo,jdbcType=VARCHAR},
+        DRIVER = #{driver,jdbcType=VARCHAR},
+        TEL = #{tel,jdbcType=VARCHAR},
+        STATUS = #{status,jdbcType=VARCHAR},
+        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+    <update id="changeChildStatus">
+        UPDATE
+        T_WEIGHT_PLAN_ITEM
+        SET
+        STATUS = #{status,jdbcType=VARCHAR}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM
+            T_WEIGHT_PLAN_ITEM
+        WHERE
+            id = #{id}
+    </delete>
+
+    <insert id="insertBatch" parameterType="com.yy.ppm.produce.bean.po.TWeightPlanItemPO">
+        INSERT INTO T_WEIGHT_PLAN_ITEM(
+        ID,
+        PARENT_ID,
+        ID_NUMBER,
+        TRUCK_NO,
+        DRIVER,
+        TEL,
+        STATUS,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME) (
+        <foreach collection="list" item="item"  open="" close="" separator=" UNION ALL " >
+            SELECT
+            #{item.id, jdbcType=BIGINT},
+            #{item.parentId, jdbcType=VARCHAR},
+            #{item.idNumber, jdbcType=VARCHAR},
+            #{item.truckNo, jdbcType=VARCHAR},
+            #{item.driver, jdbcType=VARCHAR},
+            #{item.tel, jdbcType=VARCHAR},
+            #{item.status, jdbcType=VARCHAR},
+            #{item.loginUserId, jdbcType=BIGINT},
+            #{item.loginUserName, jdbcType=VARCHAR},
+            #{item.now,jdbcType=TIMESTAMP}
+            FROM DUAL
+        </foreach>
+        )
+    </insert>
+    <!-- 通过parentId进行删除 -->
+    <delete id="deleteByParentId" parameterType="java.lang.Long">
+        DELETE FROM
+            T_WEIGHT_PLAN_ITEM
+        WHERE
+            PARENT_ID = #{parentId}
+    </delete>
+
+</mapper>
+

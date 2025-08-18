@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.master.mapper.StorageYardMapper">
+
+    <!-- 根据id查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.master.bean.dto.StorageYardDTO" parameterType="java.lang.Long">
+        SELECT
+            ID,
+            PARENT_ID,
+            STORAGE_YARD_NM,
+            SHORT_CD,
+            AREA,
+            STORAGE_YARD_TYPE_CD,
+            IS_INNER_STORAGE_YARD,
+            UNIT_AREA_TON,
+            IS_RENT,
+            WORK_AREA_CD,
+            SORT_NUM,
+            STORAGE_YARD_LEVEL,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        FROM
+            M_STORAGE_YARD
+        <where>
+            ID = #{id}
+        </where>
+    </select>
+    <!-- 根据父id获取库场信息 -->
+
+    <select id="getByParentId" resultType="com.yy.ppm.master.bean.dto.StorageYardDTO" parameterType="java.lang.Long">
+        SELECT
+            A.ID,
+            A.PARENT_ID,
+            A.STORAGE_YARD_NM,
+            A.SHORT_CD,
+            A.AREA,
+            A.STORAGE_YARD_TYPE_CD,
+            B.DICT_LABEL STORAGE_YARD_TYPE_NM,
+            A.IS_INNER_STORAGE_YARD,
+            CASE A.IS_INNER_STORAGE_YARD
+            WHEN '1'
+            THEN
+            '是'
+            WHEN '0'
+            THEN
+            '否'
+            ELSE
+            ''
+            END AS IS_INNER_STORAGE_YARD_LABEL,
+            A.UNIT_AREA_TON,
+            A.IS_RENT,
+            A.IS_FRONTIER,
+            CASE A.IS_RENT
+            WHEN '1'
+            THEN
+                '是'
+            WHEN '0'
+            THEN
+                '否'
+            ELSE
+                ''
+            END AS IS_RENT_LABEL,
+            CASE A.IS_FRONTIER
+            WHEN '1'
+            THEN
+            '是'
+            WHEN '0'
+            THEN
+            '否'
+            ELSE
+            ''
+            END AS IS_FRONTIER_LABEL,
+            A.WORK_AREA_CD,
+            C.DICT_LABEL WORK_AREA_NM,
+            A.SORT_NUM,
+            A.STORAGE_YARD_LEVEL,
+            CASE WHEN (SELECT COUNT(B.ID) FROM M_STORAGE_YARD B WHERE B.PARENT_ID = A.ID) > 0
+            THEN
+                'TRUE'
+            ELSE
+                'FALSE'
+            END AS HAS_CHILDREN,
+            A.IS_BONDED_AREA,
+            CASE A.IS_BONDED_AREA
+            WHEN '1' THEN '是'
+            ELSE '否' END IS_BONDED_AREA_LABEL,
+        A.POSITION_NAME
+        FROM
+            M_STORAGE_YARD A
+        LEFT JOIN
+            M_DICT_DATA B ON B.DICT_VALUE = A.STORAGE_YARD_TYPE_CD AND B.DICT_TYPE = 'STORAGE_YARD_TYPE'
+        LEFT JOIN
+            M_DICT_DATA C ON C.DICT_VALUE = A.WORK_AREA_CD AND C.DICT_TYPE = 'WORK_AREA'
+        <where>
+            PARENT_ID = #{parentId}
+        </where>
+            ORDER BY A.SORT_NUM ASC
+    </select>
+    <select id="getByParentBHTId" resultType="com.yy.ppm.master.bean.dto.StorageYardDTO" parameterType="java.lang.Long">
+        SELECT
+        ID,
+        BHT_ID,
+        PARENT_ID,
+        STORAGE_YARD_NM,
+        SHORT_CD,
+        AREA,
+        STORAGE_YARD_TYPE_CD,
+        IS_INNER_STORAGE_YARD,
+        UNIT_AREA_TON,
+        IS_RENT,
+        WORK_AREA_CD,
+        SORT_NUM,
+        STORAGE_YARD_LEVEL,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME
+        FROM
+        M_STORAGE_YARD
+        <where>
+            BHT_ID = #{bhtId}
+        </where>
+    </select>
+    <select id="getByCondition" resultType="com.yy.ppm.master.bean.dto.StorageYardDTO">
+        SELECT
+        M.ID,
+        M.BHT_ID,
+        N.BHT_ID as PARENT_BHT_ID,
+        N.STORAGE_YARD_NM as PARENT_NM,
+        M.PARENT_ID,
+        M.STORAGE_YARD_NM,
+        M.SHORT_CD,
+        M.AREA,
+        M.STORAGE_YARD_TYPE_CD,
+        M.IS_INNER_STORAGE_YARD,
+        M.UNIT_AREA_TON,
+        M.IS_RENT,
+        M.WORK_AREA_CD,
+        M.SORT_NUM,
+        M.STORAGE_YARD_LEVEL,
+        M.CREATE_BY,
+        M.CREATE_BY_NAME,
+        M.CREATE_TIME
+        FROM
+        M_STORAGE_YARD M
+        INNER JOIN
+        M_STORAGE_YARD N
+        ON M.PARENT_ID = N.ID
+        <where>
+            N.STORAGE_YARD_LEVEL !=3 AND M.STORAGE_YARD_LEVEL !=3
+            <if test="bhtId != null and bhtId != ''">
+                AND M.BHT_ID = #{bhtId,jdbcType=BIGINT}
+            </if>
+            <if test="parentBhtId != null and parentBhtId != ''">
+                AND N.BHT_ID = #{parentBhtId,jdbcType=BIGINT}
+            </if>
+            <if test="parentNm != null and parentNm != ''">
+                AND N.STORAGE_YARD_NM = #{parentNm,jdbcType=BIGINT}
+            </if>
+            <if test="parentId != null and parentId != ''">
+                AND M.PARENT_ID = #{parentId,jdbcType=BIGINT}
+            </if>
+            <if test="storageYardNm != null and storageYardNm != ''">
+                <bind name="storageYardNm" value="'%' + storageYardNm + '%'"/>
+                AND (M.STORAGE_YARD_NM LIKE  #{storageYardNm,jdbcType=VARCHAR})
+            </if>
+        </where>
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.master.bean.dto.StorageYardDTO">
+        INSERT INTO M_STORAGE_YARD(
+            ID,
+            PARENT_ID,
+            STORAGE_YARD_NM,
+            SHORT_CD,
+            AREA,
+            STORAGE_YARD_TYPE_CD,
+            IS_INNER_STORAGE_YARD,
+            UNIT_AREA_TON,
+            IS_RENT,
+            WORK_AREA_CD,
+            SORT_NUM,
+            STORAGE_YARD_LEVEL,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            BHT_ID,
+            IS_BONDED_AREA,
+            IS_FRONTIER,
+            position_name
+        )VALUES (
+            #{id, jdbcType=BIGINT},
+            #{parentId, jdbcType=BIGINT},
+            #{storageYardNm, jdbcType=VARCHAR},
+            #{shortCd, jdbcType=VARCHAR},
+            #{area, jdbcType=VARCHAR},
+            #{storageYardTypeCd, jdbcType=VARCHAR},
+            #{isInnerStorageYard, jdbcType=VARCHAR},
+            #{unitAreaTon, jdbcType=VARCHAR},
+            #{isRent, jdbcType=VARCHAR},
+            #{workAreaCd, jdbcType=VARCHAR},
+            #{sortNum, jdbcType=INTEGER},
+            #{storageYardLevel, jdbcType=VARCHAR},
+            #{loginUserId,jdbcType=BIGINT},
+            #{loginUserName, jdbcType=VARCHAR},
+            #{now},
+            STORAGE_YARD.nextval,
+            #{isBondedArea, jdbcType=VARCHAR},
+            #{isFrontier,jdbcType=VARCHAR},
+            #{positionName,jdbcType=VARCHAR}
+        )
+    </insert>
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.master.bean.dto.StorageYardDTO">
+        UPDATE
+            M_STORAGE_YARD
+        SET
+            STORAGE_YARD_NM = #{storageYardNm,jdbcType=VARCHAR},
+            SHORT_CD = #{shortCd, jdbcType=VARCHAR,jdbcType=VARCHAR},
+            AREA = #{area, jdbcType=DECIMAL},
+            STORAGE_YARD_TYPE_CD = #{storageYardTypeCd, jdbcType=VARCHAR},
+            IS_INNER_STORAGE_YARD = #{isInnerStorageYard, jdbcType=VARCHAR},
+            UNIT_AREA_TON = #{unitAreaTon, jdbcType=DECIMAL},
+            IS_RENT = #{isRent, jdbcType=VARCHAR},
+            WORK_AREA_CD = #{workAreaCd, jdbcType=VARCHAR},
+            SORT_NUM = #{sortNum, jdbcType=INTEGER},
+            STORAGE_YARD_LEVEL = #{storageYardLevel,jdbcType=VARCHAR},
+            UPDATE_BY = #{loginUserId,jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            UPDATE_TIME = #{now},
+            IS_FRONTIER = #{isFrontier,jdbcType=VARCHAR},
+            IS_BONDED_AREA = #{isBondedArea,jdbcType=VARCHAR},
+            position_name = #{positionName,jdbcType=VARCHAR}
+        <where>
+            ID = #{id}
+        </where>
+    </update>
+
+</mapper>

@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.gis.mapper.WorkAreaMapper">
+
+    <resultMap id="listShiftPlan" type="com.yy.ppm.gis.dto.workArea.ShiftPlan">
+        <id column="ID" property="id" javaType="java.lang.Long" />
+        <result column="DAYNIGHT_PLAN_ID" property="daynightPlanId" javaType="java.lang.Long" />
+        <result column="WORK_DATE" property="workDate" javaType="java.util.Date" />
+        <result column="WORK_SHIFT" property="workShift" javaType="java.lang.String" />
+        <result column="WORK_SHIFT_LABEL" property="workShiftLabel" javaType="java.lang.String" />
+        <result column="PROCESS_CODE" property="processCode" javaType="java.lang.String" />
+        <result column="PROCESS_NAME" property="processName" javaType="java.lang.String" />
+        <result column="CRAFT_ID" property="craftId" javaType="java.lang.Long" />
+        <result column="WORK_STORAGE_CODE" property="workStorageCode" javaType="java.lang.String" />
+        <result column="WORK_STORAGE_NAME" property="workStorageName" javaType="java.lang.String" />
+        <result column="WORK_STACK_CODE" property="workStackCode" javaType="java.lang.String" />
+        <result column="WORK_STACK_NAME" property="workStackName" javaType="java.lang.String" />
+        <result column="WORK_HATCH_NO" property="workHatchNo" javaType="java.lang.String" />
+        <result column="PLAN_WEIGHT" property="planWeight" javaType="java.math.BigDecimal" />
+        <result column="PLAN_PCS" property="planPcs" javaType="java.lang.Integer" />
+        <result column="INSTRUCTOR" property="instructor" javaType="java.lang.String" />
+        <result column="TALLY_MAN" property="tallyMan" javaType="java.lang.String" />
+        <result column="REMARK" property="remark" javaType="java.lang.String" />
+        <result column="CAR_NUM" property="carNum" javaType="java.lang.Integer" />
+        <result column="STATUS" property="status" javaType="java.lang.String" />
+        <result column="STATUS_LABEL" property="statusLabel" javaType="java.lang.String" />
+        <result column="WORK_BEGIN" property="workBegin" javaType="java.util.Date" />
+        <result column="WORK_END" property="workEnd" javaType="java.util.Date" />
+        <result column="DAY_NIGHT_PLAN_ID" property="dayNightPlanId" javaType="java.lang.Long" />
+        <result column="VESSEL_VISIT_ID" property="vesselVisitId" javaType="java.lang.String" />
+    </resultMap>
+
+    <select id="listShiftPlan" resultMap="listShiftPlan">
+        SELECT
+            TSP.ID,
+            TSP.DAYNIGHT_PLAN_ID,
+            TSP.WORK_DATE,
+            TSP.WORK_SHIFT,
+            MWS.WORK_SHIFT_NAME WORK_SHIFT_LABEL,
+            TSP.PROCESS_CODE,
+            MOP.PROCESS_NAME,
+            TSP.CRAFT_ID,
+            TSP.WORK_STORAGE_CODE,
+            MS.STORAGE_NAME WORK_STORAGE_NAME,
+            TSP.WORK_STACK_CODE,
+            TSP.WORK_STACK_NAME,
+            TSP.WORK_HATCH_NO,
+            TSP.PLAN_WEIGHT,
+            TSP.PLAN_PCS,
+            TSP.INSTRUCTOR,
+            TSP.TALLY_MAN,
+            TSP.REMARK,
+            TSP.CAR_NUM,
+            TSP.STATUS,
+            MDD_SHIFT_STATUS.DICT_LABEL STATUS_LABEL,
+            TSP.WORK_BEGIN,
+            TSP.WORK_END,
+            TDNP.ID DAY_NIGHT_PLAN_ID,
+            TDNP.VESSEL_VISIT_ID
+        FROM
+            t_shift_plan TSP
+            JOIN m_work_shift MWS ON MWS.WORK_SHIFT_CODE = TSP.WORK_SHIFT
+            JOIN m_operation_process MOP ON TSP.PROCESS_CODE = MOP.PROCESS_CODE
+            JOIN m_storage MS ON TSP.WORK_STORAGE_CODE = MS.STORAGE_CODE
+            JOIN m_dict_data MDD_SHIFT_STATUS ON (
+                MDD_SHIFT_STATUS.`STATUS` = '1'
+                AND MDD_SHIFT_STATUS.DICT_TYPE = 'SHIFT_STATUS'
+                AND MDD_SHIFT_STATUS.DICT_VALUE = TSP.STATUS
+            )
+            JOIN t_day_night_plan TDNP ON TSP.DAYNIGHT_PLAN_ID = TDNP.ID
+        <where>
+            <if test="workDate != null">
+                AND TSP.WORK_DATE = #{workDate}
+            </if>
+            <if test="workShift != null and workShift != ''">
+                AND TSP.WORK_SHIFT = #{workShift}
+            </if>
+        </where>
+            ORDER BY
+                TSP.CREATE_TIME DESC
+    </select>
+
+    <resultMap id="listVesselVisit" type="java.util.Map">
+        <id column="ID" property="id" javaType="java.lang.String" />
+        <result column="VESSEL_NAME" property="vesselName" javaType="java.lang.String" />
+        <result column="VOYAGE" property="voyage" javaType="java.lang.String" />
+        <result column="BERTH_CODE_CUR" property="berthCodeCur" javaType="java.lang.String" />
+        <result column="BERTH_NAME" property="berthName" javaType="java.lang.String" />
+        <result column="CARGO_CODE" property="cargoCode" javaType="java.lang.String" />
+        <result column="CARGO_NAME" property="cargoName" javaType="java.lang.String" />
+    </resultMap>
+
+    <select id="listVesselVisit" resultMap="listVesselVisit">
+        SELECT
+            VV.ID,
+            VV.VESSEL_NAME,
+            VV.VOYAGE,
+            VV_.BERTH_CODE_CUR,
+            CB.BERTH_NAME,
+            VV.CARGO_CODE,
+            CC.CARGO_NAME
+        FROM
+            VESSEL_VISIT VV
+            JOIN VESSEL_VOYAGE VV_ ON VV.VESSEL_VOYAGE_ID = VV_.ID
+            JOIN C_BERTH CB ON VV_.BERTH_CODE_CUR = CB.BERTH_CODE
+            JOIN C_CARGO CC ON VV.CARGO_CODE = CC.CARGO_CODE
+        WHERE
+            VV.ID IN
+            <foreach collection="vesselVisitIds" open="(" close=")" item="vesselVisitId" separator=", ">
+                #{vesselVisitId}
+            </foreach>
+    </select>
+
+    <resultMap id="listRoute" type="com.yy.ppm.gis.dto.workArea.Route">
+        <id column="ROUTE_ID" property="routeId" javaType="java.lang.Long" />
+        <result column="ROUTE_NAME" property="routeName" javaType="java.lang.String" />
+        <result column="BEGIN_PID" property="beginPid" javaType="java.lang.Long" />
+        <result column="END_PID" property="endPid" javaType="java.lang.Long" />
+        <result column="STATUS" property="status" javaType="java.lang.Integer" />
+        <result column="ROUTE_TYPE" property="routeType" javaType="java.lang.Integer" />
+        <result column="BEGIN_LON" property="beginLon" javaType="java.math.BigDecimal" />
+        <result column="BEGIN_LAT" property="beginLat" javaType="java.math.BigDecimal" />
+        <result column="END_LON" property="endLon" javaType="java.math.BigDecimal" />
+        <result column="END_LAT" property="endLat" javaType="java.math.BigDecimal" />
+    </resultMap>
+
+    <select id="listRoute" resultMap="listRoute">
+        SELECT
+            TR.ROUTE_ID,
+            TR.ROUTE_NAME,
+            TR.BEGIN_PID,
+            TR.END_PID,
+            TR.STATUS,
+            TR.ROUTE_TYPE,
+            BEGIN_POINT.LONGITUDE BEGIN_LON,
+            BEGIN_POINT.LATITUDE BEGIN_LAT,
+            END_POINT.LONGITUDE END_LON,
+            END_POINT.LATITUDE END_LAT
+        FROM
+            t_routes TR
+            JOIN t_keypoints BEGIN_POINT ON ( BEGIN_POINT.STATUS = '1' AND TR.BEGIN_PID = BEGIN_POINT.POINT_ID )
+            JOIN t_keypoints END_POINT ON ( END_POINT.STATUS = '1' AND TR.END_PID = END_POINT.POINT_ID )
+        WHERE
+            TR.STATUS = '1'
+    </select>
+
+    <insert id="insertPlanRoute">
+        INSERT INTO
+            t_plan_route
+            ( id, plan_id, route_names, routes_ids, create_by, create_time )
+        VALUES
+            ( #{id}, #{planId}, #{routeNames}, #{routesIds}, #{createBy}, #{createTime} )
+        </insert>
+
+    <insert id="insertPlanArea">
+        INSERT INTO
+            t_plan_workarea
+            ( ID, PLAN_ID, AREA_TYPE, AREA_NAME, LON1, LAT1, LON2, LAT2, LON3, LAT3, LON4, LAT4, LON5, LAT5, LON6, LAT6, CREATE_BY, CREATE_TIME )
+        VALUES
+            ( #{id}, #{planId}, #{areaType}, #{areaName}, #{lon1}, #{lat1}, #{lon2}, #{lat2}, #{lon3}, #{lat3}, #{lon4}, #{lat4}, #{lon5}, #{lat5}, #{lon6}, #{lat6}, #{createBy}, #{createTime} )
+    </insert>
+
+    <delete id="deletePlanRoute">
+        DELETE FROM
+            t_plan_route
+        WHERE
+            ID = #{planRouteId}
+    </delete>
+
+    <delete id="deletePlanArea">
+        DELETE FROM
+            t_plan_workarea
+        WHERE
+            ID = #{planAreaId}
+    </delete>
+
+    <resultMap id="listPlanRoute" type="com.yy.ppm.gis.po.TPlanRoutePO">
+        <id column="id" property="id" javaType="java.lang.Long" />
+        <result column="plan_id" property="planId" javaType="java.lang.Long" />
+        <result column="route_names" property="routeNames" javaType="java.lang.String" />
+        <result column="routes_ids" property="routesIds" javaType="java.lang.String" />
+    </resultMap>
+
+    <select id="listPlanRoute" resultMap="listPlanRoute">
+        SELECT
+            id,
+            plan_id,
+            route_names,
+            routes_ids
+        FROM
+            t_plan_route
+        WHERE
+            plan_id = #{planId}
+    </select>
+
+    <resultMap id="listPlanArea" type="com.yy.ppm.gis.po.TPlanWorkareaPO">
+        <id column="ID" property="id" javaType="java.lang.Long" />
+        <result column="PLAN_ID" property="planId" javaType="java.lang.Long" />
+        <result column="AREA_TYPE" property="areaType" javaType="java.lang.Integer" />
+        <result column="AREA_NAME" property="areaName" javaType="java.lang.String" />
+        <result column="LON1" property="lon1" javaType="java.math.BigDecimal" />
+        <result column="LAT1" property="lat1" javaType="java.math.BigDecimal" />
+        <result column="LON2" property="lon2" javaType="java.math.BigDecimal" />
+        <result column="LAT2" property="lat2" javaType="java.math.BigDecimal" />
+        <result column="LON3" property="lon3" javaType="java.math.BigDecimal" />
+        <result column="LAT3" property="lat3" javaType="java.math.BigDecimal" />
+        <result column="LON4" property="lon4" javaType="java.math.BigDecimal" />
+        <result column="LAT4" property="lat4" javaType="java.math.BigDecimal" />
+        <result column="LON5" property="lon5" javaType="java.math.BigDecimal" />
+        <result column="LAT5" property="lat5" javaType="java.math.BigDecimal" />
+        <result column="LON6" property="lon6" javaType="java.math.BigDecimal" />
+        <result column="LAT6" property="lat6" javaType="java.math.BigDecimal" />
+    </resultMap>
+
+    <select id="listPlanArea" resultMap="listPlanArea">
+        SELECT
+            ID,
+            PLAN_ID,
+            AREA_TYPE,
+            AREA_NAME,
+            LON1,
+            LAT1,
+            LON2,
+            LAT2,
+            LON3,
+            LAT3,
+            LON4,
+            LAT4,
+            LON5,
+            LAT5,
+            LON6,
+            LAT6
+        FROM
+            t_plan_workarea
+        WHERE
+            plan_id = #{planId}
+        ORDER BY
+            CREATE_TIME DESC
+    </select>
+</mapper>

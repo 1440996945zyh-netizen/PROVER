@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.statement.mapper.TrustWriteOffMapper">
+
+    <select id="getWriteOffList" resultType="com.yy.ppm.business.bean.dto.TBusTrustDTO"
+            parameterType="com.yy.ppm.business.bean.dto.TBusTrustSearchDTO">
+        SELECT
+        M1.ID,
+        M1.TRUST_NO,
+        M1.TRUST_TYPE,
+        M1.CONTRACT_ID,
+        M1.CUSTOMER_ID,
+        M1.CUSTOMER_NAME,
+        M1.PROCESS_CODE,
+        M1.PROCESS_NAME,
+        M1.CARGO_CATEGORY_CODE,
+        M1.CARGO_CATEGORY_NAME,
+        M1.TRADE_TYPE,
+        M1.PLAN_QUANTITY,
+        M1.PLAN_TON,
+        TBC.CUSTOMER_NAME CARGO_OWNER_NAME,
+        T4.CARGO_AGENT_NAME,
+        T5.CARGO_NAME,
+        M1. REMARK,
+        M1.SHIPVOYAGE_ID,
+        M1.SHIPVOYAGE_ITEM_ID,
+        CONCAT(CONCAT(M1.SHIP_NAME,'_'),T2.VOYAGE) AS SHIP_NAME_VOYAGE ,
+        M1.SETTLEMENT_BASIS_CODE,
+        M1.SETTLEMENT_BASIS_NAME,
+        M1.CHECK_TON,
+        M1.CHECK_NUMBER,
+        M1.COMPANY_ID,
+        M1.COMPANY_NAME,
+        M1.STATUS,
+        M2.NM AS STATUS_LABEL,
+        M1.CREATE_BY,
+        M1.CREATE_BY_NAME,
+        M1.CREATE_TIME,
+        M1.UPDATE_BY,
+        M1.UPDATE_BY_NAME,
+        M1.UPDATE_TIME,
+        M1.RELEASE_BY,
+        M1.RELEASE_BY_NAME,
+        M1.RELEASE_TIME,
+        M1.CHECK_BY,
+        M1.CHECK_BY_NAME,
+        M1.CHECK_TIME,
+        M1.EXAMINE_BY,
+        M1.EXAMINE_BY_NAME,
+        M1.EXAMINE_TIME,
+        M1.IMP_EXP,
+        M1.IS_BILL,
+        M1.EST_AMOUNT,
+        M1.TYPE,
+        M1.START_TIME,
+        M1.END_TIME,
+        M1.POUND_REMARK,
+        M1.VOYAGE,
+        TDS.SCN
+        FROM
+        T_BUS_TRUST M1
+        left join M_CONSTANTS M2 ON M1.STATUS=M2.CD and M2.TYPE_CD='BUS_TRUST_STATUS'
+        left join T_DIS_SHIPVOYAGE_ITEM T2 ON M1.SHIPVOYAGE_ITEM_ID = T2.ID
+        LEFT JOIN (
+        SELECT
+        REGEXP_REPLACE( LISTAGG ( TO_CHAR( CARGO_OWNER_NAME ), ',' ) WITHIN GROUP ( ORDER BY CARGO_OWNER_NAME ),
+        '([^,]+)(,\1)+', '\1' ) CARGO_OWNER_NAME,TRUST_ID,
+        REGEXP_REPLACE( LISTAGG ( TO_CHAR( CARGO_OWNER_ID ), ',' ) WITHIN GROUP ( ORDER BY CARGO_OWNER_ID ),
+        '([^,]+)(,\1)+', '\1' ) CARGO_OWNER_ID
+        FROM
+        T_BUS_TRUST_CARGO
+        GROUP BY TRUST_ID
+        ) T3 ON M1.ID = T3.TRUST_ID
+        LEFT JOIN (
+        SELECT
+        REGEXP_REPLACE( LISTAGG ( TO_CHAR( CARGO_AGENT_NAME ), ',' ) WITHIN GROUP ( ORDER BY CARGO_AGENT_NAME ),
+        '([^,]+)(,\1)+', '\1' ) CARGO_AGENT_NAME,TRUST_ID
+        FROM
+        T_BUS_TRUST_CARGO GROUP BY TRUST_ID
+        ) T4 ON M1.ID = T4.TRUST_ID
+        LEFT JOIN (
+        SELECT
+        REGEXP_REPLACE( LISTAGG ( TO_CHAR( CARGO_NAME ), ',' ) WITHIN GROUP ( ORDER BY CARGO_NAME ), '([^,]+)(,\1)+',
+        '\1' ) CARGO_NAME,TRUST_ID
+        FROM
+        T_BUS_TRUST_CARGO GROUP BY TRUST_ID
+        ) T5 ON M1.ID = T5.TRUST_ID
+        LEFT JOIN T_BUS_TRUST_CARGO TBTC ON M1.ID = TBTC.TRUST_ID
+        LEFT JOIN T_BUS_CARGO_INFO TBCI ON TBTC.CARGO_INFO_ID = TBCI.ID
+        LEFT JOIN T_DIS_SHIPVOYAGE TDS ON M1.SHIPVOYAGE_ID = TDS.ID
+        left join T_BUS_CUSTOMER TBC ON TBC.ID = M1.CUSTOMER_ID
+        <where>
+            AND M1.TYPE = '杂项'
+            <if test="trustNo != null and trustNo != ''">
+                <bind name="trustNoLike" value="'%'+trustNo+'%'"/>
+                and M1.TRUST_NO like #{trustNoLike}
+            </if>
+            <if test="companyId != null">
+                and M1.COMPANY_ID = #{companyId}
+            </if>
+            <if test="shipvoyageItemId != null ">
+                and ( M1.SHIPVOYAGE_ITEM_ID = #{shipvoyageItemId} OR TBCI.SHIPVOYAGE_ITEM_ID = #{shipvoyageItemId} )
+            </if>
+            <if test="cargoOwnerId != null ">
+                and INSTR(T3.CARGO_OWNER_ID,#{cargoOwnerId})>0
+            </if>
+            <if test="status != null and status != ''">
+                and M1.STATUS = #{status, jdbcType=VARCHAR}
+            </if>
+            <if test="processCode != null and processCode != ''">
+                and M1.PROCESS_CODE = #{processCode, jdbcType=VARCHAR}
+            </if>
+            <if test="shipName!=null and shipName !=''">
+                <bind name="shipName_like" value="'%'+shipName+'%'"/>
+                AND M1.SHIP_NAME LIKE #{shipName_like}
+            </if>
+            <if test="voyage!=null and voyage !=''">
+                <bind name="voyage_like" value="'%'+voyage+'%'"/>
+                AND T2.VOYAGE LIKE #{voyage_like}
+            </if>
+        </where>
+        GROUP BY
+        M1.ID,
+        M1.TRUST_NO,
+        M1.TRUST_TYPE,
+        M1.CONTRACT_ID,
+        M1.CUSTOMER_ID,
+        M1.CUSTOMER_NAME,
+        M1.PROCESS_CODE,
+        M1.PROCESS_NAME,
+        M1.CARGO_CATEGORY_CODE,
+        M1.CARGO_CATEGORY_NAME,
+        M1.TRADE_TYPE,
+        M1.PLAN_QUANTITY,
+        M1.PLAN_TON,
+        TBC.CUSTOMER_NAME,
+        T3.CARGO_OWNER_NAME,
+        T4.CARGO_AGENT_NAME,
+        T5.CARGO_NAME,
+        M1. REMARK,
+        M1.SHIPVOYAGE_ID,
+        M1.SHIPVOYAGE_ITEM_ID,
+        M1.SHIP_NAME,
+        T2.VOYAGE,
+        M1.SETTLEMENT_BASIS_CODE,
+        M1.SETTLEMENT_BASIS_NAME,
+        M1.CHECK_TON,
+        M1.CHECK_NUMBER,
+        M1.COMPANY_ID,
+        M1.COMPANY_NAME,
+        M1.STATUS,
+        M2.NM,
+        M1.CREATE_BY,
+        M1.CREATE_BY_NAME,
+        M1.CREATE_TIME,
+        M1.UPDATE_BY,
+        M1.UPDATE_BY_NAME,
+        M1.UPDATE_TIME,
+        M1.RELEASE_BY,
+        M1.RELEASE_BY_NAME,
+        M1.RELEASE_TIME,
+        M1.CHECK_BY,
+        M1.CHECK_BY_NAME,
+        M1.CHECK_TIME,
+        M1.EXAMINE_BY,
+        M1.EXAMINE_BY_NAME,
+        M1.EXAMINE_TIME,
+        M1.IMP_EXP,
+        M1.IS_BILL,
+        M1.EST_AMOUNT,
+        M1.TYPE,
+        M1.START_TIME,
+        M1.END_TIME,
+        M1.POUND_REMARK,
+        M1.VOYAGE,
+        TDS.SCN
+        order by M1.CREATE_TIME desc
+    </select>
+
+    <select id="listShipvoyageItemByTrustIds" resultType="java.util.Map">
+        SELECT
+        TBTC.TRUST_ID "trustId",
+        TDSI.ID "id",
+        TDS.SHIP_NAME || '_' || TDSI.VOYAGE "shipNameVoyage",
+        TBCI.SHIPVOYAGE_ITEM_ID "shipvoyageItemId"
+        FROM
+        T_BUS_TRUST_CARGO TBTC
+        JOIN T_BUS_CARGO_INFO TBCI ON TBTC.CARGO_INFO_ID = TBCI.ID
+        JOIN T_DIS_SHIPVOYAGE TDS on TBCI.SHIPVOYAGE_ID = TDS.ID
+        JOIN T_DIS_SHIPVOYAGE_ITEM TDSI on TBCI.SHIPVOYAGE_ITEM_ID = TDSI.ID
+        WHERE
+        TBTC.TRUST_ID IN
+        <foreach collection="trustIds" separator=", " item="trustId" open="(" close=")">
+            #{trustId, jdbcType=BIGINT}
+        </foreach>
+        GROUP BY
+        TBTC.TRUST_ID,
+        TDSI.ID,
+        TDS.SHIP_NAME,
+        TDSI.VOYAGE,
+        TBCI.SHIPVOYAGE_ITEM_ID
+    </select>
+
+    <select id="getWriteOffById" resultType="Map">
+        SELECT T2.ID                  "id",
+               T2.CLASS_CODE          "classCode",
+               T2.CLASS_NAME          "className",
+               T2.WORK_DATE           "workDate",
+               T3.PROCESS_DETAIL_CODE "processCode",
+               T3.PROCESS_DETAIL_NAME "processName",
+               T3.QUANTITY            "quantity",
+               T3.WORK_HOUR            "ton",
+               T4.IS_SETTLE           "isSettle"
+        FROM T_BUS_TRUST T
+                 JOIN T_PRD_WORK_PLAN t1 ON T.ID = t1.TRUST_ID
+                 JOIN T_PRD_WORK_TICKET t2 ON t1.ID = t2.WORK_PLAN_ID
+                 JOIN T_PRD_WORK_TICKET_DETAIL t3 ON t2.ID = t3.WORK_TICKET_ID
+                 LEFT JOIN M_WORK_PROCESS t4 ON t3.PROCESS_DETAIL_CODE = t4.PROCESS_CD
+        WHERE T.ID = #{trustId,jdbcType=BIGINT}
+        ORDER BY t3.WORK_DATE,
+                 t3.CLASS_CODE,
+                 t3.CLASS_NAME
+    </select>
+
+    <resultMap id="listWaterElectricity" type="java.util.Map">
+        <result property="id" column="ID" jdbcType="BIGINT"/>
+        <result property="shipvoyageId" column="SHIPVOYAGE_ID" jdbcType="BIGINT"/>
+        <result property="processCode" column="PROCESS_CODE" jdbcType="VARCHAR"/>
+        <result property="processName" column="PROCESS_NAME" jdbcType="VARCHAR"/>
+        <result property="quantity" column="QUANTITY" jdbcType="DECIMAL"/>
+        <result property="startTime" column="START_TIME" jdbcType="TIMESTAMP"/>
+        <result property="createByName" column="CREATE_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="fileIds" column="FILE_IDS" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="listWaterElectricity" resultMap="listWaterElectricity">
+        SELECT TPWE.ID,
+               TPWE.PROCESS_CODE,
+               TPWE.PROCESS_NAME,
+               TPWE.QUANTITY,
+               TO_CHAR(TPWE.START_TIME, 'YYYY-MM-DD HH24:MI:SS')  START_TIME,
+               TPWE.SHIPVOYAGE_ID,
+               TPWE.CREATE_BY_NAME,
+               TO_CHAR(TPWE.CREATE_TIME, 'YYYY-MM-DD HH24:MI:SS') CREATE_TIME,
+               LISTAGG(SFB.FILE_ID, ',') WITHIN GROUP ( ORDER BY SFB.FILE_ID ) FILE_IDS
+        FROM T_PRD_WATER_ELECTRICITY TPWE
+                 LEFT JOIN SYS_FILE_BUSINESS SFB ON TPWE.ID = SFB.BUSINESS_ID
+        WHERE TPWE.TRUST_ID = #{trustId,jdbcType=BIGINT}
+        GROUP BY TPWE.ID,
+                 TPWE.PROCESS_CODE,
+                 TPWE.PROCESS_NAME,
+                 TPWE.QUANTITY,
+                 TPWE.START_TIME,
+                 TPWE.SHIPVOYAGE_ID,
+                 CREATE_BY_NAME,
+                 TPWE.CREATE_TIME
+        ORDER BY TPWE.START_TIME
+    </select>
+
+    <select id="getTrust" resultType="com.yy.ppm.business.bean.po.TBusTrustPO">
+        SELECT TBT.ID,
+               TBT.TRUST_TYPE,
+               TBT.IS_BILL,
+               TBT.PROCESS_CODE,
+               TBT.PROCESS_NAME,
+               TBT.SHIPVOYAGE_ITEM_ID,
+               TBT.SHIP_NAME,
+               TBT.CUSTOMER_ID,
+               TBC.CUSTOMER_NAME,
+               TBT.COMPANY_ID,
+               TBT.COMPANY_NAME,
+               TBT.STATUS,
+               TYPE
+        FROM T_BUS_TRUST TBT
+        left join T_BUS_CUSTOMER TBC ON TBC.ID = TBT.CUSTOMER_ID
+        WHERE TBT.ID = #{trustId, jdbcType=BIGINT}
+    </select>
+
+    <update id="writeOff" parameterType="com.yy.ppm.business.bean.po.TBusTrustPO">
+        UPDATE
+            T_BUS_TRUST
+        SET CHECK_BY      = #{loginUserId,jdbcType=BIGINT},
+            CHECK_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            CHECK_TIME    = #{now,jdbcType=TIMESTAMP},
+            CHECK_NUMBER  = #{checkNumber,jdbcType=INTEGER},
+            CHECK_TON     = #{checkTon,jdbcType=DECIMAL},
+            STATUS        = '50'
+        where ID = #{id,jdbcType=BIGINT}
+    </update>
+
+    <update id="cancelWriteOff" parameterType="com.yy.ppm.business.bean.po.TBusTrustPO">
+        UPDATE
+            T_BUS_TRUST
+        SET CHECK_BY      = null,
+            CHECK_BY_NAME = null,
+            CHECK_TIME    = null,
+            CHECK_NUMBER  = null,
+            CHECK_TON     = null,
+            STATUS        = '40'
+        where ID = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="listRate" resultType="com.yy.ppm.business.bean.po.TBusRatePO">
+        SELECT TBR.ID,
+               TBR.RATE_ITEM_CODE,
+               TBR.RATE_ITEM_NAME,
+               TBR.RATE,
+               TBR.TAX_RATE,
+               MFI.IS_MAIN_INCOME
+        FROM T_BUS_RATE TBR
+                 left join M_FEE_ITEM MFI on TBR.RATE_ITEM_CODE = MFI.ITEM_CD
+        WHERE TO_DATE(TO_CHAR(SYSDATE, 'YYYY-MM-DD'), 'YYYY-MM-DD') >= TBR.START_DATE
+          AND TO_DATE(TO_CHAR(SYSDATE, 'YYYY-MM-DD'), 'YYYY-MM-DD') &lt;= TBR.END_DATE
+          AND TBR.PROCESS_CODE = #{processCode, jdbcType=VARCHAR}
+    </select>
+
+    <insert id="insertMiscBilling">
+        INSERT INTO T_MISC_BILLING(ID, RATE_ITEM_CODE, RATE_NAME, RATE, TAX_RATE, BILL_DATE, VOYAGE_ID, SHIP_VOYAGE,
+                                   BILL_QUANTITY, UNIT_CODE,UNIT_NAME,AMOUNT_MONEY, TAX_AMOUNT, TRUST_ORDER_ID, CREATE_BY, CREATE_BY_NAME,
+                                   CREATE_TIME, UPDATE_BY, UPDATE_TIME, UPDATE_BY_NAME, CUSTOMER_ID, STATUS, PUBLISH_BY,
+                                   PUBLISH_BY_NAME, PUBLISH_TIME, COMPANY_ID, COMPANY_NAME,RATE_ID,PROCESS_CODE,PROCESS_NAME,
+                                   CARGO_INFO_ID,CARGO_INFO_NAME)
+        VALUES (#{id, jdbcType=BIGINT}, #{rateItemCode, jdbcType=VARCHAR}, #{rateName, jdbcType=VARCHAR},
+                #{rate, jdbcType=DECIMAL}, #{taxRate, jdbcType=DECIMAL}, #{billDate, jdbcType=TIMESTAMP},
+                #{voyageId, jdbcType=BIGINT}, #{shipVoyage, jdbcType=VARCHAR}, #{billQuantity, jdbcType=DECIMAL},
+                #{unitCode, jdbcType=VARCHAR}, #{unitName, jdbcType=VARCHAR},
+                #{amountMoney, jdbcType=DECIMAL}, #{taxAmount, jdbcType=DECIMAL}, #{trustOrderId, jdbcType=BIGINT},
+                #{loginUserId, jdbcType=BIGINT}, #{loginUserName, jdbcType=VARCHAR}, #{now, jdbcType=TIMESTAMP},
+                #{updateBy, jdbcType=BIGINT}, #{updateTime, jdbcType=TIMESTAMP}, #{updateByName, jdbcType=VARCHAR},
+                #{customerId, jdbcType=BIGINT}, #{status, jdbcType=INTEGER}, #{publishBy, jdbcType=BIGINT},
+                #{publishByName, jdbcType=VARCHAR}, #{publishTime, jdbcType=TIMESTAMP}, #{companyId, jdbcType=BIGINT},
+                #{companyName, jdbcType=VARCHAR},#{rateId, jdbcType=BIGINT},
+                #{processCode,jdbcType=VARCHAR},#{processName,jdbcType=VARCHAR},
+                #{cargoInfoId,jdbcType=BIGINT},#{cargoInfoName,jdbcType=VARCHAR})
+    </insert>
+    <select id="getBillingListByTrustId" resultType="com.yy.ppm.statement.bean.dto.TMiscBillingDTO">
+        SELECT
+            A.ID,
+            A.RATE_ITEM_CODE,
+            A.RATE_NAME,
+            A.RATE,
+            A.TAX_RATE,
+            A.BILL_DATE,
+            A.RATE_ID,
+            A.VOYAGE_ID,
+            A.SHIP_VOYAGE,
+            A.BILL_QUANTITY,
+            A.BILL_QUANTITY2,
+            A.AMOUNT_MONEY,
+            A.TAX_AMOUNT,
+            A.TRUST_ORDER_ID,
+            A.CREATE_BY,
+            A.CREATE_BY_NAME,
+            A.CREATE_TIME,
+            A.UPDATE_BY,
+            A.UPDATE_TIME,
+            A.UPDATE_BY_NAME,
+            A.CUSTOMER_ID,
+            A.STATUS,
+            A.company_id,
+            A.company_name
+        FROM
+        T_MISC_BILLING A
+        <where>
+            AND A.TRUST_ORDER_ID = #{trustId}
+        </where>
+    </select>
+    <select id="getCargoByTrust" resultType="com.yy.ppm.business.bean.dto.TBusCargoInfoDTO" parameterType="java.lang.Long">
+        SELECT TBCI.ID,TBCI.CARGO_NAME,TBCI.IS_CLEAR,CARGO_INFO_NO||'-'||TBCI.CARGO_NAME||'-'
+            ||DECODE(TBCI.SHIPVOYAGE_ITEM_ID,NULL,'',TBCI.SHIP_NAME||'_'||TDSI.VOYAGE||'-')
+            ||TBCI.TRADE_TYPE AS CARGO_INFO_NAME
+        FROM T_BUS_CARGO_INFO TBCI
+        INNER JOIN T_BUS_TRUST_CARGO TBTC ON TBCI.ID = TBTC.CARGO_INFO_ID
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM TDSI ON TBCI.SHIPVOYAGE_ITEM_ID = TDSI.ID
+        WHERE TBTC.TRUST_ID = #{trustId}
+    </select>
+
+    <resultMap id="listCargoWater" type="java.util.Map">
+        <result property="id" column="ID" jdbcType="BIGINT"/>
+        <result property="shipvoyageId" column="SHIPVOYAGE_ID" jdbcType="BIGINT"/>
+        <result property="processCode" column="PROCESS_CODE" jdbcType="VARCHAR"/>
+        <result property="processName" column="PROCESS_NAME" jdbcType="VARCHAR"/>
+        <result property="quantity" column="QUANTITY" jdbcType="DECIMAL"/>
+        <result property="startTime" column="START_TIME" jdbcType="TIMESTAMP"/>
+        <result property="createByName" column="CREATE_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="fileIds" column="FILE_IDS" jdbcType="VARCHAR"/>
+    </resultMap>
+    <select id="listCargoWater" resultMap="listCargoWater">
+        SELECT TPCW.ID,
+               TPCW.PROCESS_CODE,
+               TPCW.PROCESS_NAME,
+               TPCW.QUANTITY "quantity",
+               TO_CHAR(TPCW.START_TIME, 'YYYY-MM-DD HH24:MI:SS')  START_TIME,
+               TPCW.SHIPVOYAGE_ID,
+               TPCW.CREATE_BY_NAME,
+               TO_CHAR(TPCW.CREATE_TIME, 'YYYY-MM-DD HH24:MI:SS') CREATE_TIME,
+               LISTAGG(SFB.FILE_ID, ',') WITHIN GROUP ( ORDER BY SFB.FILE_ID ) FILE_IDS
+        FROM T_PRD_CARGO_WATER TPCW
+                 LEFT JOIN SYS_FILE_BUSINESS SFB ON TPCW.ID = SFB.BUSINESS_ID
+        WHERE TPCW.TRUST_ID = #{trustId,jdbcType=BIGINT}
+        GROUP BY TPCW.ID,
+                 TPCW.PROCESS_CODE,
+                 TPCW.PROCESS_NAME,
+                 TPCW.QUANTITY,
+                 TPCW.START_TIME,
+                 TPCW.SHIPVOYAGE_ID,
+                 CREATE_BY_NAME,
+                 TPCW.CREATE_TIME
+        ORDER BY TPCW.START_TIME
+    </select>
+</mapper>

@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.system.mapper.SysRoleMapper">
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.system.bean.dto.SysRoleDTO"
+            parameterType="com.yy.ppm.system.bean.dto.SysRoleSearchDTO">
+        SELECT
+            A.ID,
+            A.DEPT_ID,
+            A.ROLE_NAME,
+            A.STATUS,
+            A.DELETED,
+            A.CREATE_BY,
+            A.create_by_name,
+            A.CREATE_TIME,
+            A.UPDATE_BY,
+            A.update_BY_NAME,
+            A.UPDATE_TIME,
+            A.ROLE_CODE,
+            A.ROLE_SORT,
+            CASE A.STATUS
+            WHEN  '1' THEN '在用'
+            ELSE '停用'
+            END STATUS_LABEL,
+            A.MENU_CHECK_STRICTLY,
+            A.DEPT_CHECK_STRICTLY,
+            A.DATA_SCOPE,
+            A.REMARK
+        FROM
+            SYS_ROLE A
+        <where>
+            <if test="roleName != null and roleName != ''">
+                <bind name="roleNm" value="'%' + roleName + '%'"/>
+                and A.ROLE_NAME LIKE #{roleNm}
+            </if>
+            <if test="roleCode != null and roleCode != ''">
+                <bind name="roleCd" value="'%' + roleCode + '%'"/>
+                and A.ROLE_CODE LIKE #{roleCd}
+            </if>
+            <if test="status != null and status !=''">
+                and A.STATUS = #{status}
+            </if>
+        </where>
+        order by A.ROLE_SORT
+    </select>
+
+    <select id="getListNoPage" resultType="com.yy.ppm.system.bean.dto.SysRoleDTO"
+            parameterType="com.yy.ppm.system.bean.dto.SysRoleSearchDTO">
+        SELECT
+            A.ID,
+            A.DEPT_ID,
+            A.ROLE_NAME,
+            A.STATUS,
+            A.DELETED,
+            A.CREATE_BY,
+            A.create_by_name,
+            A.CREATE_TIME,
+            A.UPDATE_BY,
+            A.update_BY_NAME,
+            A.UPDATE_TIME,
+            A.ROLE_CODE,
+            A.ROLE_SORT,
+            DECODE(A.STATUS, '1', '在用', '停用') statusLabel,
+            A.MENU_CHECK_STRICTLY,
+            A.DEPT_CHECK_STRICTLY,
+            A.DATA_SCOPE
+        FROM
+            SYS_ROLE A
+        <where>
+            <if test="roleName != null and roleName != ''">
+                <bind name="roleNm" value="'%' + roleName + '%'"/>
+                and A.ROLE_NAME LIKE #{roleNm}
+            </if>
+            <if test="roleCode != null and roleCode != ''">
+                <bind name="roleCd" value="'%' + roleCode + '%'"/>
+                and A.ROLE_CODE LIKE #{roleCd}
+            </if>
+            <if test="status != null and status != ''">
+                and A.STATUS = #{status}
+            </if>
+        </where>
+        order by A.ROLE_SORT
+    </select>
+    <!-- 根据ID查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.system.bean.dto.SysRoleDTO" parameterType="java.lang.Long">
+        SELECT
+            ID,
+            DEPT_ID,
+            ROLE_NAME,
+            STATUS,
+            DELETED,
+            CREATE_BY,
+            create_by_name,
+            CREATE_TIME,
+            ROLE_CODE,
+            ROLE_SORT,
+            MENU_CHECK_STRICTLY,
+            DEPT_CHECK_STRICTLY,
+            DATA_SCOPE,
+            REMARK,
+            ROLE_CLASS,
+            DEPT_NAME,
+            CREATE_BY,
+            create_by_name,
+            CREATE_TIME,
+            UPDATE_BY,
+            update_BY_NAME,
+            UPDATE_TIME
+        FROM
+            sys_role
+        <where>
+            ID = #{ID}
+        </where>
+    </select>
+    <select id="getMenuIdByRole" resultType="java.lang.Long">
+        SELECT
+            MENU_ID
+        FROM
+            SYS_ROLE_MENU
+        WHERE
+            ROLE_ID = #{id}
+    </select>
+    <select id="getDept" resultType="com.yy.ppm.system.bean.dto.TreeSelectDTO">
+        select
+            A.ID as id,
+            A.DEPT_NAME as label,
+            CASE
+                WHEN (SELECT COUNT(B1.ID) FROM SYS_DEPT B1 WHERE B1.PARENT_ID = A.ID) > 0 THEN
+                    1
+                ELSE
+                    0
+                END AS isAlwaysShow
+        from SYS_DEPT A
+        WHERE PARENT_ID = #{parentId}
+
+    </select>
+    <select id="getDeptIdByRole" resultType="java.lang.Long">
+        SELECT
+            DEPT_ID
+        FROM
+            SYS_ROLE_DEPT
+        WHERE
+            ROLE_ID = #{id}
+    </select>
+    <select id="allocatedOrUnallocatedList" resultType="com.yy.ppm.system.bean.dto.SysUserDTO">
+        SELECT
+            A.ID,
+            A.USER_ACCOUNT,
+            A.USER_NAME
+        FROM
+            SYS_USER A
+            LEFT JOIN  SYS_ROLE_USER B ON A.ID = B.USER_ID
+        WHERE
+            <if test="'allocated' == flag">
+                B.ROLE_ID = #{roleId}
+            </if>
+            <if test="'unallocated' == flag">
+                B.ROLE_ID != #{roleId} or B.ROLE_ID is null
+            </if>
+            <if test="null != nameOrAccount and '' != nameOrAccount">
+                AND ((A.USER_ACCOUNT like '%' || #{nameOrAccount} || '%') OR (A.USER_NAME like '%' || #{nameOrAccount} || '%'))
+            </if>
+    </select>
+    <select id="getListByRoleClass" resultType="com.yy.ppm.system.bean.dto.SysRoleDTO">
+        select * from SYS_ROLE
+        <where>
+            ROLE_CLASS = #{roleClass,jdbcType=VARCHAR}
+        </where>
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.system.bean.dto.SysRoleDTO">
+        INSERT INTO sys_role(
+            ID,
+            DEPT_ID,
+            ROLE_NAME,
+            STATUS,
+            DELETED,
+            CREATE_BY,
+            create_by_name,
+            CREATE_TIME,
+            ROLE_CODE,
+            ROLE_SORT,
+            MENU_CHECK_STRICTLY,
+            DEPT_CHECK_STRICTLY,
+            DATA_SCOPE,
+            REMARK,
+            ROLE_CLASS,
+            DEPT_NAME
+        )VALUES (
+            #{id, jdbcType=BIGINT},
+            #{deptId, jdbcType=BIGINT},
+            #{roleName, jdbcType=VARCHAR},
+            #{status, jdbcType=VARCHAR},
+            #{deleted, jdbcType=VARCHAR},
+            #{loginUserId},
+            #{loginUserName},
+            #{now},
+            #{roleCode, jdbcType=VARCHAR},
+            #{roleSort, jdbcType=BIGINT},
+            #{menuCheckStrictly, jdbcType=BIGINT},
+            #{deptCheckStrictly, jdbcType=BIGINT},
+            #{dataScope, jdbcType=VARCHAR},
+            #{remark, jdbcType=VARCHAR},
+            #{roleClass, jdbcType=VARCHAR},
+            #{deptName, jdbcType=VARCHAR}
+        )
+    </insert>
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.system.bean.dto.SysRoleDTO">
+        UPDATE
+            sys_role
+        SET
+            ID = #{id, jdbcType=BIGINT},
+            DEPT_ID = #{deptId, jdbcType=BIGINT},
+            ROLE_NAME = #{roleName, jdbcType=VARCHAR},
+            STATUS = #{status, jdbcType=VARCHAR},
+            DELETED = #{deleted, jdbcType=VARCHAR},
+            ROLE_CODE = #{roleCode, jdbcType=VARCHAR},
+            ROLE_SORT = #{roleSort, jdbcType=BIGINT},
+            MENU_CHECK_STRICTLY = #{menuCheckStrictly, jdbcType=BIGINT},
+            DEPT_CHECK_STRICTLY = #{deptCheckStrictly, jdbcType=BIGINT},
+            DATA_SCOPE = #{dataScope, jdbcType=VARCHAR},
+            REMARK = #{remark, jdbcType=VARCHAR},
+            <if test="roleClass!=null">
+                ROLE_CLASS = #{roleClass, jdbcType=VARCHAR},
+            </if>
+            <if test="deptName!=null">
+                DEPT_NAME = #{deptName, jdbcType=VARCHAR},
+            </if>
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            update_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now}
+        <where>
+            ID = #{id}
+        </where>
+    </update>
+    <update id="changeStatus">
+        update
+            sys_role
+        set
+            status = #{status}
+        where
+            id = #{id}
+    </update>
+
+    <!-- 批量新增角色菜单信息 -->
+    <insert id="insertRoleMenu" parameterType="java.util.List">
+        INSERT INTO SYS_ROLE_MENU (
+            MENU_ID,
+            ROLE_ID
+        )
+        SELECT
+            menu_Id,
+            role_Id
+        from(
+            <foreach item="item" index="index" collection="menuIds" separator="union all">
+                SELECT
+                #{item, jdbcType=BIGINT} menu_ID,
+                #{id, jdbcType=BIGINT} role_ID
+                FROM DUAL
+            </foreach>
+        ) T
+    </insert>
+    <insert id="insertRoleDept" parameterType="java.util.List">
+        INSERT INTO SYS_ROLE_DEPT (
+            dept_id,
+            ROLE_ID,
+            DEPT_NO
+        )
+        SELECT
+            dept_id,
+            role_Id,
+            dept_no
+            from(
+            <foreach item="item" index="index" collection="deptIds" separator="union all">
+                SELECT
+                    #{item, jdbcType=BIGINT} dept_id,
+                    #{roleId, jdbcType=BIGINT} role_ID,
+                    (select DEPT_NO from SYS_DEPT where dept_id = #{item, jdbcType=BIGINT}) DEPT_NO
+                FROM DUAL
+            </foreach>
+        ) T
+    </insert>
+    <!-- 新增用户角色关联表信息-->
+    <insert id="insertRoleUser" parameterType="java.util.List">
+        INSERT INTO SYS_ROLE_USER (
+            USER_ID,
+            ROLE_ID
+        )
+        SELECT
+            USER_ID,
+            ROLE_ID
+        from(
+        <foreach item="item" index="index" collection="userIds" separator="union all">
+            SELECT
+            #{item, jdbcType=BIGINT} USER_ID,
+            #{roleId, jdbcType=BIGINT} ROLE_ID
+            FROM DUAL
+        </foreach>
+        ) T
+    </insert>
+
+    <delete id="authUserCancel">
+        DELETE FROM
+                SYS_ROLE_USER
+        WHERE
+              ROLE_ID = #{roleId}
+            AND USER_ID IN
+            <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+                #{userId}
+            </foreach>
+    </delete>
+
+
+
+</mapper>

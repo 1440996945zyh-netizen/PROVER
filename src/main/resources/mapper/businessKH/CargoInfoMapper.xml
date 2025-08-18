@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.businessKH.dao.CargoInfoMapper">
+
+ <resultMap type ="java.util.HashMap" id= "cursorMap"> <!--配置返回游标中别名对应的resultMap-->
+        <result column ="glshgl" property="glshgl" />
+        <result column ="tlshgl" property="tlshgl"  />
+</resultMap >
+
+   <select id="getCargoInfoList" resultType="com.yy.ppm.businessKH.model.CargoInfoVW" parameterType="com.yy.ppm.businessKH.vo.req.CargoInfoSearchReqVo">
+       select
+       CARGOKEY, ID, F_CARGOKEY,
+       O_CARGOKEY, CARGOKEY_TYPE, CARGO_ORI,
+       DGRQ_S, DGRQ_E, ZYGSDM,
+       HTID, ZYWTRID, ZYWTR,
+       TZHDID, HC, ZHWCHM,
+       CB, HWDM, HWMCH,
+       HW_FLAG, HQCYRID, HQCYR,
+       KHFS, SHL as cargokeyshl, TGS,
+       SUM_JS, SUM_KS, KFS,
+       XDS, SYS, KHRQ,
+       FLAG, NOTE, CREATEBY,
+       CREATEBYID, CREATEON, CREATE_GSID,
+       CREATE_GSMCH, CREATE_BMID, CREATE_BMMCH,
+       CREATE_GWID, CREATE_GWMCH, MODIFYBY,
+       MODIFYBYID, MODIFYON, HTH_LSH,
+       FLAG_ZF, FZH, HZID,
+       HZ, BY1, BY2,
+       BY3, BY4, BY5,
+       BY6, BY7, BY8,
+       BY9, BY10, EJZYGSDM,
+       CHBJHH, ZXHTID, DLDM,
+       DLMCH, ZHLDM, ZHLMCH
+       from VW_SHW_CARGOINFO   v
+       where 1=1
+       <if test="cargoInfoSearchReqVo.zygsdm  != null and cargoInfoSearchReqVo.zygsdm != ''">
+          and zygsdm =#{hgfxSearchReqVo.zygsdm}
+       </if>
+       <if test="cargoInfoSearchReqVo.zhwchm != null and cargoInfoSearchReqVo.zhwchm != ''">
+           and v.ZHWCHM like'%'||#{cargoInfoSearchReqVo.zhwchm}||'%'
+       </if>
+       <if test="cargoInfoSearchReqVo.hwmch != null and cargoInfoSearchReqVo.hwmch != ''">
+           and v.HWMCH like'%'||#{cargoInfoSearchReqVo.hwmch}||'%'
+       </if>
+       <if test="cargoInfoSearchReqVo.zywtr != null and cargoInfoSearchReqVo.zywtr != ''">
+           and v.ZYWTR like'%'||#{cargoInfoSearchReqVo.zywtr}||'%'
+       </if>
+       <if test="cargoInfoSearchReqVo.hz != null and cargoInfoSearchReqVo.hz != ''">
+           and v.HZ like'%'||#{cargoInfoSearchReqVo.hz}||'%'
+       </if>
+       <if test="cargoInfoSearchReqVo.hqcyr != null and cargoInfoSearchReqVo.hqcyr != ''">
+           and v.HQCYR like'%'||#{cargoInfoSearchReqVo.hqcyr}||'%'
+       </if>
+       <if test="cargoInfoSearchReqVo.hthLsh != null and cargoInfoSearchReqVo.hthLsh != ''">
+           and v.HTH_LSH like'%'||#{cargoInfoSearchReqVo.hthLsh}||'%'
+       </if>
+       <if test="cargoInfoSearchReqVo.hth != null and cargoInfoSearchReqVo.hth != ''">
+           and v.HTH like'%'||#{cargoInfoSearchReqVo.hth}||'%'
+       </if>
+       <if test="cargoInfoSearchReqVo.dgrqSStartTime !='' and cargoInfoSearchReqVo.dgrqSStartTime != null ">
+           and v.DGRQ_S>= to_date(#{cargoInfoSearchReqVo.dgrqSStartTime},'yyyy-mm-dd hh24:mi:ss')
+       </if>
+       <if test="cargoInfoSearchReqVo.dgrqSEndTime !='' and cargoInfoSearchReqVo.dgrqSEndTime != null ">
+           and v.DGRQ_S &lt;= to_date(#{cargoInfoSearchReqVo.dgrqSEndTime},'yyyy-mm-dd hh24:mi:ss')
+       </if>
+       <if test="cargoInfoSearchReqVo.dgrqEStartTime !='' and cargoInfoSearchReqVo.dgrqEStartTime != null ">
+           and v.DGRQ_E>= to_date(#{cargoInfoSearchReqVo.dgrqEStartTime},'yyyy-mm-dd hh24:mi:ss')
+       </if>
+       <if test="cargoInfoSearchReqVo.dgrqEEndTime !='' and cargoInfoSearchReqVo.dgrqEEndTime != null ">
+           and v.DGRQ_E &lt;= to_date(#{cargoInfoSearchReqVo.dgrqEEndTime},'yyyy-mm-dd hh24:mi:ss')
+       </if>
+       <if test="cargoInfoSearchReqVo.flag !=''">
+       <choose>
+           <when test="cargoInfoSearchReqVo.flag =='已归档'">
+               AND v.FLAG='是'
+           </when>
+           <otherwise>
+              AND  v.FLAG='否'
+           </otherwise>
+       </choose>
+       </if>
+       <if test="cargoInfoSearchReqVo.mch !=null and cargoInfoSearchReqVo.mch != ''"  >
+           and  (v.ZYWTR like '%'||#{params.mch}||'%' or v.HQCYR like  '%'||#{params.mch}||'%' or v.HZ like  '%'||#{params.mch}||'%' or v.HTH_LSH like  '%'||#{params.mch}||'%' or v.ZHWCHM like  '%'||#{params.mch}||'%' or v.HWMCH like  '%'||#{params.mch}||'%')
+       </if>
+       order by v.DGRQ_E desc nulls last,v.CREATEON desc,v.CARGOKEY desc
+
+   </select>
+
+
+    <select id="selectOneByCargokey" resultType="com.yy.ppm.businessKH.vo.resp.CargoInfoRespVo" parameterType="java.lang.String">
+            select
+             CARGOKEY, ID, F_CARGOKEY,
+             O_CARGOKEY, CARGOKEY_TYPE, CARGO_ORI,
+             DGRQ_S, DGRQ_E, ZYGSDM,
+             HTID, ZYWTRID, ZYWTR,
+             TZHDID, HC, ZHWCHM,
+             CB, HWDM, HWMCH,
+             HW_FLAG, HQCYRID, HQCYR,
+             KHFS, SHL  as cargokeyshl, TGS,
+             SUM_JS, SUM_KS, KFS,
+             XDS, SYS, KHRQ,
+             FLAG,
+             FLAG_ZF, FZH, HZID,
+             HZ, BY1, BY2,
+             BY3, BY4, BY5,
+             BY6, BY7, BY8,
+             BY9, BY10, EJZYGSDM,
+             CHBJHH, ZXHTID, DLDM,
+             DLMCH, ZHLDM, ZHLMCH
+             from VW_SHW_CARGOINFO a
+            where a.cargokey=#{cargokey}
+    </select>
+
+
+    <select id="selectCargoInfoDetailByCargokey" resultType="com.yy.ppm.businessKH.model.CargoInfoDetail" parameterType="java.lang.String">
+            select ID,CARGOKEY,CARGOKEY_FROM,CARGOKEY_TO,LB,TYPE,SHL as cdshl,DGRQ,TZHDID,JHS,
+            SHL_JL,JJS,CHJ,NOTE,JHSBRID,GQ,KFS,XDS,SYS,CREATEBY,CREATEBYID,CREATEON,CREATE_GSID,
+            CREATE_GSMCH,CREATE_BMID,CREATE_BMMCH,CREATE_GWID,CREATE_GWMCH,status from BT_SHW_CARGOINFO_DETAIL
+            where cargokey=#{cargokey}
+            order by id desc
+
+    </select>
+
+
+
+    <select id="selectOneKhglqtByCargoKey" parameterType="java.util.Map" statementType="CALLABLE" >
+    {
+   call PROC_SHW_GET_CHOOSE(
+     '疏港',
+     #{cargokey,mode=IN,jdbcType=VARCHAR},
+     null,
+     #{result,mode=OUT,jdbcType=CURSOR,javaType=ResultSet,resultMap=cursorMap}
+    )
+    }
+    </select>
+
+    <select id="queryChbJhhByHc" resultType="java.lang.String" parameterType="java.lang.String">
+
+           select distinct max(by2) by2 from  BT_SHW_CARGOINFO
+           where HC=#{hc}
+           GROUP BY HC
+
+    </select>
+
+
+
+    <select id="getTypeLb" resultType="java.util.Map" parameterType="java.lang.String">
+            select cargokey,lb,type,sum(shl) as sumshl from BT_SHW_CARGOINFO_DETAIL
+            where CARGOKEY = #{cargokey}
+            and (lb = '加数' or lb = '扣数')
+            group by cargokey,lb,type
+
+    </select>
+
+
+    <select id="getZywtrInfo" resultType="com.yy.ppm.businessKH.vo.resp.ZywtrInfoRespVo" parameterType="java.lang.String">
+             select max(CUSTOMERID) zywtrid,max(FULL_NAME) zywtr from VW_BT_CUSTOMER_MASTER
+             where  CUSTOMERID =#{zywtrid}
+
+    </select>
+
+
+
+
+    <select id="kc" resultType="java.lang.String" parameterType="java.lang.String">
+
+       SELECT SUM (KC.KCZHL) kc
+       FROM BT_SHW_CARGOINFO INFO,BT_YARD_TJBH TJBH,BT_YARD_HWKCZH KC
+       WHERE INFO.CARGOKEY=TJBH.CARGOKEY AND TJBH.TJBH=KC.TJBH
+       and  INFO.CARGOKEY =#{CARGOKEY}
+
+    </select>
+
+    <select id="qk" resultType="java.lang.String" parameterType="java.lang.String">
+
+       SELECT NVL(MAX(LLQK),0) as qk
+       FROM VW_JF_JT_LLJF
+       WHERE  CARGOKEY =#{CARGOKEY}
+
+    </select>
+
+    <select id="jhglshgl" resultType="java.lang.String" parameterType="java.lang.String">
+
+       SELECT NVL(SUM(JHS),0)as jhglshgl
+       FROM BT_SHW_CARGOINFO_DETAIL
+       WHERE LB='通知单' AND TYPE='公路疏港'
+       AND CARGOKEY =#{CARGOKEY}
+    </select>
+
+    <select id="jhtlshgl" resultType="java.lang.String" parameterType="java.lang.String">
+
+       SELECT NVL(SUM(JHS),0) as jhtlshgl
+       FROM BT_SHW_CARGOINFO_DETAIL
+       WHERE LB='通知单' AND TYPE='铁路疏港'
+       AND CARGOKEY =#{CARGOKEY}
+    </select>
+
+    <select id="jhzhchl" resultType="java.lang.String" parameterType="java.lang.String">
+
+       SELECT NVL(SUM(JHS),0) as jhzhchl
+       FROM BT_SHW_CARGOINFO_DETAIL
+       WHERE LB='通知单' AND TYPE='船舶装船'
+       AND  CARGOKEY=#{CARGOKEY}
+
+    </select>
+
+</mapper>

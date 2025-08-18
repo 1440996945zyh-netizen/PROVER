@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.produce.mapper.TWeightPlanMapper">
+
+    <sql id="commonList">
+        SELECT
+        ID,
+        WORK_TYPE_CODE,
+        WORK_TYPE_NAME,
+        CUSTOMER_NAME,
+        SHIP_NAME,
+        BERTH,
+        PORT_CODE,
+        PORT_NAME,
+        REMARK,
+        STATUS,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME,
+        START_TIME,
+        END_TIME,
+        PLAN_NO,
+        CARGO_NAME,
+        EXAMINE_STATUS,
+        LOAD_UNLOAD,
+        WEIGHT_TYPE
+        FROM
+        T_WEIGHT_PLAN
+        <where>
+            <if test="id != null">
+                and ID = #{id}
+            </if>
+            <if test="workTypeCode != null and workTypeCode != ''">
+                and WORK_TYPE_CODE = #{workTypeCode}
+            </if>
+            <if test="workTypeName != null and workTypeName != ''">
+                and WORK_TYPE_NAME = #{workTypeName}
+            </if>
+            <if test="customerName != null and customerName != ''">
+                <bind name="customerName_like" value="'%' + customerName + '%'"/>
+                and CUSTOMER_NAME LIKE #{customerName_like}
+            </if>
+            <if test="shipName != null and shipName != ''">
+                <bind name="shipName_like" value="'%' + shipName + '%'"/>
+                and SHIP_NAME LIKE #{shipName_like}
+            </if>
+            <if test="berth != null and berth != ''">
+                and BERTH = #{berth}
+            </if>
+            <if test="portCode != null and portCode != ''">
+                and PORT_CODE = #{portCode}
+            </if>
+            <if test="remark != null and remark != ''">
+                and REMARK = #{remark}
+            </if>
+            <if test="planNo != null and planNo != ''">
+                <bind name="planNo_like" value="'%' + planNo + '%'"/>
+                AND PLAN_NO like #{planNo_like}
+            </if>
+            <if test="weightType != null and weightType != ''">
+                and WEIGHT_TYPE = #{weightType}
+            </if>
+            <if test="status != null">
+                and STATUS = #{status}
+            </if>
+            <if test="startTime != null">
+                and START_TIME = #{startTime}
+            </if>
+            <if test="endTime != null">
+                and END_TIME = #{endTime}
+            </if>
+        </where>
+        ORDER BY PLAN_NO DESC
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.produce.bean.dto.TWeightPlanDTO"
+            parameterType="com.yy.ppm.produce.bean.dto.TWeightPlanSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.produce.bean.dto.TWeightPlanDTO"
+            parameterType="com.yy.ppm.produce.bean.dto.TWeightPlanSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.produce.bean.dto.TWeightPlanDTO" parameterType="java.lang.Long">
+        SELECT
+        ID, WORK_TYPE_CODE, WORK_TYPE_NAME, CUSTOMER_NAME, SHIP_NAME, BERTH, PORT_CODE, PORT_NAME, REMARK, STATUS, CREATE_BY,
+        CREATE_BY_NAME, CREATE_TIME, UPDATE_BY, UPDATE_BY_NAME, UPDATE_TIME, START_TIME,
+         END_TIME, PLAN_NO, CARGO_NAME, LOAD_UNLOAD,WORK_AREA_NAME,EXAMINE_STATUS FROM
+        T_WEIGHT_PLAN
+        <where>
+            id = #{id}
+        </where>
+    </select>
+    <select id="getListStatus" resultType="com.yy.ppm.produce.bean.dto.TWeightPlanDTO">
+        SELECT
+        ID,
+        WORK_TYPE_CODE,
+        WORK_TYPE_NAME,
+        CUSTOMER_NAME,
+        SHIP_NAME,
+        BERTH,
+        PORT_CODE,
+        PORT_NAME,
+        REMARK,
+        STATUS,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME,
+        START_TIME,
+        END_TIME,
+        PLAN_NO,
+        CARGO_NAME,
+        LOAD_UNLOAD
+        FROM
+        T_WEIGHT_PLAN
+        WHERE
+        STATUS = '0'
+    </select>
+    <select id="getListByPound" resultType="java.lang.Integer">
+        SELECT count(PLAN_NO)
+        from WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND
+        WHERE
+        PLAN_NO = #{planNo, jdbcType=VARCHAR}
+    </select>
+    <select id="getListByPlanNo" resultType="com.yy.ppm.produce.bean.dto.TWeightRecordDTO">
+        SELECT * from WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND
+        WHERE PLAN_NO = #{planNo}
+    </select>
+    <select id="getListByPlanNoAndIdNumber" resultType="java.lang.Integer">
+        SELECT count(PLAN_NO)
+        from WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND
+        WHERE
+        PLAN_NO = #{planNo, jdbcType=VARCHAR} AND ID_NUMBER = #{idNumber, jdbcType=VARCHAR}
+    </select>
+    <select id="getItemListById" resultType="com.yy.ppm.produce.bean.dto.TWeightPlanItemDTO">
+        select * from T_WEIGHT_PLAN_ITEM WHERE PARENT_ID = #{id}
+    </select>
+    <select id="getPoundByTruckNo" resultType="java.lang.Integer">
+        SELECT count(*)
+        from WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND
+        WHERE
+        PLAN_NO = #{planNo, jdbcType=VARCHAR} AND TRUCK_PLATE = #{truckNo, jdbcType=VARCHAR}
+    </select>
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.produce.bean.dto.TWeightPlanDTO">
+        INSERT INTO T_WEIGHT_PLAN(
+                    ID,
+                    WORK_TYPE_CODE,
+                    WORK_TYPE_NAME,
+                    CUSTOMER_NAME,
+                    SHIP_NAME,
+                    BERTH,
+                    PORT_CODE,
+                    PORT_NAME,
+                    REMARK,
+                    STATUS,
+                    START_TIME,
+                    END_TIME,
+                    PLAN_NO,
+                    CARGO_NAME,
+                    EXAMINE_STATUS,
+                    WORK_AREA_NAME,
+                    LOAD_UNLOAD,
+                    CREATE_BY,
+                    CREATE_BY_NAME,
+                    CREATE_TIME,
+                    WEIGHT_TYPE
+                    )VALUES (
+                        #{id, jdbcType=BIGINT},
+                        #{workTypeCode, jdbcType=VARCHAR},
+                        #{workTypeName, jdbcType=VARCHAR},
+                        #{customerName, jdbcType=VARCHAR},
+                        #{shipName, jdbcType=VARCHAR},
+                        #{berth, jdbcType=VARCHAR},
+                        #{portCode, jdbcType=VARCHAR},
+                        #{portName, jdbcType=VARCHAR},
+                        #{remark, jdbcType=VARCHAR},
+                        #{status, jdbcType=VARCHAR},
+                        #{startTime, jdbcType=VARCHAR},
+                        #{endTime, jdbcType=VARCHAR},
+                        #{planNo, jdbcType=VARCHAR},
+                        #{cargoName, jdbcType=VARCHAR},
+                        #{examineStatus, jdbcType=VARCHAR},
+                        #{workAreaName,jdbcType=VARCHAR},
+                        #{loadUnload, jdbcType=BIGINT},
+                        #{loginUserId, jdbcType=BIGINT},
+                        #{loginUserName, jdbcType=VARCHAR},
+                        #{now},
+                        #{weightType,jdbcType=VARCHAR}
+                    )
+    </insert>
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.produce.bean.dto.TWeightPlanDTO">
+        UPDATE
+        T_WEIGHT_PLAN
+        SET
+        WORK_TYPE_CODE = #{workTypeCode,jdbcType=VARCHAR},
+        WORK_TYPE_NAME = #{workTypeName,jdbcType=VARCHAR},
+        CUSTOMER_NAME = #{customerName,jdbcType=VARCHAR},
+        SHIP_NAME = #{shipName,jdbcType=VARCHAR},
+        BERTH = #{berth,jdbcType=VARCHAR},
+        PORT_CODE = #{portCode,jdbcType=VARCHAR},
+        PORT_NAME = #{portName,jdbcType=VARCHAR},
+        REMARK = #{remark,jdbcType=VARCHAR},
+        STATUS = #{status,jdbcType=VARCHAR},
+        START_TIME = #{startTime,jdbcType=VARCHAR},
+        END_TIME = #{endTime,jdbcType=VARCHAR},
+        CARGO_NAME = #{cargoName, jdbcType=VARCHAR},
+        LOAD_UNLOAD = #{loadUnload, jdbcType=BIGINT},
+        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        <if test="examineStatus!=null">
+            EXAMINE_STATUS = #{examineStatus,jdbcType=BIGINT},
+        </if>
+        <if test="workAreaName!=null and workAreaName!=''">
+            WORK_AREA_NAME = #{workAreaName,jdbcType=VARCHAR},
+        </if>
+        UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+    <update id="changeMainStatus">
+        update
+        T_WEIGHT_PLAN
+        set
+        status = #{status}
+        where
+        id = #{id}
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM
+            T_WEIGHT_PLAN
+        WHERE
+            id = #{id}
+    </delete>
+</mapper>
+

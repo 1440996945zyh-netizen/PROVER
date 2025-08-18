@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.produce.mapper.TPrdDySumMapper">
+
+    <sql id="commonList">
+        SELECT
+        ID
+
+        TSPT_ID
+
+        TRUST_ID
+
+        SHIP_VOYAGE_ITEM_ID
+
+        PORT_NAME
+
+        TRUST_NO
+
+        SCN
+
+        SHIP_VOYAGE_NAME
+
+        PACKING_NAME
+
+        TRADE_TYPE
+
+        CARGO_CODE
+
+        CARGO_NAME
+
+        OUTWARD_TYPE_NAME
+
+        DEPT_ID
+
+        DEPT_NAME
+
+        TON
+
+        KC_STATUS
+
+        DD_STATUS
+
+        WF_STATUS
+
+        CREATE_BY
+
+        CREATE_BY_NAME
+
+        CREATE_TIME
+
+        UPDATE_BY
+
+        UPDATE_BY_NAME
+
+        UPDATE_TIME
+
+        FROM
+        T_PRD_DY_SUM
+        <where>
+            <if test="id != null">
+                and ID = #{id}
+            </if>
+            <if test="tsptId != null">
+                and TSPT_ID = #{tsptId}
+            </if>
+            <if test="trustId != null">
+                and TRUST_ID = #{trustId}
+            </if>
+            <if test="shipVoyageItemId != null">
+                and SHIP_VOYAGE_ITEM_ID = #{shipVoyageItemId}
+            </if>
+            <if test="portName != null and portName != ''">
+                and PORT_NAME = #{portName}
+            </if>
+            <if test="trustNo != null and trustNo != ''">
+                and TRUST_NO = #{trustNo}
+            </if>
+            <if test="scn != null and scn != ''">
+                and SCN = #{scn}
+            </if>
+            <if test="shipVoyageName != null and shipVoyageName != ''">
+                and SHIP_VOYAGE_NAME = #{shipVoyageName}
+            </if>
+            <if test="packingName != null and packingName != ''">
+                and PACKING_NAME = #{packingName}
+            </if>
+            <if test="tradeType != null and tradeType != ''">
+                and TRADE_TYPE = #{tradeType}
+            </if>
+            <if test="cargoCode != null and cargoCode != ''">
+                and CARGO_CODE = #{cargoCode}
+            </if>
+            <if test="cargoName != null and cargoName != ''">
+                and CARGO_NAME = #{cargoName}
+            </if>
+            <if test="outwardTypeName != null and outwardTypeName != ''">
+                and OUTWARD_TYPE_NAME = #{outwardTypeName}
+            </if>
+            <if test="deptId != null and deptId != ''">
+                and DEPT_ID = #{deptId}
+            </if>
+            <if test="deptName != null and deptName != ''">
+                and DEPT_NAME = #{deptName}
+            </if>
+            <if test="ton != null and ton != ''">
+                and TON = #{ton}
+            </if>
+            <if test="kcStatus != null and kcStatus != ''">
+                and KC_STATUS = #{kcStatus}
+            </if>
+            <if test="ddStatus != null and ddStatus != ''">
+                and DD_STATUS = #{ddStatus}
+            </if>
+            <if test="wfStatus != null and wfStatus != ''">
+                and WF_STATUS = #{wfStatus}
+            </if>
+        </where>
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.produce.bean.dto.TPrdDySumDTO"
+            parameterType="com.yy.ppm.produce.bean.dto.TPrdDySumSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.produce.bean.dto.TPrdDySumDTO"
+            parameterType="com.yy.ppm.produce.bean.dto.TPrdDySumSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.produce.bean.dto.TPrdDySumDTO" parameterType="java.lang.Long">
+        SELECT
+        ID
+        TSPT_ID
+        TRUST_ID
+        SHIP_VOYAGE_ITEM_ID
+        PORT_NAME
+        TRUST_NO
+        SCN
+        SHIP_VOYAGE_NAME
+        PACKING_NAME
+        TRADE_TYPE
+        CARGO_CODE
+        CARGO_NAME
+        OUTWARD_TYPE_NAME
+        DEPT_ID
+        DEPT_NAME
+        TON
+        KC_STATUS
+        DD_STATUS
+        WF_STATUS
+        CREATE_BY
+        CREATE_BY_NAME
+        CREATE_TIME
+        UPDATE_BY
+        UPDATE_BY_NAME
+        UPDATE_TIME
+        FROM
+        T_PRD_DY_SUM
+        <where>
+            id = #{id}
+        </where>
+    </select>
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.produce.bean.dto.TPrdDySumDTO">
+        INSERT INTO T_PRD_DY_SUM(ID,
+                                 TSPT_ID,
+                                 TRUST_ID,
+                                 SHIP_VOYAGE_ITEM_ID,
+                                 PORT_NAME,
+                                 TRUST_NO,
+                                 SCN,
+                                 SHIP_VOYAGE_NAME,
+                                 PACKING_NAME,
+                                 TRADE_TYPE,
+                                 CARGO_CODE,
+                                 OUTWARD_TYPE,
+                                 OUTWARD_TYPE_NAME,
+                                 DEPT_ID,
+                                 DEPT_NAME,
+                                 TON,
+                                 KC_STATUS,
+                                 DD_STATUS,
+                                 WF_STATUS,
+                                 HR_STATUS,
+                                 CREATE_BY,
+                                 CREATE_BY_NAME,
+                                 CREATE_TIME)
+        VALUES (
+                   #{id, jdbcType=VARCHAR},
+                   #{tsptId, jdbcType=VARCHAR},
+                   #{trustId, jdbcType=VARCHAR},
+                   #{shipVoyageItemId, jdbcType=VARCHAR},
+                   #{portName, jdbcType=VARCHAR},
+                   #{trustNo, jdbcType=VARCHAR},
+                   #{scn, jdbcType=VARCHAR},
+                   #{shipVoyageName, jdbcType=VARCHAR},
+                   #{packingName, jdbcType=VARCHAR},
+                   #{tradeType, jdbcType=VARCHAR},
+                   #{cargoCode, jdbcType=VARCHAR},
+                   #{outwardType, jdbcType=VARCHAR},
+                   #{outwardTypeName, jdbcType=VARCHAR},
+                   #{deptId, jdbcType=VARCHAR},
+                   #{deptName, jdbcType=VARCHAR},
+                   #{ton, jdbcType=VARCHAR},
+                   #{kcStatus, jdbcType=VARCHAR},
+                   #{ddStatus, jdbcType=VARCHAR},
+                   #{wfStatus, jdbcType=VARCHAR},
+                   #{hrStatus, jdbcType=VARCHAR},
+                   #{loginUserId, jdbcType=BIGINT},
+                   #{loginUserName, jdbcType=VARCHAR},
+                   #{now,jdbcType=TIMESTAMP})
+    </insert>
+
+    <insert id="insertList" parameterType="com.yy.ppm.produce.bean.dto.TPrdDySumDTO">
+        begin
+        <foreach collection="list" item="item" separator="  ">
+        INSERT INTO T_PRD_DY_SUM(ID,
+                                 TSPT_ID,
+                                 TRUST_ID,
+                                 SHIP_VOYAGE_ITEM_ID,
+                                 PORT_NAME,
+                                 TRUST_NO,
+                                 SCN,
+                                 SHIP_VOYAGE_NAME,
+                                 PACKING_NAME,
+                                 TRADE_TYPE,
+                                 CARGO_CODE,
+                                 CARGO_NAME,
+                                 OUTWARD_TYPE_NAME,
+                                 DEPT_ID,
+                                 DEPT_NAME,
+                                 TON,
+                                 KC_STATUS,
+                                 DD_STATUS,
+                                 WF_STATUS,
+                                 CREATE_BY,
+                                 CREATE_BY_NAME,
+                                 CREATE_TIME)
+        VALUES (
+                #{item.id, jdbcType=VARCHAR},
+                #{item.tsptId, jdbcType=VARCHAR},
+                #{item.trustId, jdbcType=VARCHAR},
+                #{item.shipVoyageItemId, jdbcType=VARCHAR},
+                #{item.portName, jdbcType=VARCHAR},
+                #{item.trustNo, jdbcType=VARCHAR},
+                #{item.scn, jdbcType=VARCHAR},
+                #{item.shipVoyageName, jdbcType=VARCHAR},
+                #{item.packingName, jdbcType=VARCHAR},
+                #{item.tradeType, jdbcType=VARCHAR},
+                #{item.cargoCode, jdbcType=VARCHAR},
+                #{item.cargoName, jdbcType=VARCHAR},
+                #{item.outwardTypeName, jdbcType=VARCHAR},
+                #{item.deptId, jdbcType=VARCHAR},
+                #{item.deptName, jdbcType=VARCHAR},
+                #{item.ton, jdbcType=VARCHAR},
+                #{item.kcStatus, jdbcType=VARCHAR},
+                #{item.ddStatus, jdbcType=VARCHAR},
+                #{item.wfStatus, jdbcType=VARCHAR},
+                #{item.loginUserId, jdbcType=BIGINT},
+                #{item.loginUserName, jdbcType=VARCHAR},
+                #{item.now});
+        </foreach>
+        end;
+    </insert>
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.produce.bean.dto.TPrdDySumDTO">
+        UPDATE
+        T_PRD_DY_SUM
+        SET
+        TSPT_ID = #{tsptId,jdbcType=VARCHAR},
+        TRUST_ID = #{trustId,jdbcType=VARCHAR},
+        SHIP_VOYAGE_ITEM_ID = #{shipVoyageItemId,jdbcType=VARCHAR},
+        PORT_NAME = #{portName,jdbcType=VARCHAR},
+        TRUST_NO = #{trustNo,jdbcType=VARCHAR},
+        SCN = #{scn,jdbcType=VARCHAR},
+        SHIP_VOYAGE_NAME = #{shipVoyageName,jdbcType=VARCHAR},
+        PACKING_NAME = #{packingName,jdbcType=VARCHAR},
+        TRADE_TYPE = #{tradeType,jdbcType=VARCHAR},
+        CARGO_CODE = #{cargoCode,jdbcType=VARCHAR},
+        CARGO_NAME = #{cargoName,jdbcType=VARCHAR},
+        OUTWARD_TYPE = #{outwardType,jdbcType=VARCHAR},
+        OUTWARD_TYPE_NAME = #{outwardTypeName,jdbcType=VARCHAR},
+        DEPT_ID = #{deptId,jdbcType=VARCHAR},
+        DEPT_NAME = #{deptName,jdbcType=VARCHAR},
+        TON = #{ton,jdbcType=VARCHAR},
+        KC_STATUS = #{kcStatus,jdbcType=VARCHAR},
+        DD_STATUS = #{ddStatus,jdbcType=VARCHAR},
+        WF_STATUS = #{wfStatus,jdbcType=VARCHAR},
+        HR_STATUS = #{hrStatus,jdbcType=VARCHAR},
+        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE
+        FROM T_PRD_DY_SUM
+        WHERE id = #{id}
+    </delete>
+</mapper>
+

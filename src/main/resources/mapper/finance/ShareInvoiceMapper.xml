@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.finance.mapper.ShareInvoiceMapper">
+   <select id="getCustomerInfoById" resultType="com.yy.ppm.business.bean.dto.TBusCustomerDTO">
+       select BANK,CUSTOMER_CODE_EAS,TELEPHONE_NUMBER,BANK_ACCOUNT
+       from T_BUS_CUSTOMER
+       where id = #{customerId,jdbcType=BIGINT}
+   </select>
+    <select id="getCNDNListByParentId" resultType="com.yy.ppm.finance.bean.dto.TFdCreditDebitBillDetailDTO">
+        select *
+        from T_FD_CREDIT_DEBIT_BILL_DETAIL where CNDN_ID = #{cndnId}
+    </select>
+</mapper>
+

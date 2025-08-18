@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.business.mapper.TBusControlReleaseManageMapper">
+    <update id="updateRelease">
+        UPDATE
+            T_BUS_CARGO_INFO
+        SET
+        IS_RELEASE = #{isRelease},
+        RELEASE_REMARK = #{releaseRemark}
+        WHERE
+        ID = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="getList" resultType="com.yy.ppm.business.bean.dto.TBusReleaseManageDTO">
+        SELECT
+        TFBCP.ID "tfbcpId",
+        TFBCP.PREPAYMENT_CODE "prepaymentCode",
+        TFBCP.STATUS "prepaymentStatus",
+        t.ID,
+        t.SHIPVOYAGE_ID,
+        t.SHIPVOYAGE_ITEM_ID,
+        t.SCN,
+        t.SHIP_NAME,
+        t.CARGO_INFO_NO,
+        t.CARGO_OWNER_ID,
+        t.CARGO_OWNER_NAME,
+        t.CARGO_AGENT_ID,
+        t.CARGO_AGENT_NAME,
+        t.CARGO_CODE,
+        t.CARGO_NAME,
+        t.TRADE_TYPE,
+        t.PACKING_CODE,
+        t.PACKING_NAME,
+        t.COMPANY_ID,
+        t.COMPANY_NAME,
+        t.IS_CLEAR,
+        t.VOYAGE,
+        t.RESIDUE_STORAGE,
+        t.TRANSFER_DATE,
+        m.TALLY,
+        t.CREATE_TIME,
+        t.IS_PRE_PAY,
+        t.IS_RELEASE,
+        t.RELEASE_REMARK,
+        CASE WHEN TBT.TYPE IN ('集港', '拆箱集港')
+        THEN TO_CHAR(REGEXP_REPLACE(RTRIM(XMLCAST(XMLAGG(XMLELEMENT(E, TEMP."shipNameVoyage" || ',') ORDER
+        BY TEMP."shipNameVoyage") AS CLOB), ','), '([^,]+)(,\1)+', '\1'))
+        ELSE TO_CHAR(CASE WHEN t.SHIPVOYAGE_ITEM_ID IS NULL THEN NULL ELSE t.SHIP_NAME || '_' || TDSI.VOYAGE END)
+        END "shipNameVoyage",
+        CASE WHEN t.IS_TOS IS NOT NULL THEN t.IS_TOS ELSE TBT.TYPE END "type",
+--         LISTAGG(TBT2.TRUST_NO, ',') WITHIN GROUP ( ORDER BY TBT2.TRUST_NO ) "trustNos",
+        REGEXP_REPLACE(RTRIM(XMLCAST(XMLAGG(XMLELEMENT(E, TBT2.TRUST_NO || ',') ORDER BY TBT2.TRUST_NO) AS CLOB), ','), '([^,]+)(,\1)+', '\1') AS "trustNos",
+        m.WORK_TYPE,
+        t.IS_LOGOUT,
+        t.REAL_CLEAR_DATE
+        FROM
+        T_BUS_CARGO_INFO t
+        LEFT JOIN T_FD_BANK_CUSTOMER_PREPAYMENT TFBCP ON T.ID = TFBCP.CARGO_INFO_ID
+        LEFT JOIN M_CARGO m ON t.CARGO_CODE = m.CARGO_CODE
+        LEFT JOIN T_BUS_TRUST TBT ON t.TRUST_ID = TBT.ID
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM TDSI ON t.SHIPVOYAGE_ITEM_ID = TDSI.ID
+        LEFT JOIN T_FD_BANK_CUSTOMER_PREPAYMENT TFBCP_1 ON TFBCP_1.STATUS = '1' AND TFBCP_1.BUS_TRUST_ID = t.TRUST_ID
+        LEFT JOIN (SELECT TBTC.ID, TBTC.CARGO_INFO_ID, TBT2.SHIPVOYAGE_ITEM_ID, CASE WHEN TBT2.SHIPVOYAGE_ITEM_ID IS
+        NULL THEN NULL ELSE TBT2.SHIP_NAME || '_' || TDSI2.VOYAGE END "shipNameVoyage" FROM T_BUS_TRUST_CARGO TBTC JOIN
+        T_BUS_TRUST TBT2 ON TBTC.TRUST_ID = TBT2.ID AND TBT2.TYPE = '装船' LEFT JOIN T_DIS_SHIPVOYAGE_ITEM TDSI2 ON
+        TBT2.SHIPVOYAGE_ITEM_ID = TDSI2.ID GROUP BY TBTC.ID, TBTC.CARGO_INFO_ID, TBT2.SHIPVOYAGE_ITEM_ID,
+        TBT2.SHIP_NAME, TDSI2.VOYAGE ) TEMP ON t.ID = TEMP.CARGO_INFO_ID
+        LEFT JOIN T_BUS_TRUST_CARGO TBTC ON t.ID = TBTC.CARGO_INFO_ID
+        LEFT JOIN T_BUS_TRUST TBT2 ON TBTC.TRUST_ID = TBT2.ID
+        <where>
+            t.IS_LOGOUT = '20' AND t.IS_CLEAR = '0'
+
+            <if test="shipvoyageItemId != null">
+                AND CASE WHEN TBT.TYPE IN ('集港', '拆箱集港') THEN TEMP.SHIPVOYAGE_ITEM_ID ELSE t.SHIPVOYAGE_ITEM_ID
+                END = #{shipvoyageItemId}
+            </if>
+            <if test="shipvoyageId != null">
+                and t.SHIPVOYAGE_ID = #{shipvoyageId}
+            </if>
+            <if test="scn != null and scn != ''">
+                and t.SCN = #{scn}
+            </if>
+            <if test="isLogout != null and isLogout != ''">
+                and (t.IS_LOGOUT = #{isLogout} or t.IS_LOGOUT is null)
+            </if>
+            <if test="isRelease != null and isRelease != ''">
+                and t.IS_RELEASE = #{isRelease}
+            </if>
+            <if test="isPrePay != null and isPrePay != ''">
+                and t.IS_PRE_PAY = #{isPrePay}
+            </if>
+            <if test="businessNo != null and businessNo != ''">
+                <bind name="businessNoLike" value="'%' + businessNo + '%'"/>
+                and TBTC.BUSINESS_NO LIKE #{businessNoLike}
+            </if>
+            <if test="cargoInfoNo != null and cargoInfoNo != ''">
+                <bind name="cargoInfoNo_like" value="'%'+cargoInfoNo+'%'"/>
+                and t.CARGO_INFO_NO LIKE #{cargoInfoNo_like}
+            </if>
+            <if test="contractCode != null and contractCode != ''">
+                <bind name="contractCode_like" value="'%'+contractCode+'%'"/>
+                and t.CONTRACT_CODE LIKE #{contractCode_like}
+            </if>
+            <if test="cargoOwnerId != null">
+                and t.CARGO_OWNER_ID = #{cargoOwnerId}
+            </if>
+            <if test="cargoOwnerName != null and cargoOwnerName != ''">
+                and t.CARGO_OWNER_NAME = #{cargoOwnerName}
+            </if>
+            <if test="cargoAgentId != null">
+                and t.CARGO_AGENT_ID = #{cargoAgentId}
+            </if>
+            <if test="cargoAgentName != null and cargoAgentName != ''">
+                and t.CARGO_AGENT_NAME = #{cargoAgentName}
+            </if>
+            <if test="cargoCode != null and cargoCode != ''">
+                and t.CARGO_CODE = #{cargoCode}
+            </if>
+            <if test="cargoName != null and cargoName != ''">
+                <bind name="cargoNameLike" value="'%' + cargoName + '%'"/>
+                and t.CARGO_NAME LIKE #{cargoNameLike,jdbcType=VARCHAR}
+            </if>
+            <if test="tradeType != null and tradeType != ''">
+                and t.TRADE_TYPE = #{tradeType}
+            </if>
+            <if test="packingCode != null and packingCode != ''">
+                and t.PACKING_CODE = #{packingCode}
+            </if>
+            <if test="packingName != null and packingName != ''">
+                and t.PACKING_NAME = #{packingName}
+            </if>
+            <if test="companyId != null">
+                and t.COMPANY_ID = #{companyId}
+            </if>
+            <if test="companyName != null and companyName != ''">
+                and t.COMPANY_NAME = #{companyName}
+            </if>
+            <if test="parentId != null">
+                and t.PARENT_ID = #{parentId}
+            </if>
+            <if test="rootId != null">
+                and t.ROOT_ID = #{rootId}
+            </if>
+            <if test="isClear != null">
+                and t.IS_CLEAR = #{isClear} OR IS_CLEAR IS NULL
+            </if>
+            <if test="workType != null and workType != ''">
+                and m.WORK_TYPE = #{workType,jdbcType=VARCHAR}
+            </if>
+            <if test="prepaymentCode != null and prepaymentCode != ''">
+                and TFBCP.PREPAYMENT_CODE = #{prepaymentCode,jdbcType=VARCHAR}
+            </if>
+            <if test="startDate != null and startDate != ''">
+                and to_char(t.CREATE_TIME,'YYYY-MM-DD') >= #{startDate,jdbcType=VARCHAR}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                and to_char(t.CREATE_TIME,'YYYY-MM-DD') &lt; #{endDate,jdbcType=VARCHAR}
+            </if>
+        </where>
+        GROUP BY
+        TFBCP.ID,
+        TFBCP.PREPAYMENT_CODE,
+        TFBCP.STATUS,
+        t.ID,
+        t.SHIPVOYAGE_ID,
+        t.SHIPVOYAGE_ITEM_ID,
+        t.SCN,
+        t.SHIP_NAME,
+        t.CARGO_INFO_NO,
+        t.CARGO_OWNER_ID,
+        t.CARGO_OWNER_NAME,
+        t.CARGO_AGENT_ID,
+        t.CARGO_AGENT_NAME,
+        t.CARGO_CODE,
+        t.CARGO_NAME,
+        t.TRADE_TYPE,
+        t.PACKING_CODE,
+        t.PACKING_NAME,
+        t.COMPANY_ID,
+        t.COMPANY_NAME,
+        t.IS_CLEAR,
+        t.VOYAGE,
+        t.RESIDUE_STORAGE,
+        t.TRANSFER_DATE,
+        m.TALLY,
+        TBT.TYPE,
+        TDSI.VOYAGE,
+        t.IS_TOS,
+        m.WORK_TYPE,
+        t.IS_LOGOUT,
+        t.IS_PRE_PAY,
+        t.IS_RELEASE,
+        t.CREATE_TIME,
+        t.RELEASE_REMARK,
+        t.REAL_CLEAR_DATE
+        <if test="shipName!=null and shipName !=''">
+            <bind name="shipName_like" value="'%'+shipName+'%'"/>
+            HAVING CASE WHEN TBT.TYPE IN ('集港', '拆箱集港')
+            THEN TO_CHAR(REGEXP_REPLACE(RTRIM(XMLCAST(XMLAGG(XMLELEMENT(E, TEMP."shipNameVoyage" || ',') ORDER
+            BY TEMP."shipNameVoyage") AS CLOB), ','), '([^,]+)(,\1)+', '\1'))
+            ELSE TO_CHAR(CASE WHEN t.SHIPVOYAGE_ITEM_ID IS NULL THEN NULL ELSE t.SHIP_NAME || '_' || TDSI.VOYAGE END)
+            END LIKE #{shipName_like}
+            <if test="voyage!=null and voyage !=''">
+                <bind name="voyage_like" value="'%'+voyage+'%'"/>
+                AND CASE WHEN TBT.TYPE IN ('集港', '拆箱集港')
+                THEN TO_CHAR(REGEXP_REPLACE(RTRIM(XMLCAST(XMLAGG(XMLELEMENT(E, TEMP."shipNameVoyage" || ',') ORDER
+                BY TEMP."shipNameVoyage") AS CLOB), ','), '([^,]+)(,\1)+', '\1'))
+                ELSE TO_CHAR(CASE WHEN t.SHIPVOYAGE_ITEM_ID IS NULL THEN NULL ELSE t.SHIP_NAME || '_' || TDSI.VOYAGE END)
+                END LIKE #{voyage_like}
+            </if>
+        </if>
+        <if test="shipName == null and voyage!=null and voyage !=''">
+            <bind name="voyage_like" value="'%'+voyage+'%'"/>
+            HAVING CASE WHEN TBT.TYPE IN ('集港', '拆箱集港')
+            THEN TO_CHAR(REGEXP_REPLACE(RTRIM(XMLCAST(XMLAGG(XMLELEMENT(E, TEMP."shipNameVoyage" || ',') ORDER
+            BY TEMP."shipNameVoyage") AS CLOB), ','), '([^,]+)(,\1)+', '\1'))
+            ELSE TO_CHAR(CASE WHEN t.SHIPVOYAGE_ITEM_ID IS NULL THEN NULL ELSE t.SHIP_NAME || '_' || TDSI.VOYAGE END)
+            END LIKE #{voyage_like}
+        </if>
+        ORDER BY
+        CREATE_TIME DESC
+    </select>
+    <select id="getById" resultType="com.yy.ppm.business.bean.dto.TBusReleaseManageDTO">
+        SELECT
+        ID,
+        IS_RELEASE,
+        RELEASE_REMARK
+        FROM
+        T_BUS_CARGO_INFO
+        WHERE ID = #{id}
+    </select>
+    <select id="getTrustById" resultType="java.lang.Integer">
+        select count(*)
+        from T_BUS_TRUST_CARGO TBTC
+        left join T_BUS_TRUST TBT on TBT.id = TBTC.TRUST_ID
+        where TBT.TYPE in  ('疏港','陆销','装船') and TBTC.CARGO_INFO_ID = #{id}
+    </select>
+</mapper>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DTC_Message>
+  <MessageHead>
+    <MESSAGETYPE>DBXX</MESSAGETYPE>
+    <MESSAGEID>d50ec57a5e9e441aa73d36dcfd06be41</MESSAGEID>
+    <MESSAGETIME>2022-08-10T16:22:30</MESSAGETIME>
+    <SENDERID>JN30</SENDERID>
+    <SENDERADDRESS>JN30</SENDERADDRESS>
+    <RECEIVERID>4310</RECEIVERID>
+    <RECEIVERADDRESS>4310</RECEIVERADDRESS>
+    <PLATFORMNO>SDGK666666</PLATFORMNO>
+    <CUSTOMCODE>4310</CUSTOMCODE>
+    <SEQNO />
+    <NOTE />
+  </MessageHead>
+  <MessageBody>
+    <DTCFlow>
+      <WFG_DBXX >
+        <INFORM_NO>SG210908004</INFORM_NO> 通知单号
+        <BILL_DTE>2021-09-08 00:00:00</BILL_DTE> 通知单下达日期
+        <BILL_TYP>疏港</BILL_TYP> 通知单类型
+        <CARGO_BILL_NO>NJ210813003</CARGO_BILL_NO> 受理号
+        <SPLIT_NO>00</SPLIT_NO> 分单号
+        <BILL_NO>*</BILL_NO> 提单号
+        <EFFECT_DTE>2021-09-08 08:00:00</EFFECT_DTE> 有效开始日期
+        <VALID_DTE>2021-11-10 08:00:00</VALID_DTE> 有效截止日期
+        <SHIP_NO>38421</SHIP_NO> 船期编号
+        <SHIP_NAM>百庆</SHIP_NAM> 船名
+        <VOYAGE>2126</VOYAGE> 航次
+        <TRADE_ID>内贸</TRADE_ID> 内外贸
+        <CARGO_AGENT_COD>null</CARGO_AGENT_COD> 货代
+        <CONSIGN_COD>山东港口陆海国际物流集团有限公司</CONSIGN_COD> 货主
+        <CARGO_COD>石油焦</CARGO_COD> 货名
+        <CARGO_MARK>*</CARGO_MARK> 唛头
+        <PKG_KIND_COD>散</PKG_KIND_COD> 包装
+        <BILL_NO>*</BILL_NO> 提单号
+        <FORMAT>*</FORMAT>
+        <ORIGIN_PLACE_COD>null</ORIGIN_PLACE_COD> 原产地
+        <MATERIAL_TXT>null</MATERIAL_TXT> 材质
+        <PIECES_WGT>0</PIECES_WGT> 件重
+        <CARGO_NUM>0</CARGO_NUM> 计划件数
+        <CARGO_WGT>2500</CARGO_WGT> 计划重量
+        <CARGO_VOL>null</CARGO_VOL> 计划体积
+        <TRANSPORT_ID>汽车</TRANSPORT_ID> 运输工具类型
+        <BANG_ID>单车回皮</BANG_ID> 过磅方式
+        <IFEND_ID>0</IFEND_ID> 启用标识（1 停用，0 启用）
+        <IFEND_TIM>null</IFEND_TIM> 停用时间
+        <YARD_PLAN_TXT>062C07/302,</YARD_PLAN_TXT> 计划库场货位
+        <NEW_YARD_PLAN_TXT>null</NEW_YARD_PLAN_TXT> 新计划库场货位
+        <WFG_UPWGT>49</WFG_UPWGT> 限载量
+        <OPER_TYP>A</OPER_TYP> 操作类型（A 修改/增加；D 删除）
+        <CUSTOMS_BILL>null</CUSTOMS_BILL> 报关单号
+      </WFG_DBXX >
+    </DTCFlow>
+  </MessageBody>
+</DTC_Message>

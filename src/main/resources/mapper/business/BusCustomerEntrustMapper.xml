@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.business.mapper.BusCustomerEntrustMapper">
+<select id="getList" resultType="com.yy.ppm.business.bean.dto.TBusCustomerEntrustDTO">
+    select TBCE.*,tbt.STATUS TRUST_STATUS
+    from T_BUS_CUSTOMER_ENTRUST TBCE
+    left join  t_bus_trust tbt on  TBCE.trust_id = tbt.id
+    <where>
+        <if test = "id !=null and id != ''">
+            TBCE.id = #{id,jdbcType=BIGINT}
+        </if>
+    </where>
+</select>
+<!--    -->
+    <select id="getCustomerEntrustForAddTrust" resultType="com.yy.ppm.business.bean.dto.TBusCustomerEntrustDTO">
+        select
+        tbt.id id,
+        TBCE.id entrust_id,
+        TBCE.entrust_no,
+        TBCE.trust_no,
+        TBCE.company_id,
+        TBCE.company_name,
+        TBCE.customer_id,
+        TBCE.customer_name,
+        TBCE.trade_type,
+        TBCE.imp_exp,
+        TBCE.start_time,
+        TBCE.end_time,
+        TBCE.plan_quantity,
+        TBCE.plan_ton,
+        TBCE.remark,
+        TBCE.status entrust_status,
+        TBCE.create_by,
+        TBCE.create_by_name,
+        TBCE.create_time,
+        TBCE.update_by,
+        TBCE.update_by_name,
+        TBCE.update_time,
+        TBCE.cargo_owner_name,
+        TBCE.cargo_name,
+        TBCE.shipvoyage_item_id,
+        TBCE.work_accompanying_id,
+        TBCE.type,
+        TBCE.trust_id,
+        TBCE.SETTLEMENT_BASIS_CODE  ,
+        TBCE.SETTLEMENT_BASIS_NAME,
+        tbt.STATUS,
+        tbt.IS_WEIQIAO_POUND_REMARK,
+        tbt.POUND_REMARK,
+        tbt.PRE_CHANGE_SHIP_NAME,
+        tbt.PRE_CHANGE_SHIP_NO,
+        tbt.EST_AMOUNT
+    from T_BUS_CUSTOMER_ENTRUST TBCE
+    left join  t_bus_trust tbt on  TBCE.trust_id = tbt.id
+    <where>
+        <if test = "id !=null and id != ''">
+            TBCE.id = #{id,jdbcType=BIGINT}
+        </if>
+    </where>
+</select>
+    <select id="getEntrustDetailList"
+            parameterType="com.yy.ppm.business.bean.dto.TBusEntrustDetailReqDTO" resultType="com.yy.ppm.business.bean.dto.TBusEntrustDetailDTO">
+        select  TBED.id,
+        TBED.entrust_id,
+        TBED.cargo_info_id,
+        TBED.trust_id,
+        TBED.shipvoyage_id,
+        TBED.shipvoyage_item_id,
+        TBED.scn,
+        TBED.ship_name,
+        TBED.cargo_owner_id,
+        TBED.cargo_owner_name,
+        TBED.cargo_code,
+        TBED.cargo_name,
+        TBED.trade_type,
+        TBED.packing_code,
+        TBED.packing_name,
+        TBED.company_id,
+        TBED.company_name,
+        TBED.quantity,
+        TBED.ton,
+        TBED.voyage,
+        TBED.delivery_numbers,
+        TBED.delivery_id,
+        TBED.trust_cargo_id,
+        tbci.cargo_info_no,
+        TBTC.IS_STOP_OPERATION_TIME,
+        TBTC.IS_STOP_OPERATION_NAME,
+        TBTC.PRINT_POUND_ID,
+        TBTC.PRINT_POUND_NUM,
+        TBTC.IS_SECOND_WEIGH,
+        TBTC.EST_AMOUNT,
+        TBTC.CONTRACT_RATE_ID,
+        TBTC.CONTRACT_ID,
+        TBTC.BUSINESS_NO
+        from T_BUS_ENTRUST_DETAIL TBED
+        left join T_BUS_CUSTOMER_ENTRUST TBCE on TBED.ENTRUST_ID = TBCE.ID
+            left join t_bus_cargo_info tbci on tbed.cargo_info_id = tbci.id
+        left join T_BUS_TRUST_CARGO TBTC on (TBTC.CARGO_INFO_ID = TBED.CARGO_INFO_ID and TBCE.TRUST_ID = TBTC.TRUST_ID)
+       <where>
+           <if test="entrustId!=null and entrustId != ''">
+               TBED.ENTRUST_ID = #{entrustId,jdbcType=BIGINT}
+           </if>
+       </where>
+    </select>
+    <select id="getEntrustDetailListForTrustAdd"
+            parameterType="com.yy.ppm.business.bean.dto.TBusEntrustDetailReqDTO" resultType="com.yy.ppm.business.bean.dto.TBusEntrustDetailDTO">
+        select
+        TBED.trust_cargo_id id,
+        TBED.id entrust_detail_id,
+        TBED.entrust_id,
+        TBED.cargo_info_id,
+        TBED.trust_id,
+        TBED.shipvoyage_id,
+        TBED.shipvoyage_item_id,
+        TBED.scn,
+        TBED.ship_name,
+        TBED.cargo_owner_id,
+        TBED.cargo_owner_name,
+        TBED.cargo_code,
+        TBED.cargo_name,
+        TBED.trade_type,
+        TBED.packing_code,
+        TBED.packing_name,
+        TBED.company_id,
+        TBED.company_name,
+        TBED.quantity,
+        TBED.ton,
+        TBED.create_by,
+        TBED.create_by_name,
+        TBED.create_time,
+        TBED.update_by,
+        TBED.update_by_name,
+        TBED.update_time,
+        TBED.voyage,
+        TBED.delivery_numbers,
+        TBED.delivery_id,
+        tbci.cargo_info_no,
+        TBTC.IS_STOP_OPERATION_TIME,
+        TBTC.IS_STOP_OPERATION_NAME,
+        TBTC.PRINT_POUND_ID,
+        TBTC.PRINT_POUND_NUM,
+        TBTC.IS_SECOND_WEIGH,
+        TBTC.EST_AMOUNT,
+        TBTC.CONTRACT_RATE_ID,
+        TBTC.CONTRACT_ID,
+        TBCR.SERVICE_CONTENT_NAME||':'|| TBCR.RATE RATE_LABEL,
+        TBC.CONTACT_NO CONTRACT_NAME,
+TBTC.BUSINESS_NO
+        from T_BUS_ENTRUST_DETAIL TBED
+            left join t_bus_cargo_info tbci on TBED.cargo_info_id = tbci.id
+        left join T_BUS_TRUST_CARGO TBTC on TBTC.id = TBED.trust_cargo_id
+        left join T_BUS_CONTRACT TBC on  TBC.id  = TBTC.CONTRACT_ID
+        left join  T_BUS_CONTRACT_RATE TBCR  on TBCR.id  = CONTRACT_RATE_ID
+
+       <where>
+           <if test="entrustId!=null and entrustId != ''">
+               TBED.ENTRUST_ID = #{entrustId,jdbcType=BIGINT}
+           </if>
+       </where>
+    </select>
+    <insert id="insertEntrust" parameterType="com.yy.ppm.business.bean.dto.TBusEntrustDetailReqDTO" >
+        INSERT INTO
+            T_BUS_CUSTOMER_ENTRUST (
+            ID,
+            ENTRUST_NO,
+            TRUST_NO,
+            COMPANY_ID,
+            COMPANY_NAME,
+            CUSTOMER_ID,
+            CUSTOMER_NAME,
+            TRADE_TYPE,
+            IMP_EXP,
+            START_TIME,
+            END_TIME,
+            PLAN_QUANTITY,
+            PLAN_TON,
+            REMARK,
+
+            STATUS,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+
+
+            CARGO_OWNER_NAME,
+
+            CARGO_NAME,
+            SHIPVOYAGE_ITEM_ID,
+                                    TYPE,
+            POUND_REMARK,
+            IS_WEIQIAO_POUND_REMARK,SETTLEMENT_BASIS_CODE  ,SETTLEMENT_BASIS_NAME
+        )
+        VALUES
+            (
+                #{id,jdbcType=BIGINT},
+                #{entrustNo,jdbcType=VARCHAR},
+                #{trustNo,jdbcType=VARCHAR},
+                #{companyId,jdbcType=BIGINT},
+                #{companyName,jdbcType=VARCHAR},
+                #{customerId,jdbcType=VARCHAR},
+                #{customerName,jdbcType=VARCHAR},
+                #{tradeType},
+                #{impExp},
+                #{startTime,jdbcType=TIMESTAMP},
+                #{endTime,jdbcType=TIMESTAMP},
+                #{planQuantity},
+                #{planTon,jdbcType=DECIMAL},
+                #{remark},
+                #{status},
+                #{loginUserId},
+                #{loginUserName},
+                #{now},
+
+                #{cargoOwnerName},
+                #{cargoName},
+                #{shipvoyageItemId,jdbcType=BIGINT},
+                '集港',
+                #{poundRemark},
+                #{isWeiqiaoPoundRemark},#{settlementBasisCode},#{settlementBasisName}
+            )
+    </insert>
+    <insert id="insertEntrustDetail" parameterType="com.yy.ppm.business.bean.dto.TBusEntrustDetailDTO">
+        BEGIN
+        <foreach collection="list" item="item" separator=";" index="index">
+            INSERT INTO
+            T_BUS_ENTRUST_DETAIL (
+            ID,
+            ENTRUST_ID,
+            CARGO_INFO_ID,
+            TRUST_ID,
+            CARGO_INFO_NO,
+            SHIPVOYAGE_ID,
+            SHIPVOYAGE_ITEM_ID,
+            SCN,
+            SHIP_NAME,
+            CARGO_OWNER_ID,
+            CARGO_OWNER_NAME,
+            CARGO_CODE,
+            CARGO_NAME,
+            TRADE_TYPE,
+            PACKING_CODE,
+            PACKING_NAME,
+            COMPANY_ID,
+            COMPANY_NAME,
+            QUANTITY,
+            TON,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            VOYAGE,
+            DELIVERY_NUMBERS,
+            DELIVERY_ID
+            )
+            VALUES
+            (
+
+             #{item.id,jdbcType=BIGINT},
+            #{item.entrustId,jdbcType=BIGINT},
+            #{item.cargoInfoId,jdbcType=BIGINT},
+            #{item.trustId,jdbcType=BIGINT},
+            #{item.cargoInfoNo,jdbcType=VARCHAR},
+            #{item.shipvoyageId,jdbcType=BIGINT},
+            #{item.shipvoyageItemId,jdbcType=BIGINT},
+            #{item.scn,jdbcType=VARCHAR},
+            #{item.shipName,jdbcType=VARCHAR},
+            #{item.cargoOwnerId,jdbcType=BIGINT},
+            #{item.cargoOwnerName,jdbcType=VARCHAR},
+            #{item.cargoCode,jdbcType=VARCHAR},
+            #{item.cargoName,jdbcType=VARCHAR},
+            #{item.tradeType,jdbcType=VARCHAR},
+            #{item.packingCode,jdbcType=VARCHAR},
+            #{item.packingName,jdbcType=VARCHAR},
+            #{item.companyId,jdbcType=BIGINT},
+            #{item.companyName,jdbcType=VARCHAR},
+            #{item.quantity,jdbcType=VARCHAR},
+            #{item.ton,jdbcType=DECIMAL},
+            #{item.loginUserId, jdbcType=BIGINT},
+            #{item.loginUserName, jdbcType=VARCHAR},
+            #{item.now},
+            #{item.voyage,jdbcType=VARCHAR},
+            #{item.deliveryNumbers,jdbcType=VARCHAR},
+            #{item.deliveryId,jdbcType=BIGINT}
+            )
+            <if test="(list.size-1) == index">
+                ;
+            </if>
+        </foreach>
+        END;
+
+    </insert>
+    <update id="updateEntrustDetail" parameterType="com.yy.ppm.business.bean.dto.TBusEntrustDetailDTO">
+        begin
+        <foreach collection="updateDetailList" item="entity" separator=" ">
+            UPDATE T_BUS_ENTRUST_DETAIL
+            <set>
+                COMPANY_ID = #{entity.companyId, jdbcType=BIGINT},
+                COMPANY_NAME = #{entity.companyName, jdbcType=VARCHAR},
+                CARGO_OWNER_ID = #{entity.cargoOwnerId, jdbcType=BIGINT} ,
+                CARGO_OWNER_NAME = #{entity.cargoOwnerName, jdbcType=VARCHAR},
+                cargo_code = #{entity.cargoCode,jdbcType=VARCHAR},
+                cargo_name = #{entity.cargoName,jdbcType=VARCHAR},
+                QUANTITY = #{entity.quantity, jdbcType=INTEGER},
+                TON = #{entity.ton, jdbcType=DECIMAL},
+                DELIVERY_NUMBERS = #{entity.deliveryNumbers},
+                DELIVERY_ID = #{entity.deliveryId},
+                UPDATE_BY = #{entity.loginUserId, jdbcType=BIGINT},
+                UPDATE_BY_NAME = #{entity.loginUserName, jdbcType=VARCHAR},
+                UPDATE_TIME = #{entity.now}
+            </set>
+            <where>
+                id = #{entity.id};
+            </where>
+        </foreach>
+        end;
+    </update>
+    <delete id="delEntrustDetailByIds">
+        delete from T_BUS_ENTRUST_DETAIL TBED where ENTRUST_ID = #{entrustId}
+        and exists(
+        select * from (
+        <foreach collection="detailIds" separator="union all " item="tmp_id">
+            select #{tmp_id, jdbcType=BIGINT} as TMPID
+            from dual
+        </foreach>
+        ) a where a.TMPID = TBED.ID
+      )
+
+    </delete>
+    <update id="updateEntrust" parameterType="com.yy.ppm.business.bean.dto.TBusEntrustDetailReqDTO" >
+        UPDATE
+            T_BUS_CUSTOMER_ENTRUST
+        SET
+            COMPANY_ID = #{companyId},
+            COMPANY_NAME = #{companyName},
+            CUSTOMER_ID = #{customerId},
+            CUSTOMER_NAME = #{customerName},
+            TRADE_TYPE = #{tradeType},
+            IMP_EXP = #{impExp},
+            START_TIME = #{startTime},
+            END_TIME = #{endTime},
+            PLAN_QUANTITY = #{planQuantity},
+            PLAN_TON = #{planQuantity},
+            REMARK = #{remark},
+
+            STATUS = #{status},
+
+            UPDATE_BY = #{loginUserId},
+            UPDATE_BY_NAME = #{loginUserName},
+            UPDATE_TIME = #{now},
+
+            CARGO_OWNER_NAME = #{cargoOwnerName},
+            CARGO_NAME = #{cargoName},
+            SHIPVOYAGE_ITEM_ID = #{shipvoyageItemId},
+            POUND_REMARK = #{poundRemark},
+            IS_WEIQIAO_POUND_REMARK = #{isWeiqiaoPoundRemark},
+            SETTLEMENT_BASIS_CODE =#{settlementBasisCode} ,
+            SETTLEMENT_BASIS_NAME = #{settlementBasisName}
+            where id  = #{id}
+     </update>
+    <select id="checkCargoTrust" resultType="com.yy.ppm.business.bean.dto.TBusTrustDTO">
+        select distinct TBT.*
+        from T_BUS_CARGO_INFO TBCI left join T_BUS_TRUST_CARGO TBTC on TBTC.CARGO_INFO_ID = TBCI.ID
+                                   left join T_BUS_TRUST TBT on TBT.id = TBTC.TRUST_ID
+        where TBT.id is not null and  exists(
+        select * from (
+        <foreach collection="cargoInfoIds" separator="union all " item="tmp_id">
+            select #{tmp_id, jdbcType=BIGINT} as TMPID
+            from dual
+        </foreach>
+        ) a where a.TMPID = TBCI.ID
+        )
+    </select>
+    <delete id="delCustomerEntrustById" parameterType="java.lang.Long">
+        delete
+        from T_BUS_CUSTOMER_ENTRUST
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+</mapper>

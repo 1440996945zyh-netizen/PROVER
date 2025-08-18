@@ -1,4 +1,4 @@
-# yy--framework-api
+# ppm-api
 
 
 
@@ -15,14 +15,14 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 
 ```
 cd existing_repo
-git remote add origin http://120.55.96.234/gitlab2/yy-framework/yy-framework-api.git
+git remote add origin http://120.55.96.234/gitlab2/yy-platform/ppm-api.git
 git branch -M main
 git push -uf origin main
 ```
 
 ## Integrate with your tools
 
-- [ ] [Set up project integrations](http://120.55.96.234/gitlab2/yy-framework/yy-framework-api/-/settings/integrations)
+- [ ] [Set up project integrations](http://120.55.96.234/gitlab2/yy-platform/ppm-api/-/settings/integrations)
 
 ## Collaborate with your team
 

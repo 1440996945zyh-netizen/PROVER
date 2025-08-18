@@ -1,0 +1,791 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.finance.mapper.TFdInvoiceMapper">
+
+    <sql id="commonList">
+        SELECT
+        ID,
+        COMPANY_NAME,
+        COMPANY_ID,
+        SYS_INVOICE_CODE,
+        INVOICE_CODE,
+        CUSTOMER_ID,
+        CUSTOMER_NAME,
+        INVOICE_AMOUNT,
+        STATUS,
+        INVOICE,
+        INVOICE_TYPE_CODE,
+        INVOICE_TYPE_NAME,
+        TAXATION_INVOICE,
+        TAXATION_INVOICE_CODE,
+        INVOICE_TIME,
+        REMARK,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME
+        FROM
+        T_FD_INVOICE
+        <where>
+            <if test="id != null">
+                and ID = #{id}
+            </if>
+            <if test="companyName != null and companyName != ''">
+                and COMPANY_NAME = #{companyName}
+            </if>
+            <if test="companyId != null">
+                and COMPANY_ID = #{companyId}
+            </if>
+            <if test="sysInvoiceCode != null and sysInvoiceCode != ''">
+                and SYS_INVOICE_CODE = #{sysInvoiceCode}
+            </if>
+            <if test="invoiceCode != null  and sysInvoiceCode != ''">
+                and INVOICE_CODE = #{invoiceCode}
+            </if>
+            <if test="customerId != null">
+                and CUSTOMER_ID = #{customerId}
+            </if>
+            <if test="customerName != null and customerName != ''">
+                and CUSTOMER_NAME = #{customerName}
+            </if>
+            <if test="invoiceAmount != null">
+                and INVOICE_AMOUNT = #{invoiceAmount}
+            </if>
+            <if test="status != null">
+                and STATUS = #{status}
+            </if>
+            <if test="invoiceTypeCode != null">
+                and INVOICE_TYPE_CODE = #{invoiceTypeCode}
+            </if>
+            <if test="invoiceTypeName != null and invoiceTypeName !='' ">
+                and INVOICE_TYPE_NAME = #{invoiceTypeName}
+            </if>
+            <if test="taxationInvoice != null and taxationInvoice != ''">
+                and TAXATION_INVOICE = #{taxationInvoice}
+            </if>
+            <if test="taxationInvoiceCode != null">
+                and TAXATION_INVOICE_CODE = #{taxationInvoiceCode}
+            </if>
+            <if test="invoiceTime != null">
+                and INVOICE_TIME = #{invoiceTime}
+            </if>
+            <if test="remark != null and remark != ''">
+                and REMARK = #{remark}
+            </if>
+        </where>
+        ORDER BY CREATE_TIME DESC
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.finance.bean.dto.TFdInvoiceDTO"
+            parameterType="com.yy.ppm.finance.bean.dto.TFdInvoiceSearchDTO">
+        SELECT * FROM(
+        SELECT
+        ID,
+        HAS_NOT_RECEIPT_AMOUNT,
+        IS_DEBTORPAYMENT,
+        DEBTORPAYMENT_ID,
+        COMPANY_NAME,
+        COMPANY_ID,
+        SYS_INVOICE_CODE,
+        INVOICE_CODE,
+        CUSTOMER_ID,
+        CUSTOMER_NAME,
+        INVOICE_AMOUNT,
+        STATUS,
+        INVOICE,
+        INVOICE_TYPE_CODE,
+        INVOICE_TYPE_NAME,
+        TAXATION_INVOICE,
+        TAXATION_INVOICE_CODE,
+        INVOICE_TIME,
+        REMARK,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME,
+        RED_STATUS,
+        RED_STATUS_LABEL,
+        REGEXP_REPLACE (
+        LISTAGG (TO_CHAR(SHIPVOYAGE_ITEM_ID), ',') WITHIN GROUP (ORDER BY SHIPVOYAGE_ITEM_ID),
+        '([^,]+)(,\1)+',
+        '\1'
+        ) SHIPVOYAGE_ITEM_ID,
+        REGEXP_REPLACE (
+        LISTAGG (TO_CHAR("shipNameVoyage"), ',') WITHIN GROUP (ORDER BY "shipNameVoyage"),
+        '([^,]+)(,\1)+',
+        '\1'
+        ) "shipNameVoyage"
+        FROM (
+        SELECT
+        t.ID,
+        t.COMPANY_NAME,
+        t.COMPANY_ID,
+        t.SYS_INVOICE_CODE,
+        t.INVOICE_CODE,
+        t.CUSTOMER_ID,
+        t.CUSTOMER_NAME,
+        t.INVOICE_AMOUNT,
+        t.STATUS,
+        t.INVOICE,
+        t.INVOICE_TYPE_CODE,
+        t.INVOICE_TYPE_NAME,
+        t.TAXATION_INVOICE,
+        t.TAXATION_INVOICE_CODE,
+        t.INVOICE_TIME,
+        t.REMARK,
+        t.CREATE_BY,
+        t.CREATE_BY_NAME,
+        t.CREATE_TIME,
+        t.UPDATE_BY,
+        t.UPDATE_BY_NAME,
+        t.UPDATE_TIME,
+        t.RED_STATUS,
+        t.RED_STATUS_LABEL,
+        t3.SHIPVOYAGE_ITEM_ID,
+        t.DEBTORPAYMENT_ID,
+        t.HAS_NOT_RECEIPT_AMOUNT,
+        case when nvl(t.HAS_NOT_RECEIPT_AMOUNT,0) != nvl(t.INVOICE_AMOUNT,0) and t.INVOICE_AMOUNT is not null  then '1' else '0' end IS_DEBTORPAYMENT,
+        CONCAT(CONCAT(t4.SHIP_NAME, '_'),t5.VOYAGE) as "shipNameVoyage"
+        FROM
+        T_FD_INVOICE t
+        LEFT JOIN T_FD_INVOICE_DETAIL t1 ON t1.INVOICE_ID = t.ID
+        LEFT JOIN T_COST_STATEMENT_DETAIL t2 ON t1.STATEMENT_DETAIL_ID = t2.ID
+        LEFT JOIN T_COST_STATEMENT t3 ON t3.ID = t2.STATEMENT
+        LEFT JOIN T_DIS_SHIPVOYAGE t4 ON t3.SHIPVOYAGE_ID = t4.ID
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM t5 ON t3.SHIPVOYAGE_ITEM_ID = t5.ID
+
+
+        <where>
+            <if test="id != null">
+                and t.ID = #{id}
+            </if>
+            <if test="companyName != null and companyName != ''">
+                and t.COMPANY_NAME = #{companyName}
+            </if>
+            <if test="createByName != null and createByName != ''">
+                <bind name="createByNameLike" value="'%' + createByName + '%'"/>
+                and t.CREATE_BY_NAME like #{createByNameLike}
+            </if>
+            <if test="companyId != null">
+                and t.COMPANY_ID = #{companyId}
+            </if>
+            <if test="sysInvoiceCode != null and sysInvoiceCode != ''">
+                <bind name="sysInvoiceCode_like" value="'%'+sysInvoiceCode+'%'"/>
+                and t.SYS_INVOICE_CODE LIKE #{sysInvoiceCode_like}
+            </if>
+            <if test="invoiceCode != null  and invoiceCode != ''">
+                and t.INVOICE_CODE = #{invoiceCode}
+            </if>
+            <if test="customerId != null">
+                and t.CUSTOMER_ID = #{customerId}
+            </if>
+            <if test="customerName != null and customerName != ''">
+                and t.CUSTOMER_NAME = #{customerName}
+            </if>
+            <if test="invoiceAmount != null">
+                and t.INVOICE_AMOUNT = #{invoiceAmount}
+            </if>
+            <if test="status != null">
+                and t.STATUS = #{status}
+            </if>
+            <if test="invoiceTypeCode != null">
+                and t.INVOICE_TYPE_CODE = #{invoiceTypeCode}
+            </if>
+            <if test="invoiceTypeName != null and invoiceTypeName !='' ">
+                and t.INVOICE_TYPE_NAME = #{invoiceTypeName}
+            </if>
+            <if test="taxationInvoice != null and taxationInvoice != ''">
+                and t.TAXATION_INVOICE = #{taxationInvoice}
+            </if>
+            <if test="taxationInvoiceCode != null">
+                and t.TAXATION_INVOICE_CODE = #{taxationInvoiceCode}
+            </if>
+            <if test="startTime != null">
+                and to_char(t.INVOICE_TIME,'YYYY-MM-DD') >= #{startTime}
+            </if>
+            <if test="endTime != null">
+                and to_char(t.INVOICE_TIME,'YYYY-MM-DD' ) &lt;= #{endTime}
+            </if>
+            <if test="invoiceTime != null">
+                and to_char(t.INVOICE_TIME,'YYYY-MM-DD' )= to_char( #{invoiceTime},'YYYY-MM-DD')
+            </if>
+<!--            <if test="isSj!=null and isSj!='' and isSj==1">-->
+<!--                 and nvl(t.HAS_NOT_RECEIPT_AMOUNT,0) != nvl(t.INVOICE_AMOUNT,0)-->
+<!--            </if>-->
+<!--            <if test="isSj!=null and isSj!='' and isSj==2">-->
+<!--                 and nvl(t.HAS_NOT_RECEIPT_AMOUNT,0)=0-->
+<!--            </if>-->
+<!--            <if test="isSj!=null and isSj!='' and isSj==2">-->
+<!--                 and nvl(t.HAS_NOT_RECEIPT_AMOUNT,0)>0-->
+<!--            </if>-->
+        </where>
+        )
+        GROUP BY
+        ID,
+        HAS_NOT_RECEIPT_AMOUNT,
+        COMPANY_NAME,
+        COMPANY_ID,
+        SYS_INVOICE_CODE,
+        INVOICE_CODE,
+        CUSTOMER_ID,
+        CUSTOMER_NAME,
+        INVOICE_AMOUNT,
+        STATUS,
+        INVOICE,
+        INVOICE_TYPE_CODE,
+        INVOICE_TYPE_NAME,
+        TAXATION_INVOICE,
+        TAXATION_INVOICE_CODE,
+        INVOICE_TIME,
+        REMARK,
+        RED_STATUS,
+        RED_STATUS_LABEL,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        IS_DEBTORPAYMENT,
+        DEBTORPAYMENT_ID,
+        UPDATE_TIME
+        )
+        <where>
+            <if test="shipvoyageItemId != null">
+            <bind name="shipvoyageItemId_like" value="'%'+shipvoyageItemId+'%'"/>
+                and SHIPVOYAGE_ITEM_ID LIKE  #{shipvoyageItemId_like}
+            </if>
+            <if test="isSj!=null and isSj!='' and isSj==1">
+                and IS_DEBTORPAYMENT = '1'
+            </if>
+            <if test="isSj!=null and isSj!='' and isSj==0">
+                and IS_DEBTORPAYMENT = '0'
+            </if>
+
+        </where>
+        ORDER BY CREATE_TIME DESC
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.finance.bean.dto.TFdInvoiceDTO"
+            parameterType="com.yy.ppm.finance.bean.dto.TFdInvoiceSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.finance.bean.dto.TFdInvoiceDTO" parameterType="java.lang.Long">
+        SELECT
+        ID, COMPANY_NAME, COMPANY_ID, SYS_INVOICE_CODE, INVOICE_CODE, CUSTOMER_ID, CUSTOMER_NAME, INVOICE_AMOUNT,
+        STATUS, INVOICE,INVOICE_TYPE_CODE,INVOICE_TYPE_NAME, TAXATION_INVOICE, TAXATION_INVOICE_CODE, INVOICE_TIME, REMARK,
+        CREATE_BY, CREATE_BY_NAME, DEBTORPAYMENT_ID AS debtorpaymentId,
+        CREATE_TIME, UPDATE_BY, UPDATE_BY_NAME, UPDATE_TIME FROM
+        T_FD_INVOICE
+        <where>
+            id = #{id}
+        </where>
+    </select>
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.finance.bean.dto.TFdInvoiceDTO">
+        INSERT INTO T_FD_INVOICE(
+                ID,
+                    COMPANY_NAME,
+                    COMPANY_ID,
+                    SYS_INVOICE_CODE,
+                    INVOICE_CODE,
+                    CUSTOMER_ID,
+                    CUSTOMER_NAME,
+                    INVOICE_AMOUNT,
+                    STATUS,
+                    INVOICE,
+                    INVOICE_TYPE_CODE,
+                    INVOICE_TYPE_NAME,
+                    TAXATION_INVOICE,
+                    TAXATION_INVOICE_CODE,
+                    INVOICE_TIME,
+                    REMARK,
+                    CREATE_BY,
+                    CREATE_BY_NAME,
+                    CREATE_TIME,
+                    PREPAYMENT_TYPE_CODE,
+                    PREPAYMENT_TYPE_NAME,
+                    HAS_NOT_RECEIPT_AMOUNT,
+                    RECEIPT_STATUS
+        )VALUES (
+                    #{id, jdbcType=BIGINT},
+                    #{companyName, jdbcType=VARCHAR},
+                    #{companyId, jdbcType=VARCHAR},
+                    #{sysInvoiceCode, jdbcType=VARCHAR},
+                    #{invoiceCode, jdbcType=VARCHAR},
+                    #{customerId, jdbcType=BIGINT},
+                    #{customerName, jdbcType=VARCHAR},
+                    #{invoiceAmount, jdbcType=VARCHAR},
+                    #{status, jdbcType=VARCHAR},
+                    #{invoice, jdbcType=VARCHAR},
+                    #{invoiceTypeCode, jdbcType=BIGINT},
+                    #{invoiceTypeName, jdbcType=VARCHAR},
+                    #{taxationInvoice, jdbcType=VARCHAR},
+                    #{taxationInvoiceCode, jdbcType=VARCHAR},
+                    #{invoiceTime, jdbcType=VARCHAR},
+                    #{remark, jdbcType=VARCHAR},                                                                                                                    #{loginUserId, jdbcType=BIGINT},
+                    #{loginUserName, jdbcType=VARCHAR},
+                    #{now,jdbcType=TIMESTAMP},
+                    #{prepaymentTypeCode,jdbcType=BIGINT},
+                    #{prepaymentTypeName,jdbcType=BIGINT},
+                    #{invoiceAmount, jdbcType=VARCHAR},
+                    '10'
+                        )
+    </insert>
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.finance.bean.dto.TFdInvoiceDTO">
+        UPDATE
+        T_FD_INVOICE
+        SET
+        COMPANY_NAME = #{companyName,jdbcType=VARCHAR},
+        COMPANY_ID = #{companyId,jdbcType=BIGINT},
+        SYS_INVOICE_CODE = #{sysInvoiceCode,jdbcType=VARCHAR},
+        INVOICE_CODE = #{invoiceCode,jdbcType=VARCHAR},
+        CUSTOMER_ID = #{customerId,jdbcType=VARCHAR},
+        CUSTOMER_NAME = #{customerName,jdbcType=VARCHAR},
+        INVOICE_AMOUNT = #{invoiceAmount,jdbcType=DECIMAL},
+        STATUS = #{status,jdbcType=BIGINT},
+        INVOICE = #{invoice,jdbcType=VARCHAR},
+        INVOICE_TYPE_CODE = #{invoiceTypeCode,jdbcType=BIGINT},
+        INVOICE_TYPE_NAME = #{invoiceTypeName,jdbcType=VARCHAR},
+        TAXATION_INVOICE = #{taxationInvoice,jdbcType=VARCHAR},
+        TAXATION_INVOICE_CODE = #{taxationInvoiceCode,jdbcType=VARCHAR},
+        INVOICE_TIME = #{invoiceTime,jdbcType=VARCHAR},
+        REMARK = #{remark,jdbcType=VARCHAR},
+        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+  <!-- 修改税务服务发票编号 -->
+    <update id="updateInvoiceCode" parameterType="com.yy.ppm.finance.bean.dto.TFdInvoiceDTO">
+        UPDATE
+        T_FD_INVOICE
+        SET
+        INVOICE_CODE = #{invoiceCode,jdbcType=VARCHAR},
+        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM
+            T_FD_INVOICE
+        WHERE
+            id = #{id}
+    </delete>
+    <!-- 作废 -->
+    <delete id="voidInvoice" parameterType="com.yy.ppm.finance.bean.dto.TFdInvoiceDTO">
+         UPDATE
+        T_FD_INVOICE
+         SET
+            STATUS = #{status,jdbcType=BIGINT},
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now,jdbcType=TIMESTAMP}
+        WHERE
+            id = #{id}
+    </delete>
+
+<!--    结算单详情查询添加按钮触发 -->
+    <select id="getStatement"
+            parameterType="com.yy.ppm.finance.bean.dto.TFdInvoiceSearchDTO"
+            resultType="com.yy.ppm.finance.bean.dto.TFdInvoiceDetailDTO">
+        SELECT
+        t1.ID,
+        t1.STATEMENT  AS statementId,
+        t.CUSTOMER_ID AS "customerId",
+        t.CUSTOMER_NAME AS "customerName",
+        t.CARGO_NAME AS "cargoName",
+        t.STATEMENT_NO AS STATEMENT_NO ,
+        "TYPE" AS type,
+        t1.RATE_ITEM_CODE,
+        t1.RATE_ITEM_NAME,
+        t1.UNIT_CODE,
+        t1.UNIT_NAME,
+        t1."NUMBER" AS NUMBER_COUNT,
+        t1."NUMBER2" AS NUMBER_COUNT2,
+        t1.RATE AS pieceAmount,
+        t1.AMOUNT AS amount,
+        t1.INVOICE_AMOUNT AS invoiceAmount,
+        t1.INVOICE_NUMBER AS invoiceNumber,
+        CONCAT(CONCAT(t4.SHIP_NAME,'_'),t2.VOYAGE) AS SHIP_NAME_VOYAGE,
+        t1.TAX,
+        t1.TAX_AMOUNT,
+        t1.RATE_ID,
+        t3.CARGO_INFO_ID,
+        t.SHIPVOYAGE_ID,
+        t.SHIPVOYAGE_ITEM_ID,
+        t.RECEIPT_REMARK,
+        t.TAX_INVOICE_NAME,
+        t.TAX_INVOICE_CODE,
+        t4.SCN,
+        t4.SHIP_NAME,
+        t2.VOYAGE,
+        t2.TRADE_TYPE,
+        M2.DICT_VALUE AS "feeType",
+        DECODE(t4.IMP_EXP, 'IN' ,'进口', 'OUT' ,'出口' , '' ) AS "impExp"
+        FROM
+        T_COST_STATEMENT t
+        LEFT JOIN T_COST_STATEMENT_DETAIL t1 ON t.id = t1.STATEMENT
+        LEFT join M_FEE_ITEM M1 on t1.RATE_ITEM_CODE = M1.ITEM_CD
+        left join M_DICT_DATA M2 on M2.DICT_VALUE = M1.ITEM_TYPE_CD AND M2.DICT_TYPE='FEE_ITEM_TYPE'
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM t2 ON t.SHIPVOYAGE_ITEM_ID = t2.ID
+        LEFT JOIN T_DIS_SHIPVOYAGE t4 ON t4.ID = t2.SHIPVOYAGE_ID
+        LEFT JOIN T_BUS_TRUST_CARGO t3 ON  t.TRUST_CARGO_ID = t3.ID
+        <where>
+            t.STATUS IN (31,40)
+            and t.FINANCE_STATUS = '20'
+            AND t1."NUMBER"-NVL(t1.INVOICE_NUMBER,0) > 0
+            <if test="companyId != null">
+                AND t.COMPANY_ID = #{companyId,jdbcType=BIGINT}
+            </if>
+            <!--<if test="invoiceTypeCode != null">
+                <if  test="invoiceTypeCode == 10 ">
+                    AND ( t.TYPE = '10' OR t.TYPE = '20')
+                </if>
+                <if test="invoiceTypeCode != 10 ">
+                    AND t.TYPE = #{invoiceTypeCode,jdbcType=BIGINT}
+                </if>
+            </if>-->
+            <if test="customerId != null">
+                AND t.CUSTOMER_ID = #{customerId}
+            </if>
+            <if test="id != null and id != ''">
+                AND t1.ID = #{id}
+            </if>
+            <if test="statementNo != null and statementNo != ''">
+                <bind name="statementNo_like" value="'%' + statementNo + '%'"/>
+                AND t.STATEMENT_NO LIKE #{statementNo_like}
+            </if>
+            <if test="scn != null and scn != ''">
+                <bind name="scn_like" value="'%' + scn + '%'"/>
+                AND t4.SCN LIKE #{scn_like}
+            </if>
+        </where>
+    </select>
+<!--    根据结算单id进行批量获取，主要用来做数据对比-->
+    <select id="getStatementByID"
+            parameterType="com.yy.ppm.finance.bean.dto.TFdInvoiceSearchDTO"
+            resultType="com.yy.ppm.finance.bean.dto.TFdInvoiceDetailDTO">
+        SELECT
+        t1.ID,
+        t1.STATEMENT  AS statementId,
+        t.STATEMENT_NO AS STATEMENT_NO ,
+        "TYPE" AS type,
+        t1.RATE_ITEM_CODE,
+        t1.RATE_ITEM_NAME,
+        t1.UNIT_CODE,
+        t1.UNIT_NAME,
+        t1."NUMBER" AS NUMBER_COUNT,
+        t1."NUMBER2" AS NUMBER_COUNT2,
+        t1.RATE AS pieceAmount,
+        t1.AMOUNT AS amount,
+        t1.INVOICE_AMOUNT AS invoiceAmount,
+        t1.INVOICE_NUMBER AS invoiceNumber,
+        t1.TAX,
+        t1.TAX_AMOUNT,
+        t1.RATE_ID
+        FROM
+        T_COST_STATEMENT t
+        LEFT JOIN T_COST_STATEMENT_DETAIL t1 ON t.id = t1.STATEMENT
+        WHERE
+         t1.ID = #{id}
+    </select>
+<!--    根据结算单子表 判断结算单状态用-->
+    <select id="getStatementByInvoiceDetailList"
+            parameterType="com.yy.ppm.finance.bean.dto.TFdInvoiceDetailDTO"
+            resultType="com.yy.ppm.finance.bean.dto.TFdInvoiceDetailDTO">
+        SELECT
+        t1.ID,
+        t1.STATEMENT  AS statementId,
+        t.STATEMENT_NO AS STATEMENT_NO ,
+        "TYPE" AS type,
+        t.STATUS status,
+        t1.RATE_ITEM_CODE,
+        t1.RATE_ITEM_NAME,
+        t1.UNIT_CODE,
+        t1.UNIT_NAME,
+        t1."NUMBER" AS NUMBER_COUNT,
+        t1."NUMBER2" AS NUMBER_COUNT2,
+        t1.RATE AS pieceAmount,
+        t1.AMOUNT AS amount,
+        t1.INVOICE_AMOUNT AS invoiceAmount,
+        t1.INVOICE_NUMBER AS invoiceNumber,
+        t1.TAX,
+        t1.TAX_AMOUNT,
+        t1.RATE_ID
+        FROM
+        T_COST_STATEMENT t
+        LEFT JOIN T_COST_STATEMENT_DETAIL t1 ON t.id = t1.STATEMENT
+        WHERE
+        t1."NUMBER" > 0
+        AND  t1.ID
+        <foreach item="item" index="index" collection="list" open="IN (" separator="," close=")">
+            #{item.statementDetailId}
+        </foreach>
+    </select>
+<!--    通过statementParenID -->
+    <select id="getStatementByParentIds"
+            parameterType="java.lang.Long"
+            resultType="com.yy.ppm.finance.bean.dto.TFdInvoiceDetailDTO">
+        SELECT
+        t1.ID,
+        t1.STATEMENT  AS statementId,
+        t.STATEMENT_NO AS STATEMENT_NO ,
+        "TYPE" AS type,
+        t1.RATE_ITEM_CODE,
+        t1.RATE_ITEM_NAME,
+        t1.UNIT_CODE,
+        t1.UNIT_NAME,
+        t1."NUMBER" AS NUMBER_COUNT,
+        t1."NUMBER2" AS NUMBER_COUNT2,
+        t1.RATE AS pieceAmount,
+        t1.AMOUNT AS amount,
+        t1.INVOICE_AMOUNT AS invoiceAmount,
+        t1.INVOICE_NUMBER AS invoiceNumber,
+        t1.TAX,
+        t1.TAX_AMOUNT,
+        t1.RATE_ID
+        FROM
+        T_COST_STATEMENT t
+        LEFT JOIN T_COST_STATEMENT_DETAIL t1 ON t.id = t1.STATEMENT
+        WHERE
+         t1."NUMBER" > 0
+        AND  t.ID
+        <foreach item="item" index="index" collection="list" open="IN (" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+
+    <update id="updateStatementDetailBatch"
+            parameterType="com.yy.ppm.statement.bean.po.TCostStatementDetailPO">
+        <foreach collection="list" open="BEGIN" close="END;" item="item" separator=";" index="index">
+            UPDATE
+            T_COST_STATEMENT_DETAIL
+            SET
+            INVOICE_NUMBER = #{item.invoiceNumber,jdbcType=DECIMAL},
+            INVOICE_AMOUNT = #{item.invoiceAmount,jdbcType=DECIMAL},
+            UPDATE_BY = #{item.loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{item.loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{item.now}
+            <where>
+                id = #{item.id}
+            </where>
+            <if test="(list.size-1) == index">
+                ;
+            </if>
+        </foreach>
+    </update>
+<!--    <update id="updateStatementStatusBatch" parameterType="java.lang.Long">
+            UPDATE
+            T_COST_STATEMENT
+            SET
+            STATUS = 40
+            WHERE
+            ID
+            <foreach item="id" index="index" collection="list" open="IN (" separator="," close=")">
+                #{id}
+            </foreach>
+    </update>-->
+    <update id="updateStatementStatusBatch" parameterType="com.yy.ppm.finance.bean.dto.StatementStatusUpdateDTO">
+        <foreach collection="list" open="BEGIN" close="END;" item="item" separator=";" index="index">
+            UPDATE
+            T_COST_STATEMENT
+            SET
+            STATUS = #{item.status},
+            UPDATE_BY = #{item.loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{item.loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{item.now}
+            <where>
+                ID =  #{item.id}
+            </where>
+            <if test="(list.size-1) == index">
+                ;
+            </if>
+        </foreach>
+    </update>
+
+    <update id="updateByInvoiceNumber" parameterType="java.util.HashMap">
+        update T_FD_INVOICE
+        set
+            INVOICE_CODE = #{infoTypeCode},
+            MACHINE_INVOICE_NUM = #{machineInvoiceNum},
+            PDF_URL = #{pdfurl},
+            PDF_MSG = #{pdfmsg}
+        where SYS_INVOICE_CODE = #{number}
+    </update>
+
+    <!--  更新发票表的红冲状态  -->
+    <update id="updateRedStatusByInvoiceId">
+        update T_FD_INVOICE
+        set
+            RED_STATUS = #{redStatus},
+            RED_STATUS_LABEL = #{redStatusLabel}
+        where id = #{id}
+    </update>
+
+    <select id="getInvoiceCode" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT
+        MAX(SYS_INVOICE_CODE)
+        FROM
+        T_FD_INVOICE
+        <where>
+            <bind name="codeWith" value="startWith + '%'"/>
+            SYS_INVOICE_CODE LIKE #{codeWith,jdbcType=VARCHAR}
+        </where>
+    </select>
+    <select id="getInvoiceByCustomerId" resultType="com.yy.ppm.finance.bean.dto.TFdInvoiceDTO">
+        SELECT
+        invoice
+        FROM
+        T_BUS_CUSTOMER
+        <where>
+            ID =  #{id}
+        </where>
+    </select>
+
+    <select id="getFeeItemList" resultType="java.lang.String">
+        select  ITEM_TYPE_CD FROM M_FEE_ITEM
+         WHERE  ITEM_CD IN
+        <foreach collection="list" separator=", " open="(" close=")" item="itemCd">
+            #{itemCd,jdbcType=VARCHAR}
+        </foreach>
+         GROUP BY ITEM_TYPE_CD
+    </select>
+
+    <select id="getStatementIsTingBoByID"  resultType="com.yy.ppm.finance.bean.dto.TFdInvoiceDetailDTO">
+
+        select TCS.ID STATEMENT_ID,T.ID,T.SHIPVOYAGE_ITEM_ID
+
+        from T_COST_STATEMENT TCS
+                 left join T_COST_STATEMENT_DETAIL TCSD on TCS.ID = TCSD.STATEMENT
+                 left join T_COST_SHIP T on TCSD.BUSINESS_ID = T.ID
+        where TCS.ID = #{statementId,jdbcType=BIGINT}
+            and T.ID is not null and T.TYPE = '10'
+        GROUP BY TCS.ID ,T.ID,T.SHIPVOYAGE_ITEM_ID
+
+    </select>
+
+    <update id="updateShipVoyageItem" parameterType="com.yy.ppm.statement.bean.dto.costShip.TDisShipvoyageItemDTO">
+        UPDATE T_DIS_SHIPVOYAGE_ITEM
+        SET
+            PAYMENT_AMOUNT = #{paymentAmount},
+            PAYMENT_AMOUNT_BACK = #{paymentAmountBack}
+        where ID = #{id}
+    </update>
+
+    <update id="updateShipVoyage" parameterType="com.yy.ppm.dispatch.bean.dto.disShipvoyage.TDisShipvoyageDTO">
+        update T_DIS_SHIPVOYAGE  SET
+            PAYMENT_AMOUNT = #{paymentAmount}
+        where ID = #{id}
+    </update>
+
+    <select id="getShipVoyageItemByItemId" resultType="com.yy.ppm.statement.bean.dto.costShip.TDisShipvoyageItemDTO">
+        select * FROM T_DIS_SHIPVOYAGE_ITEM where ID = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="getAllItemByOneItemId" resultType="com.yy.ppm.statement.bean.dto.costShip.TDisShipvoyageItemDTO">
+        SELECT * FROM T_DIS_SHIPVOYAGE_ITEM
+        where SHIPVOYAGE_ID = (SELECT SHIPVOYAGE_ID FROM T_DIS_SHIPVOYAGE_ITEM WHERE  ID = #{id} )
+    </select>
+
+    <select id="getStatementListByIds" resultType="com.yy.ppm.finance.bean.dto.TFdInvoiceDetailDTO">
+
+        select TCS.ID STATEMENT_ID,T.ID,T.SHIPVOYAGE_ITEM_ID
+
+        from T_COST_STATEMENT TCS
+                 left join T_COST_STATEMENT_DETAIL TCSD on TCS.ID = TCSD.STATEMENT
+                 left join T_COST_SHIP T on TCSD.BUSINESS_ID = T.ID
+        where TCS.ID IN
+        <foreach collection="ids" separator=", " close=")" open="(" item="id">
+            #{id, jdbcType=BIGINT}
+        </foreach>
+          and T.ID is not null and T.TYPE = '10'
+        GROUP BY TCS.ID ,T.ID,T.SHIPVOYAGE_ITEM_ID
+    </select>
+    <resultMap id="statementTmpStatus" type="java.util.HashMap">
+        <result column="ID" property="ID" jdbcType="BIGINT"/>
+        <result column="statement_no" property="statement_no" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result column="customer_name" property="customer_name" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result column="TYPE" property="TYPE" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result column="trust_cargo_id" property="trust_cargo_id" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result column="shipvoyage_item_id" property="shipvoyage_item_id" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result column="cargo_code" property="cargo_code" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result column="cargo_name" property="cargo_name" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result column="trade_type" property="trade_type" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result column="status" property="status" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result column="create_time" property="create_time" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result column="create_by_name" property="create_by_name" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result column="BHT_ID" property="bhtId" jdbcType="BIGINT" javaType="java.lang.Long"/>
+
+        <collection property="details" javaType="java.util.List" ofType="java.util.Map">
+            <result column="detail_ID" property="detail_ID" jdbcType="VARCHAR" javaType="java.lang.String"/>
+            <result column="STATEMENT" property="STATEMENT" jdbcType="VARCHAR" javaType="java.lang.String"/>
+            <result column="amount" property="amount" jdbcType="VARCHAR" javaType="java.lang.String"/>
+            <result column="NUMBER1" property="NUMBER1" jdbcType="VARCHAR" javaType="java.lang.String"/>
+            <result column="INVOICE_AMOUNT" property="INVOICE_AMOUNT" jdbcType="VARCHAR" javaType="java.lang.String"/>
+            <result column="INVOICE_NUMBER" property="INVOICE_NUMBER" jdbcType="VARCHAR" javaType="java.lang.String"/>
+            <result column="detail_Create_Time" property="detail_Create_Time" jdbcType="VARCHAR" javaType="java.lang.String"/>
+            <result column="handoverlistTon" property="handoverlistTon" jdbcType="DECIMAL"/>
+            <result column="detail_create_name" property="detail_create_name" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        </collection>
+
+    </resultMap>
+
+    <select id="getCostStatemmentByInvoiceDto" resultMap="statementTmpStatus">
+        select
+
+            TCS.ID ID,
+            TCS.statement_no statement_no,
+            TCS.customer_name customer_name,
+            TCS."TYPE" "TYPE",
+            TCS.trust_cargo_id trust_cargo_id,
+            TCS.shipvoyage_item_id shipvoyage_item_id,
+            TCS.cargo_code cargo_code,
+            TCS.cargo_name cargo_name,
+            TCS.trade_type  trade_type,
+            TCS.status status,
+            TCS.remark remark,
+            to_char(TCS.create_TIME,'yyyy-MM-dd hh24:mi:ss') create_time,
+            TCS.create_by_name create_by_name,
+            TCSD.id detail_ID,
+            tcsd.amount amount,
+            tcsd."NUMBER" NUMBER1,
+            TCSD.INVOICE_AMOUNT INVOICE_AMOUNT,
+            TCSD.INVOICE_NUMBER INVOICE_NUMBER,
+            TCSD.STATEMENT STATEMENT,
+            to_char(TCSD.CREATE_TIME,'yyyy-MM-dd hh24:mi:ss') detail_Create_Time,
+            TCSD.CREATE_BY_NAME detail_create_name
+
+        from T_COST_STATEMENT_DETAIL TCSD
+                 left join T_COST_STATEMENT TCS on TCSD.STATEMENT = TCS.ID
+        where TCSD.id In (
+            select distinct TFID.STATEMENT_DETAIL_ID
+            from T_FD_INVOICE_DETAIL TFID left join T_FD_INVOICE TFI on TFID.INVOICE_ID = TFI.ID
+            where TFI.id  = #{id,jdbcType=BIGINT}
+        )
+    </select>
+    <select id="invoiceDownload" resultType="java.lang.String" parameterType="com.yy.ppm.finance.bean.dto.TFdInvoiceSearchDTO">
+        SELECT FILE_URL  FROM T_SD_INVOICE_REQUEST
+        <where>
+            INVOICE_ID  = #{id}
+        </where>
+    </select>
+</mapper>
+

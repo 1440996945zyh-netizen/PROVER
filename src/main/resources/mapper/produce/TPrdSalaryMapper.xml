@@ -1,0 +1,1028 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.produce.mapper.TPrdSalaryMapper">
+
+    <resultMap id="listSalary" type="com.yy.ppm.produce.bean.dto.TPrdSalaryResultDTO">
+        <result property="id" column="ID" jdbcType="BIGINT"/>
+        <result property="workTicketDetailId" column="WORK_TICKET_DETAIL_ID" jdbcType="BIGINT"/>
+        <result property="companyId" column="COMPANY_ID" jdbcType="BIGINT"/>
+        <result property="companyName" column="COMPANY_NAME" jdbcType="VARCHAR"/>
+        <result property="workDate" column="WORK_DATE" jdbcType="TIMESTAMP"/>
+        <result property="classCode" column="CLASS_CODE" jdbcType="VARCHAR"/>
+        <result property="className" column="CLASS_NAME" jdbcType="VARCHAR"/>
+        <result property="pieceProjectCode" column="PIECE_PROJECT_CODE" jdbcType="VARCHAR"/>
+        <result property="pieceProjectName" column="PIECE_PROJECT_NAME" jdbcType="VARCHAR"/>
+        <result property="processDetailCode" column="PROCESS_DETAIL_CODE" jdbcType="VARCHAR"/>
+        <result property="processDetailName" column="PROCESS_DETAIL_NAME" jdbcType="VARCHAR"/>
+        <result property="processCode" column="PROCESS_CODE" jdbcType="VARCHAR"/>
+        <result property="processName" column="PROCESS_NAME" jdbcType="VARCHAR"/>
+        <result property="deptId" column="DEPT_ID" jdbcType="BIGINT"/>
+        <result property="deptName" column="DEPT_NAME" jdbcType="VARCHAR"/>
+        <result property="userBy" column="USER_BY" jdbcType="BIGINT"/>
+        <result property="userByName" column="USER_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="coefficient" column="COEFFICIENT" jdbcType="INTEGER"/>
+        <result property="salaryPriceId" column="SALARY_PRICE_ID" jdbcType="BIGINT"/>
+        <result property="price" column="PRICE" jdbcType="DECIMAL"/>
+        <result property="quantity" column="QUANTITY" jdbcType="INTEGER"/>
+        <result property="ton" column="TON" jdbcType="DECIMAL"/>
+        <result property="amount" column="AMOUNT" jdbcType="DECIMAL"/>
+        <result property="salaryStatusCode" column="SALARY_STATUS_CODE" jdbcType="VARCHAR"/>
+        <result property="salaryStatusName" column="SALARY_STATUS_NAME" jdbcType="VARCHAR"/>
+        <result property="salaryTypeCode" column="SALARY_TYPE_CODE" jdbcType="VARCHAR"/>
+        <result property="salaryTypeName" column="SALARY_TYPE_NAME" jdbcType="VARCHAR"/>
+        <result property="remark" column="REMARK" jdbcType="VARCHAR"/>
+        <result property="salarySummaryId" column="SALARY_SUMMARY_ID" jdbcType="BIGINT"/>
+        <result property="createBy" column="CREATE_BY" jdbcType="BIGINT"/>
+        <result property="createByName" column="CREATE_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="UPDATE_BY" jdbcType="BIGINT"/>
+        <result property="updateByName" column="UPDATE_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="updateTime" column="UPDATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="examineBy" column="EXAMINE_BY" jdbcType="BIGINT"/>
+        <result property="cargoInfoId" column="CARGO_INFO_ID" jdbcType="BIGINT"/>
+        <result property="examineByName" column="EXAMINE_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="cargoName" column="CARGO_NAME" jdbcType="VARCHAR"/>
+        <result property="cargoCode" column="CARGO_CODE" jdbcType="VARCHAR"/>
+        <result property="processCode" column="PROCESS_CODE" jdbcType="VARCHAR"/>
+        <result property="processName" column="PROCESS_NAME" jdbcType="VARCHAR"/>
+        <result property="shipVoyage" column="SHIP_VOYAGE" jdbcType="VARCHAR"/>
+        <result property="examineTime" column="EXAMINE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="workContent" column="WORK_CONTENT" jdbcType="VARCHAR"/>
+        <result property="oddPlanNo" column="ODD_PLAN_NO" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="listSalary" resultMap="listSalary">
+        SELECT TPS.ID,
+        TPS.WORK_TICKET_DETAIL_ID,
+        TPS.COMPANY_ID,
+        TPS.COMPANY_NAME,
+        TPS.WORK_DATE,
+        TPS.CLASS_CODE,
+        TPS.CLASS_NAME,
+        TPS.PIECE_PROJECT_CODE,
+        TPS.PIECE_PROJECT_NAME,
+        TPS.PROCESS_DETAIL_CODE,
+        TPS.PROCESS_DETAIL_NAME,
+        TPS.DEPT_ID,
+        TPS.DEPT_NAME,
+        TPS.USER_BY,
+        TPS.USER_BY_NAME,
+        TPS.COEFFICIENT,
+        TPS.SALARY_PRICE_ID,
+        TPS.PRICE,
+        TPS.QUANTITY,
+        TPS.TON,
+        TPS.AMOUNT,
+        TPS.SALARY_STATUS_CODE,
+        TPS.SALARY_STATUS_NAME,
+        TPS.SALARY_TYPE_CODE,
+        TPS.SALARY_TYPE_NAME,
+        TPS.REMARK,
+        TPS.SALARY_SUMMARY_ID,
+        TPS.CREATE_BY,
+        TPS.CREATE_BY_NAME,
+        TPS.CREATE_TIME,
+        TPS.UPDATE_BY,
+        TPS.UPDATE_BY_NAME,
+        TPS.UPDATE_TIME,
+        TPS.EXAMINE_BY,
+        TPS.EXAMINE_BY_NAME,
+        TPS.EXAMINE_TIME,
+        TPS.SHIP_VOYAGE,
+        CASE WHEN TPS.CARGO_NAME IS NOT NULL THEN TPS.CARGO_NAME
+        WHEN TPWTD.CARGO_NAME IS NOT NULL THEN TPWTD.CARGO_NAME
+        ELSE tdsi.CARGO_CATEGORY_NAME END CARGO_NAME,
+        TPWTD.CREATE_BY_NAME TICKET_BY_NAME,
+        TPWTD.CREATE_TIME TICKET_TIME,
+        TPOWP.WORK_CONTENT,
+        TPOWP.ODD_PLAN_NO,
+        CASE
+        WHEN TO_CHAR(TPS.PROCESS_CODE) IS NOT NULL THEN TO_CHAR(TPS.PROCESS_CODE)
+        ELSE TO_CHAR(MWP2.PROCESS_CD)    END AS PROCESS_CODE,
+        CASE
+        WHEN TO_CHAR(TPS.PROCESS_NAME) IS NOT NULL THEN TO_CHAR(TPS.PROCESS_NAME)
+        ELSE TO_CHAR(MWP2.PROCESS_NM)    END AS PROCESS_NAME
+        FROM T_PRD_SALARY TPS
+        LEFT JOIN t_dis_shipvoyage_item tdsi ON tps.SHIP_VOYAGE_ITEM_ID = tdsi.id
+        LEFT JOIN T_PRD_WORK_TICKET_DETAIL TPWTD ON TPWTD.ID = TPS.WORK_TICKET_DETAIL_ID
+        LEFT JOIN T_PRD_WORK_TICKET TPWT ON TPWT.ID = TPS.WORK_TICKET_ID
+        LEFT JOIN T_PRD_ODD_WORK_PLAN TPOWP ON TPOWP.ID = TPS.ODD_PLAN_ID
+        LEFT JOIN M_WORK_PROCESS MWP ON MWP.PROCESS_CD = TPS.PROCESS_DETAIL_CODE
+        LEFT JOIN M_WORK_PROCESS MWP2 ON MWP.PARENT_ID = MWP2.ID
+        <where>
+            <if test="companyId != null">
+                AND TPS.COMPANY_ID = #{companyId, jdbcType=BIGINT}
+            </if>
+            <if test="deptId != null">
+                AND (TPS.DEPT_ID = #{deptId, jdbcType=BIGINT}
+                OR TPS.DEPT_ID IN (SELECT ID FROM SYS_DEPT WHERE PARENT_ID = #{deptId, jdbcType=BIGINT}))
+            </if>
+            <if test="workDate != null">
+                AND TPS.WORK_DATE = #{workDate, jdbcType=TIMESTAMP}
+            </if>
+            <if test="startDate != null">
+                AND TPS.WORK_DATE >= #{startDate,jdbcType=TIMESTAMP}
+            </if>
+            <if test="endDate != null">
+                AND TPS.WORK_DATE &lt;= #{endDate,jdbcType=TIMESTAMP}
+            </if>
+            <if test="classCode != null and classCode != ''">
+                AND TPS.CLASS_CODE = #{classCode, jdbcType=VARCHAR}
+            </if>
+            <if test="pieceProjectCode != null and pieceProjectCode != ''">
+                AND TPS.PIECE_PROJECT_CODE = #{pieceProjectCode, jdbcType=VARCHAR}
+            </if>
+            <if test="processDetailCode != null and processDetailCode != ''">
+                AND TPS.PROCESS_DETAIL_CODE = #{processDetailCode, jdbcType=VARCHAR}
+            </if>
+            <if test="salaryStatusCode != null and salaryStatusCode != ''">
+                AND TPS.SALARY_STATUS_CODE = #{salaryStatusCode, jdbcType=VARCHAR}
+            </if>
+            <if test="startDay != null and startDay != ''">
+                AND TPS.WORK_DATE >= TO_DATE (#{startDay,jdbcType=VARCHAR}, 'YYYY-MM-DD')
+            </if>
+            <if test="endDay != null and endDay != ''">
+                AND TPS.WORK_DATE &lt;= TO_DATE (#{endDay,jdbcType=VARCHAR}, 'YYYY-MM-DD')
+            </if>
+            <if test="salaryTypeCode != null and salaryTypeCode != ''">
+                AND TPS.SALARY_TYPE_CODE = #{salaryTypeCode, jdbcType=VARCHAR}
+            </if>
+            <if test="isOdd != null and isOdd != ''">
+                AND TPS.IS_ODD = #{isOdd, jdbcType=VARCHAR}
+            </if>
+            <if test="userByName != null and userByName != ''">
+                <bind name="userByNameLike" value="'%' + userByName + '%'"/>
+                AND TPS.USER_BY_NAME like #{userByNameLike, jdbcType=VARCHAR}
+            </if>
+        </where>
+        ORDER BY TPS.WORK_DATE ASC,TPS.DEPT_NAME ASC,TPS.CLASS_NAME ASC,TPS.USER_BY_NAME
+    </select>
+
+    <select id="getSalarySumNew" resultType="java.util.HashMap">
+        SELECT
+        SUM(NVL(TPS.QUANTITY,0)) "quantity",
+        SUM(TPS.TON) "ton",
+        SUM(TPS.AMOUNT) "amount"
+        FROM
+        T_PRD_SALARY TPS
+        <where>
+            <if test="companyId != null">
+                AND TPS.COMPANY_ID = #{companyId, jdbcType=BIGINT}
+            </if>
+            <if test="deptId != null">
+                AND (TPS.DEPT_ID = #{deptId, jdbcType=BIGINT}
+                OR TPS.DEPT_ID IN (SELECT ID FROM SYS_DEPT WHERE PARENT_ID = #{deptId, jdbcType=BIGINT}))
+            </if>
+            <if test="workDate != null">
+                AND TPS.WORK_DATE = #{workDate, jdbcType=TIMESTAMP}
+            </if>
+            <if test="startDate != null">
+                AND TPS.WORK_DATE >= #{startDate,jdbcType=TIMESTAMP}
+            </if>
+            <if test="endDate != null">
+                AND TPS.WORK_DATE &lt;= #{endDate,jdbcType=TIMESTAMP}
+            </if>
+            <if test="classCode != null and classCode != ''">
+                AND TPS.CLASS_CODE = #{classCode, jdbcType=VARCHAR}
+            </if>
+            <if test="pieceProjectCode != null and pieceProjectCode != ''">
+                AND TPS.PIECE_PROJECT_CODE = #{pieceProjectCode, jdbcType=VARCHAR}
+            </if>
+            <if test="processDetailCode != null and processDetailCode != ''">
+                AND TPS.PROCESS_DETAIL_CODE = #{processDetailCode, jdbcType=VARCHAR}
+            </if>
+            <if test="salaryStatusCode != null and salaryStatusCode != ''">
+                AND TPS.SALARY_STATUS_CODE = #{salaryStatusCode, jdbcType=VARCHAR}
+            </if>
+            <if test="startDay != null and startDay != ''">
+                AND TPS.WORK_DATE >= TO_DATE (#{startDay,jdbcType=VARCHAR}, 'YYYY-MM-DD')
+            </if>
+            <if test="endDay != null and endDay != ''">
+                AND TPS.WORK_DATE &lt;= TO_DATE (#{endDay,jdbcType=VARCHAR}, 'YYYY-MM-DD')
+            </if>
+            <if test="salaryTypeCode != null and salaryTypeCode != ''">
+                AND TPS.SALARY_TYPE_CODE = #{salaryTypeCode, jdbcType=VARCHAR}
+            </if>
+            <if test="isOdd != null and isOdd != ''">
+                AND TPS.IS_ODD = #{isOdd, jdbcType=VARCHAR}
+            </if>
+            <if test="userByName != null and userByName != ''">
+                <bind name="userByNameLike" value="'%' + userByName + '%'"/>
+                AND TPS.USER_BY_NAME like #{userByNameLike, jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+
+    <select id="cursorListSalary" resultType="com.yy.ppm.produce.bean.dto.salary.TPrdSalaryDTO">
+        SELECT  TPS.ID,
+        TPS.WORK_TICKET_DETAIL_ID,
+        TPS.COMPANY_ID,
+        TPS.COMPANY_NAME,
+        TPS.WORK_DATE,
+        TPS.CLASS_CODE,
+        TPS.CLASS_NAME,
+        TPS.PIECE_PROJECT_CODE,
+        TPS.PIECE_PROJECT_NAME,
+        TPS.PROCESS_DETAIL_CODE,
+        TPS.PROCESS_DETAIL_NAME,
+        TPS.DEPT_ID,
+        TPS.DEPT_NAME,
+        TPS.USER_BY,
+        TPS.USER_BY_NAME,
+        TPS.COEFFICIENT,
+        TPS.SALARY_PRICE_ID,
+        TPS.PRICE,
+        TPS.QUANTITY,
+        TPS.TON,
+        TPS.AMOUNT,
+        TPS.SALARY_STATUS_CODE,
+        TPS.SALARY_STATUS_NAME,
+        TPS.SALARY_TYPE_CODE,
+        TPS.SALARY_TYPE_NAME,
+        TPS.REMARK,
+        TPS.SALARY_SUMMARY_ID,
+        TPS.CREATE_BY,
+        TPS.CREATE_BY_NAME,
+        TPS.CREATE_TIME,
+        TPS.UPDATE_BY,
+        TPS.UPDATE_BY_NAME,
+        TPS.UPDATE_TIME,
+        TPS.EXAMINE_BY,
+        TPS.EXAMINE_BY_NAME,
+        TPS.EXAMINE_TIME,
+        TPS.SHIP_VOYAGE AS SHIP_NAME,
+        TPS.CARGO_NAME,
+        TPOWP.WORK_CONTENT,
+        TPOWP.ODD_PLAN_NO,
+        CASE
+        WHEN TO_CHAR(TPS.PROCESS_CODE) IS NOT NULL THEN TO_CHAR(TPS.PROCESS_CODE)
+        ELSE TO_CHAR(MWP2.PROCESS_CD)    END AS PROCESS_CODE,
+        CASE
+        WHEN TO_CHAR(TPS.PROCESS_NAME) IS NOT NULL THEN TO_CHAR(TPS.PROCESS_NAME)
+        ELSE TO_CHAR(MWP2.PROCESS_NM)    END AS PROCESS_NAME
+        FROM T_PRD_SALARY TPS
+        LEFT JOIN T_PRD_WORK_TICKET_DETAIL TPWTD ON TPWTD.ID = TPS.WORK_TICKET_DETAIL_ID
+        LEFT JOIN T_PRD_WORK_TICKET TPWT ON TPWT.ID = TPS.WORK_TICKET_ID
+        LEFT JOIN T_PRD_ODD_WORK_PLAN TPOWP ON TPOWP.ID = TPS.ODD_PLAN_ID
+        LEFT JOIN M_WORK_PROCESS MWP ON MWP.PROCESS_CD = TPS.PROCESS_DETAIL_CODE
+        LEFT JOIN M_WORK_PROCESS MWP2 ON MWP.PARENT_ID = MWP2.ID
+        <where>
+            <if test="companyId != null">
+                AND TPS.COMPANY_ID = #{companyId, jdbcType=BIGINT}
+            </if>
+            <if test="deptId != null">
+                AND (TPS.DEPT_ID = #{deptId, jdbcType=BIGINT}
+                OR TPS.DEPT_ID IN (SELECT ID FROM SYS_DEPT WHERE PARENT_ID = #{deptId, jdbcType=BIGINT}))
+            </if>
+            <if test="workDate != null">
+                AND TPS.WORK_DATE = #{workDate, jdbcType=TIMESTAMP}
+            </if>
+            <if test="classCode != null and classCode != ''">
+                AND TPS.CLASS_CODE = #{classCode, jdbcType=VARCHAR}
+            </if>
+            <if test="pieceProjectCode != null and pieceProjectCode != ''">
+                AND TPS.PIECE_PROJECT_CODE = #{pieceProjectCode, jdbcType=VARCHAR}
+            </if>
+            <if test="processDetailCode != null and processDetailCode != ''">
+                AND TPS.PROCESS_DETAIL_CODE = #{processDetailCode, jdbcType=VARCHAR}
+            </if>
+            <if test="salaryStatusCode != null and salaryStatusCode != ''">
+                AND TPS.SALARY_STATUS_CODE = #{salaryStatusCode, jdbcType=VARCHAR}
+            </if>
+            <if test="startDay != null and startDay != ''">
+                AND TPS.WORK_DATE >= TO_DATE (#{startDay,jdbcType=VARCHAR}, 'YYYY-MM-DD')
+            </if>
+            <if test="endDay != null and endDay != ''">
+                AND TPS.WORK_DATE &lt;= TO_DATE (#{endDay,jdbcType=VARCHAR}, 'YYYY-MM-DD')
+            </if>
+            <if test="startDate != null ">
+                AND TPS.WORK_DATE >=  #{startDate,jdbcType=TIMESTAMP}
+            </if>
+            <if test="endDate != null ">
+                AND TPS.WORK_DATE &lt;=  #{endDate,jdbcType=TIMESTAMP}
+            </if>
+            <if test="salaryTypeCode != null and salaryTypeCode != ''">
+                AND TPS.SALARY_TYPE_CODE = #{salaryTypeCode, jdbcType=VARCHAR}
+            </if>
+            <if test="isOdd != null and isOdd != ''">
+                AND TPS.IS_ODD = #{isOdd, jdbcType=VARCHAR}
+            </if>
+        </where>
+        ORDER BY TPS.WORK_DATE DESC
+    </select>
+
+    <select id="listSalaryGroupByProcess" resultType="com.yy.ppm.produce.bean.dto.salary.TPrdSalaryGroupByProcessDTO">
+        SELECT
+        MWP.PROCESS_CD,
+        MWP.PROCESS_NM,
+        TPS.PROCESS_DETAIL_CODE,
+        TPS.PROCESS_DETAIL_NAME,
+        SUM(TPS.TON) "ton"
+        FROM T_PRD_SALARY TPS
+        LEFT JOIN T_PRD_WORK_TICKET_DETAIL TPWTD ON TPWTD.ID = TPS.WORK_TICKET_DETAIL_ID
+        LEFT JOIN T_PRD_WORK_TICKET TPWT ON TPWT.ID = TPS.WORK_TICKET_ID
+        LEFT JOIN M_WORK_PROCESS MWP ON TPS.PROCESS_DETAIL_CODE = MWP.PROCESS_CD
+        <where>
+            <if test="companyId != null">
+                AND TPS.COMPANY_ID = #{companyId, jdbcType=BIGINT}
+            </if>
+            <if test="deptId != null">
+                AND (TPS.DEPT_ID = #{deptId, jdbcType=BIGINT}
+                OR TPS.DEPT_ID IN (SELECT ID FROM SYS_DEPT WHERE PARENT_ID = #{deptId, jdbcType=BIGINT}))
+            </if>
+            <if test="workDate != null">
+                AND TPS.WORK_DATE = #{workDate, jdbcType=TIMESTAMP}
+            </if>
+            <if test="startDate != null">
+                AND TPS.WORK_DATE >= #{startDate,jdbcType=TIMESTAMP}
+            </if>
+            <if test="endDate != null">
+                AND TPS.WORK_DATE &lt;= #{endDate,jdbcType=TIMESTAMP}
+            </if>
+            <if test="classCode != null and classCode != ''">
+                AND TPS.CLASS_CODE = #{classCode, jdbcType=VARCHAR}
+            </if>
+            <if test="pieceProjectCode != null and pieceProjectCode != ''">
+                AND TPS.PIECE_PROJECT_CODE = #{pieceProjectCode, jdbcType=VARCHAR}
+            </if>
+            <if test="processDetailCode != null and processDetailCode != ''">
+                AND TPS.PROCESS_DETAIL_CODE = #{processDetailCode, jdbcType=VARCHAR}
+            </if>
+            <if test="salaryStatusCode != null and salaryStatusCode != ''">
+                AND TPS.SALARY_STATUS_CODE = #{salaryStatusCode, jdbcType=VARCHAR}
+            </if>
+            <if test="startDay != null and startDay != ''">
+                AND TPS.WORK_DATE >= TO_DATE (#{startDay,jdbcType=VARCHAR}, 'YYYY-MM-DD')
+            </if>
+            <if test="endDay != null and endDay != ''">
+                AND TPS.WORK_DATE &lt;= TO_DATE (#{endDay,jdbcType=VARCHAR}, 'YYYY-MM-DD')
+            </if>
+            <if test="salaryTypeCode != null and salaryTypeCode != ''">
+                AND TPS.SALARY_TYPE_CODE = #{salaryTypeCode, jdbcType=VARCHAR}
+            </if>
+        </where>
+        GROUP BY
+        MWP.PROCESS_CD,
+        MWP.PROCESS_NM,
+        TPS.PROCESS_DETAIL_CODE,
+        TPS.PROCESS_DETAIL_NAME
+        ORDER BY
+        MWP.PROCESS_NM,
+        TPS.PROCESS_DETAIL_NAME
+    </select>
+
+    <select id="cursorListSalary2" resultType="com.yy.ppm.produce.bean.dto.salary.TPrdSalaryExcelDTO">
+        SELECT  TPS.ID,
+        TPS.WORK_TICKET_DETAIL_ID,
+        TPS.COMPANY_ID,
+        TPS.COMPANY_NAME,
+        TPS.WORK_DATE,
+        TPS.CLASS_CODE,
+        TPS.CLASS_NAME,
+        TPS.PIECE_PROJECT_CODE,
+        TPS.PIECE_PROJECT_NAME,
+        TPS.PROCESS_DETAIL_CODE,
+        TPS.PROCESS_DETAIL_NAME,
+        TPS.DEPT_ID,
+        TPS.DEPT_NAME,
+        TPS.USER_BY,
+        TPS.USER_BY_NAME,
+        TPS.COEFFICIENT,
+        TPS.SALARY_PRICE_ID,
+        TPS.PRICE,
+        TPS.QUANTITY,
+        TPS.TON,
+        TPS.AMOUNT,
+        TPS.SALARY_STATUS_CODE,
+        TPS.SALARY_STATUS_NAME,
+        TPS.SALARY_TYPE_CODE,
+        TPS.SALARY_TYPE_NAME,
+        TPS.REMARK,
+        TPS.SALARY_SUMMARY_ID,
+        TPS.CREATE_BY,
+        TPS.CREATE_BY_NAME,
+        TPS.CREATE_TIME,
+        TPS.UPDATE_BY,
+        TPS.UPDATE_BY_NAME,
+        TPS.UPDATE_TIME,
+        TPS.EXAMINE_BY,
+        TPS.EXAMINE_BY_NAME,
+        TPS.EXAMINE_TIME,
+        TPS.SHIP_VOYAGE AS SHIP_NAME,
+        TPS.CARGO_NAME,
+        TPOWP.WORK_CONTENT,
+        TPOWP.ODD_PLAN_NO,
+        CASE
+        WHEN TO_CHAR(TPS.PROCESS_CODE) IS NOT NULL THEN TO_CHAR(TPS.PROCESS_CODE)
+        ELSE TO_CHAR(MWP2.PROCESS_CD)    END AS PROCESS_CODE,
+        CASE
+        WHEN TO_CHAR(TPS.PROCESS_NAME) IS NOT NULL THEN TO_CHAR(TPS.PROCESS_NAME)
+        ELSE TO_CHAR(MWP2.PROCESS_NM)    END AS PROCESS_NAME
+        FROM T_PRD_SALARY TPS
+        LEFT JOIN T_PRD_WORK_TICKET_DETAIL TPWTD ON TPWTD.ID = TPS.WORK_TICKET_DETAIL_ID
+        LEFT JOIN T_PRD_WORK_TICKET TPWT ON TPWT.ID = TPS.WORK_TICKET_ID
+        LEFT JOIN T_PRD_ODD_WORK_PLAN TPOWP ON TPOWP.ID = TPS.ODD_PLAN_ID
+        LEFT JOIN M_WORK_PROCESS MWP ON MWP.PROCESS_CD = TPS.PROCESS_DETAIL_CODE
+        LEFT JOIN M_WORK_PROCESS MWP2 ON MWP.PARENT_ID = MWP2.ID
+        <where>
+            <if test="companyId != null">
+                AND TPS.COMPANY_ID = #{companyId, jdbcType=BIGINT}
+            </if>
+            <if test="deptId != null">
+                AND (TPS.DEPT_ID = #{deptId, jdbcType=BIGINT}
+                OR TPS.DEPT_ID IN (SELECT ID FROM SYS_DEPT WHERE PARENT_ID = #{deptId, jdbcType=BIGINT}))
+            </if>
+            <if test="workDate != null">
+                AND TPS.WORK_DATE = #{workDate, jdbcType=TIMESTAMP}
+            </if>
+            <if test="classCode != null and classCode != ''">
+                AND TPS.CLASS_CODE = #{classCode, jdbcType=VARCHAR}
+            </if>
+            <if test="pieceProjectCode != null and pieceProjectCode != ''">
+                AND TPS.PIECE_PROJECT_CODE = #{pieceProjectCode, jdbcType=VARCHAR}
+            </if>
+            <if test="processDetailCode != null and processDetailCode != ''">
+                AND TPS.PROCESS_DETAIL_CODE = #{processDetailCode, jdbcType=VARCHAR}
+            </if>
+            <if test="salaryStatusCode != null and salaryStatusCode != ''">
+                AND TPS.SALARY_STATUS_CODE = #{salaryStatusCode, jdbcType=VARCHAR}
+            </if>
+            <if test="startDay != null and startDay != ''">
+                AND TPS.WORK_DATE >= TO_DATE (#{startDay,jdbcType=VARCHAR}, 'YYYY-MM-DD')
+            </if>
+            <if test="endDay != null and endDay != ''">
+                AND TPS.WORK_DATE &lt;= TO_DATE (#{endDay,jdbcType=VARCHAR}, 'YYYY-MM-DD')
+            </if>
+            <if test="salaryTypeCode != null and salaryTypeCode != ''">
+                AND TPS.SALARY_TYPE_CODE = #{salaryTypeCode, jdbcType=VARCHAR}
+            </if>
+            <if test="startDate != null ">
+                AND TPS.WORK_DATE >=  #{startDate,jdbcType=TIMESTAMP}
+            </if>
+            <if test="endDate != null ">
+                AND TPS.WORK_DATE &lt;=  #{endDate,jdbcType=TIMESTAMP}
+            </if>
+            <if test="isOdd != null and isOdd != ''">
+                AND TPS.IS_ODD = #{isOdd, jdbcType=VARCHAR}
+            </if>
+        </where>
+        ORDER BY TPS.WORK_DATE DESC
+    </select>
+
+    <select id="getSalary" resultType="com.yy.ppm.produce.bean.dto.TPrdSalaryResultDTO">
+        SELECT TPS.ID,TPS.PROCESS_DETAIL_CODE,DECODE(SD.DEPT_LEVEL,2,SD.ID,4,PSD.ID,NULL) DEPT_ID,
+        TPS.SALARY_TYPE_CODE,TPS.SALARY_STATUS_CODE,TPS.DEPT_NAME,TPS.USER_BY_NAME,
+        DECODE(SD.DEPT_LEVEL,2,SD.DEPT_NAME,4,PSD.DEPT_NAME,NULL) DEPT_NM,TPS.TON,
+        TPS.COMPANY_ID,TPS.WORK_DATE,TPS.CLASS_NAME
+        FROM T_PRD_SALARY TPS
+        LEFT JOIN SYS_DEPT SD ON TPS.DEPT_ID = SD.ID
+        LEFT JOIN SYS_DEPT PSD ON SD.PARENT_ID = PSD.ID
+        WHERE TPS.WORK_DATE &gt;= TO_DATE (#{startDay,jdbcType=VARCHAR}, 'YYYY-MM-DD')
+        AND TPS.WORK_DATE &lt;= TO_DATE (#{endDay,jdbcType=VARCHAR}, 'YYYY-MM-DD')
+        <if test="deptId != null">
+            AND DECODE(SD.DEPT_LEVEL,2,SD.ID,4,PSD.ID,NULL) = #{deptId, jdbcType=BIGINT}
+        </if>
+        <if test="salaryStatusCode != null and salaryStatusCode != ''">
+            AND TPS.SALARY_STATUS_CODE = #{salaryStatusCode, jdbcType=VARCHAR}
+        </if>
+        ORDER BY TPS.CREATE_TIME DESC
+    </select>
+    <select id="getSalary2" resultType="com.yy.ppm.produce.bean.dto.TPrdSalaryResultDTO">
+        SELECT TPS.ID,TPS.PROCESS_DETAIL_CODE,DECODE(SD.DEPT_LEVEL,2,SD.ID,4,PSD.ID,NULL) DEPT_ID,
+        TPS.SALARY_TYPE_CODE,TPS.SALARY_STATUS_CODE,TPS.DEPT_NAME,TPS.USER_BY_NAME,
+        DECODE(SD.DEPT_LEVEL,2,SD.DEPT_NAME,4,PSD.DEPT_NAME,NULL) DEPT_NM,TPS.TON,
+        TPS.COMPANY_ID,TPS.WORK_DATE,TPS.CLASS_NAME
+        FROM T_PRD_SALARY TPS
+        LEFT JOIN SYS_DEPT SD ON TPS.DEPT_ID = SD.ID
+        LEFT JOIN SYS_DEPT PSD ON SD.PARENT_ID = PSD.ID
+        WHERE SALARY_TYPE_CODE != '99'
+            <if test="deptId != null">
+                AND DECODE(SD.DEPT_LEVEL,2,SD.ID,4,PSD.ID,NULL) = #{deptId, jdbcType=BIGINT}
+            </if>
+            <if test="salaryStatusCode != null and salaryStatusCode != ''">
+                AND TPS.SALARY_STATUS_CODE = #{salaryStatusCode, jdbcType=VARCHAR}
+            </if>
+            <if test="startDate != null ">
+                AND TPS.WORK_DATE >=  #{startDate,jdbcType=TIMESTAMP}
+            </if>
+            <if test="endDate != null ">
+                AND TPS.WORK_DATE &lt;=  #{endDate,jdbcType=TIMESTAMP}
+            </if>
+            <if test="classCode != null and classCode != ''">
+                AND TPS.CLASS_CODE = #{classCode, jdbcType=VARCHAR}
+            </if>
+            <if test="companyId != null">
+                AND TPS.COMPANY_ID = #{companyId,jdbcType=BIGINT}
+            </if>
+            <if test="salaryTypeCode != null and salaryTypeCode != ''">
+                AND TPS.SALARY_TYPE_CODE = #{salaryTypeCode,jdbcType=VARCHAR}
+            </if>
+        <if test="isOdd != null and isOdd != ''">
+            AND TPS.IS_ODD = #{isOdd, jdbcType=VARCHAR}
+        </if>
+        ORDER BY TPS.CREATE_TIME DESC
+    </select>
+
+    <select id="getSalartType" resultType="String">
+        SELECT
+            SALARY_TYPE_CODE
+        FROM
+            M_CARGO
+        WHERE
+            CARGO_CODE IN (
+                SELECT
+                    CARGO_CODE
+                FROM
+                    T_PRD_WORK_TICKET_DETAIL
+                WHERE
+                    ID IN (
+                        SELECT
+                            WORK_TICKET_DETAIL_ID
+                        FROM
+                            T_PRD_SALARY
+                        WHERE
+                            WORK_TICKET_DETAIL_ID = #{workTicketDetailId,jdbcType=BIGINT}
+                        GROUP BY
+                            WORK_TICKET_DETAIL_ID
+                    )
+            )
+    </select>
+
+    <select id="getSalartById" resultMap="listSalary">
+        SELECT ID,
+        WORK_TICKET_DETAIL_ID,
+        COMPANY_ID,
+        COMPANY_NAME,
+        WORK_DATE,
+        CLASS_CODE,
+        CLASS_NAME,
+        PIECE_PROJECT_CODE,
+        PIECE_PROJECT_NAME,
+        PROCESS_DETAIL_CODE,
+        PROCESS_DETAIL_NAME,
+        DEPT_ID,
+        DEPT_NAME,
+        USER_BY,
+        USER_BY_NAME,
+        COEFFICIENT,
+        SALARY_PRICE_ID,
+        PRICE,
+        QUANTITY,
+        TON,
+        AMOUNT,
+        SALARY_STATUS_CODE,
+        SALARY_STATUS_NAME,
+        TPS.SALARY_TYPE_CODE,
+        TPS.SALARY_TYPE_NAME,
+        REMARK,
+        SALARY_SUMMARY_ID,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME,
+        EXAMINE_BY,
+        EXAMINE_BY_NAME,
+        EXAMINE_TIME
+        FROM T_PRD_SALARY
+        where ID = #{id,jdbcType=BIGINT}
+    </select>
+
+    <!--    <select id="getSalarySum" resultMap="listSalary">-->
+    <!--        SELECT-->
+    <!--            A1.COMPANY_ID,-->
+    <!--            A1.COMPANY_NAME,-->
+    <!--            A1.PROCESS_DETAIL_CODE,-->
+    <!--            A1.PROCESS_DETAIL_NAME,-->
+    <!--            A1.PIECE_PROJECT_CODE,-->
+    <!--            A1.PIECE_PROJECT_NAME,-->
+    <!--            A2.PROCESS_CODE,-->
+    <!--            A2.PROCESS_NAME,-->
+    <!--            A2.CARGO_INFO_ID,-->
+    <!--            A2.CARGO_CODE,-->
+    <!--            A2.CARGO_NAME,-->
+    <!--            A1.PRICE,-->
+    <!--            A1.SALARY_PRICE_ID,-->
+    <!--            SUM(A1.TON) TON,-->
+    <!--            SUM (A1.AMOUNT) AMOUNT-->
+    <!--        FROM-->
+    <!--	        T_PRD_SALARY A1-->
+    <!--        LEFT JOIN T_PRD_WORK_TICKET_DETAIL A2 ON A1.WORK_TICKET_DETAIL_ID = A2. ID-->
+    <!--        LEFT JOIN SYS_DEPT SD ON A1.DEPT_ID = SD.ID-->
+    <!--        LEFT JOIN SYS_DEPT PSD ON SD.PARENT_ID = PSD.ID-->
+    <!--         WHERE A1.WORK_DATE >= #{startDate,jdbcType=TIMESTAMP}-->
+    <!--        AND A1.WORK_DATE &lt;= #{endDate,jdbcType=TIMESTAMP}-->
+    <!--        GROUP BY-->
+    <!--            A1.COMPANY_ID,-->
+    <!--            A1.COMPANY_NAME,-->
+    <!--            A1.PROCESS_DETAIL_CODE,-->
+    <!--            A1.PROCESS_DETAIL_NAME,-->
+    <!--            A1.PIECE_PROJECT_CODE,-->
+    <!--            A1.PIECE_PROJECT_NAME,-->
+    <!--            A2.PROCESS_CODE,-->
+    <!--            A2.PROCESS_NAME,-->
+    <!--            A2.CARGO_INFO_ID,-->
+    <!--            A2.CARGO_CODE,-->
+    <!--            A2.CARGO_NAME,-->
+    <!--            A1.PRICE,-->
+    <!--            A1.SALARY_PRICE_ID-->
+
+    <!--    </select>-->
+
+    <select id="getSalarySum" resultMap="listSalary">
+        SELECT
+        A1.COMPANY_ID,
+        A1.COMPANY_NAME,
+        A1.PROCESS_DETAIL_CODE,
+        A1.PROCESS_DETAIL_NAME,
+        A1.PIECE_PROJECT_CODE,
+        A1.PIECE_PROJECT_NAME,
+        CAST (
+        A2.PROCESS_CODE AS VARCHAR2 (20)
+        ) AS PROCESS_CODE,
+        CAST (
+        A2.PROCESS_NAME AS VARCHAR2 (20)
+        ) AS PROCESS_NAME,
+        A2.CARGO_INFO_ID,
+        A2.CARGO_CODE,
+        A2.CARGO_NAME,
+        A1.PRICE,
+        A1.SALARY_PRICE_ID,
+        SUM (A1.TON) TON,
+        SUM (A1.AMOUNT) AMOUNT
+        FROM
+        T_PRD_SALARY A1
+        LEFT JOIN T_PRD_WORK_TICKET_DETAIL A2 ON A1.WORK_TICKET_DETAIL_ID = A2. ID
+        WHERE
+        A1.WORK_DATE >= #{startDate,jdbcType=TIMESTAMP}
+        AND A1.WORK_DATE &lt;= #{endDate,jdbcType=TIMESTAMP}
+        AND A2.PROCESS_CODE IS NOT NULL
+        <if test="deptId != null">
+            AND A2.DEPT_ID = #{deptId,jdbcType=BIGINT}
+        </if>
+        <if test="companyId != null">
+            AND A1.COMPANY_ID = #{companyId,jdbcType=BIGINT}
+        </if>
+        <if test="classCode != null and classCode != ''">
+            AND A1.CLASS_CODE = #{classCode,jdbcType=VARCHAR}
+        </if>
+        <if test="salaryTypeCode != null and salaryTypeCode != ''">
+            AND A1.SALARY_TYPE_CODE = #{salaryTypeCode,jdbcType=VARCHAR}
+        </if>
+        AND A1.SALARY_STATUS_CODE = 20
+        GROUP BY
+        A1.COMPANY_ID,
+        A1.COMPANY_NAME,
+        A1.PROCESS_DETAIL_CODE,
+        A1.PROCESS_DETAIL_NAME,
+        A1.PIECE_PROJECT_CODE,
+        A1.PIECE_PROJECT_NAME,
+        A2.PROCESS_CODE,
+        A2.PROCESS_NAME,
+        A2.CARGO_INFO_ID,
+        A2.CARGO_CODE,
+        A2.CARGO_NAME,
+        A1.PRICE,
+        A1.SALARY_PRICE_ID
+        UNION ALL
+        SELECT
+        A1.COMPANY_ID,
+        A1.COMPANY_NAME,
+        A3.PROCESS_DETAIL_CODE,
+        A3.PROCESS_DETAIL_NAME,
+        A1.PIECE_PROJECT_CODE,
+        A1.PIECE_PROJECT_NAME,
+        CAST (
+        A2.PROCESS_CODE AS VARCHAR2 (20)
+        ) AS PROCESS_CODE,
+        CAST (
+        A2.PROCESS_NAME AS VARCHAR2 (20)
+        ) AS PROCESS_NAME,
+        A3.CARGO_INFO_ID,
+        A3.CARGO_CODE,
+        A3.CARGO_NAME,
+        A1.PRICE,
+        A1.SALARY_PRICE_ID,
+        SUM (A1.TON) TON,
+        SUM (A1.AMOUNT) AMOUNT
+        FROM
+        T_PRD_SALARY A1
+        LEFT JOIN T_PRD_WORK_TICKET A2 ON A1.WORK_TICKET_ID = A2. ID
+        LEFT JOIN T_PRD_WORK_TICKET_DETAIL A3 ON A3.WORK_TICKET_ID = A2. ID
+        WHERE
+        A1.WORK_DATE >= #{startDate,jdbcType=TIMESTAMP}
+        AND A1.WORK_DATE &lt;= #{endDate,jdbcType=TIMESTAMP}
+        AND A2.PROCESS_CODE IS NOT NULL
+        <if test="deptId != null">
+            AND A2.DEPT_ID IN (
+            SELECT
+            ID
+            FROM
+            SYS_DEPT
+            WHERE
+            PARENT_ID = #{deptId,jdbcType=BIGINT}
+            )
+        </if>
+        <if test="companyId != null">
+            AND A1.COMPANY_ID = #{companyId,jdbcType=BIGINT}
+        </if>
+        <if test="classCode != null and classCode != ''">
+            AND A1.CLASS_CODE = #{classCode,jdbcType=VARCHAR}
+        </if>
+        <if test="salaryTypeCode != null and salaryTypeCode != ''">
+            AND A1.SALARY_TYPE_CODE = #{salaryTypeCode,jdbcType=VARCHAR}
+        </if>
+        AND A1.SALARY_STATUS_CODE = 20
+        GROUP BY
+        A1.COMPANY_ID,
+        A1.COMPANY_NAME,
+        A3.PROCESS_DETAIL_CODE,
+        A3.PROCESS_DETAIL_NAME,
+        A1.PIECE_PROJECT_CODE,
+        A1.PIECE_PROJECT_NAME,
+        A2.PROCESS_CODE,
+        A2.PROCESS_NAME,
+        A3.CARGO_INFO_ID,
+        A3.CARGO_CODE,
+        A3.CARGO_NAME,
+        A1.PRICE,
+        A1.SALARY_PRICE_ID
+      UNION ALL
+        SELECT
+        A1.COMPANY_ID,
+        A1.COMPANY_NAME,
+        A1.PROCESS_DETAIL_CODE,
+        A1.PROCESS_DETAIL_NAME,
+        A1.PIECE_PROJECT_CODE,
+        A1.PIECE_PROJECT_NAME,
+        CAST (
+        A1.PROCESS_CODE AS VARCHAR2 (20)
+        ) AS PROCESS_CODE,
+        CAST (
+        A1.PROCESS_NAME AS VARCHAR2 (20)
+        ) AS PROCESS_NAME,
+        NULL AS CARGO_INFO_ID,
+        NULL AS CARGO_CODE,
+        NULL AS CARGO_NAME,
+        A1.PRICE,
+        A1.SALARY_PRICE_ID,
+        SUM (A1.TON) TON,
+        SUM (A1.AMOUNT) AMOUNT
+        FROM
+        T_PRD_SALARY A1
+        LEFT JOIN T_PRD_ODD_WORK_PLAN TPOWP ON A1.ODD_PLAN_ID = TPOWP.ID
+        WHERE
+        A1.WORK_DATE >= #{startDate,jdbcType=TIMESTAMP}
+        AND A1.WORK_DATE &lt;= #{endDate,jdbcType=TIMESTAMP}
+        AND A1.IS_ODD = '1'
+        <if test="deptId != null">
+            AND TPOWP.WORK_DEPT_ID = #{deptId,jdbcType=BIGINT}
+        </if>
+        <if test="companyId != null">
+            AND A1.COMPANY_ID = #{companyId,jdbcType=BIGINT}
+        </if>
+        <if test="classCode != null and classCode != ''">
+            AND A1.CLASS_CODE = #{classCode,jdbcType=VARCHAR}
+        </if>
+        <if test="salaryTypeCode != null and salaryTypeCode != ''">
+            AND A1.SALARY_TYPE_CODE = #{salaryTypeCode,jdbcType=VARCHAR}
+        </if>
+        AND A1.SALARY_STATUS_CODE = 20
+        GROUP BY
+        A1.COMPANY_ID,
+        A1.COMPANY_NAME,
+        A1.PROCESS_DETAIL_CODE,
+        A1.PROCESS_DETAIL_NAME,
+        A1.PIECE_PROJECT_CODE,
+        A1.PIECE_PROJECT_NAME,
+        A1.PROCESS_CODE,
+        A1.PROCESS_NAME,
+        A1.PRICE,
+        A1.SALARY_PRICE_ID
+    </select>
+
+    <select id="getPrice" resultType="Map">
+        SELECT
+	        PRICE "price",
+	        to_char(ID) "id"
+        FROM
+	        M_PIECE_PRICE
+        WHERE
+	        COMPANY_ID = #{companyId,jdbcType=BIGINT}
+	    AND SALARY_TYPE_CODE = #{salaryTypeCode,jdbcType=VARCHAR}
+        AND PIECE_PROJECT_CODE = #{pieceProjectCode,jdbcType=VARCHAR}
+        AND WORK_PROCESS_CHILD_ID IN (SELECT ID FROM M_WORK_PROCESS WHERE PROCESS_CD = #{processDetailCode,jdbcType=VARCHAR})
+    </select>
+
+    <update id="examine">
+        <foreach collection="list" open="BEGIN" close="END;" item="item" separator=";" index="index">
+            UPDATE T_PRD_SALARY
+            SET
+            SALARY_STATUS_CODE = #{item.salaryStatusCode,jdbcType=VARCHAR},
+            SALARY_STATUS_NAME = #{item.salaryStatusName,jdbcType=VARCHAR},
+            PRICE = #{item.price,jdbcType=DECIMAL},
+            SALARY_PRICE_ID = #{item.salaryPriceId,jdbcType=BIGINT},
+            AMOUNT = #{item.amount,jdbcType=DECIMAL},
+            EXAMINE_BY = #{item.createBy,jdbcType=BIGINT},
+            EXAMINE_BY_NAME = #{item.createByName,jdbcType=VARCHAR},
+            EXAMINE_TIME = #{item.createTime,jdbcType=TIMESTAMP}
+            WHERE ID = #{item.id}
+            AND SALARY_STATUS_CODE = #{item.salaryStatusCodeWhere,jdbcType=VARCHAR}
+            <if test="(list.size-1) == index">
+                ;
+            </if>
+        </foreach>
+    </update>
+
+    <update id="examineHr">
+        UPDATE T_PRD_SALARY
+        SET
+        SALARY_STATUS_CODE = #{salaryStatusCode,jdbcType=VARCHAR},
+        SALARY_STATUS_NAME = #{salaryStatusName,jdbcType=VARCHAR},
+        EXAMINE_BY_HR = #{examineByHr,jdbcType=BIGINT},
+        EXAMINE_BY_NAME_HR = #{examineByNameHr,jdbcType=VARCHAR},
+        EXAMINE_TIME_HR = #{examineTimeHr,jdbcType=TIMESTAMP}
+        WHERE ID IN (
+            SELECT TPS.ID
+            FROM T_PRD_SALARY TPS
+            LEFT JOIN SYS_DEPT SD ON TPS.DEPT_ID = SD.ID
+            LEFT JOIN SYS_DEPT PSD ON SD.PARENT_ID = PSD.ID
+            WHERE TPS.WORK_DATE >= #{startDate,jdbcType=TIMESTAMP}
+        AND TPS.WORK_DATE &lt;= #{endDate,jdbcType=TIMESTAMP}
+        <if test="deptId != null">
+            AND TPS.DEPT_ID IN (
+            SELECT
+            ID
+            FROM
+            SYS_DEPT
+            WHERE
+            PARENT_ID = #{deptId,jdbcType=BIGINT}
+            )
+        </if>
+        <if test="companyId != null">
+            AND TPS.COMPANY_ID = #{companyId,jdbcType=BIGINT}
+        </if>
+        <if test="classCode != null and classCode != ''">
+            AND TPS.CLASS_CODE = #{classCode,jdbcType=VARCHAR}
+        </if>
+        <if test="salaryTypeCode != null and salaryTypeCode != ''">
+            AND TPS.SALARY_TYPE_CODE = #{salaryTypeCode,jdbcType=VARCHAR}
+        </if>
+        )
+        AND SALARY_STATUS_CODE = #{salaryStatusCodeWhere,jdbcType=VARCHAR}
+    </update>
+    <select id="queryByOddId" resultType="com.yy.ppm.produce.bean.po.TPrdSalaryPO">
+        SELECT ID, WORK_TICKET_DETAIL_ID, COMPANY_ID, COMPANY_NAME, WORK_DATE, CLASS_CODE, CLASS_NAME,
+            PIECE_PROJECT_CODE, PIECE_PROJECT_NAME, PROCESS_DETAIL_CODE, PROCESS_DETAIL_NAME, DEPT_ID, DEPT_NAME,
+            USER_BY, USER_BY_NAME, COEFFICIENT, SALARY_PRICE_ID, PRICE, QUANTITY, TON, AMOUNT, SALARY_STATUS_CODE,
+            SALARY_STATUS_NAME, REMARK, SALARY_SUMMARY_ID, CREATE_BY, CREATE_BY_NAME, CREATE_TIME, EXAMINE_BY,
+            EXAMINE_BY_NAME, EXAMINE_TIME,SALARY_TYPE_CODE,SALARY_TYPE_NAME,WORK_TICKET_ID,PROCESS_CODE,PROCESS_NAME,SHIP_VOYAGE_ITEM_ID,SHIP_VOYAGE,
+            CARGO_CODE,CARGO_NAME,ODD_PLAN_ID
+        FROM T_PRD_SALARY
+        WHERE SALARY_STATUS_CODE != '10'
+        AND ODD_PLAN_ID IN
+        <foreach collection="ids" index="index" separator="," open="(" close=")" item="oddId">
+            #{oddId}
+        </foreach>
+    </select>
+    <delete id="deleteByOddId">
+        DELETE FROM T_PRD_SALARY
+        WHERE ODD_PLAN_ID IN
+        <foreach collection="ids" index="index" separator="," open="(" close=")" item="oddId">
+            #{oddId}
+        </foreach>
+    </delete>
+    <insert id="insertSalary">
+        INSERT ALL
+        <foreach collection="salaryList" item="entity">
+            INTO T_PRD_SALARY(ID, WORK_TICKET_DETAIL_ID, COMPANY_ID, COMPANY_NAME, WORK_DATE, CLASS_CODE, CLASS_NAME,
+            PIECE_PROJECT_CODE, PIECE_PROJECT_NAME, PROCESS_DETAIL_CODE, PROCESS_DETAIL_NAME, DEPT_ID, DEPT_NAME,
+            USER_BY, USER_BY_NAME, COEFFICIENT, SALARY_PRICE_ID, PRICE, QUANTITY, TON, AMOUNT, SALARY_STATUS_CODE,
+            SALARY_STATUS_NAME, REMARK, SALARY_SUMMARY_ID, CREATE_BY, CREATE_BY_NAME, CREATE_TIME, EXAMINE_BY,
+            EXAMINE_BY_NAME, EXAMINE_TIME,SALARY_TYPE_CODE,SALARY_TYPE_NAME,WORK_TICKET_ID,PROCESS_CODE,PROCESS_NAME,SHIP_VOYAGE_ITEM_ID,SHIP_VOYAGE,
+            CARGO_CODE,CARGO_NAME,ODD_PLAN_ID, IS_ODD)
+            VALUES
+            (#{entity.id, jdbcType=BIGINT}, #{entity.workTicketDetailId, jdbcType=BIGINT},
+            #{entity.companyId, jdbcType=BIGINT}, #{entity.companyName, jdbcType=VARCHAR},
+            #{entity.workDate, jdbcType=TIMESTAMP}, #{entity.classCode, jdbcType=VARCHAR},
+            #{entity.className, jdbcType=VARCHAR}, #{entity.pieceProjectCode, jdbcType=VARCHAR},
+            #{entity.pieceProjectName, jdbcType=VARCHAR}, #{entity.processDetailCode, jdbcType=VARCHAR},
+            #{entity.processDetailName, jdbcType=VARCHAR}, #{entity.deptId, jdbcType=BIGINT},
+            #{entity.deptName, jdbcType=VARCHAR}, #{entity.userBy, jdbcType=BIGINT},
+            #{entity.userByName, jdbcType=VARCHAR}, #{entity.coefficient, jdbcType=INTEGER},
+            #{entity.salaryPriceId, jdbcType=BIGINT}, #{entity.price, jdbcType=DECIMAL},
+            #{entity.quantity, jdbcType=INTEGER}, #{entity.ton, jdbcType=DECIMAL}, #{entity.amount, jdbcType=DECIMAL},
+            #{entity.salaryStatusCode, jdbcType=VARCHAR}, #{entity.salaryStatusName, jdbcType=VARCHAR},
+            #{entity.remark, jdbcType=VARCHAR}, #{entity.salarySummaryId, jdbcType=BIGINT},
+            #{entity.loginUserId, jdbcType=BIGINT}, #{entity.loginUserName, jdbcType=VARCHAR},
+            #{entity.now, jdbcType=TIMESTAMP}, #{entity.examineBy, jdbcType=BIGINT},
+            #{entity.examineByName, jdbcType=VARCHAR}, #{entity.examineTime, jdbcType=TIMESTAMP},#{entity.salaryTypeCode, jdbcType=VARCHAR},#{entity.salaryTypeName, jdbcType=VARCHAR},#{entity.workTicketId, jdbcType=BIGINT},#{entity.processCode, jdbcType=VARCHAR},#{entity.processName, jdbcType=VARCHAR},
+            #{entity.shipVoyageItemId, jdbcType=VARCHAR},#{entity.shipVoyage, jdbcType=VARCHAR},#{entity.cargoCode, jdbcType=VARCHAR},#{entity.cargoName, jdbcType=VARCHAR},
+            #{entity.oddPlanId, jdbcType=BIGINT},#{entity.isOdd, jdbcType=VARCHAR})
+        </foreach>
+        SELECT 1 FROM DUAL
+    </insert>
+
+    <insert id="insertSum" parameterType="java.util.List">
+        INSERT INTO T_PRD_SALARY_SUMMAR(
+        ID,
+        COMPANY_ID,
+        COMPANY_NAME,
+        SALARY_MONTH,
+        PROCESS_CODE,
+        PROCESS_NAME,
+        PROCESS_DETAIL_CODE,
+        PROCESS_DETAIL_NAME,
+        CARGO_INFO_ID,
+        CARGO_CODE,
+        CARGO_NAME,
+        PIECE_PROJECT_CODE,
+        PIECE_PROJECT_NAME,
+        SALARY_PRICE_ID,
+        PRICE,
+        TON,
+        AMOUNT,
+        REMARK,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        START_DATE,
+        END_DATE,
+        DEPT_ID,
+        SALARY_TYPE_CODE,
+        CLASS_CODE
+        )
+        (
+        <foreach collection="list" item="item" index="" separator="union all">
+            select
+            #{item.id,jdbcType=BIGINT},
+            #{item.companyId,jdbcType=BIGINT},
+            #{item.companyName,jdbcType=BIGINT},
+            #{item.salaryMonth,jdbcType=TIMESTAMP},
+            #{item.processCode,jdbcType=VARCHAR},
+            #{item.processName,jdbcType=VARCHAR},
+            #{item.processDetailCode,jdbcType=VARCHAR},
+            #{item.processDetailName,jdbcType=VARCHAR},
+            #{item.cargoInfoId,jdbcType=BIGINT},
+            #{item.cargoCode,jdbcType=VARCHAR},
+            #{item.cargoName,jdbcType=VARCHAR},
+            #{item.pieceProjectCode,jdbcType=VARCHAR},
+            #{item.pieceProjectName,jdbcType=VARCHAR},
+            #{item.salaryPriceId,jdbcType=BIGINT},
+            #{item.price,jdbcType=DECIMAL},
+            #{item.ton,jdbcType=DECIMAL},
+            #{item.amount,jdbcType=DECIMAL},
+            #{item.remark,jdbcType=VARCHAR},
+            #{item.loginUserId,jdbcType=VARCHAR},
+            #{item.loginUserName,jdbcType=VARCHAR},
+            #{item.now},
+            #{item.startDate},
+            #{item.endDate},
+            #{item.deptId},
+            #{item.salaryTypeCode},
+            #{item.classCode}
+            from dual
+        </foreach>
+        )
+    </insert>
+
+    <delete id="deleteSum" parameterType="Date">
+        delete from T_PRD_SALARY_SUMMAR TPS
+        WHERE TPS.START_DATE >= #{startDate,jdbcType=TIMESTAMP}
+        AND TPS.END_DATE &lt;= #{endDate,jdbcType=TIMESTAMP}
+        <if test="deptId != null">
+            AND TPS.DEPT_ID = #{deptId,jdbcType=BIGINT}
+        </if>
+        <if test="companyId != null">
+            AND TPS.COMPANY_ID = #{companyId,jdbcType=BIGINT}
+        </if>
+        <if test="classCode != null and classCode != ''">
+            AND TPS.CLASS_CODE = #{classCode,jdbcType=VARCHAR}
+        </if>
+        <if test="salaryTypeCode != null and salaryTypeCode != ''">
+            AND TPS.SALARY_TYPE_CODE = #{salaryTypeCode,jdbcType=VARCHAR}
+        </if>
+    </delete>
+    <select id="getAllPiecePrice" resultType="com.yy.ppm.master.bean.dto.MPiecePriceDTO">
+        SELECT MPP.ID,MPP.COMPANY_ID,MPP.DEPT_ID,MWP.PROCESS_CD,MPP.SALARY_TYPE_CODE,MPP.PRICE,
+        MPP.COMPANY_NAME,MPP.DEPT_NAME,MPP.SALARY_TYPE_NAME,MPP.WORK_PROCESS_CHILD_NAME
+        FROM M_PIECE_PRICE MPP
+        LEFT JOIN M_WORK_PROCESS MWP ON MPP.WORK_PROCESS_CHILD_ID = MWP.ID
+    </select>
+    <select id="getAllProcessDept" resultType="java.lang.Long">
+        SELECT ID FROM SYS_DEPT WHERE IS_SALARY_BY_PROCESS = '1'
+    </select>
+    <select id="getSalaryByCheckTimes" resultType="java.lang.Integer">
+        select count(*)
+        from T_PRD_SALARY TPS where SALARY_STATUS_CODE = '30' and
+        EXISTS (
+        select * from (
+        <foreach collection="checkTimeList" separator="union all " item="tmpTime">
+            select #{tmpTime,jdbcType=VARCHAR} as tmpTime
+            from dual
+        </foreach>
+        ) a where a.tmpTime = to_char(work_date,'yyyy-MM')
+        )
+    </select>
+</mapper>

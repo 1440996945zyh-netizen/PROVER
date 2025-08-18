@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<COMMAND_INFO AREA_ID="0000000000" CHNL_NO="0000000000"  I_E_TYPE="I" SEQ_NO="为20位的字符串">
+    <CHECK_RESULT>00000000000000000000</CHECK_RESULT>
+    <GPS>
+        <VE_NAME></VE_NAME>
+        <GPS_ID></GPS_ID>
+        <ORIGIN_CUSTOMS></ORIGIN_CUSTOMS>
+        <DEST_CUSTOMS></DEST_CUSTOMS>
+    </GPS>
+    <SEAL>
+        <CONTA_NUM></CONTA_NUM>
+        <ESEAL_ID></ESEAL_ID>
+        <SEAL_KEY></SEAL_KEY>
+    </SEAL>
+    <FORM_ID></FORM_ID>
+    <OP_HINT></OP_HINT>
+</COMMAND_INFO>

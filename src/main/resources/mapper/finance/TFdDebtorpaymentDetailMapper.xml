@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.finance.mapper.TFdDebtorpaymentDetailMapper">
+
+    <sql id="commonList">
+        SELECT
+        ID,
+        DEBTORPAYMENT_ID,
+        SERIAL_NUMBER,
+        INVOICE_PREPAY_ID,
+        INVOICE_PREPAY_NO,
+        SYS_INVOICE_PREPAY_NO,
+        "TYPE",
+        INVOICE_PREPAY_AMOUNT,
+        DEBTORPAY_PAYMENT_TYPE_CODE,
+        DEBTORPAY_PAYMENT_TYPE_NAME,
+        PAYMENT_METHOD_CODE,
+        PAYMENT_METHOD_NAME,
+        FILE_NO,
+        FILE_TIME,
+        REMARK,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME
+        FROM
+        T_FD_DEBTORPAYMENT_DETAIL
+        <where>
+            <if test="id != null">
+                and ID = #{id}
+            </if>
+            <if test="debtorpaymentId != null">
+                and DEBTORPAYMENT_ID = #{debtorpaymentId}
+            </if>
+            <if test="serialNumber != null">
+                and SERIAL_NUMBER = #{serialNumber}
+            </if>
+            <if test="invoicePrepayId != null">
+                and INVOICE_PREPAY_ID = #{invoicePrepayId}
+            </if>
+            <if test="invoicePrepayNo != null">
+                and INVOICE_PREPAY_NO = #{invoicePrepayNo}
+            </if>
+            <if test="sysInvoicePrepayNo != null">
+                and SYS_INVOICE_PREPAY_NO = #{sysInvoicePrepayNo}
+            </if>
+            <if test="type != null">
+                and "TYPE" = #{type}
+            </if>
+            <if test="invoicePrepayAmount != null">
+                and INVOICE_PREPAY_AMOUNT = #{invoicePrepayAmount}
+            </if>
+            <if test="debtorpayPaymentTypeCode != null">
+                and DEBTORPAY_PAYMENT_TYPE_CODE = #{debtorpayPaymentTypeCode}
+            </if>
+            <if test="debtorpayPaymentTypeName != null and debtorpayPaymentTypeName != ''">
+                and DEBTORPAY_PAYMENT_TYPE_NAME = #{debtorpayPaymentTypeName}
+            </if>
+            <if test="paymentMethodCode != null">
+                and PAYMENT_METHOD_CODE = #{paymentMethodCode}
+            </if>
+            <if test="paymentMethodName != null and paymentMethodName != ''">
+                and PAYMENT_METHOD_NAME = #{paymentMethodName}
+            </if>
+            <if test="fileNo != null">
+                and FILE_NO = #{fileNo}
+            </if>
+            <if test="fileTime != null">
+                and FILE_TIME = #{fileTime}
+            </if>
+            <if test="remark != null and remark != ''">
+                and REMARK = #{remark}
+            </if>
+        </where>
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.finance.bean.dto.TFdDebtorpaymentDetailDTO"
+            parameterType="com.yy.ppm.finance.bean.dto.TFdDebtorpaymenDetailSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.finance.bean.dto.TFdDebtorpaymentDetailDTO"
+            parameterType="com.yy.ppm.finance.bean.dto.TFdDebtorpaymenDetailSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.finance.bean.dto.TFdDebtorpaymentDetailDTO"
+            parameterType="java.lang.Long">
+        SELECT
+        ID, DEBTORPAYMENT_ID, SERIAL_NUMBER, INVOICE_PREPAY_ID, INVOICE_PREPAY_NO, SYS_INVOICE_PREPAY_NO, "TYPE",
+        INVOICE_PREPAY_AMOUNT, DEBTORPAY_PAYMENT_TYPE_CODE, DEBTORPAY_PAYMENT_TYPE_NAME, PAYMENT_METHOD_CODE,
+        PAYMENT_METHOD_NAME, FILE_NO, FILE_TIME, REMARK, CREATE_BY, CREATE_BY_NAME, CREATE_TIME, UPDATE_BY,
+        UPDATE_BY_NAME, UPDATE_TIME FROM
+        T_FD_DEBTORPAYMENT_DETAIL
+        <where>
+            id = #{id}
+        </where>
+    </select>
+    <!-- 根据gid查询数据 -->
+    <select id="getByParentId" resultType="com.yy.ppm.finance.bean.dto.TFdDebtorpaymentDetailDTO"
+            parameterType="java.lang.Long">
+        SELECT
+        ID, DEBTORPAYMENT_ID, SERIAL_NUMBER, INVOICE_PREPAY_ID, INVOICE_PREPAY_NO, SYS_INVOICE_PREPAY_NO, "TYPE",
+        INVOICE_PREPAY_AMOUNT, DEBTORPAY_PAYMENT_TYPE_CODE, DEBTORPAY_PAYMENT_TYPE_NAME, PAYMENT_METHOD_CODE,
+        PAYMENT_METHOD_NAME, FILE_NO, FILE_TIME, REMARK, CREATE_BY, CREATE_BY_NAME, CREATE_TIME, UPDATE_BY,
+        UPDATE_BY_NAME, UPDATE_TIME FROM
+        T_FD_DEBTORPAYMENT_DETAIL
+        <where>
+            DEBTORPAYMENT_ID = #{id}
+        </where>
+        ORDER BY SERIAL_NUMBER ASC
+    </select>
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.finance.bean.dto.TFdDebtorpaymentDetailDTO">
+        INSERT INTO T_FD_DEBTORPAYMENT_DETAIL(
+                ID,
+                    DEBTORPAYMENT_ID,
+                    SERIAL_NUMBER,
+                    INVOICE_PREPAY_ID,
+                    INVOICE_PREPAY_NO,
+                    SYS_INVOICE_PREPAY_NO,
+                    "TYPE",
+                    INVOICE_PREPAY_AMOUNT,
+                    DEBTORPAY_PAYMENT_TYPE_CODE,
+                    DEBTORPAY_PAYMENT_TYPE_NAME,
+                    PAYMENT_METHOD_CODE,
+                    PAYMENT_METHOD_NAME,
+                    FILE_NO,
+                    FILE_TIME,
+                    REMARK,
+                    CREATE_BY,
+                    CREATE_BY_NAME,
+                    CREATE_TIME
+        )VALUES (
+                    #{debtorpaymentId, jdbcType=VARCHAR},
+                    #{serialNumber, jdbcType=VARCHAR},
+                    #{invoicePrepayId, jdbcType=VARCHAR},
+                    #{invoicePrepayNo, jdbcType=VARCHAR},
+                    #{sysInvoicePrepayNo, jdbcType=VARCHAR},
+                    #{type, jdbcType=VARCHAR},
+                    #{invoicePrepayAmount, jdbcType=DECIMAL},
+                    #{debtorpayPaymentTypeCode, jdbcType=BIGINT},
+                    #{debtorpayPaymentTypeName, jdbcType=VARCHAR},
+                    #{paymentMethodCode, jdbcType=VARCHAR},
+                    #{paymentMethodName, jdbcType=VARCHAR},
+                    #{fileNo, jdbcType=VARCHAR},
+                    #{fileTime, jdbcType=VARCHAR},
+                    #{remark, jdbcType=VARCHAR},
+                    #{loginUserId, jdbcType=BIGINT},
+                    #{loginUserName, jdbcType=VARCHAR},
+                    #{now}
+)
+    </insert>
+<!--
+    <insert id="insertBatch" parameterType="com.yy.ppm.finance.bean.dto.TFdDebtorpaymentDetailDTO">
+        INSERT INTO T_FD_DEBTORPAYMENT_DETAIL(
+                    ID,
+                    DEBTORPAYMENT_ID,
+                    SERIAL_NUMBER,
+                    INVOICE_PREPAY_ID,
+                    INVOICE_PREPAY_NO,
+                    SYS_INVOICE_PREPAY_NO,
+                    "TYPE",
+                    INVOICE_PREPAY_AMOUNT,
+                    DEBTORPAY_PAYMENT_TYPE_CODE,
+                    DEBTORPAY_PAYMENT_TYPE_NAME,
+                    PAYMENT_METHOD_CODE,
+                    PAYMENT_METHOD_NAME,
+                    FILE_NO,
+                    FILE_TIME,
+                    REMARK,
+                    CREATE_BY,
+                    CREATE_BY_NAME,
+                    CREATE_TIME
+        )(
+        <foreach collection="list" item="item" index="" separator="union all">
+            SELECT
+            #{item.id, jdbcType=BIGINT},
+            #{item.debtorpaymentId, jdbcType=BIGINT},
+            #{item.serialNumber,jdbcType=INTEGER},
+            #{item.invoicePrepayId, jdbcType=BIGINT},
+            #{item.invoicePrepayNo, jdbcType=VARCHAR},
+            #{item.sysInvoicePrepayNo, jdbcType=VARCHAR},
+            #{item.type, jdbcType=BIGINT},
+            #{item.invoicePrepayAmount, jdbcType=DECIMAL},
+            #{item.debtorpayPaymentTypeCode, jdbcType=BIGINT},
+            #{item.debtorpayPaymentTypeName, jdbcType=VARCHAR},
+            #{item.paymentMethodCode, jdbcType=BIGINT},
+            #{item.paymentMethodName, jdbcType=VARCHAR},
+            #{item.fileNo, jdbcType=VARCHAR},
+            #{item.fileTime,jdbcType=DATE},
+            #{item.remark, jdbcType=VARCHAR},
+            #{item.loginUserId, jdbcType=BIGINT},
+            #{item.loginUserName, jdbcType=VARCHAR},
+            #{item.now}
+            FROM DUAL
+        </foreach>
+        )
+    </insert>
+-->
+    <insert id="insertBatch" parameterType="com.yy.ppm.finance.bean.dto.TFdDebtorpaymentDetailDTO">
+        INSERT INTO T_FD_DEBTORPAYMENT_DETAIL (
+                    ID,
+                    DEBTORPAYMENT_ID,
+                    SERIAL_NUMBER,
+                    INVOICE_PREPAY_ID,
+                    INVOICE_PREPAY_NO,
+                    SYS_INVOICE_PREPAY_NO,
+                    "TYPE",
+                    INVOICE_PREPAY_AMOUNT,
+                    DEBTORPAY_PAYMENT_TYPE_CODE,
+                    DEBTORPAY_PAYMENT_TYPE_NAME,
+                    PAYMENT_METHOD_CODE,
+                    PAYMENT_METHOD_NAME,
+                    FILE_NO,
+                    REMARK,
+                    CREATE_BY,
+                    CREATE_BY_NAME,
+                    CREATE_TIME,
+                    BANK_ID,
+                    BANK_NAME) (
+        <foreach collection="list" item="item"  open="" close="" separator=" UNION ALL " >
+            SELECT
+            #{item.id, jdbcType=BIGINT},
+            #{item.debtorpaymentId, jdbcType=BIGINT},
+            #{item.serialNumber,jdbcType=INTEGER},
+            #{item.invoicePrepayId, jdbcType=BIGINT},
+            #{item.invoicePrepayNo, jdbcType=VARCHAR},
+            #{item.sysInvoicePrepayNo, jdbcType=VARCHAR},
+            #{item.type, jdbcType=BIGINT},
+            #{item.invoicePrepayAmount, jdbcType=DECIMAL},
+            #{item.debtorpayPaymentTypeCode, jdbcType=BIGINT},
+            #{item.debtorpayPaymentTypeName, jdbcType=VARCHAR},
+            #{item.paymentMethodCode, jdbcType=BIGINT},
+            #{item.paymentMethodName, jdbcType=VARCHAR},
+            #{item.fileNo, jdbcType=VARCHAR},
+            #{item.remark, jdbcType=VARCHAR},
+            #{item.loginUserId, jdbcType=BIGINT},
+            #{item.loginUserName, jdbcType=VARCHAR},
+            #{item.createTimeNew},
+            #{item.bankId,jdbcType=BIGINT},
+            #{item.bankName,jdbcType=VARCHAR}
+            FROM DUAL
+        </foreach>
+        )
+    </insert>
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.finance.bean.dto.TFdDebtorpaymentDetailDTO">
+        UPDATE
+        T_FD_DEBTORPAYMENT_DETAIL
+        SET
+        DEBTORPAYMENT_ID = #{debtorpaymentId,jdbcType=VARCHAR},
+        SERIAL_NUMBER = #{serialNumber,jdbcType=VARCHAR},
+        INVOICE_PREPAY_ID = #{invoicePrepayId,jdbcType=BIGINT},
+        INVOICE_PREPAY_NO = #{invoicePrepayNo,jdbcType=VARCHAR},
+        SYS_INVOICE_PREPAY_NO = #{sysInvoicePrepayNo,jdbcType=VARCHAR},
+        "TYPE" = #{type,jdbcType=BIGINT},
+        INVOICE_PREPAY_AMOUNT = #{invoicePrepayAmount,jdbcType=DECIMAL},
+        DEBTORPAY_PAYMENT_TYPE_CODE = #{debtorpayPaymentTypeCode,jdbcType=BIGINT},
+        DEBTORPAY_PAYMENT_TYPE_NAME = #{debtorpayPaymentTypeName,jdbcType=VARCHAR},
+        PAYMENT_METHOD_CODE = #{paymentMethodCode,jdbcType=VARCHAR},
+        PAYMENT_METHOD_NAME = #{paymentMethodName,jdbcType=VARCHAR},
+        FILE_NO = #{fileNo,jdbcType=VARCHAR},
+        FILE_TIME = #{fileTime,jdbcType=VARCHAR},
+        REMARK = #{remark,jdbcType=VARCHAR},
+        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM
+            T_FD_DEBTORPAYMENT_DETAIL
+        WHERE
+            id = #{id}
+    </delete>
+
+    <select id="getCreditDebit" resultType="com.yy.ppm.finance.bean.dto.TFdDebtorpaymentDetailDTO">
+        select HAS_NOT_RECEIPT_AMOUNT,id,ELIMINATE_AMOUNT "invoicePrepayAmount"
+        from T_FD_CREDIT_DEBIT_BILL
+        WHERE ID IN
+        <foreach item="item" index="index" collection="list" open="  (" separator="," close=")">
+            #{item.invoicePrepayId}
+        </foreach>
+    </select>
+    <select id="getInvoiceList" resultType="com.yy.ppm.finance.bean.dto.TFdDebtorpaymentDetailDTO">
+        select HAS_NOT_RECEIPT_AMOUNT,id,INVOICE_AMOUNT "invoicePrepayAmount"
+        from T_FD_INVOICE
+        WHERE ID IN
+        <foreach item="item" index="index" collection="list" open="  (" separator="," close=")">
+            #{item.invoicePrepayId}
+        </foreach>
+    </select>
+
+</mapper>
+

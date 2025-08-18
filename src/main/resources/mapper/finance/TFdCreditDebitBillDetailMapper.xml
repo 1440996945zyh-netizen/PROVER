@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.finance.mapper.TFdCreditDebitBillDetailMapper">
+
+    <sql id="commonList">
+        SELECT
+        ID,
+        CNDN_ID,
+        INVOICE_DETAIL_ID,
+        PORT_CODE,
+        PORT_NAME,
+        MEA,
+        UNIT_CODE,
+        UNIT_NAME,
+        RATE_CODE,
+        RATE_NAME,
+        OLD_RATE,
+        NEW_RATE,
+        CARGO_TYPE_CODE,
+        CARGO_CODE,
+        TAX_RATE,
+        REMARK,
+        TAX_AMOUNT,
+        PAYMENT_METHOD_CODE,
+        PAYMENT_METHOD_NAME,
+        BANK_ID,
+        AMOUNT,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME
+        FROM
+        T_FD_CREDIT_DEBIT_BILL_DETAIL
+        <where>
+            <if test="id != null">
+                and ID = #{id}
+            </if>
+            <if test="cndnId != null">
+                and CNDN_ID = #{cndnId}
+            </if>
+            <if test="invoiceDetailId != null">
+                and INVOICE_DETAIL_ID = #{invoiceDetailId}
+            </if>
+            <if test="portCode != null">
+                and PORT_CODE = #{portCode}
+            </if>
+            <if test="portName != null and portName != ''">
+                and PORT_NAME = #{portName}
+            </if>
+            <if test="mea != null">
+                and MEA = #{mea}
+            </if>
+            <if test="rateCode != null and rateCode != ''">
+                and RATE_CODE = #{rateCode}
+            </if>
+            <if test="rateName != null">
+                and RATE_NAME = #{rateName}
+            </if>
+            <if test="oldRate != null">
+                and OLD_RATE = #{oldRate}
+            </if>
+            <if test="newRate != null">
+                and NEW_RATE = #{newRate}
+            </if>
+            <if test="cargoTypeCode != null">
+                and CARGO_TYPE_CODE = #{cargoTypeCode}
+            </if>
+            <if test="cargoCode != null">
+                and CARGO_CODE = #{cargoCode}
+            </if>
+            <if test="taxRate != null">
+                and TAX_RATE = #{taxRate}
+            </if>
+            <if test="taxAmount != null">
+                and TAX_AMOUNT = #{taxAmount}
+            </if>
+            <if test="paymentMethodCode != null">
+                and PAYMENT_METHOD_CODE = #{paymentMethodCode}
+            </if>
+            <if test="paymentMethodName != null and paymentMethodName != ''">
+                and PAYMENT_METHOD_NAME = #{paymentMethodName}
+            </if>
+            <if test="bankId != null">
+                and BANK_ID = #{bankId}
+            </if>
+            <if test="amount != null">
+                and AMOUNT = #{amount}
+            </if>
+        </where>
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.finance.bean.dto.TFdCreditDebitBillDetailDTO"
+            parameterType="com.yy.ppm.finance.bean.dto.TFdCreditDebitBillDetailSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+    <!--通过实体作为筛选条件查询-->
+    <select id="getByParentId" resultType="com.yy.ppm.finance.bean.dto.TFdCreditDebitBillDetailDTO"
+            parameterType="com.yy.ppm.finance.bean.dto.TFdCreditDebitBillDetailSearchDTO">
+        SELECT distinct
+            TFB.ID,
+            TFB.CNDN_ID,
+            TFB.INVOICE_DETAIL_ID,
+            TFB.PORT_CODE,
+            TFB.PORT_NAME,
+            TFB.MEA,
+            TFB.NUMBER_COUNT2,
+            TFB.UNIT_CODE,
+            TFB.UNIT_NAME,
+            TFB.RATE_ID,
+            TFB.RATE_CODE,
+            TBR.RATE_ITEM_NAME RATE_NAME,
+            TFB.OLD_RATE,
+            TFB.NEW_RATE,
+            TFB.CARGO_TYPE_CODE,
+            TFB.CARGO_CODE,
+            TFB.TAX_RATE,
+            TFB.REMARK,
+            TFB.TAX_AMOUNT,
+            TFB.PAYMENT_METHOD_CODE,
+            TFB.PAYMENT_METHOD_NAME,
+            TFB.BANK_ID,
+            TFB.AMOUNT,
+            TFB.CREATE_BY,
+            TFB.CREATE_BY_NAME,
+            TFB.CREATE_TIME,
+            TFB.UPDATE_BY,
+            TFB.UPDATE_BY_NAME,
+            TFB.UPDATE_TIME,
+            TFB.INVOICE_TYPE_CODE,
+            MDD.DICT_LABEL CARGO_NAME,
+            MFI.ITEM_TYPE_CD ITEM_TYPE_CD
+        FROM T_FD_CREDIT_DEBIT_BILL_DETAIL TFB
+        LEFT JOIN  M_DICT_DATA MDD
+            ON (MDD.DICT_VALUE = TFB.CARGO_CODE and MDD.DICT_TYPE = 'CARGO_CATEGORY' )
+        LEFT JOIN T_BUS_RATE TBR ON TBR.ID = TFB.RATE_ID
+        LEFT JOIN M_FEE_ITEM  MFI ON TBR.RATE_ITEM_CODE = MFI.ITEM_CD
+        WHERE CNDN_ID = #{id}
+        ORDER BY  ID DESC
+    </select>
+    <select id="getListByInvoiceDetailIdList" resultType="com.yy.ppm.finance.bean.dto.TFdCreditDebitBillDetailDTO"
+            parameterType="java.lang.Long">
+        SELECT
+            ID,
+            CNDN_ID,
+            INVOICE_DETAIL_ID,
+            PORT_CODE,
+            PORT_NAME,
+            MEA,
+            UNIT_CODE,
+            UNIT_NAME,
+            RATE_CODE,
+            RATE_NAME,
+            OLD_RATE,
+            NEW_RATE,
+            CARGO_TYPE_CODE,
+            CARGO_CODE,
+            TAX_RATE,
+            REMARK,
+            TAX_AMOUNT,
+            PAYMENT_METHOD_CODE,
+            PAYMENT_METHOD_NAME,
+            BANK_ID,
+            AMOUNT
+        FROM
+            T_FD_CREDIT_DEBIT_BILL_DETAIL
+        WHERE ID IN (
+        <foreach collection="list" item="id" index="index" separator=",">
+            #{id}
+        </foreach>
+        )
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.finance.bean.dto.TFdCreditDebitBillDetailDTO"
+            parameterType="com.yy.ppm.finance.bean.dto.TFdCreditDebitBillDetailSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.finance.bean.dto.TFdCreditDebitBillDetailDTO"
+            parameterType="java.lang.Long">
+        SELECT
+        ID, CNDN_ID, INVOICE_DETAIL_ID, PORT_CODE, PORT_NAME, MEA, UNIT_CODE,UNIT_NAME, RATE_CODE, RATE_NAME, OLD_RATE, NEW_RATE,
+        CARGO_TYPE_CODE, CARGO_CODE, TAX_RATE, REMARK,TAX_AMOUNT, PAYMENT_METHOD_CODE, PAYMENT_METHOD_NAME, BANK_ID, AMOUNT,
+        CREATE_BY, CREATE_BY_NAME, CREATE_TIME, UPDATE_BY, UPDATE_BY_NAME, UPDATE_TIME FROM
+        T_FD_CREDIT_DEBIT_BILL_DETAIL
+        <where>
+            id = #{id}
+        </where>
+    </select>
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.finance.bean.dto.TFdCreditDebitBillDetailDTO">
+        INSERT INTO T_FD_CREDIT_DEBIT_BILL_DETAIL(
+                    ID,
+                    CNDN_ID,
+                    INVOICE_DETAIL_ID,
+                    PORT_CODE,
+                    PORT_NAME,
+                    MEA,
+                    UNIT_CODE,
+                    UNIT_NAME,
+                    RATE_CODE,
+                    RATE_NAME,
+                    OLD_RATE,
+                    NEW_RATE,
+                    CARGO_TYPE_CODE,
+                    CARGO_CODE,
+                    TAX_RATE,
+                    TAX_AMOUNT,
+                    PAYMENT_METHOD_CODE,
+                    PAYMENT_METHOD_NAME,
+                    BANK_ID,
+                    AMOUNT,
+                    REMARK,
+                    CREATE_BY,
+                    CREATE_BY_NAME,
+                    CREATE_TIME
+            )VALUES (
+                    #{id, jdbcType=VARCHAR},
+                    #{cndnId, jdbcType=VARCHAR},
+                    #{invoiceDetailId, jdbcType=VARCHAR},
+                    #{portCode, jdbcType=VARCHAR},
+                    #{portName, jdbcType=VARCHAR},
+                    #{mea, jdbcType=VARCHAR},
+                    #{unitCode, jdbcType=VARCHAR},
+                    #{unitName, jdbcType=VARCHAR},
+                    #{rateCode, jdbcType=VARCHAR},
+                    #{rateName, jdbcType=VARCHAR},
+                    #{oldRate, jdbcType=DECIMAL},
+                    #{newRate, jdbcType=DECIMAL},
+                    #{cargoTypeCode, jdbcType=VARCHAR},
+                    #{cargoCode, jdbcType=VARCHAR},
+                    #{taxRate, jdbcType=DECIMAL},
+                    #{taxAmount, jdbcType=DECIMAL},
+                    #{paymentMethodCode, jdbcType=VARCHAR},
+                    #{paymentMethodName, jdbcType=VARCHAR},
+                    #{bankId, jdbcType=VARCHAR},
+                    #{amount, jdbcType=DECIMAL},
+                    #{remark, jdbcType=VARCHAR},
+                    #{loginUserId, jdbcType=BIGINT},
+                    #{loginUserName, jdbcType=VARCHAR},
+                    #{now}
+                )
+    </insert>
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.finance.bean.dto.TFdCreditDebitBillDetailDTO">
+        UPDATE
+        T_FD_CREDIT_DEBIT_BILL_DETAIL
+        SET
+        ID = #{id,jdbcType=VARCHAR},
+        CNDN_ID = #{cndnId,jdbcType=VARCHAR},
+        INVOICE_DETAIL_ID = #{invoiceDetailId,jdbcType=VARCHAR},
+        PORT_CODE = #{portCode,jdbcType=VARCHAR},
+        PORT_NAME = #{portName,jdbcType=VARCHAR},
+        MEA = #{mea,jdbcType=VARCHAR},
+        UNIT_CODE = #{unitCode,jdbcType=VARCHAR},
+        UNIT_NAME = #{unitName,jdbcType=VARCHAR},
+        RATE_CODE = #{rateCode,jdbcType=VARCHAR},
+        RATE_NAME = #{rateName,jdbcType=VARCHAR},
+        OLD_RATE = #{oldRate,jdbcType=DECIMAL},
+        NEW_RATE = #{newRate,jdbcType=DECIMAL},
+        CARGO_TYPE_CODE = #{cargoTypeCode,jdbcType=VARCHAR},
+        CARGO_CODE = #{cargoCode,jdbcType=VARCHAR},
+        TAX_RATE = #{taxRate,jdbcType=DECIMAL},
+        TAX_AMOUNT = #{taxAmount,jdbcType=DECIMAL},
+        PAYMENT_METHOD_CODE = #{paymentMethodCode,jdbcType=VARCHAR},
+        PAYMENT_METHOD_NAME = #{paymentMethodName,jdbcType=VARCHAR},
+        BANK_ID = #{bankId,jdbcType=VARCHAR},
+        AMOUNT = #{amount,jdbcType=DECIMAL},
+        REMARK = #{remark,jdbcType=VARCHAR},
+        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM
+            T_FD_CREDIT_DEBIT_BILL_DETAIL
+        WHERE
+            id = #{id}
+    </delete>
+
+    <insert id="insertBatch" parameterType="com.yy.ppm.finance.bean.dto.TFdCreditDebitBillDetailDTO">
+        INSERT INTO T_FD_CREDIT_DEBIT_BILL_DETAIL(
+            ID,
+            CNDN_ID,
+            INVOICE_DETAIL_ID,
+            PORT_CODE,
+            PORT_NAME,
+            MEA,
+            UNIT_CODE,
+            UNIT_NAME,
+            RATE_CODE,
+            RATE_NAME,
+            OLD_RATE,
+            NEW_RATE,
+            CARGO_TYPE_CODE,
+            CARGO_CODE,
+            TAX_RATE,
+            TAX_AMOUNT,
+            PAYMENT_METHOD_CODE,
+            PAYMENT_METHOD_NAME,
+            BANK_ID,
+            AMOUNT,
+            RATE_ID,
+            REMARK,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+        INVOICE_TYPE_CODE,NUMBER_COUNT2)
+        (
+        <foreach collection="list" item="item"  open="" close="" separator=" UNION ALL " >
+            SELECT
+            #{item.id, jdbcType=VARCHAR},
+            #{item.cndnId, jdbcType=VARCHAR},
+            #{item.invoiceDetailId, jdbcType=VARCHAR},
+            #{item.portCode, jdbcType=VARCHAR},
+            #{item.portName, jdbcType=VARCHAR},
+            #{item.mea, jdbcType=VARCHAR},
+            #{item.unitCode, jdbcType=VARCHAR},
+            #{item.unitName, jdbcType=VARCHAR},
+            #{item.rateCode, jdbcType=VARCHAR},
+            #{item.rateName, jdbcType=VARCHAR},
+            #{item.oldRate, jdbcType=DECIMAL},
+            #{item.newRate, jdbcType=DECIMAL},
+            #{item.cargoTypeCode, jdbcType=VARCHAR},
+            #{item.cargoCode, jdbcType=VARCHAR},
+            #{item.taxRate, jdbcType=DECIMAL},
+            #{item.taxAmount, jdbcType=DECIMAL},
+            #{item.paymentMethodCode, jdbcType=VARCHAR},
+            #{item.paymentMethodName, jdbcType=VARCHAR},
+            #{item.bankId, jdbcType=VARCHAR},
+            #{item.amount, jdbcType=DECIMAL},
+            #{item.rateId,jdbcType=BIGINT},
+            #{item.remark, jdbcType=VARCHAR},
+            #{item.loginUserId, jdbcType=BIGINT},
+            #{item.loginUserName, jdbcType=VARCHAR},
+            #{item.now},
+            #{item.invoiceTypeCode},
+            #{item.numberCount2}
+        FROM DUAL
+    </foreach>
+    )
+    </insert>
+
+
+    <select id="getFeeItemList" parameterType="com.yy.ppm.finance.bean.dto.TFdCreditDebitBillDetailDTO" resultType="java.lang.String">
+        select  ITEM_TYPE_CD
+        FROM M_FEE_ITEM MFI
+        LEFT  JOIN T_BUS_RATE  TBR ON TBR.RATE_ITEM_CODE = MFI.ITEM_CD
+        WHERE  TBR.ID = #{rateId,jdbcType=VARCHAR}
+        GROUP BY ITEM_TYPE_CD
+    </select>
+</mapper>
+

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.master.mapper.MWorkwareTypeMapper">
+    <!--查询所有工属具类型-->
+    <select id="selectBWorkwareType" resultType="com.yy.ppm.master.bean.dto.MWorkwareTypeDTO">
+        SELECT
+            b.ID,
+            WORKWARE_TYPE_CODE,
+            WORKWARE_TYPE_NAME,
+            b.CREATE_BY,
+            b.CREATE_TIME,
+            s.user_name as create_name
+        FROM
+            m_workware_type b inner join sys_user s on b.create_by = s.id
+        <where>
+            <if test="name != null and name != ''">
+                and workware_type_name like concat('%',#{name},'%')
+            </if>
+        </where>
+        order by
+            CREATE_TIME
+        desc
+    </select>
+
+
+    <!--根据id查询工属具类型-->
+    <select id="selectBWorkwareTypeById" resultType="com.yy.ppm.master.bean.dto.MWorkwareTypeDTO">
+        SELECT
+            b.ID,
+            WORKWARE_TYPE_CODE,
+            WORKWARE_TYPE_NAME,
+            b.CREATE_BY,
+            b.CREATE_TIME,
+            s.user_name as create_name
+        FROM
+            m_workware_type b inner join sys_user s on b.create_by = s.id
+        <where>
+            b.id=#{id}
+        </where>
+        order by
+            CREATE_TIME
+        desc
+    </select>
+
+    <!--根据机械类型id查询子工属具型号-->
+    <select id="selectBWorkwareTypeModel" resultType="com.yy.ppm.master.bean.po.MWorkwareTypeModelPO">
+        SELECT
+            b.ID,
+            TYPE_CODE,
+            MODEL_CODE,
+            MODEL_NAME,
+            b.CREATE_BY,
+            b.CREATE_TIME,
+            s.user_name as create_name
+        FROM
+            m_workware_type_model b inner join sys_user s on b.create_by = s.id
+        <where>
+            <if test="typeCode != null and typeCode != ''">
+                and TYPE_CODE=#{typeCode}
+            </if>
+        </where>
+        order by
+            CREATE_TIME
+        desc
+    </select>
+
+    <!-- 查询工具类型最大编号 -->
+    <select id="getMaxTypeCode" resultType="java.lang.String">
+        SELECT
+            max(workware_type_code)
+        FROM
+            m_workware_type
+    </select>
+
+    <!-- 查询工具类型最大编号 -->
+    <select id="getMaxModelCode" resultType="java.lang.String">
+        SELECT
+            max(model_code)
+        FROM
+            m_workware_type_model
+        where
+            TYPE_CODE=#{typeCode}
+    </select>
+
+    <!--添加工属具类型-->
+    <insert id="insertBWorkwareType" parameterType="com.yy.ppm.master.bean.po.MWorkwareTypePO">
+        INSERT INTO
+            m_workware_type
+            (id,
+            workware_type_code,
+            workware_type_name,
+            create_by,
+            create_time)
+        VALUES
+            (#{id,jdbcType=BIGINT},#{workwareTypeCode,jdbcType=VARCHAR},#{workwareTypeName,jdbcType=VARCHAR},
+            #{loginUserId,jdbcType=BIGINT},#{now,jdbcType=TIMESTAMP})
+    </insert>
+
+    <select id="getCountByType" parameterType="com.yy.ppm.master.bean.po.MWorkwareTypeModelPO" resultType="java.lang.Integer">
+        select
+            count(*)
+        from
+            m_workware_type_model
+        where
+            id!=#{id} and TYPE_CODE=#{typeCode} and model_name=#{modelName}
+    </select>
+
+    <!--添加工属具型号-->
+    <insert id="insertBWorkwareTypeModel" parameterType="com.yy.ppm.master.bean.po.MWorkwareTypeModelPO">
+        INSERT INTO
+            m_workware_type_model
+            (id,
+            TYPE_CODE,
+            model_code,
+            model_name,
+            create_by,
+            create_time)
+        VALUES
+            (#{id,jdbcType=BIGINT},#{typeCode,jdbcType=BIGINT},#{modelCode,jdbcType=VARCHAR},#{modelName,jdbcType=VARCHAR},
+            #{loginUserId,jdbcType=BIGINT},#{now,jdbcType=TIMESTAMP})
+    </insert>
+
+    <!--修改工具属类型-->
+    <update id="updateBWorkwareType" parameterType="com.yy.ppm.master.bean.po.MWorkwareTypePO">
+        UPDATE
+            m_workware_type
+        SET
+            workware_type_code=#{workwareTypeCode},
+            workware_type_name=#{workwareTypeName}
+        <where>
+            id=#{id}
+        </where>
+    </update>
+
+
+    <!--根据父id删除工属具型号-->
+    <delete id="deleteBWorkwareTypeModelByTypeCode" parameterType="java.lang.String">
+        DELETE FROM
+            m_workware_type_model
+        WHERE
+            TYPE_CODE =#{typeCode}
+    </delete>
+    <!--删除工属具型号-->
+    <delete id="deleteBWorkwareTypeModel" parameterType="java.lang.Long">
+        DELETE FROM
+            m_workware_type_model
+        WHERE
+            TYPE_CODE=(select WORKWARE_TYPE_CODE FROM m_workware_type WHERE ID=#{id})
+    </delete>
+
+    <!--删除工属具类型-->
+    <delete id="deleteBWorkwareType" parameterType="java.lang.Long">
+        DELETE FROM
+            m_workware_type
+        WHERE
+            id=#{id}
+    </delete>
+
+</mapper>

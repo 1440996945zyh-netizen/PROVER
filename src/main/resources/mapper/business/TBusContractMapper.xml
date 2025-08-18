@@ -1,0 +1,793 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.business.mapper.TBusContractMapper">
+
+    <sql id="commonList">
+        SELECT TBC.ID,
+               TBC.CONTACT_NO,
+               TBC.PARENT_ID,
+               TBC.COMPANY_NAMES,
+               TBC.CUSTOMER_ID,
+               TBC.CUSTOMER_NAME,
+               TBC.SIGN_TIME,
+               TBC.CONTRACT_TYPE,
+               MDD.DICT_LABEL AS contractTypeLabel,
+               TBC.IS_SHIP,
+               TBC.SETTLEMENT_BASIS_CODE,
+               TBC.SETTLEMENT_BASIS_NAME,
+               TBC.EXP_SETTLEMENT_BASIS_CODE,
+               TBC.EXP_SETTLEMENT_BASIS_NAME,
+               TBC.OUTER_SETTLEMENT_BASIS_CODE,
+               TBC.OUTER_SETTLEMENT_BASIS_NAME,
+               TBC.LUXIAO_SETTLEMENT_BASIS_CODE,
+               TBC.LUXIAO_SETTLEMENT_BASIS_NAME,
+               TBC.DEPOSIT_BASIS_CODE,
+               TBC.DEPOSIT_BASIS_NAME,
+               TBC.DEPOSIT_RATIO,
+               TBC.PAY_TYPE,
+               TBC.FREE_STORAGE_DAYS,
+               TBC.START_TIME,
+               TBC.END_TIME,
+               TBC.SHIPVOYAGE_ID,
+               TBC.VALID_BY,
+               TBC.VALID_BY_NAME,
+               TBC.VALID_TIME,
+               TBC.STATUS,
+               CASE TBC.STATUS
+                   WHEN '10' THEN '签订'
+                   WHEN '20' THEN '生效'
+                   ELSE ''
+                   END        AS statusLabel,
+               TBC.REMARK,
+               TBC.CREATE_BY,
+               TBC.CREATE_BY_NAME,
+               TBC.CREATE_TIME,
+               TBC.UPDATE_BY,
+               TBC.UPDATE_BY_NAME,
+               TBC.UPDATE_TIME,
+               CASE
+                   WHEN TBC.PARENT_ID IS NULL THEN
+                       1
+                   ELSE 0
+                   END        AS hasChild
+        FROM T_BUS_CONTRACT TBC
+                 LEFT JOIN M_DICT_DATA MDD ON TBC.CONTRACT_TYPE = DICT_VALUE AND MDD.DICT_TYPE = 'CONTRACT_TYPE'
+
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.business.bean.dto.TBusContractDTO"
+            parameterType="com.yy.ppm.business.bean.dto.TBusContractSearchDTO">
+        SELECT
+        TBC.ID,
+        TBC.CONTACT_NO,
+        TBC.PARENT_ID,
+        TBC.COMPANY_NAMES,
+        TBC.CUSTOMER_ID,
+        TBC.CUSTOMER_NAME,
+        TBC.SIGN_TIME,
+        TBC.CONTRACT_TYPE,
+        MDD.DICT_LABEL AS contractTypeLabel,
+        TBC.IS_SHIP,
+        TBC.SETTLEMENT_BASIS_CODE,
+        TBC.SETTLEMENT_BASIS_NAME,
+        TBC.EXP_SETTLEMENT_BASIS_CODE,
+        TBC.EXP_SETTLEMENT_BASIS_NAME,
+        TBC.OUTER_SETTLEMENT_BASIS_CODE,
+        TBC.OUTER_SETTLEMENT_BASIS_NAME,
+        TBC.LUXIAO_SETTLEMENT_BASIS_CODE,
+        TBC.LUXIAO_SETTLEMENT_BASIS_NAME,
+        TBC.DEPOSIT_BASIS_CODE,
+        TBC.DEPOSIT_BASIS_NAME,
+        TBC.DEPOSIT_RATIO,
+        TBC.PAY_TYPE,
+        TBC.FREE_STORAGE_DAYS,
+        TBC.START_TIME,
+        TBC.END_TIME,
+        TBC.SHIPVOYAGE_ID,
+        TBC.VALID_BY,
+        TBC.VALID_BY_NAME,
+        TBC.VALID_TIME,
+        TBC.STATUS,
+        CASE TBC.STATUS
+        WHEN '10' THEN '签订'
+        WHEN '20' THEN '生效'
+        ELSE ''
+        END AS statusLabel,
+        TBC.REMARK,
+        TBC.CREATE_BY,
+        TBC.CREATE_BY_NAME,
+        TBC.CREATE_TIME,
+        TBC.UPDATE_BY,
+        TBC.UPDATE_BY_NAME,
+        TBC.UPDATE_TIME,
+        TBCR.CONTRACT_ID,
+        TBCR.CARGO_NAME,
+        case when sfb.COUNT_NUM is not null and sfb.COUNT_NUM>0 then '是' else '否' end "hasContractFile",
+        CASE
+        WHEN TBC.PARENT_ID IS NULL THEN
+        1 ELSE 0
+        END AS hasChild
+        <if test="contactNo != null and contactNo != ''">
+            <bind name="contactNoLike" value="'%' + contactNo + '%'"/>
+            , CASE WHEN
+            LISTAGG(TO_CHAR(SUB_TBC.CONTACT_NO), '!@#') WITHIN GROUP ( ORDER BY SUB_TBC.CONTACT_NO )
+            LIKE #{contactNoLike,jdbcType=VARCHAR} THEN '1' ELSE '0' END "isSubMatch0"
+        </if>
+        <if test="companyId != null and companyId != ''">
+            <bind name="companyIdRgx" value="'(^|,)(' + companyId + ')(,|$)'"/>
+            , CASE WHEN
+            REGEXP_LIKE ( LISTAGG ( TO_CHAR( SUB_TBCC.COMPANY_ID ), ',' ) WITHIN GROUP ( ORDER BY SUB_TBCC.COMPANY_ID ),
+            #{companyIdRgx} )
+            THEN '1' ELSE '0' END "isSubMatch1"
+        </if>
+        <if test="customerName != null and customerName != ''">
+            <bind name="customerNameLike" value="'%' + customerName + '%'"/>
+            , CASE WHEN
+            LISTAGG(TO_CHAR(SUB_TBC.CUSTOMER_NAME), '!@#') WITHIN GROUP ( ORDER BY SUB_TBC.CUSTOMER_NAME )
+            LIKE #{customerName,jdbcType=VARCHAR} THEN '1' ELSE '0' END "isSubMatch2"
+        </if>
+        <if test="contractType != null and contractType != ''">
+            <bind name="contractTypeRgx" value="'(^|,)(' + contractType + ')(,|$)'"/>
+            , CASE WHEN
+            REGEXP_LIKE ( LISTAGG ( TO_CHAR( SUB_TBC.CONTRACT_TYPE ), ',' ) WITHIN GROUP ( ORDER BY
+            SUB_TBC.CONTRACT_TYPE ), #{contractTypeRgx} )
+            THEN '1' ELSE '0' END "isSubMatch3"
+        </if>
+        <if test="status != null and status != ''">
+            <bind name="statusRgx" value="'(^|,)(' + status + ')(,|$)'"/>
+            , CASE WHEN
+            REGEXP_LIKE ( LISTAGG ( TO_CHAR( SUB_TBC.STATUS ), ',' ) WITHIN GROUP ( ORDER BY SUB_TBC.STATUS ),
+            #{statusRgx} )
+            THEN '1' ELSE '0' END "isSubMatch4"
+        </if>
+        FROM
+        T_BUS_CONTRACT TBC
+        LEFT JOIN M_DICT_DATA MDD ON TBC.CONTRACT_TYPE = DICT_VALUE AND MDD.DICT_TYPE = 'CONTRACT_TYPE'
+        LEFT JOIN T_BUS_CONTRACT SUB_TBC ON TBC.ID = SUB_TBC.PARENT_ID
+        JOIN T_BUS_CONTRACT_COMPANY TBCC ON TBC.ID = TBCC.CONTRACT_ID
+        LEFT JOIN T_BUS_CONTRACT_COMPANY SUB_TBCC ON SUB_TBC.ID = SUB_TBCC.CONTRACT_ID
+        left join  (    select SFB.BUSINESS_ID,count(0) COUNT_NUM from SYS_FILE SF
+            left join SYS_FILE_BUSINESS SFB on sf.id  = sfb.FILE_ID
+            where sf.BUSINESS_TYPE = 'BUSINESS_CONTRACT_02'
+            group by SFb.BUSINESS_ID) sfb on sfb.BUSINESS_ID = TBC.ID
+        LEFT JOIN (
+        SELECT
+        TO_CHAR(REGEXP_REPLACE(RTRIM(XMLCAST(XMLAGG(XMLELEMENT(E, TO_CHAR(CARGO_NAME) || ',') ORDER BY CARGO_NAME) AS CLOB), ','), '([^,]+)(,\1)+', '\1')) CARGO_NAME,
+        CONTRACT_ID
+        FROM T_BUS_CONTRACT_RATE
+        GROUP BY CONTRACT_ID
+        ) TBCR ON TBCR.CONTRACT_ID = TBC.ID
+        <where>
+            TBC.PARENT_ID IS NULL
+            <if test="contactNo != null and contactNo != ''">
+                and ( TBC.CONTACT_NO LIKE #{contactNoLike,jdbcType=VARCHAR} OR SUB_TBC.CONTACT_NO LIKE
+                #{contactNoLike,jdbcType=VARCHAR} )
+            </if>
+            <if test="companyId != null and companyId != ''">
+                and ( TBCC.COMPANY_ID = #{companyId,jdbcType=BIGINT} OR SUB_TBCC.COMPANY_ID =
+                #{companyId,jdbcType=BIGINT} )
+            </if>
+            <if test="customerName != null and customerName != ''">
+                and ( TBC.CUSTOMER_NAME LIKE CONCAT(CONCAT('%', #{customerName}), '%') OR SUB_TBC.CUSTOMER_NAME LIKE
+                CONCAT(CONCAT('%', #{customerName}), '%') )
+            </if>
+            <if test="contractType != null and contractType != ''">
+                and ( TBC.CONTRACT_TYPE = #{contractType} OR SUB_TBC.CONTRACT_TYPE = #{contractType} )
+            </if>
+            <if test="status != null and status != ''">
+                and ( TBC.STATUS = #{status} OR TBC.STATUS = #{status} )
+            </if>
+            <if test="hasContractFile != null and hasContractFile != ''">
+                and case
+                when sfb.COUNT_NUM is not null and sfb.COUNT_NUM>0 then '是'
+                 else '否' end = #{hasContractFile,jdbcType=VARCHAR}
+            </if>
+            <if test="cargoName != null and cargoName != ''">
+                <bind name="cargoNameLike" value="'%' + cargoName + '%'"/>
+                AND TBCR.CARGO_NAME LIKE #{cargoNameLike, jdbcType=VARCHAR}
+            </if>
+        </where>
+        GROUP BY
+        TBC.ID,
+        TBC.CONTACT_NO,
+        TBC.PARENT_ID,
+        TBC.COMPANY_NAMES,
+        TBC.CUSTOMER_ID,
+        TBC.CUSTOMER_NAME,
+        TBC.SIGN_TIME,
+        TBC.CONTRACT_TYPE,
+        MDD.DICT_LABEL,
+        TBC.IS_SHIP,
+        TBC.SETTLEMENT_BASIS_CODE,
+        TBC.SETTLEMENT_BASIS_NAME,
+        TBC.EXP_SETTLEMENT_BASIS_CODE,
+        TBC.EXP_SETTLEMENT_BASIS_NAME,
+        TBC.OUTER_SETTLEMENT_BASIS_CODE,
+        TBC.OUTER_SETTLEMENT_BASIS_NAME,
+        TBC.LUXIAO_SETTLEMENT_BASIS_CODE,
+        TBC.LUXIAO_SETTLEMENT_BASIS_NAME,
+        TBC.DEPOSIT_BASIS_CODE,
+        TBC.DEPOSIT_BASIS_NAME,
+        TBC.DEPOSIT_RATIO,
+        TBC.PAY_TYPE,
+        TBC.FREE_STORAGE_DAYS,
+        TBC.START_TIME,
+        TBC.END_TIME,
+        TBC.SHIPVOYAGE_ID,
+        TBC.VALID_BY,
+        TBC.VALID_BY_NAME,
+        TBC.VALID_TIME,
+        TBC.STATUS,
+        TBC.REMARK,
+        TBC.CREATE_BY,
+        TBC.CREATE_BY_NAME,
+        TBC.CREATE_TIME,
+        TBC.UPDATE_BY,
+        TBC.UPDATE_BY_NAME,
+        TBC.UPDATE_TIME,
+        TBCR.CONTRACT_ID,
+        sfb.COUNT_NUM,
+        TBCR.CARGO_NAME
+        ORDER BY
+        TBC.CREATE_TIME DESC
+    </select>
+    <!-- 根据ParentId查询补充协议-->
+    <select id="getListByParentId" resultType="com.yy.ppm.business.bean.dto.TBusContractDTO">
+        <include refid="commonList"></include>
+        <where>
+            TBC.PARENT_ID = #{parentId}
+        </where>
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.business.bean.dto.TBusContractDTO"
+            parameterType="com.yy.ppm.business.bean.dto.TBusContractSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.business.bean.dto.TBusContractDTO" parameterType="java.lang.Long">
+        SELECT
+        ID, CONTACT_NO,
+        <!--COMPANY_ID,COMPANY_NAME,-->
+        PARENT_ID,
+        CUSTOMER_ID, CUSTOMER_NAME,
+        SIGN_TIME, CONTRACT_TYPE,
+        IS_SHIP, SETTLEMENT_BASIS_CODE,
+        SETTLEMENT_BASIS_NAME,EXP_SETTLEMENT_BASIS_CODE,
+        EXP_SETTLEMENT_BASIS_NAME,OUTER_SETTLEMENT_BASIS_CODE,
+        OUTER_SETTLEMENT_BASIS_NAME,LUXIAO_SETTLEMENT_BASIS_CODE,
+        LUXIAO_SETTLEMENT_BASIS_NAME, DEPOSIT_BASIS_CODE,
+        DEPOSIT_BASIS_NAME, DEPOSIT_RATIO,
+        PAY_TYPE, FREE_STORAGE_DAYS,
+        START_TIME, END_TIME, SHIPVOYAGE_ID,
+        VALID_BY, VALID_BY_NAME, VALID_TIME,
+        STATUS, REMARK, CREATE_BY,
+        CREATE_BY_NAME, CREATE_TIME,
+        UPDATE_BY, UPDATE_BY_NAME, UPDATE_TIME
+        FROM
+        T_BUS_CONTRACT
+        <where>
+            id = #{id}
+        </where>
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.business.bean.dto.TBusContractDTO">
+        INSERT INTO T_BUS_CONTRACT(ID,
+                                   CONTACT_NO,
+                                   PARENT_ID,
+                                   COMPANY_NAMES,
+                                   CUSTOMER_ID,
+                                   CUSTOMER_NAME,
+                                   SIGN_TIME,
+                                   CONTRACT_TYPE,
+                                   IS_SHIP,
+                                   SETTLEMENT_BASIS_CODE,
+                                   SETTLEMENT_BASIS_NAME,
+                                   EXP_SETTLEMENT_BASIS_CODE,
+                                   EXP_SETTLEMENT_BASIS_NAME,
+                                   OUTER_SETTLEMENT_BASIS_CODE,
+                                   OUTER_SETTLEMENT_BASIS_NAME,
+                                   LUXIAO_SETTLEMENT_BASIS_CODE,
+                                   LUXIAO_SETTLEMENT_BASIS_NAME,
+                                   DEPOSIT_BASIS_CODE,
+                                   DEPOSIT_BASIS_NAME,
+                                   DEPOSIT_RATIO,
+                                   PAY_TYPE,
+                                   FREE_STORAGE_DAYS,
+                                   START_TIME,
+                                   END_TIME,
+                                   SHIPVOYAGE_ID,
+                                   VALID_BY,
+                                   VALID_BY_NAME,
+                                   VALID_TIME,
+                                   STATUS,
+                                   REMARK,
+                                   CREATE_BY,
+                                   CREATE_BY_NAME,
+                                   CREATE_TIME)
+        VALUES (#{id,jdbcType=BIGINT},
+                #{contactNo, jdbcType=VARCHAR},
+                #{parentId, jdbcType=BIGINT},
+                #{companyNames, jdbcType=VARCHAR},
+                #{customerId, jdbcType=BIGINT},
+                #{customerName, jdbcType=VARCHAR},
+                #{signTime, jdbcType=DATE},
+                #{contractType, jdbcType=VARCHAR},
+                #{isShip, jdbcType=VARCHAR},
+                #{settlementBasisCode, jdbcType=VARCHAR},
+                #{settlementBasisName, jdbcType=VARCHAR},
+                #{expSettlementBasisCode, jdbcType=VARCHAR},
+                #{expSettlementBasisName, jdbcType=VARCHAR},
+                #{outerSettlementBasisCode, jdbcType=VARCHAR},
+                #{outerSettlementBasisName, jdbcType=VARCHAR},
+                #{luxiaoSettlementBasisCode, jdbcType=VARCHAR},
+                #{luxiaoSettlementBasisName, jdbcType=VARCHAR},
+                #{depositBasisCode, jdbcType=VARCHAR},
+                #{depositBasisName, jdbcType=VARCHAR},
+                #{depositRatio,jdbcType=DECIMAL},
+                #{payType, jdbcType=VARCHAR},
+                #{freeStorageDays, jdbcType=BIGINT},
+                #{startTime, jdbcType=DATE},
+                #{endTime, jdbcType=DATE},
+                #{shipvoyageId, jdbcType=BIGINT},
+                #{validBy, jdbcType=BIGINT},
+                #{validByName, jdbcType=VARCHAR},
+                #{validTime, jdbcType=VARCHAR},
+                #{status, jdbcType=VARCHAR},
+                #{remark, jdbcType=VARCHAR},
+                #{loginUserId, jdbcType=BIGINT},
+                #{loginUserName, jdbcType=VARCHAR},
+                #{now})
+    </insert>
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.business.bean.dto.TBusContractDTO">
+        UPDATE
+        T_BUS_CONTRACT
+        SET
+        ID = #{id,jdbcType=BIGINT},
+        CONTACT_NO = #{contactNo,jdbcType=VARCHAR},
+        COMPANY_NAMES = #{companyNames,jdbcType=VARCHAR},
+        PARENT_ID = #{parentId,jdbcType=BIGINT},
+        CUSTOMER_ID = #{customerId,jdbcType=BIGINT},
+        CUSTOMER_NAME = #{customerName,jdbcType=VARCHAR},
+        SIGN_TIME = #{signTime,jdbcType=DATE},
+        CONTRACT_TYPE = #{contractType,jdbcType=VARCHAR},
+        IS_SHIP = #{isShip,jdbcType=VARCHAR},
+        SETTLEMENT_BASIS_CODE = #{settlementBasisCode,jdbcType=VARCHAR},
+        EXP_SETTLEMENT_BASIS_CODE = #{expSettlementBasisCode,jdbcType=VARCHAR},
+        SETTLEMENT_BASIS_NAME = #{settlementBasisName,jdbcType=VARCHAR},
+        EXP_SETTLEMENT_BASIS_NAME = #{expSettlementBasisName,jdbcType=VARCHAR},
+        OUTER_SETTLEMENT_BASIS_CODE = #{outerSettlementBasisCode,jdbcType=VARCHAR},
+        OUTER_SETTLEMENT_BASIS_NAME = #{outerSettlementBasisName,jdbcType=VARCHAR},
+        LUXIAO_SETTLEMENT_BASIS_CODE = #{luxiaoSettlementBasisCode,jdbcType=VARCHAR},
+        LUXIAO_SETTLEMENT_BASIS_NAME = #{luxiaoSettlementBasisName,jdbcType=VARCHAR},
+        DEPOSIT_BASIS_CODE = #{depositBasisCode,jdbcType=VARCHAR},
+        DEPOSIT_BASIS_NAME = #{depositBasisName,jdbcType=VARCHAR},
+        DEPOSIT_RATIO = #{depositRatio,jdbcType=DECIMAL},
+        PAY_TYPE = #{payType,jdbcType=VARCHAR},
+        FREE_STORAGE_DAYS = #{freeStorageDays,jdbcType=BIGINT},
+        START_TIME = #{startTime,jdbcType=DATE},
+        END_TIME = #{endTime,jdbcType=DATE},
+        SHIPVOYAGE_ID = #{shipvoyageId,jdbcType=BIGINT},
+        VALID_BY = #{validBy,jdbcType=BIGINT},
+        VALID_BY_NAME = #{validByName,jdbcType=VARCHAR},
+        VALID_TIME = #{validTime,jdbcType=DATE},
+        STATUS = #{status,jdbcType=VARCHAR},
+        REMARK = #{remark,jdbcType=VARCHAR},
+        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+    <!-- 修改状态, 生效 -->
+    <update id="updateStatus">
+        UPDATE
+        T_BUS_CONTRACT
+        SET
+        STATUS = #{status,jdbcType=VARCHAR},
+        VALID_BY = #{loginUserId, jdbcType=BIGINT},
+        VALID_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <select id="listCargoMixDetail" resultType="com.yy.ppm.business.bean.po.TBusCargoMixDetailPO">
+        SELECT ID,
+               MIX_RECORD_ID,
+               CARGO_INFO_ID,
+               STOREHOUSE_ID,
+               REGION_ID,
+               MASS_ID,
+               MIX_WEIGHT,
+               CONTRACT_ID,
+               FREE_STORAGE_DAYS,
+               REMAIN_FREE_STORAGE_DAYS,
+               CREATE_BY,
+               CREATE_BY_NAME,
+               CREATE_TIME,
+               UPDATE_BY,
+               UPDATE_BY_NAME,
+               UPDATE_TIME
+        FROM T_BUS_CARGO_MIX_DETAIL
+        WHERE CONTRACT_ID = #{contractId,jdbcType=BIGINT}
+    </select>
+
+    <select id="isUsedByStatement" resultType="boolean">
+        SELECT COUNT(0)
+        FROM T_COST_STATEMENT_DETAIL TCSD
+        WHERE TCSD.CONTRACT_ID IN
+              (SELECT TBC.ID
+               FROM T_BUS_CONTRACT TBC
+               WHERE TBC.ID = #{contractId,jdbcType=BIGINT})
+    </select>
+
+    <select id="isUsedByStorageSettle" resultType="boolean">
+        SELECT COUNT(0)
+        FROM T_COST_STORAGE_SETTLE
+        WHERE CONTRACT_ID = #{contractId, jdbcType=BIGINT}
+    </select>
+
+    <update id="cancel">
+        UPDATE
+            T_BUS_CONTRACT
+        SET STATUS        = '10',
+            VALID_BY      = NULL,
+            VALID_BY_NAME = NULL
+        WHERE ID = #{id,jdbcType=BIGINT}
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE
+        FROM T_BUS_CONTRACT
+        WHERE id = #{id}
+    </delete>
+
+    <insert id="insertContractCustomer">
+        INSERT INTO T_BUS_CONTRACT_CUSTOMER
+            (ID, CONTRACT_ID, CUSTOMER_ID, CUSTOMER_NAME)
+        VALUES (#{id,jdbcType=BIGINT}, #{contractId,jdbcType=VARCHAR}, #{customerId,jdbcType=BIGINT},
+                #{customerName,jdbcType=VARCHAR})
+    </insert>
+
+    <select id="listCargo" resultType="com.yy.ppm.master.bean.po.MCargoPO">
+        SELECT
+        ID,
+        CARGO_CODE,
+        CARGO_NAME || (CASE WHEN (SIGN IS NOT NULL OR SIGN != '') THEN ('(' || SIGN || ')') END ) "CARGO_NAME",
+        WORK_TYPE
+        FROM
+        M_CARGO
+        WHERE
+        CARGO_CODE IN
+        <foreach collection="cargoCodes" separator=", " item="cargoCode" open="(" close=")">
+            #{cargoCode,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+
+    <select id="listCargoRate" resultType="com.yy.ppm.business.bean.dto.contract.TBusRateDTO">
+        SELECT
+        TBR.ID,
+        TBR.RATE_ITEM_CODE,
+        TBR.RATE_ITEM_NAME,
+        TBR.SERVICE_CONTENT_ID,
+        TBR.SERVICE_CONTENT_NAME,
+        TBR.PROCESS_CODE,
+        TBR.PROCESS_NAME,
+        TBR.CARGO_CODE,
+        TBR.CARGO_NAME || (CASE WHEN (MC.SIGN IS NOT NULL OR MC.SIGN != '') THEN ('(' || MC.SIGN || ')') END ) "CARGO_NAME",
+        TBR.INTE_FORE,
+        TBR.RATE,
+        TBR.TAX_RATE,
+        TBR.MEASUREMENT_UNIT_CODE1,
+        MDD.DICT_LABEL MEASUREMENT_UNIT_NAME1,
+        TBR.MEASUREMENT_UNIT_CODE2,
+        TBR.STATUS,
+        TBR.START_DATE,
+        TBR.END_DATE,
+        TBR.REMARK,
+        TBR.EXAMINE_BY,
+        TBR.EXAMINE_BY_NAME,
+        TBR.EXAMINE_TIME,
+        TBR.CREATE_BY,
+        TBR.CREATE_BY_NAME,
+        TBR.CREATE_TIME,
+        TBR.UPDATE_BY,
+        TBR.UPDATE_BY_NAME,
+        TBR.UPDATE_TIME,
+        TBR.FREE_STORAGE_DAYS,
+        DECODE(TBS.IN_OUT, 'IN', '进口', 'OUT', '出口') IMP_EXP
+        FROM
+        T_BUS_RATE TBR
+        JOIN M_CARGO MC ON TBR.CARGO_CODE = MC.CARGO_CODE
+        LEFT JOIN M_DICT_DATA MDD ON MDD.DICT_TYPE = 'UNIT' AND TBR.MEASUREMENT_UNIT_CODE1 = MDD.DICT_VALUE
+        JOIN T_BUS_SERVICE TBS ON TBR.SERVICE_CONTENT_ID = TBS.ID
+        WHERE
+        TBR.STATUS = '10'
+        AND (#{startTime,jdbcType=TIMESTAMP} >= START_DATE AND #{startTime,jdbcType=TIMESTAMP} &lt;= END_DATE)
+        AND TBR.RATE_ITEM_NAME = '港口作业包干费'
+        AND TBR.CARGO_CODE IN
+        <foreach collection="cargoCodes" close=")" item="cargoCode" open="(" separator=", ">
+            #{cargoCode, jdbcType=VARCHAR}
+        </foreach>
+        ORDER BY
+        TBR.INTE_FORE,
+        TBS.IN_OUT,
+        TBR.SERVICE_CONTENT_NAME
+    </select>
+
+    <select id="listDuicunRate" resultType="com.yy.ppm.business.bean.po.TBusRatePO">
+        SELECT TBR.ID,
+               TBR.RATE_ITEM_CODE,
+               TBR.RATE_ITEM_NAME,
+               TBR.SERVICE_CONTENT_ID,
+               TBR.SERVICE_CONTENT_NAME,
+               TBR.PROCESS_CODE,
+               TBR.PROCESS_NAME,
+               TBR.CARGO_CODE,
+               TBR.CARGO_NAME || (CASE WHEN (MC.SIGN IS NOT NULL OR MC.SIGN != '') THEN ('(' || MC.SIGN || ')') END ) "CARGO_NAME",
+               TBR.INTE_FORE,
+               TBR.RATE,
+               TBR.TAX_RATE,
+               TBR.MEASUREMENT_UNIT_CODE1,
+               MDD.DICT_LABEL MEASUREMENT_UNIT_NAME1,
+               TBR.MEASUREMENT_UNIT_CODE2,
+               TBR.STATUS,
+               TBR.START_DATE,
+               TBR.END_DATE,
+               TBR.REMARK,
+               TBR.EXAMINE_BY,
+               TBR.EXAMINE_BY_NAME,
+               TBR.EXAMINE_TIME,
+               TBR.CREATE_BY,
+               TBR.CREATE_BY_NAME,
+               TBR.CREATE_TIME,
+               TBR.UPDATE_BY,
+               TBR.UPDATE_BY_NAME,
+               TBR.UPDATE_TIME,
+               TBR.FREE_STORAGE_DAYS,
+               TBR.WORK_TYPE
+        FROM T_BUS_RATE TBR
+                 LEFT JOIN M_CARGO MC ON TBR.CARGO_CODE = MC.CARGO_CODE
+                 LEFT JOIN M_DICT_DATA MDD ON MDD.DICT_TYPE = 'UNIT' AND TBR.MEASUREMENT_UNIT_CODE1 = MDD.DICT_VALUE
+        WHERE TBR.STATUS = '10'
+        AND (#{startTime,jdbcType=TIMESTAMP} >= START_DATE AND #{startTime,jdbcType=TIMESTAMP} &lt;= END_DATE)
+          AND TBR.RATE_ITEM_CODE = 'MS00240'
+    </select>
+
+    <resultMap id="listTrateByTrateItemIds" type="com.yy.ppm.business.bean.dto.contract.TBusTrateDTO">
+        <result column="TBT_ID" property="id" jdbcType="BIGINT"/>
+        <result column="TBT_START_TIME" property="startTime" jdbcType="TIMESTAMP"/>
+        <result column="TBT_END_TIME" property="endTime" jdbcType="TIMESTAMP"/>
+        <result column="TBT_CREATE_BY" property="createBy" jdbcType="BIGINT"/>
+        <result column="TBT_CREATE_BY_NAME" property="createByName" jdbcType="VARCHAR"/>
+        <result column="TBT_CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="TBT_UPDATE_BY" property="updateBy" jdbcType="BIGINT"/>
+        <result column="TBT_UPDATE_BY_NAME" property="updateByName" jdbcType="VARCHAR"/>
+        <result column="TBT_UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP"/>
+        <collection property="contracts" ofType="com.yy.ppm.business.bean.dto.contract.TBusTrateContractDTO">
+            <result column="TBT_CONTRACT_ID" property="id" jdbcType="BIGINT"/>
+            <result column="TBT_CONTRACT_TRATE_ID" property="trateId" jdbcType="BIGINT"/>
+            <result column="TBT_CONTRACT_CONTRACT_NO" property="contractNo" jdbcType="VARCHAR"/>
+        </collection>
+        <collection property="customers" ofType="com.yy.ppm.business.bean.dto.contract.TBusTrateCustomerDTO">
+            <result column="TBT_CUSTOMER_ID" property="id" jdbcType="BIGINT"/>
+            <result column="TBT_CUSTOMER_TRATE_ID" property="trateId" jdbcType="BIGINT"/>
+            <result column="TBT_CUSTOMER_CUSTOMER_ID" property="customerId" jdbcType="BIGINT"/>
+            <result column="TBT_CUSTOMER_CUSTOMER_NAME" property="customerName" jdbcType="VARCHAR"/>
+        </collection>
+        <collection property="items" ofType="com.yy.ppm.business.bean.dto.contract.TBusTrateItemDTO">
+            <result column="TBTI_ID" property="id" jdbcType="BIGINT"/>
+            <result column="TBTI_TRATE_ID" property="trateId" jdbcType="BIGINT"/>
+            <result column="TBTI_TRADE_TYPE" property="tradeType" jdbcType="VARCHAR"/>
+            <result column="TBTI_IMP_EXP" property="impExp" jdbcType="VARCHAR"/>
+            <result column="TBTI_IS_TIERED_RATE" property="isTieredRate" jdbcType="VARCHAR"/>
+            <result column="TBTI_PREFERENTIAL_RATE" property="preferentialRate" jdbcType="DECIMAL"/>
+            <result column="TBTI_ORIGIN_ACC_NUMBER" property="originAccNumber" jdbcType="DECIMAL"/>
+            <collection property="cargos" ofType="com.yy.ppm.business.bean.dto.contract.TBusTrateItemCargoDTO">
+                <result column="TBTIC_ID" property="id" jdbcType="BIGINT"/>
+                <result column="TBTIC_TRATE_ITEM_ID" property="trateItemId" jdbcType="BIGINT"/>
+                <result column="TBTIC_CARGO_CODE" property="cargoCode" jdbcType="VARCHAR"/>
+                <result column="TBTIC_CARGO_NAME" property="cargoName" jdbcType="VARCHAR"/>
+            </collection>
+            <collection property="details" ofType="com.yy.ppm.business.bean.dto.contract.TBusTrateItemDetailDTO">
+                <result column="TBTID_ID" property="id" jdbcType="BIGINT"/>
+                <result column="TBTID_TRATE_ITEM_ID" property="trateItemId" jdbcType="BIGINT"/>
+                <result column="TBTID_BEGIN_TON" property="beginTon" jdbcType="DECIMAL"/>
+                <result column="TBTID_END_TON" property="endTon" jdbcType="DECIMAL"/>
+                <result column="TBTID_RATE" property="rate" jdbcType="DECIMAL"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="listTrateByTrateItemIds" resultMap="listTrateByTrateItemIds">
+        SELECT TBT.ID                     TBT_ID,
+               TBT.START_TIME             TBT_START_TIME,
+               TBT.END_TIME               TBT_END_TIME,
+               TBT.CREATE_BY              TBT_CREATE_BY,
+               TBT.CREATE_BY_NAME         TBT_CREATE_BY_NAME,
+               TBT.CREATE_TIME            TBT_CREATE_TIME,
+               TBT.UPDATE_BY              TBT_UPDATE_BY,
+               TBT.UPDATE_BY_NAME         TBT_UPDATE_BY_NAME,
+               TBT.UPDATE_TIME            TBT_UPDATE_TIME,
+               TBT_CONTRACT.ID            TBT_CONTRACT_ID,
+               TBT_CONTRACT.TRATE_ID      TBT_CONTRACT_TRATE_ID,
+               TBT_CONTRACT.CONTRACT_NO   TBT_CONTRACT_CONTRACT_NO,
+               TBT_CUSTOMER.ID            TBT_CUSTOMER_ID,
+               TBT_CUSTOMER.TRATE_ID      TBT_CUSTOMER_TRATE_ID,
+               TBT_CUSTOMER.CUSTOMER_ID   TBT_CUSTOMER_CUSTOMER_ID,
+               TBT_CUSTOMER.CUSTOMER_NAME TBT_CUSTOMER_CUSTOMER_NAME,
+               TBTI.ID                    TBTI_ID,
+               TBTI.TRATE_ID              TBTI_TRATE_ID,
+               TBTI.TRADE_TYPE            TBTI_TRADE_TYPE,
+               TBTI.IMP_EXP               TBTI_IMP_EXP,
+               TBTI.IS_TIERED_RATE        TBTI_IS_TIERED_RATE,
+               TBTI.PREFERENTIAL_RATE     TBTI_PREFERENTIAL_RATE,
+               TBTI.ORIGIN_ACC_NUMBER     TBTI_ORIGIN_ACC_NUMBER,
+               TBTIC.ID                   TBTIC_ID,
+               TBTIC.TRATE_ITEM_ID        TBTIC_TRATE_ITEM_ID,
+               TBTIC.CARGO_CODE           TBTIC_CARGO_CODE,
+               TBTIC.CARGO_NAME           TBTIC_CARGO_NAME,
+               TBTID.ID                   TBTID_ID,
+               TBTID.TRATE_ITEM_ID        TBTID_TRATE_ITEM_ID,
+               TBTID.BEGIN_TON            TBTID_BEGIN_TON,
+               TBTID.END_TON              TBTID_END_TON,
+               TBTID.RATE                 TBTID_RATE
+        FROM T_BUS_TRATE TBT
+                 JOIN T_BUS_TRATE_CONTRACT TBT_CONTRACT ON TBT.ID = TBT_CONTRACT.TRATE_ID
+                 JOIN T_BUS_TRATE_CUSTOMER TBT_CUSTOMER ON TBT.ID = TBT_CUSTOMER.TRATE_ID
+                 JOIN T_BUS_TRATE_ITEM TBTI ON TBT.ID = TBTI.TRATE_ID
+                 JOIN T_BUS_TRATE_ITEM_CARGO TBTIC ON TBTI.ID = TBTIC.TRATE_ITEM_ID
+                 LEFT JOIN T_BUS_TRATE_ITEM_DETAIL TBTID ON TBTI.ID = TBTID.TRATE_ITEM_ID
+        WHERE TBT.STATUS = '20'
+          AND TBTI.ID IN
+          <foreach collection="trateItemIds" item="trateItemId" close=")" open="(" separator=", ">
+              #{trateItemId,jdbcType=BIGINT}
+          </foreach>
+    </select>
+
+    <select id="listContractCustomer" resultType="com.yy.ppm.business.bean.po.TBusContractCustomerPO">
+        SELECT ID,
+               CONTRACT_ID,
+               CUSTOMER_ID,
+               CUSTOMER_NAME
+        FROM T_BUS_CONTRACT_CUSTOMER
+        WHERE CONTRACT_ID = #{contractId, jdbcType=BIGINT}
+    </select>
+
+    <resultMap id="listTrate" type="com.yy.ppm.business.bean.dto.contract.TBusTrateDTO">
+        <result column="TBT_ID" property="id" jdbcType="BIGINT"/>
+        <result column="TBT_START_TIME" property="startTime" jdbcType="TIMESTAMP"/>
+        <result column="TBT_END_TIME" property="endTime" jdbcType="TIMESTAMP"/>
+        <result column="TBT_CREATE_BY" property="createBy" jdbcType="BIGINT"/>
+        <result column="TBT_CREATE_BY_NAME" property="createByName" jdbcType="VARCHAR"/>
+        <result column="TBT_CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="TBT_UPDATE_BY" property="updateBy" jdbcType="BIGINT"/>
+        <result column="TBT_UPDATE_BY_NAME" property="updateByName" jdbcType="VARCHAR"/>
+        <result column="TBT_UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP"/>
+        <collection property="contracts" ofType="com.yy.ppm.business.bean.dto.contract.TBusTrateContractDTO">
+            <result column="TBT_CONTRACT_ID" property="id" jdbcType="BIGINT"/>
+            <result column="TBT_CONTRACT_TRATE_ID" property="trateId" jdbcType="BIGINT"/>
+            <result column="TBT_CONTRACT_CONTRACT_NO" property="contractNo" jdbcType="VARCHAR"/>
+        </collection>
+        <collection property="customers" ofType="com.yy.ppm.business.bean.dto.contract.TBusTrateCustomerDTO">
+            <result column="TBT_CUSTOMER_ID" property="id" jdbcType="BIGINT"/>
+            <result column="TBT_CUSTOMER_TRATE_ID" property="trateId" jdbcType="BIGINT"/>
+            <result column="TBT_CUSTOMER_CUSTOMER_ID" property="customerId" jdbcType="BIGINT"/>
+            <result column="TBT_CUSTOMER_CUSTOMER_NAME" property="customerName" jdbcType="VARCHAR"/>
+        </collection>
+        <collection property="items" ofType="com.yy.ppm.business.bean.dto.contract.TBusTrateItemDTO">
+            <result column="TBTI_ID" property="id" jdbcType="BIGINT"/>
+            <result column="TBTI_TRATE_ID" property="trateId" jdbcType="BIGINT"/>
+            <result column="TBTI_TRADE_TYPE" property="tradeType" jdbcType="VARCHAR"/>
+            <result column="TBTI_IMP_EXP" property="impExp" jdbcType="VARCHAR"/>
+            <result column="TBTI_IS_TIERED_RATE" property="isTieredRate" jdbcType="VARCHAR"/>
+            <result column="TBTI_PREFERENTIAL_RATE" property="preferentialRate" jdbcType="DECIMAL"/>
+            <result column="TBTI_ORIGIN_ACC_NUMBER" property="originAccNumber" jdbcType="DECIMAL"/>
+            <collection property="cargos" ofType="com.yy.ppm.business.bean.dto.contract.TBusTrateItemCargoDTO">
+                <result column="TBTIC_ID" property="id" jdbcType="BIGINT"/>
+                <result column="TBTIC_TRATE_ITEM_ID" property="trateItemId" jdbcType="BIGINT"/>
+                <result column="TBTIC_CARGO_CODE" property="cargoCode" jdbcType="VARCHAR"/>
+                <result column="TBTIC_CARGO_NAME" property="cargoName" jdbcType="VARCHAR"/>
+            </collection>
+            <collection property="details" ofType="com.yy.ppm.business.bean.dto.contract.TBusTrateItemDetailDTO">
+                <result column="TBTID_ID" property="id" jdbcType="BIGINT"/>
+                <result column="TBTID_TRATE_ITEM_ID" property="trateItemId" jdbcType="BIGINT"/>
+                <result column="TBTID_BEGIN_TON" property="beginTon" jdbcType="DECIMAL"/>
+                <result column="TBTID_END_TON" property="endTon" jdbcType="DECIMAL"/>
+                <result column="TBTID_RATE" property="rate" jdbcType="DECIMAL"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="listTrate" resultMap="listTrate">
+        SELECT TBT.ID                     TBT_ID,
+               TBT.START_TIME             TBT_START_TIME,
+               TBT.END_TIME               TBT_END_TIME,
+               TBT.CREATE_BY              TBT_CREATE_BY,
+               TBT.CREATE_BY_NAME         TBT_CREATE_BY_NAME,
+               TBT.CREATE_TIME            TBT_CREATE_TIME,
+               TBT.UPDATE_BY              TBT_UPDATE_BY,
+               TBT.UPDATE_BY_NAME         TBT_UPDATE_BY_NAME,
+               TBT.UPDATE_TIME            TBT_UPDATE_TIME,
+               TBT_CONTRACT.ID            TBT_CONTRACT_ID,
+               TBT_CONTRACT.TRATE_ID      TBT_CONTRACT_TRATE_ID,
+               TBT_CONTRACT.CONTRACT_NO   TBT_CONTRACT_CONTRACT_NO,
+               TBT_CUSTOMER.ID            TBT_CUSTOMER_ID,
+               TBT_CUSTOMER.TRATE_ID      TBT_CUSTOMER_TRATE_ID,
+               TBT_CUSTOMER.CUSTOMER_ID   TBT_CUSTOMER_CUSTOMER_ID,
+               TBT_CUSTOMER.CUSTOMER_NAME TBT_CUSTOMER_CUSTOMER_NAME,
+               TBTI.ID                    TBTI_ID,
+               TBTI.TRATE_ID              TBTI_TRATE_ID,
+               TBTI.TRADE_TYPE            TBTI_TRADE_TYPE,
+               TBTI.IMP_EXP               TBTI_IMP_EXP,
+               TBTI.IS_TIERED_RATE        TBTI_IS_TIERED_RATE,
+               TBTI.PREFERENTIAL_RATE     TBTI_PREFERENTIAL_RATE,
+               TBTI.ORIGIN_ACC_NUMBER     TBTI_ORIGIN_ACC_NUMBER,
+               TBTIC.ID                   TBTIC_ID,
+               TBTIC.TRATE_ITEM_ID        TBTIC_TRATE_ITEM_ID,
+               TBTIC.CARGO_CODE           TBTIC_CARGO_CODE,
+               TBTIC.CARGO_NAME           TBTIC_CARGO_NAME,
+               TBTID.ID                   TBTID_ID,
+               TBTID.TRATE_ITEM_ID        TBTID_TRATE_ITEM_ID,
+               TBTID.BEGIN_TON            TBTID_BEGIN_TON,
+               TBTID.END_TON              TBTID_END_TON,
+               TBTID.RATE                 TBTID_RATE
+        FROM T_BUS_TRATE TBT
+                 JOIN T_BUS_TRATE_CONTRACT TBT_CONTRACT ON TBT.ID = TBT_CONTRACT.TRATE_ID
+                 JOIN T_BUS_TRATE_CUSTOMER TBT_CUSTOMER ON TBT.ID = TBT_CUSTOMER.TRATE_ID
+                 JOIN T_BUS_TRATE_ITEM TBTI ON TBT.ID = TBTI.TRATE_ID
+                 JOIN T_BUS_TRATE_ITEM_CARGO TBTIC ON TBTI.ID = TBTIC.TRATE_ITEM_ID
+                 LEFT JOIN T_BUS_TRATE_ITEM_DETAIL TBTID ON TBTI.ID = TBTID.TRATE_ITEM_ID
+        WHERE TBT.STATUS = '20'
+          AND TBT_CONTRACT.CONTRACT_NO = #{contractNo,jdbcType=VARCHAR}
+          AND TBT_CUSTOMER.CUSTOMER_ID = #{customerId,jdbcType=BIGINT}
+          AND TBT.START_TIME &lt;= #{startTime,jdbcType=TIMESTAMP}
+          AND TBT.END_TIME >= #{endTime,jdbcType=TIMESTAMP}
+          AND TBTIC.CARGO_CODE = #{cargoCode,jdbcType=VARCHAR}
+    </select>
+
+    <select id="listContractRate" resultType="com.yy.ppm.business.bean.po.TBusContractRatePO">
+        SELECT ID,
+               CONTRACT_ID,
+               CARGO_CODE,
+               CARGO_NAME,
+               RATE_ITEM_CODE,
+               RATE_ITEM_NAME,
+               TRADE_TYPE,
+               SERVICE_CONTENT_ID,
+               SERVICE_CONTENT_NAME,
+               PAYMENT_TYPE_CODE,
+               PAYMENT_TYPE_NAME,
+               PAYMENT_DAYS,
+               RATE,
+               TAX,
+               UNIT_CODE,
+               UNIT_NAME,
+               CREATE_BY,
+               CREATE_BY_NAME,
+               CREATE_TIME,
+               UPDATE_BY,
+               UPDATE_BY_NAME,
+               UPDATE_TIME,
+               TYPE,
+               RATE_ID,
+               FREE_STORAGE_DAYS,
+               TRATE_ITEM_ID,
+               TRATE_ID,
+               PROCESS_CODE,
+               PROCESS_NAME
+        FROM T_BUS_CONTRACT_RATE
+        WHERE CONTRACT_ID = #{contractId,jdbcType=BIGINT}
+    </select>
+</mapper>
+

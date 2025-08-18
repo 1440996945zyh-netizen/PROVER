@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.produce.mapper.TPrdOddWorkPlanDetailMapper">
+
+    <sql id="commonList">
+            ID,
+            ODD_PLAN_ID,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME,
+            REPORT_START_TIME,
+            REPORT_END_TIME,
+            DURATION,
+            REMARK,
+            HOUR_METER_START,
+            HOUR_METER_END
+    </sql>
+    <select id="getList" resultType="com.yy.ppm.produce.bean.po.TPrdOddWorkPlanDetailPO">
+        SELECT
+        <include refid="commonList"></include>
+        FROM T_PRD_ODD_WORK_PLAN_DETAIL
+        <where>
+            ODD_PLAN_ID = #{oddPlanId, jdbcType=BIGINT}
+        </where>
+        ORDER BY REPORT_START_TIME ASC
+    </select>
+    <!-- 新增 -->
+    <insert id="insert">
+        INSERT ALL
+        <foreach collection="detailList" item="entity">
+            INTO T_PRD_ODD_WORK_PLAN_DETAIL(
+                ID,
+                CREATE_BY,
+                CREATE_BY_NAME,
+                CREATE_TIME,
+                ODD_PLAN_ID,
+                REPORT_START_TIME,
+                REPORT_END_TIME,
+                DURATION,
+                REMARK,
+                HOUR_METER_START,
+                HOUR_METER_END
+            )
+            VALUES (
+                #{entity.id, jdbcType=BIGINT},
+                #{entity.loginUserId, jdbcType=BIGINT},
+                #{entity.loginUserName, jdbcType=VARCHAR},
+                #{entity.now},
+                #{entity.oddPlanId, jdbcType=BIGINT},
+                #{entity.reportStartTime},
+                #{entity.reportEndTime},
+                #{entity.duration, jdbcType=DECIMAL},
+                #{entity.remark, jdbcType=VARCHAR},
+                #{entity.hourMeterStart, jdbcType=DECIMAL},
+                #{entity.hourMeterEnd, jdbcType=DECIMAL}
+            )
+        </foreach>
+        SELECT 1 FROM DUAL
+    </insert>
+
+    <delete id="deleteByOddPlanId" parameterType="Long">
+        DELETE FROM T_PRD_ODD_WORK_PLAN_DETAIL WHERE ODD_PLAN_ID = #{oddPlanId}
+    </delete>
+
+    <select id="getReportDuration" resultType="com.yy.ppm.produce.bean.dto.TPrdOddDetailResultDTO">
+        SELECT
+            ODD_PLAN_ID,
+            LISTAGG(TO_CHAR(REPORT_START_TIME,'FMMM"月"DD"日"')
+            ||TO_CHAR(REPORT_START_TIME,'HH24:MI')||'-'
+            ||TO_CHAR(REPORT_END_TIME,'FMMM"月"DD"日"')
+            ||TO_CHAR(REPORT_END_TIME,'HH24:MI'),', ')
+            WITHIN GROUP (ORDER BY REPORT_START_TIME) REPORT_TIME
+        FROM
+        T_PRD_ODD_WORK_PLAN_DETAIL
+        <where>
+            ODD_PLAN_ID IN
+            <foreach collection="oddPlanIds" item="id" open="(" close=")" separator=",">
+                #{id,jdbcType=BIGINT}
+            </foreach>
+        </where>
+        GROUP BY
+        ODD_PLAN_ID
+    </select>
+
+</mapper>

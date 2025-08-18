@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.dispatch.mapper.TBusTrustLocationMapper">
+
+    <sql id="commonList">
+        SELECT ID,
+               TRUST_ID,
+               STOREHOUSE_ID,
+               STOREHOUSE_NAME,
+               REGION_ID,
+               REGION_NAME,
+               CREATE_BY,
+               CREATE_BY_NAME,
+               CREATE_TIME,
+               UPDATE_BY,
+               UPDATE_BY_NAME,
+               UPDATE_TIME
+        FROM T_BUS_TRUST_LOCATION
+    </sql>
+    <sql id="condition">
+        <where>
+            <if test="id != null">
+                and ID = #{id}
+            </if>
+            <if test="trustId != null">
+                and TRUST_ID = #{trustId}
+            </if>
+            <if test="storehouseId != null">
+                and STOREHOUSE_ID = #{storehouseId}
+            </if>
+            <if test="storehouseName != null">
+                and STOREHOUSE_NAME = #{storehouseName}
+            </if>
+            <if test="regionId != null">
+                and REGION_ID = #{regionId}
+            </if>
+            <if test="regionName != null">
+                and REGION_NAME = #{regionName}
+            </if>
+        </where>
+    </sql>
+
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getPageList" resultType="com.yy.ppm.dispatch.bean.dto.TBusTrustLocationDTO"
+            parameterType="com.yy.ppm.dispatch.bean.dto.TBusTrustLocationSearchDTO">
+        <include refid="commonList"></include>
+        <include refid="condition"></include>
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getListByTrustIds" resultType="com.yy.ppm.dispatch.bean.dto.TBusTrustLocationDTO">
+        <include refid="commonList"></include>
+        <where>
+            AND EXISTS  (
+                select * from (
+                <foreach collection="trustIds" separator="union all " item="trustId" >
+                    select #{trustId, jdbcType=BIGINT} as TMPID
+                    from dual
+                </foreach>
+                ) a where a.TMPID =  TRUST_ID
+            )
+        </where>
+    </select>
+
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.dispatch.bean.dto.TBusTrustLocationDTO"
+            parameterType="com.yy.ppm.dispatch.bean.dto.TBusTrustLocationSearchDTO">
+        <include refid="commonList"></include>
+        <include refid="condition"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.dispatch.bean.dto.TBusTrustLocationDTO" parameterType="java.lang.Long">
+        <include refid="commonList"></include>
+        <where>
+            id = #{id}
+        </where>
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.dispatch.bean.dto.TBusTrustLocationDTO">
+        INSERT INTO T_BUS_TRUST_LOCATION(ID,
+                                         TRUST_ID,
+                                         STOREHOUSE_ID,
+                                         STOREHOUSE_NAME,
+                                         REGION_ID,
+                                         REGION_NAME,
+                                         CREATE_BY,
+                                         CREATE_BY_NAME,
+                                         CREATE_TIME)
+        VALUES (#{id, jdbcType=VARCHAR},
+                #{trustId, jdbcType=VARCHAR},
+                #{storehouseId, jdbcType=VARCHAR},
+                #{storehouseName, jdbcType=VARCHAR},
+                #{regionId, jdbcType=VARCHAR},
+                #{regionName, jdbcType=VARCHAR},
+                #{loginUserId, jdbcType=BIGINT},
+                #{loginUserName, jdbcType=VARCHAR},
+                #{now})
+    </insert>
+
+
+    <!-- 获取指派位置所属区域 -->
+    <select id="getWorkArea" resultType="com.yy.ppm.master.bean.po.MDictDataPO" parameterType="com.yy.ppm.dispatch.bean.po.TBusTrustLocationPO">
+        SELECT
+            t1.DICT_VALUE,
+            t1.DICT_LABEL
+        FROM
+            M_STORAGE_YARD t
+        LEFT JOIN M_DICT_DATA t1 ON t.WORK_AREA_CD = t1.DICT_VALUE
+            AND t1.DICT_TYPE = 'WORK_AREA'
+        WHERE
+            t.STORAGE_YARD_LEVEL = 2
+            AND t.ID IN
+        <foreach collection="tBusTrustLocationPOS" close=")" item="item" open="(" separator=", ">
+            #{item.regionId, jdbcType=VARCHAR}
+        </foreach>
+        GROUP BY
+            t1.DICT_VALUE,
+            t1.DICT_LABEL
+    </select>
+
+    <!-- 批量新增 -->
+    <insert id="insertList" parameterType="com.yy.ppm.dispatch.bean.po.TBusTrustLocationPO">
+        begin
+        <foreach collection="tBusTrustLocationPOS" item="item" separator="  ">
+            INSERT INTO T_BUS_TRUST_LOCATION(
+            ID,
+            TRUST_ID,
+            STOREHOUSE_ID,
+            STOREHOUSE_NAME,
+            REGION_ID,
+            REGION_NAME,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+            )VALUES (
+            #{item.id, jdbcType=VARCHAR},
+            #{item.trustId, jdbcType=VARCHAR},
+            #{item.storehouseId, jdbcType=VARCHAR},
+            #{item.storehouseName, jdbcType=VARCHAR},
+            #{item.regionId, jdbcType=VARCHAR},
+            #{item.regionName, jdbcType=VARCHAR},
+            #{item.loginUserId, jdbcType=BIGINT},
+            #{item.loginUserName, jdbcType=VARCHAR},
+            #{item.now}
+            );
+        </foreach>
+        end;
+    </insert>
+
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.dispatch.bean.dto.TBusTrustLocationDTO">
+        UPDATE
+        T_BUS_TRUST_LOCATION
+        <set>
+            <if test="id != null">
+                ID = #{id,jdbcType=VARCHAR},
+            </if>
+            <if test="trustId != null">
+                TRUST_ID = #{trustId,jdbcType=VARCHAR},
+            </if>
+            <if test="storehouseId != null">
+                STOREHOUSE_ID = #{storehouseId,jdbcType=VARCHAR},
+            </if>
+            <if test="storehouseName != null">
+                STOREHOUSE_NAME = #{storehouseName,jdbcType=VARCHAR},
+            </if>
+            <if test="regionId != null">
+                REGION_ID = #{regionId,jdbcType=VARCHAR},
+            </if>
+            <if test="regionName != null">
+                REGION_NAME = #{regionName,jdbcType=VARCHAR},
+            </if>
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now}
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 批量修改 -->
+    <update id="updateListById" parameterType="com.yy.ppm.dispatch.bean.dto.TBusTrustLocationDTO">
+        begin
+        <foreach collection="tBusTrustLocationDTOS" item="item" separator=" ">
+            UPDATE
+            T_BUS_TRUST_LOCATION
+            SET
+            <if test="id != null">
+                ID = #{id,jdbcType=VARCHAR},
+            </if>
+            <if test="trustId != null">
+                TRUST_ID = #{trustId,jdbcType=VARCHAR},
+            </if>
+            <if test="storehouseId != null">
+                STOREHOUSE_ID = #{storehouseId,jdbcType=VARCHAR},
+            </if>
+            <if test="storehouseName != null">
+                STOREHOUSE_NAME = #{storehouseName,jdbcType=VARCHAR},
+            </if>
+            <if test="regionId != null">
+                REGION_ID = #{regionId,jdbcType=VARCHAR},
+            </if>
+            <if test="regionName != null">
+                REGION_NAME = #{regionName,jdbcType=VARCHAR},
+            </if>
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now}
+            <where>
+                id = #{id};
+            </where>
+        </foreach>
+        end;
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE
+        FROM T_BUS_TRUST_LOCATION
+        WHERE id = #{id}
+    </delete>
+
+    <!-- 批量删除 -->
+    <delete id="deleteListByIds" parameterType="java.lang.Long">
+        DELETE FROM
+        T_BUS_TRUST_LOCATION
+        WHERE
+        ID IN (
+        <foreach collection="ids" item="id" index="index" separator=",">
+            #{id}
+        </foreach>
+        )
+    </delete>
+
+    <!-- 批量删除 -->
+    <delete id="deleteByCondition" parameterType="com.yy.ppm.dispatch.bean.dto.TBusTrustLocationDTO">
+        DELETE FROM
+        T_BUS_TRUST_LOCATION
+        <include refid="condition"></include>
+    </delete>
+
+    <select id = "getBusinessNo" resultType="string" parameterType="java.lang.Long">
+        SELECT
+            BUSINESS_NO
+        FROM
+            T_BUS_TRUST_CARGO
+        WHERE
+            TRUST_ID = #{trustId}
+    </select>
+
+    <!-- 批量修改集疏港计划作业位置界面 -->
+    <update id="writeSimeautoLocation">
+        UPDATE t_tradeplan
+        SET port = #{workArea.dictValue},
+            portName = #{workArea.dictLabel}
+        WHERE
+            planCode IN(
+        <foreach collection="businessNoList" item="businessNo" index="index" separator=",">
+            #{businessNo}
+        </foreach>)
+    </update>
+
+    <select id="getMassIdsWithTrustId" parameterType="com.yy.ppm.dispatch.bean.dto.TBusTrustLocationDTO"
+            resultType="java.util.HashMap">
+        SELECT
+            CONCAT(
+                    CONCAT(M3.STORAGE_YARD_NM, '/'),
+                    M2.STORAGE_YARD_NM
+            ) as "label",
+            CONCAT(
+                    CONCAT(M3.STORAGE_YARD_NM, '/'),
+                    M2.STORAGE_YARD_NM
+            ) as "massNameFull",
+            M2.ID as "value",
+            M3.ID as "storehouseId",
+            M3.STORAGE_YARD_NM as "storehouseName",
+            M2.ID as "regionId",
+            M2.STORAGE_YARD_NM as "regionName"
+        FROM
+            M_STORAGE_YARD M2,
+            M_STORAGE_YARD M3
+        WHERE
+            M2.STORAGE_YARD_LEVEL = '2'
+          AND M2.PARENT_ID = M3.ID
+          AND M3.STORAGE_YARD_LEVEL = '1'
+          AND M2.ID in(
+            select distinct REGION_ID
+            from T_PRD_PORT_STORAGE where   CLEAN_MASS_SIGN = '0'
+                                             and CARGO_INFO_ID in (select T_BUS_TRUST_CARGO.CARGO_INFO_ID
+                                                                   from T_BUS_TRUST_CARGO where TRUST_ID =#{trustId,jdbcType=BIGINT}
+                )
+            )
+
+    </select>
+</mapper>
+

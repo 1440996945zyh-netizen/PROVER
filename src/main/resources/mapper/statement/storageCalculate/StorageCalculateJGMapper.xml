@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.statement.mapper.storageCalculate.StorageCalculateJGMapper">
+
+    <select id="listJGWeightInfo" resultType="com.yy.ppm.statement.bean.po.VWeightInfoPO">
+        SELECT TEMP2.WEIGH_OUT_DT,
+               TEMP2.WEIGHT_GOODS
+        FROM T_BUS_CARGO_INFO TBCI
+                 JOIN (SELECT TEMP.CARGO_INFO_ID, VWI.WEIGH_OUT_DT, VWI.WEIGHT_GOODS
+                       FROM (SELECT TBTC.BUSINESS_NO, TBTC.CARGO_INFO_ID
+                             FROM T_BUS_TRUST_CARGO TBTC
+                                      JOIN T_BUS_TRUST TBT
+                                           ON TBTC.TRUST_ID = TBT.ID
+                                               AND TBT.TYPE IN ('集港', '拆箱集港')) TEMP
+                                JOIN V_WEIGHT_INFO VWI
+                                     ON VWI.IS_OLD = '否' AND TEMP.BUSINESS_NO = VWI.PLAN_NO
+                       UNION ALL
+                       SELECT TO_NUMBER(VWI2.CARGO_INFO_ID), VWI2.WEIGH_OUT_DT, VWI2.WEIGHT_GOODS
+                       FROM V_WEIGHT_INFO VWI2
+                       WHERE VWI2.IS_OLD = '是'
+                         AND VWI2.PLAN_TYPE IN ('集港', '拆箱集港')) TEMP2 ON TBCI.ID = TEMP2.CARGO_INFO_ID
+        WHERE TBCI.ID = #{cargoInfoId,jdbcType=BIGINT}
+    </select>
+
+    <select id="listZCHandoverlist" resultType="com.yy.ppm.statement.bean.po.TBusHandoverlistPO">
+        SELECT ID,
+               TYPE,
+               CARGO_INFO_ID,
+               TRUST_ID,
+               TRUST_CARGO_ID,
+               SHIPVOYAGE_ID,
+               SHIPVOYAGE_ITEM_ID,
+               SHIP_NAME,
+               TRADE_TYPE,
+               LOAD_UNLOAD,
+               CARGO_OWNER_ID,
+               CARGO_OWNER_NAME,
+               CARGO_AGENT_ID,
+               CARGO_AGENT_NAME,
+               CARGO_CODE,
+               CARGO_NAME,
+               QUANTITY,
+               TON,
+               TICKET_NUM,
+               STATEMENT_STATUS_CODE,
+               STATEMENT_STATUS_NAME,
+               REMARK,
+               CREATE_BY,
+               CREATE_BY_NAME,
+               CREATE_TIME,
+               UPDATE_BY,
+               UPDATE_BY_NAME,
+               UPDATE_TIME,
+               VOYAGE,
+               CONTRACT_ITEM_ID,
+               CONTRACT_CODE,
+               PRE_WEIGHT,
+               VOLUME_TON
+        FROM T_BUS_HANDOVERLIST
+        WHERE TYPE = '1'
+          AND LOAD_UNLOAD = '装'
+          AND CARGO_INFO_ID = #{cargoInfoId,jdbcType=BIGINT}
+    </select>
+
+    <select id="listShipvoyageItem" resultType="com.yy.ppm.dispatch.bean.po.TDisShipvoyageItemPO">
+        SELECT TDSI.ID,
+               TDSI.SHIPVOYAGE_ID,
+               TDSI.IMP_EXP,
+               TDSI.TRADE_TYPE,
+               TDSI.LOAD_UNLOAD,
+               TDSI.VOYAGE,
+               TDSI.COMPANY_ID,
+               TDSI.COMPANY_NAME,
+               TDSI.CARGO_CATEGORY_CODE,
+               TDSI.CARGO_CATEGORY_NAME,
+               TDSI.CARGO_NUM,
+               TDSI.CUSTOMER_ID,
+               TDSI.CUSTOMER_NAME,
+               TDSI.CONTACTS,
+               TDSI.SHIP_PHONE,
+               TDSI.PAYMENT_AMOUNT,
+               TDSI.REMARK,
+               TDSI.CREATE_BY,
+               TDSI.CREATE_BY_NAME,
+               TDSI.CREATE_TIME,
+               TDSI.UPDATE_BY,
+               TDSI.UPDATE_BY_NAME,
+               TDSI.UPDATE_TIME,
+               TDSI.SHIP_STATUS_CODE,
+               TDSI.SHIP_STATUS_NAME,
+               TDSI.WORK_START_TIME,
+               TDSI.WORK_END_TIME,
+               TDSI.BO_HAI_TONG_ID,
+               TDSI.PRE_CHANGE_SHIP_NAME,
+               TDSI.PRE_CHANGE_SHIP_NO,
+               TDSI.CUSTOMER_ID_NEW,
+               TDSI.ID,
+               TDSI.SHIPVOYAGE_ID,
+               TDSI.IMP_EXP,
+               TDSI.TRADE_TYPE,
+               TDSI.LOAD_UNLOAD,
+               TDSI.VOYAGE,
+               TDSI.COMPANY_ID,
+               TDSI.COMPANY_NAME,
+               TDSI.CARGO_CATEGORY_CODE,
+               TDSI.CARGO_CATEGORY_NAME,
+               TDSI.CARGO_NUM,
+               TDSI.CUSTOMER_ID,
+               TDSI.CUSTOMER_NAME,
+               TDSI.CONTACTS,
+               TDSI.SHIP_PHONE,
+               TDSI.PAYMENT_AMOUNT,
+               TDSI.REMARK,
+               TDSI.CREATE_BY,
+               TDSI.CREATE_BY_NAME,
+               TDSI.CREATE_TIME,
+               TDSI.UPDATE_BY,
+               TDSI.UPDATE_BY_NAME,
+               TDSI.UPDATE_TIME,
+               TDSI.SHIP_STATUS_CODE,
+               TDSI.SHIP_STATUS_NAME,
+               TDSI.WORK_START_TIME,
+               TDSI.WORK_END_TIME,
+               TDSI.BO_HAI_TONG_ID,
+               TDSI.PRE_CHANGE_SHIP_NAME,
+               TDSI.PRE_CHANGE_SHIP_NO,
+               TDSI.CUSTOMER_ID_NEW
+        FROM T_BUS_CARGO_INFO TBCI
+                JOIN T_BUS_TRUST_CARGO TBTC ON TBCI.ID = TBTC.CARGO_INFO_ID
+                JOIN T_BUS_TRUST TBT ON TBT.TYPE = '装船' AND TBTC.TRUST_ID = TBT.ID
+                JOIN T_DIS_SHIPVOYAGE_ITEM TDSI ON TBT.SHIPVOYAGE_ITEM_ID = TDSI.ID
+        WHERE TBCI.ID = #{cargoInfoId, jdbcType=BIGINT}
+    </select>
+
+    <select id="listSGWeightInfo" resultType="com.yy.ppm.statement.bean.po.VWeightInfoPO">
+        SELECT TEMP2.WEIGH_OUT_DT,
+               TEMP2.WEIGHT_GOODS
+        FROM T_BUS_CARGO_INFO TBCI
+                 JOIN (SELECT TEMP.CARGO_INFO_ID, VWI.WEIGH_OUT_DT, VWI.WEIGHT_GOODS
+                       FROM (SELECT TBTC.BUSINESS_NO, TBTC.CARGO_INFO_ID
+                             FROM T_BUS_TRUST_CARGO TBTC
+                                      JOIN T_BUS_TRUST TBT
+                                           ON TBTC.TRUST_ID = TBT.ID
+                                               AND TBT.TYPE = '陆销') TEMP
+                                JOIN V_WEIGHT_INFO VWI
+                                     ON VWI.IS_OLD = '否' AND TEMP.BUSINESS_NO = VWI.PLAN_NO
+                       UNION ALL
+                       SELECT TO_NUMBER(VWI2.CARGO_INFO_ID), VWI2.WEIGH_OUT_DT, VWI2.WEIGHT_GOODS
+                       FROM V_WEIGHT_INFO VWI2
+                       WHERE VWI2.IS_OLD = '是' AND VWI2.PLAN_TYPE = '陆销') TEMP2 ON TBCI.ID = TEMP2.CARGO_INFO_ID
+        WHERE TBCI.ID = #{cargoInfoId,jdbcType=BIGINT}
+    </select>
+</mapper>

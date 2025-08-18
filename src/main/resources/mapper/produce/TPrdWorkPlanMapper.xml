@@ -1,0 +1,1969 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.produce.mapper.TPrdWorkPlanMapper">
+
+
+    <resultMap id="workPlanList" type="com.yy.ppm.produce.bean.dto.TPrdWorkPlanDTO">
+
+        <result property="id" column="ID" jdbcType="BIGINT"/>
+        <result property="companyId" column="COMPANY_ID" jdbcType="BIGINT"/>
+        <result property="companyName" column="COMPANY_NAME" jdbcType="VARCHAR"/>
+        <result property="workDate" column="WORK_DATE" jdbcType="DATE"/>
+        <result property="classCode" column="CLASS_CODE" jdbcType="VARCHAR"/>
+        <result property="className" column="CLASS_NAME" jdbcType="VARCHAR"/>
+        <result property="trustId" column="TRUST_ID" jdbcType="BIGINT"/>
+        <result property="trustNo" column="TRUST_NO" jdbcType="VARCHAR"/>
+        <result property="shipvoyageId" column="SHIPVOYAGE_ID" jdbcType="BIGINT"/>
+        <result property="shipvoyageItemId" column="SHIPVOYAGE_ITEM_ID" jdbcType="BIGINT"/>
+        <result property="shipvoyageLabel" column="SHIPVOYAGE_LABEL" jdbcType="VARCHAR"/>
+        <result property="shipVoyage" column="SHIP_VOYAGE" jdbcType="VARCHAR"/>
+        <result property="isSigned" column="IS_SIGNED" jdbcType="VARCHAR"/>
+        <result property="shipName" column="SHIP_NAME" jdbcType="VARCHAR"/>
+        <result property="voyage" column="VOYAGE" jdbcType="VARCHAR"/>
+        <result property="hatch" column="HATCH" jdbcType="VARCHAR"/>
+        <result property="planNo" column="PLAN_NO" jdbcType="VARCHAR"/>
+        <result property="planType" column="PLAN_TYPE" jdbcType="VARCHAR"/>
+        <result property="processCode" column="PROCESS_CODE" jdbcType="VARCHAR"/>
+        <result property="processName" column="PROCESS_NAME" jdbcType="VARCHAR"/>
+        <result property="workContent" column="WORK_CONTENT" jdbcType="VARCHAR"/>
+        <result property="deptId" column="DEPT_ID" jdbcType="VARCHAR"/>
+        <result property="deptName" column="DEPT_NAME" jdbcType="VARCHAR"/>
+        <result property="quantityPlan" column="QUANTITY_PLAN" jdbcType="BIGINT"/>
+        <result property="tonPlan" column="TON_PLAN" jdbcType="DECIMAL"/>
+        <result property="startTimePlan" column="START_TIME_PLAN" jdbcType="DATE"/>
+        <result property="endTimePlan" column="END_TIME_PLAN" jdbcType="DATE"/>
+        <result property="startWorkTime" column="START_WORK_TIME" jdbcType="DATE"/>
+        <result property="endWorkTime" column="END_WORK_TIME" jdbcType="DATE"/>
+        <result property="remark" column="REMARK" jdbcType="VARCHAR"/>
+        <result property="status" column="STATUS" jdbcType="VARCHAR"/>
+        <result property="statusLabel" column="STATUS_LABEL" jdbcType="VARCHAR"/>
+        <result property="berthId" column="BERTH_ID" jdbcType="BIGINT"/>
+        <result property="berthName" column="BERTH_NAME" jdbcType="VARCHAR"/>
+        <result property="frontTallyBy" column="FRONT_TALLY_BY" jdbcType="VARCHAR"/>
+        <result property="frontTallyByName" column="FRONT_TALLY_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="backTallyBy" column="BACK_TALLY_BY" jdbcType="VARCHAR"/>
+        <result property="backTallyByName" column="BACK_TALLY_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="dispatchBy" column="DISPATCH_BY" jdbcType="VARCHAR"/>
+        <result property="dispatchByName" column="DISPATCH_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="createBy" column="CREATE_BY" jdbcType="BIGINT"/>
+        <result property="createByName" column="CREATE_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="DATE"/>
+        <result property="updateBy" column="UPDATE_BY" jdbcType="BIGINT"/>
+        <result property="updateByName" column="UPDATE_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="updateTime" column="UPDATE_TIME" jdbcType="DATE"/>
+        <result property="examineBy" column="EXAMINE_BY" jdbcType="BIGINT"/>
+        <result property="examineByName" column="EXAMINE_BY_NAME" jdbcType="BIGINT"/>
+        <result property="examineTime" column="EXAMINE_TIME" jdbcType="VARCHAR"/>
+        <result property="reshipmentTypeCode" column="RESHIPMENT_TYPE_CODE" jdbcType="VARCHAR"/>
+        <result property="reshipmentTypeLabel" column="RESHIPMENT_TYPE_Label" jdbcType="VARCHAR"/>
+        <result property="busCargoInfoId" column="BUS_CARGO_INFO_ID" jdbcType="BIGINT"/>
+        <result property="hatchNum" column="HATCH_NUM" jdbcType="INTEGER"/>
+        <result property="loadUnload" column="LOAD_UNLOAD" jdbcType="VARCHAR"/>
+        <result property="portName" column="PORT_NAME" jdbcType="VARCHAR"/>
+        <result property="portCode" column="PORT_CODE" jdbcType="VARCHAR"/>
+        <result property="packingCode" column="PACKING_CODE" jdbcType="VARCHAR"/>
+       <!-- <collection property="statementStatusList" ofType="String">
+            <result column="STATEMENT_STATUS_CODE" jdbcType="VARCHAR"/>
+        </collection>-->
+    </resultMap>
+
+
+    <sql id="commonList">
+        SELECT
+        T1.ID,
+        T1.COMPANY_ID,
+        T1.COMPANY_NAME,
+        T1.WORK_DATE,
+        T1.CLASS_CODE,
+        T1.CLASS_NAME,
+        T1.TRUST_ID,
+        T1.SHIPVOYAGE_ID,
+        T1.SHIPVOYAGE_ITEM_ID,
+        CASE WHEN T1.SHIPVOYAGE_ID IS NULL THEN null
+        ELSE
+        CONCAT(CONCAT(T3.SHIP_NAME, '_') , T4.VOYAGE)
+        END SHIPVOYAGE_LABEL,
+        T3.SHIP_NAME,
+        T1.HATCH,
+        T1.PLAN_NO,
+        T1.PROCESS_CODE,
+        T1.PROCESS_NAME,
+        T1.WORK_CONTENT,
+        T1.DEPT_ID,
+        T1.DEPT_NAME,
+        T1.QUANTITY_PLAN,
+        T1.TON_PLAN,
+        T1.START_TIME_PLAN,
+        T1.END_TIME_PLAN,
+        T1.START_WORK_TIME,
+        T1.END_WORK_TIME,
+        T1.REMARK,
+        T1.STATUS,
+        M1.NM AS STATUS_LABEL,
+        T1.BERTH_ID,
+        T1.BERTH_NAME,
+        T1.FRONT_TALLY_BY,
+        T1.FRONT_TALLY_BY_NAME,
+        T1.BACK_TALLY_BY,
+        T1.BACK_TALLY_BY_NAME,
+        T1.DISPATCH_BY,
+        T1.DISPATCH_BY_NAME,
+        T1.CREATE_BY,
+        T1.CREATE_BY_NAME,
+        T1.CREATE_TIME,
+        T1.UPDATE_BY,
+        T1.UPDATE_BY_NAME,
+        T1.UPDATE_TIME,
+        T1.EXAMINE_BY,
+        T1.EXAMINE_BY_NAME,
+        T1.EXAMINE_TIME,
+        T1.EQUIPMENT_NAMES_FRONT,
+        T1.EQUIPMENT_NAMES_BACK,
+        T1.EQUIPMENT_NAMES_ASSIST,
+        T1.EQUIPMENT_NAMES_RESHIPMENT,
+        T1.MASS_NAMES_SOURCE,
+        T1.MASS_NAMES_TARGET,
+        T1.RESHIPMENT_TYPE_CODE,
+        M2.NM AS RESHIPMENT_TYPE_Label,
+        T1.BUS_CARGO_INFO_ID,
+        T4.CARGO_CATEGORY_CODE,
+        T4.CARGO_CATEGORY_NAME,
+        T2.NUM AS LABOR_NUM,
+        T1.HATCH,
+        T4.LOAD_UNLOAD,
+        t4.CUSTOMER_NAME,
+        T5.SETTLEMENT_BASIS_NAME,
+        T6.CARGO_OWNER_NAME,
+        T7.CARGO_AGENT_NAME,
+        T8.CARGO_NAME,
+        CASE WHEN T1.PROCESS_CODE IS NULL THEN TO_CHAR(T1.PLAN_TYPE) ELSE TO_CHAR((SELECT PLAN_TYPE_CD FROM M_WORK_PROCESS m0 WHERE T1.PROCESS_CODE = m0.PROCESS_CD ))  END PLAN_TYPE
+
+        FROM
+        T_PRD_WORK_PLAN T1 LEFT JOIN T_PRD_DISPATCH T2 ON T1.ID = T2.WORK_PLAN_ID AND T2.DISPATCH_TYPE = '2'
+        LEFT JOIN m_constants M1 ON T1.STATUS = M1.CD AND M1.TYPE_CD = 'WORK_PLAN_STATUS'
+        LEFT JOIN m_constants M2 ON T1.RESHIPMENT_TYPE_CODE = M2.CD AND M2.TYPE_CD = 'RESHIPMENT_TYPE'
+        LEFT JOIN T_DIS_SHIPVOYAGE T3 ON T1.SHIPVOYAGE_ID = T3.ID
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM T4 ON T4.ID = T1.SHIPVOYAGE_ITEM_ID
+        LEFT JOIN T_BUS_TRUST T5 ON T1.TRUST_ID = T5.ID
+        LEFT JOIN (
+        SELECT
+        REGEXP_REPLACE( LISTAGG ( TO_CHAR( CARGO_OWNER_NAME ), ',' ) WITHIN GROUP ( ORDER BY CARGO_OWNER_NAME ),
+        '([^,]+)(,\1)+', '\1' ) CARGO_OWNER_NAME,TRUST_ID,
+        REGEXP_REPLACE( LISTAGG ( TO_CHAR( CARGO_OWNER_ID ), ',' ) WITHIN GROUP ( ORDER BY CARGO_OWNER_ID ),
+        '([^,]+)(,\1)+', '\1' ) CARGO_OWNER_ID
+        FROM  T_BUS_TRUST_CARGO  GROUP BY TRUST_ID ) T6 ON T5.ID = T6.TRUST_ID
+        LEFT JOIN (
+        SELECT
+        REGEXP_REPLACE( LISTAGG ( TO_CHAR( CARGO_AGENT_NAME ), ',' ) WITHIN GROUP ( ORDER BY CARGO_AGENT_NAME ),
+        '([^,]+)(,\1)+', '\1' ) CARGO_AGENT_NAME,TRUST_ID
+        FROM  T_BUS_TRUST_CARGO GROUP BY TRUST_ID  ) T7 ON T5.ID = T7.TRUST_ID
+        LEFT JOIN (
+        SELECT
+        REGEXP_REPLACE( LISTAGG ( TO_CHAR( CARGO_NAME ), ',' ) WITHIN GROUP ( ORDER BY CARGO_NAME ), '([^,]+)(,\1)+',
+        '\1' ) CARGO_NAME,TRUST_ID
+        FROM T_BUS_TRUST_CARGO GROUP BY TRUST_ID ) T8 ON T5.ID = T8.TRUST_ID
+        <where>
+            <if test="planType != null and planType != ''">
+                AND PLAN_TYPE = #{planType}
+            </if>
+            <if test="workDate != null">
+                and T1.WORK_DATE = #{workDate}
+            </if>
+            <if test="classCode != null and classCode != ''">
+                and T1.CLASS_CODE = #{classCode}
+            </if>
+            <if test="status != null and status != ''">
+                and T1.STATUS = #{status}
+            </if>
+        </where>
+    </sql>
+
+
+    <!--通过实体作为筛选条件查询-->
+    <!--    船舶计划导入上班次-->
+    <!--    集疏港计划导入上班次-->
+    <select id="getWorkPlanList" resultMap="workPlanList" parameterType="com.yy.ppm.produce.bean.dto.TPrdWorkPlanSearchDTO">
+        SELECT  * FROM (
+        SELECT
+            T1.ID,
+            T1.COMPANY_ID,
+            T1.COMPANY_NAME,
+            T1.WORK_DATE,
+            T1.CLASS_CODE,
+            T1.CLASS_NAME,
+            T1.TRUST_ID,
+            T5.TRUST_NO,
+            T1.SHIPVOYAGE_ID,
+            T1.SHIPVOYAGE_ITEM_ID,
+            CASE WHEN T1.SHIPVOYAGE_ID IS NULL THEN null
+            ELSE
+            CONCAT(CONCAT(T3.SHIP_NAME, '_') , T4.VOYAGE)
+            END SHIPVOYAGE_LABEL,
+            CASE
+            WHEN T1.SHIPVOYAGE_ITEM_ID IS NULL THEN NULL
+            ELSE CONCAT(CONCAT(TDS.SHIP_NAME, '_') , T4.VOYAGE)
+            END "SHIP_VOYAGE",
+            T3.SHIP_NAME,
+            T4.VOYAGE,
+            T1.HATCH,
+            T1.PLAN_NO,
+            T1.PROCESS_CODE,
+            T1.PROCESS_NAME,
+            T1.WORK_CONTENT,
+            T1.DEPT_ID,
+            T1.DEPT_NAME,
+            T1.QUANTITY_PLAN,
+            T1.TON_PLAN,
+            T1.START_TIME_PLAN,
+            T1.END_TIME_PLAN,
+            T1.START_WORK_TIME,
+            T1.END_WORK_TIME,
+            T1.REMARK,
+            T1.STATUS,
+            M1.NM AS STATUS_LABEL,
+            T1.BERTH_ID,
+            T1.BERTH_NAME,
+            T1.FRONT_TALLY_BY,
+            T1.FRONT_TALLY_BY_NAME,
+            T1.BACK_TALLY_BY,
+            T1.BACK_TALLY_BY_NAME,
+            T1.DISPATCH_BY,
+            T1.DISPATCH_BY_NAME,
+            T1.CREATE_BY,
+            T1.CREATE_BY_NAME,
+            T1.CREATE_TIME,
+            T1.UPDATE_BY,
+            T1.UPDATE_BY_NAME,
+            T1.UPDATE_TIME,
+            T1.EXAMINE_BY,
+            T1.EXAMINE_BY_NAME,
+            T1.EXAMINE_TIME,
+            T1.RESHIPMENT_TYPE_CODE,
+            M2.NM AS RESHIPMENT_TYPE_Label,
+            T1.BUS_CARGO_INFO_ID,
+            T4.CARGO_CATEGORY_CODE,
+            T4.CARGO_CATEGORY_NAME,
+            NVL(M_SH.HATCH_NUM, 0) HATCH_NUM,
+            T4.LOAD_UNLOAD,
+            T5.PORT_CODE,
+            T5.PORT_NAME,
+            T8.PACKING_CODE,
+            T1.CARGO_CODE,
+            T1.CARGO_NAME,
+            T1.CARGO_OWNER_ID,
+            T1.CARGO_OWNER_NAME,
+            T1.CARGO_INFO_NO,
+            CASE WHEN T1.PROCESS_CODE IS NULL THEN TO_CHAR(T1.PLAN_TYPE) ELSE TO_CHAR((SELECT PLAN_TYPE_CD FROM M_WORK_PROCESS m0 WHERE T1.PROCESS_CODE = m0.PROCESS_CD ))  END PLAN_TYPE
+        FROM
+            T_PRD_WORK_PLAN T1
+            LEFT JOIN m_constants M1 ON T1.STATUS = M1.CD AND M1.TYPE_CD = 'WORK_PLAN_STATUS'
+            LEFT JOIN m_constants M2 ON T1.RESHIPMENT_TYPE_CODE = M2.CD AND M2.TYPE_CD = 'RESHIPMENT_TYPE'
+            LEFT JOIN T_DIS_SHIPVOYAGE T3 ON T1.SHIPVOYAGE_ID = T3.ID
+            LEFT JOIN T_DIS_SHIPVOYAGE_ITEM T4 ON T4.ID = T1.SHIPVOYAGE_ITEM_ID
+            LEFT JOIN T_DIS_SHIPVOYAGE TDS ON TDS.ID = T4.SHIPVOYAGE_ID
+            LEFT JOIN M_SHIP M_SH ON T3.SHIP_ID = M_SH.ID
+            LEFT JOIN T_BUS_TRUST T5 ON T1.TRUST_ID = T5.ID
+            LEFT JOIN (
+            select
+            REGEXP_REPLACE( LISTAGG ( TO_CHAR( PACKING_CODE ), ',' ) WITHIN GROUP ( ORDER BY PACKING_CODE ),'([^,]+)(,\1)+', '\1' ) PACKING_CODE
+            ,TRUST_ID
+            FROM T_BUS_TRUST_CARGO
+            GROUP BY TRUST_ID
+            ) T8 ON T5.ID = T8.TRUST_ID
+<!--            LEFT JOIN T_BUS_TRUST_CARGO TBTC ON TBTC.TRUST_ID = T5.ID
+            LEFT JOIN T_BUS_HANDOVERLIST TBH ON TBTC.CARGO_INFO_ID =TBH.CARGO_INFO_ID-->
+            <where>
+            <if test="workDate != null">
+                AND T1.WORK_DATE = #{workDate}
+            </if>
+            <if test="classCode != null and classCode != ''">
+                AND T1.CLASS_CODE = #{classCode}
+            </if>
+            <if test="trustId != null ">
+                AND T1.TRUST_ID = #{trustId,jdbcType=BIGINT}
+            </if>
+            <if test="trustNo != null and trustNo!='' ">
+                <bind name="trustNo_like" value="'%'+trustNo+'%'"/>
+                AND T5.TRUST_NO LIKE #{trustNo_like}
+            </if>
+            <if test="shipvoyageItemId != null and planType!=2 " >
+                AND T1.SHIPVOYAGE_ITEM_ID = #{shipvoyageItemId,jdbcType=BIGINT}
+            </if>
+            <if test="processCode != null and processCode != '' ">
+                AND T1.PROCESS_CODE = #{processCode,jdbcType=VARCHAR}
+            </if>
+            <if test="portCode != null and portCode != '' ">
+                AND T5.PORT_CODE = #{portCode,jdbcType=VARCHAR}
+            </if>
+            <!-- 复制、导入用 -->
+            <if test="ids != null">
+                <foreach collection="ids" open=" AND T1.ID IN (" separator="," item="id" close=")">
+                    #{id, jdbcType=VARCHAR}
+                </foreach>
+            </if>
+            <if test="packageCode != null and packageCode != ''">
+                <bind name="packageCode_like" value="'%'+packageCode+'%'"/>
+                AND T8.PACKING_CODE LIKE #{packageCode_like}
+            </if>
+        </where>
+        )
+        <where>
+            <if test="planType != null and planType != ''">
+                AND PLAN_TYPE = #{planType}
+            </if>
+            <if test="planType !=2 and shipName !=null and shipName !=''" >
+                <bind name="shipNameLike" value="'%' + shipName + '%'"/>
+                AND SHIP_NAME LIKE #{shipNameLike, jdbcType=VARCHAR}
+            </if>
+            <if test="planType !=2 and voyage!=null">
+                AND VOYAGE = #{voyage}
+            </if>
+        </where>
+        ORDER BY TRUST_NO ASC
+    </select>
+    <select id="getLgWorkPlanList" resultMap="workPlanList" parameterType="com.yy.ppm.produce.bean.dto.TPrdWorkPlanSearchDTO">
+        SELECT  * FROM (
+        SELECT
+            T1.ID,
+            T1.COMPANY_ID,
+            T1.COMPANY_NAME,
+            T1.WORK_DATE,
+            T1.CLASS_CODE,
+            T1.CLASS_NAME,
+            T1.TRUST_ID,
+            T5.TRUST_NO,
+            T1.SHIPVOYAGE_ID,
+            T1.SHIPVOYAGE_ITEM_ID,
+            CASE WHEN T1.SHIPVOYAGE_ID IS NULL THEN null
+            ELSE
+            CONCAT(CONCAT(T3.SHIP_NAME, '_') , T4.VOYAGE)
+            END SHIPVOYAGE_LABEL,
+            CASE
+            WHEN T1.SHIPVOYAGE_ITEM_ID IS NULL THEN NULL
+            ELSE CONCAT(CONCAT(TDS.SHIP_NAME, '_') , T4.VOYAGE)
+            END "SHIP_VOYAGE",
+            T3.SHIP_NAME,
+            T4.VOYAGE,
+            T1.HATCH,
+            T1.PLAN_NO,
+            T1.PROCESS_CODE,
+            T1.PROCESS_NAME,
+            T1.WORK_CONTENT,
+            T1.DEPT_ID,
+            T1.DEPT_NAME,
+            T1.QUANTITY_PLAN,
+            T1.TON_PLAN,
+            T1.START_TIME_PLAN,
+            T1.END_TIME_PLAN,
+            T1.START_WORK_TIME,
+            T1.END_WORK_TIME,
+            T1.REMARK,
+            T1.STATUS,
+            M1.NM AS STATUS_LABEL,
+            T1.BERTH_ID,
+            T1.BERTH_NAME,
+            T1.FRONT_TALLY_BY,
+            T1.FRONT_TALLY_BY_NAME,
+            T1.BACK_TALLY_BY,
+            T1.BACK_TALLY_BY_NAME,
+            T1.DISPATCH_BY,
+            T1.DISPATCH_BY_NAME,
+            T1.CREATE_BY,
+            T1.CREATE_BY_NAME,
+            T1.CREATE_TIME,
+            T1.UPDATE_BY,
+            T1.UPDATE_BY_NAME,
+            T1.UPDATE_TIME,
+            T1.EXAMINE_BY,
+            T1.EXAMINE_BY_NAME,
+            T1.EXAMINE_TIME,
+            T1.RESHIPMENT_TYPE_CODE,
+            M2.NM AS RESHIPMENT_TYPE_Label,
+            T1.BUS_CARGO_INFO_ID,
+            T4.CARGO_CATEGORY_CODE,
+            T4.CARGO_CATEGORY_NAME,
+            NVL(M1.HATCH_NUM, 0) HATCH_NUM,
+            T4.LOAD_UNLOAD,
+            T5.PORT_CODE,
+            T5.PORT_NAME,
+            T8.PACKING_CODE,
+            T1.CARGO_CODE,
+            T1.CARGO_NAME,
+            T1.CARGO_OWNER_ID,
+            T1.CARGO_OWNER_NAME,
+            CASE WHEN  TICKET_COUNT > 0 THEN '已签票' ELSE '待签票' END IS_SIGNED,
+            CASE WHEN T1.PROCESS_CODE IS NULL THEN TO_CHAR(T1.PLAN_TYPE) ELSE TO_CHAR((SELECT PLAN_TYPE_CD FROM M_WORK_PROCESS m0 WHERE T1.PROCESS_CODE = m0.PROCESS_CD ))  END PLAN_TYPE
+        FROM
+            T_PRD_WORK_PLAN T1
+            LEFT JOIN m_constants M1 ON T1.STATUS = M1.CD AND M1.TYPE_CD = 'WORK_PLAN_STATUS'
+            LEFT JOIN m_constants M2 ON T1.RESHIPMENT_TYPE_CODE = M2.CD AND M2.TYPE_CD = 'RESHIPMENT_TYPE'
+            LEFT JOIN T_DIS_SHIPVOYAGE T3 ON T1.SHIPVOYAGE_ID = T3.ID
+            LEFT JOIN T_DIS_SHIPVOYAGE_ITEM T4 ON T4.ID = T1.SHIPVOYAGE_ITEM_ID
+            LEFT JOIN T_DIS_SHIPVOYAGE TDS ON TDS.ID = T4.SHIPVOYAGE_ID
+            LEFT JOIN (SELECT WORK_PLAN_ID,COUNT(0) TICKET_COUNT FROM T_PRD_WORK_TICKET GROUP BY WORK_PLAN_ID) TPWT ON T1.ID = TPWT.WORK_PLAN_ID
+            LEFT JOIN M_SHIP M1 ON T3.SHIP_ID = M1.ID
+            LEFT JOIN T_BUS_TRUST T5 ON T1.TRUST_ID = T5.ID
+            LEFT JOIN (
+            select
+            REGEXP_REPLACE( LISTAGG ( TO_CHAR( PACKING_CODE ), ',' ) WITHIN GROUP ( ORDER BY PACKING_CODE ),'([^,]+)(,\1)+', '\1' ) PACKING_CODE
+            ,TRUST_ID
+            FROM T_BUS_TRUST_CARGO
+            GROUP BY TRUST_ID
+            ) T8 ON T5.ID = T8.TRUST_ID
+<!--            LEFT JOIN T_BUS_TRUST_CARGO TBTC ON TBTC.TRUST_ID = T5.ID
+            LEFT JOIN T_BUS_HANDOVERLIST TBH ON TBTC.CARGO_INFO_ID =TBH.CARGO_INFO_ID-->
+            <where>
+            <if test="workDate != null">
+                AND T1.WORK_DATE = #{workDate}
+            </if>
+            <if test="classCode != null and classCode != ''">
+                AND T1.CLASS_CODE = #{classCode}
+            </if>
+            <if test="trustId != null ">
+                AND T1.TRUST_ID = #{trustId,jdbcType=BIGINT}
+            </if>
+            <if test="trustNo != null and trustNo!='' ">
+                <bind name="trustNo_like" value="'%'+trustNo+'%'"/>
+                AND T5.TRUST_NO LIKE #{trustNo_like}
+            </if>
+            <if test="shipvoyageItemId != null and planType!=2 " >
+                AND T1.SHIPVOYAGE_ITEM_ID = #{shipvoyageItemId,jdbcType=BIGINT}
+            </if>
+            <if test="processCode != null and processCode != '' ">
+                AND T1.PROCESS_CODE = #{processCode,jdbcType=VARCHAR}
+            </if>
+            <if test="portCode != null and portCode != '' ">
+                AND T5.PORT_CODE = #{portCode,jdbcType=VARCHAR}
+            </if>
+            <!-- 复制、导入用 -->
+            <if test="ids != null">
+                <foreach collection="ids" open=" AND T1.ID IN (" separator="," item="id" close=")">
+                    #{id, jdbcType=VARCHAR}
+                </foreach>
+            </if>
+            <if test="packageCode != null and packageCode != ''">
+                <bind name="packageCode_like" value="'%'+packageCode+'%'"/>
+                AND T8.PACKING_CODE LIKE #{packageCode_like}
+            </if>
+        </where>
+        )
+        <where>
+            <if test="planType != null and planType != ''">
+                AND PLAN_TYPE = #{planType}
+            </if>
+            <if test="planType !=2 and shipName !=null and shipName !=''" >
+                <bind name="shipNameLike" value="'%' + shipName + '%'"/>
+                AND SHIP_NAME LIKE #{shipNameLike, jdbcType=VARCHAR}
+            </if>
+            <if test="planType !=2 and voyage!=null">
+                AND VOYAGE = #{voyage}
+            </if>
+        </where>
+        ORDER BY TRUST_NO ASC
+    </select>
+
+<!--    配机 配工-->
+        <select id="getPrdDispatch" resultType="com.yy.ppm.produce.bean.dto.TPrdDispatchDTO"
+                parameterType="com.yy.ppm.produce.bean.dto.TPrdWorkPlanSearchDTO">
+            SELECT  * FROM T_PRD_DISPATCH
+            <where>
+                <if test="workPlanId != null">
+                    AND WORK_PLAN_ID = #{workPlanId,jdbcType=BIGINT}
+                </if>
+                <if test="ids != null">
+                    AND WORK_PLAN_ID IN
+                    <foreach collection="ids" open="(" separator="," item="item" close=")">
+                        #{item}
+                    </foreach>
+                </if>
+            </where>
+        </select>
+
+    <select id="getWorkPlanLocationList" resultType="com.yy.ppm.produce.bean.dto.TPrdWorkPlanLocationDTO"
+            parameterType="com.yy.ppm.produce.bean.dto.TPrdWorkPlanSearchDTO">
+        SELECT * FROM T_PRD_WORK_PLAN_LOCATION
+        WHERE
+        WORK_PLAN_ID IN
+        <foreach collection="ids" open="(" separator="," item="item" close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="getTrustCargoList" resultType="com.yy.ppm.business.bean.dto.TBusTrustCargoDTO"
+            parameterType="com.yy.ppm.produce.bean.dto.TPrdWorkPlanSearchDTO">
+        SELECT *
+        FROM T_BUS_TRUST_CARGO
+        WHERE
+        TRUST_ID IN
+        <foreach collection="ids" open="(" separator="," item="item" close=")">
+            #{item}
+        </foreach>
+    </select>
+    <!--通过实体作为筛选条件查询-->
+    <!--    库场派工用-->
+    <!--    二次派工也用-->
+    <!--    转运计划也在用-->
+    <select id="getList"
+            resultType="com.yy.ppm.produce.bean.dto.TPrdWorkPlanDTO"
+            parameterType="com.yy.ppm.produce.bean.dto.TPrdWorkPlanSearchDTO">
+        SELECT * FROM (
+        SELECT
+        T1.ID,
+        T1.COMPANY_ID,
+        T1.COMPANY_NAME,
+        T1.WORK_DATE,
+        T1.CLASS_CODE,
+        T1.CLASS_NAME,
+        T1.TRUST_ID,
+        T1.SHIPVOYAGE_ID,
+        T1.SHIPVOYAGE_ITEM_ID,
+        CASE WHEN T1.SHIPVOYAGE_ID IS NULL THEN null
+        ELSE CONCAT(CONCAT(T3.SHIP_NAME, '_') , T4.VOYAGE)
+        END SHIPVOYAGE_LABEL,
+        T3.SHIP_NAME,
+        T4.VOYAGE,
+        T1.HATCH,
+        T1.PLAN_NO,
+        T1.PROCESS_CODE,
+        T1.PROCESS_NAME,
+        T1.WORK_CONTENT,
+        T1.DEPT_ID,
+        T1.DEPT_NAME,
+        T1.QUANTITY_PLAN,
+        T1.TON_PLAN,
+        T1.START_TIME_PLAN,
+        T1.END_TIME_PLAN,
+        T1.START_WORK_TIME,
+        T1.END_WORK_TIME,
+        T1.REMARK,
+        T1.STATUS,
+        M1.NM AS STATUS_LABEL,
+        T1.BERTH_ID,
+        T1.BERTH_NAME,
+        T1.FRONT_TALLY_BY,
+        T1.FRONT_TALLY_BY_NAME,
+        T1.BACK_TALLY_BY,
+        T1.BACK_TALLY_BY_NAME,
+        T1.DISPATCH_BY,
+        T1.DISPATCH_BY_NAME,
+        T1.CREATE_BY,
+        T1.CREATE_BY_NAME,
+        T1.CREATE_TIME,
+        T1.UPDATE_BY,
+        T1.UPDATE_BY_NAME,
+        T1.UPDATE_TIME,
+        T1.EXAMINE_BY,
+        T1.EXAMINE_BY_NAME,
+        T1.EXAMINE_TIME,
+        T1.EQUIPMENT_NAMES_FRONT,
+        T1.EQUIPMENT_NAMES_BACK,
+        T1.EQUIPMENT_NAMES_ASSIST,
+        T1.EQUIPMENT_NAMES_RESHIPMENT,
+        CONCAT(T1.MASS_NAMES_SOURCE,T1.MASS_NAMES_TARGET) MASS_NAMES,
+        T1.MASS_NAMES_SOURCE,
+        T1.MASS_NAMES_TARGET,
+        T1.RESHIPMENT_TYPE_CODE,
+        M2.NM AS RESHIPMENT_TYPE_Label,
+        T1.BUS_CARGO_INFO_ID,
+        DECODE(T1.CARGO_CATEGORY_CODE,NULL,T4.CARGO_CATEGORY_CODE,T1.CARGO_CATEGORY_CODE) AS CARGO_CATEGORY_CODE,
+        DECODE(T1.CARGO_CATEGORY_NAME,NULL,T4.CARGO_CATEGORY_NAME,T1.CARGO_CATEGORY_NAME) AS CARGO_CATEGORY_NAME,
+        T2.NUM AS LABOR_NUM,
+        T4.LOAD_UNLOAD,
+        t4.CUSTOMER_NAME,
+        T5.PORT_CODE,
+        T5.PORT_NAME,
+        T5.SETTLEMENT_BASIS_NAME,
+        T5.TRUST_NO,
+        CASE WHEN T6.CARGO_OWNER_NAME IS NULL THEN T1.CARGO_OWNER_NAME ELSE T6.CARGO_OWNER_NAME END CARGO_OWNER_NAME,
+        T6.CARGO_AGENT_NAME,
+        CASE WHEN T6.CARGO_NAME IS NULL THEN T1.CARGO_NAME ELSE T6.CARGO_NAME END CARGO_NAME,
+        CASE WHEN T1.PROCESS_CODE IS NULL THEN TO_CHAR(T1.PLAN_TYPE) ELSE TO_CHAR((SELECT PLAN_TYPE_CD FROM
+        M_WORK_PROCESS m0 WHERE T1.PROCESS_CODE = m0.PROCESS_CD )) END PLAN_TYPE
+        FROM
+        T_PRD_WORK_PLAN T1 LEFT JOIN T_PRD_DISPATCH T2 ON T1.ID = T2.WORK_PLAN_ID AND T2.DISPATCH_TYPE = '2'
+        LEFT JOIN  T_BUS_TRUST T2_TRUST ON T1.TRUST_ID = T2_TRUST.ID
+        LEFT JOIN m_constants M1 ON T1.STATUS = M1.CD AND M1.TYPE_CD = 'WORK_PLAN_STATUS'
+        LEFT JOIN m_constants M2 ON T1.RESHIPMENT_TYPE_CODE = M2.CD AND M2.TYPE_CD = 'RESHIPMENT_TYPE'
+        LEFT JOIN T_DIS_SHIPVOYAGE T3 ON T1.SHIPVOYAGE_ID = T3.ID
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM T4 ON T4.ID = T1.SHIPVOYAGE_ITEM_ID
+        LEFT JOIN T_BUS_TRUST T5 ON T1.TRUST_ID = T5.ID
+        LEFT JOIN (
+        SELECT
+        REGEXP_REPLACE( LISTAGG ( TO_CHAR( CARGO_OWNER_NAME ), ',' ) WITHIN GROUP ( ORDER BY CARGO_OWNER_NAME ),
+        '([^,]+)(,\1)+', '\1' ) CARGO_OWNER_NAME,TRUST_ID,
+        REGEXP_REPLACE( LISTAGG ( TO_CHAR( CARGO_OWNER_ID ), ',' ) WITHIN GROUP ( ORDER BY CARGO_OWNER_ID ),
+        '([^,]+)(,\1)+', '\1' ) CARGO_OWNER_ID,
+        REGEXP_REPLACE( LISTAGG ( TO_CHAR( CARGO_AGENT_NAME ), ',' ) WITHIN GROUP ( ORDER BY CARGO_AGENT_NAME ),
+        '([^,]+)(,\1)+', '\1' ) CARGO_AGENT_NAME,
+        REGEXP_REPLACE( LISTAGG ( TO_CHAR( CARGO_NAME ), ',' ) WITHIN GROUP ( ORDER BY CARGO_NAME ), '([^,]+)(,\1)+',
+        '\1' ) CARGO_NAME,
+        REGEXP_REPLACE( LISTAGG ( TO_CHAR( PACKING_CODE ), ',' ) WITHIN GROUP ( ORDER BY PACKING_CODE ),'([^,]+)(,\1)+', '\1' ) PACKING_CODE,
+
+        REGEXP_REPLACE( LISTAGG ( TO_CHAR( CARGO_CODE ), ',' ) WITHIN GROUP ( ORDER BY CARGO_CODE ), '([^,]+)(,\1)+', '\1' ) CARGO_CODE
+        FROM T_BUS_TRUST_CARGO GROUP BY TRUST_ID ) T6 ON T5.ID = T6.TRUST_ID
+        <where>
+            <if test="queryType == null or queryType != 'oddQuery'">
+                and T1.STATUS != '10'
+            </if>
+            <if test="workDate != null">
+                and T1.WORK_DATE = #{workDate}
+            </if>
+            <if test="classCode != null and classCode != ''">
+                and T1.CLASS_CODE = #{classCode}
+            </if>
+            <if test="status != null and status != ''">
+                and T1.STATUS = #{status}
+            </if>
+            <if test="shipvoyageItemId != null and shipvoyageItemId != '' and planType != 2">
+                AND T1.SHIPVOYAGE_ITEM_ID = #{shipvoyageItemId,jdbcType=BIGINT}
+            </if>
+            <if test="portCode != null and portCode != '' ">
+                AND T5.PORT_CODE = #{portCode,jdbcType=VARCHAR}
+            </if>
+            <if test="cargoOwnerId != null and cargoOwnerId != ''">
+                AND INSTR(T6.CARGO_OWNER_ID,#{cargoOwnerId})>0
+            </if>
+            <if test="cargoCode != null and cargoCode != ''">
+                <bind name="cargoCode_like" value="'%' + cargoCode + '%'"/>
+                AND INSTR(T6.CARGO_CODE,#{cargoCode})>0
+            </if>
+            <if test="trustNo != null and trustNo != ''">
+                <bind name="trustNo_like" value="'%' + trustNo + '%'"/>
+                AND T5.TRUST_NO LIKE #{trustNo_like,jdbcType=VARCHAR}
+            </if>
+            <if test="packageCode != null and packageCode != ''">
+                <bind name="packageCode_like" value="'%'+packageCode+'%'"/>
+                AND T6.PACKING_CODE LIKE #{packageCode_like}
+            </if>
+            <if test="processCode != null and processCode != ''">
+            	AND T1.PROCESS_CODE = #{processCode,jdbcType=VARCHAR}
+            </if>
+        </where>
+        )
+        <where>
+            <if test="planType != null and planType != ''">
+                AND PLAN_TYPE = #{planType}
+            </if>
+            <if test="planType !=2 and shipName !=null and shipName !=''" >
+                <bind name="shipNameLike" value="'%' + shipName + '%'"/>
+                AND SHIP_NAME LIKE #{shipNameLike, jdbcType=VARCHAR}
+            </if>
+            <if test="planType !=2 and voyage!=null">
+                AND VOYAGE = #{voyage}
+            </if>
+        </where>
+        ORDER BY NLSSORT("SHIPVOYAGE_LABEL",'NLS_SORT = SCHINESE_PINYIN_M') ,VOYAGE DESC,PROCESS_NAME DESC
+    </select>
+
+    <select id="getFlowStatus" resultType="java.util.Map">
+		SELECT
+			WORK_PLAN_ID AS "id",
+			COUNT (1)
+		FROM
+			T_PRD_DISPATCH_SECONDARY
+		WHERE
+			DISPATCH_TYPE = 1
+		AND DEPT_NAME != '固机队'
+		AND WORK_PLAN_ID IN
+		<foreach collection="idList" close=")" item="id" open="(" separator=",">
+			#{id}
+		</foreach>
+		GROUP BY WORK_PLAN_ID
+		HAVING COUNT (1) > 0
+    </select>
+
+    <select id="getFixedStatus" resultType="java.util.Map">
+		SELECT
+			WORK_PLAN_ID AS "id",
+			COUNT (1)
+		FROM
+			T_PRD_DISPATCH_SECONDARY
+		WHERE
+			DISPATCH_TYPE = 1
+		AND DEPT_NAME = '固机队'
+		AND WORK_PLAN_ID IN
+		<foreach collection="idList" close=")" item="id" open="(" separator=",">
+			#{id}
+		</foreach>
+		GROUP BY WORK_PLAN_ID
+		HAVING COUNT (1) > 0
+    </select>
+
+    <select id="getLaborStatus" resultType="java.util.Map">
+		SELECT
+			WORK_PLAN_ID AS "id",
+			COUNT (1)
+		FROM
+			T_PRD_DISPATCH_SECONDARY
+		WHERE
+			DISPATCH_TYPE = 2
+		AND WORK_PLAN_ID IN
+		<foreach collection="idList" close=")" item="id" open="(" separator=",">
+			#{id}
+		</foreach>
+		GROUP BY WORK_PLAN_ID
+		HAVING COUNT (1) > 0
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.produce.bean.dto.TPrdWorkPlanDTO" parameterType="com.yy.ppm.produce.bean.dto.TPrdWorkPlanSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.produce.bean.dto.TPrdWorkPlanDTO" parameterType="java.lang.Long">
+        SELECT
+            T1.ID,
+            T1.COMPANY_ID,
+            T1.COMPANY_NAME,
+            T1.WORK_DATE,
+            T1.CLASS_CODE,
+            T1.CLASS_NAME,
+            T1.TRUST_ID,
+            T1.SHIPVOYAGE_ID,
+            T1.SHIPVOYAGE_ITEM_ID,
+            T1.HATCH,
+            T1.PLAN_NO,
+            T1.PLAN_TYPE,
+            T1.PROCESS_CODE,
+            T1.PROCESS_NAME,
+            T1.WORK_CONTENT,
+            T1.DEPT_ID,
+            T1.DEPT_NAME,
+            T1.QUANTITY_PLAN,
+            T1.TON_PLAN,
+            T1.START_TIME_PLAN,
+            T1.END_TIME_PLAN,
+            T1.START_WORK_TIME,
+            T1.END_WORK_TIME,
+            T1.REMARK,
+            T1.STATUS,
+            T1.BERTH_ID,
+            T1.BERTH_NAME,
+            T1.FRONT_TALLY_BY,
+            T1.FRONT_TALLY_BY_NAME,
+            T1.BACK_TALLY_BY,
+            T1.BACK_TALLY_BY_NAME,
+            T1.DISPATCH_BY,
+            T1.DISPATCH_BY_NAME,
+            T1.CREATE_BY,
+            T1.CREATE_BY_NAME,
+            T1.CREATE_TIME,
+            T1.UPDATE_BY,
+            T1.UPDATE_BY_NAME,
+            T1.UPDATE_TIME,
+            T1.EXAMINE_BY,
+            T1.EXAMINE_BY_NAME,
+            T1.EXAMINE_TIME,
+            T1.EQUIPMENT_NAMES_FRONT,
+            T1.EQUIPMENT_NAMES_BACK,
+            T1.EQUIPMENT_NAMES_ASSIST,
+            T1.EQUIPMENT_NAMES_RESHIPMENT,
+            T1.MASS_NAMES_SOURCE,
+            T1.MASS_NAMES_TARGET,
+            T1.RESHIPMENT_TYPE_CODE,
+            T1.BUS_CARGO_INFO_ID,
+            (select CARGO_INFO_NO FROM T_BUS_CARGO_INFO WHERE ID = T1.BUS_CARGO_INFO_ID) CARGO_INFO_NO,
+            T1.CARGO_CATEGORY_CODE,
+            T1.CARGO_CATEGORY_NAME,
+            T2.NUM AS LABOR_NUM,
+            T3.TRUST_NO
+            <!--T4.MASS_ID MASS_IDS_SOURCE,
+            T5.MASS_ID MASS_IDS_TARGET-->
+        FROM
+            T_PRD_WORK_PLAN T1
+            LEFT JOIN T_PRD_DISPATCH T2 ON T1.ID = T2.WORK_PLAN_ID AND T2.DISPATCH_TYPE = '2'
+            LEFT JOIN T_BUS_TRUST T3 ON T1.TRUST_ID = T3.ID
+            <!--LEFT JOIN T_PRD_WORK_PLAN_LOCATION T4 ON T4.WORK_PLAN_ID = T1.ID AND T4.DIRECTION = 1
+            LEFT JOIN T_PRD_WORK_PLAN_LOCATION T5 ON T5.WORK_PLAN_ID = T1.ID AND T5.DIRECTION = 2-->
+        WHERE
+            T1.id = #{id}
+    </select>
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.produce.bean.dto.TPrdWorkPlanDTO">
+        INSERT INTO T_PRD_WORK_PLAN(
+                ID,
+                COMPANY_ID,
+                COMPANY_NAME,
+                WORK_DATE,
+                CLASS_CODE,
+                CLASS_NAME,
+                TRUST_ID,
+                SHIPVOYAGE_ID,
+                SHIPVOYAGE_ITEM_ID,
+                HATCH,
+                PLAN_NO,
+                PLAN_TYPE,
+                PROCESS_CODE,
+                PROCESS_NAME,
+                WORK_CONTENT,
+                DEPT_ID,
+                DEPT_NAME,
+                QUANTITY_PLAN,
+                TON_PLAN,
+                START_TIME_PLAN,
+                END_TIME_PLAN,
+                START_WORK_TIME,
+                END_WORK_TIME,
+                REMARK,
+                STATUS,
+                BERTH_ID,
+                BERTH_NAME,
+                FRONT_TALLY_BY,
+                FRONT_TALLY_BY_NAME,
+                BACK_TALLY_BY,
+                BACK_TALLY_BY_NAME,
+                DISPATCH_BY,
+                DISPATCH_BY_NAME,
+                EXAMINE_BY,
+                EXAMINE_BY_NAME,
+                EXAMINE_TIME,
+                CREATE_BY,
+                CREATE_BY_NAME,
+                CREATE_TIME,
+                EQUIPMENT_NAMES_FRONT,
+                EQUIPMENT_NAMES_BACK,
+                EQUIPMENT_NAMES_ASSIST,
+                EQUIPMENT_NAMES_RESHIPMENT,
+                MASS_NAMES_SOURCE,
+                MASS_NAMES_TARGET,
+                RESHIPMENT_TYPE_CODE,
+                BUS_CARGO_INFO_ID,
+                CARGO_CATEGORY_CODE,
+                CARGO_CATEGORY_NAME,
+                CARGO_CODE,
+                CARGO_NAME,
+                CARGO_OWNER_ID,
+                CARGO_OWNER_NAME
+        )VALUES (
+                #{id, jdbcType=BIGINT},
+                #{companyId, jdbcType=BIGINT},
+                #{companyName, jdbcType=VARCHAR},
+                #{workDate, jdbcType=DATE},
+                #{classCode, jdbcType=VARCHAR},
+                #{className, jdbcType=VARCHAR},
+                #{trustId, jdbcType=BIGINT},
+                #{shipvoyageId, jdbcType=BIGINT},
+                #{shipvoyageItemId, jdbcType=BIGINT},
+                #{hatch, jdbcType=VARCHAR},
+                #{planNo, jdbcType=VARCHAR},
+                #{planType, jdbcType=VARCHAR},
+                #{processCode, jdbcType=VARCHAR},
+                #{processName, jdbcType=VARCHAR},
+                #{workContent, jdbcType=VARCHAR},
+                #{deptId, jdbcType=BIGINT},
+                #{deptName, jdbcType=VARCHAR},
+                #{quantityPlan, jdbcType=BIGINT},
+                #{tonPlan,jdbcType=DECIMAL},
+                #{startTimePlan, jdbcType=DATE},
+                #{endTimePlan, jdbcType=DATE},
+                #{startWorkTime, jdbcType=DATE},
+                #{endWorkTime, jdbcType=DATE},
+                #{remark, jdbcType=VARCHAR},
+                #{status, jdbcType=VARCHAR},
+                #{berthId, jdbcType=BIGINT},
+                #{berthName, jdbcType=VARCHAR},
+                #{frontTallyBy, jdbcType=VARCHAR},
+                #{frontTallyByName, jdbcType=VARCHAR},
+                #{backTallyBy, jdbcType=VARCHAR},
+                #{backTallyByName, jdbcType=VARCHAR},
+                #{dispatchBy, jdbcType=VARCHAR},
+                #{dispatchByName, jdbcType=VARCHAR},
+                #{examineBy, jdbcType=VARCHAR},
+                #{examineByName, jdbcType=VARCHAR},
+                #{examineTime, jdbcType=DATE},
+                #{loginUserId, jdbcType=BIGINT},
+                #{loginUserName, jdbcType=VARCHAR},
+                #{now},
+                #{equipmentNamesFront, jdbcType=VARCHAR},
+                #{equipmentNamesBack, jdbcType=VARCHAR},
+                #{equipmentNamesAssist, jdbcType=VARCHAR},
+                #{equipmentNamesReshipment, jdbcType=VARCHAR},
+                #{massNamesSource, jdbcType=VARCHAR},
+                #{massNamesTarget, jdbcType=VARCHAR},
+                #{reshipmentTypeCode, jdbcType=VARCHAR},
+                #{busCargoInfoId, jdbcType=BIGINT},
+                #{cargoCategoryCode, jdbcType=VARCHAR},
+                #{cargoCategoryName, jdbcType=VARCHAR},
+                #{cargoCode, jdbcType=VARCHAR},
+                #{cargoName, jdbcType=VARCHAR},
+                #{cargoOwnerId, jdbcType=VARCHAR},
+                #{cargoOwnerName, jdbcType=VARCHAR}
+            )
+    </insert>
+
+    <!-- 新增 -->
+    <insert id="insertBatch" parameterType="com.yy.ppm.produce.bean.dto.TPrdWorkPlanDTO">
+        begin
+        <foreach collection="list" item="item" separator="  ">
+            INSERT INTO T_PRD_WORK_PLAN(
+            ID,
+            COMPANY_ID,
+            COMPANY_NAME,
+            WORK_DATE,
+            CLASS_CODE,
+            CLASS_NAME,
+            TRUST_ID,
+            SHIPVOYAGE_ID,
+            SHIPVOYAGE_ITEM_ID,
+            HATCH,
+            PLAN_NO,
+            PLAN_TYPE,
+            PROCESS_CODE,
+            PROCESS_NAME,
+            WORK_CONTENT,
+            DEPT_ID,
+            DEPT_NAME,
+            QUANTITY_PLAN,
+            TON_PLAN,
+            START_TIME_PLAN,
+            END_TIME_PLAN,
+            START_WORK_TIME,
+            END_WORK_TIME,
+            REMARK,
+            STATUS,
+            BERTH_ID,
+            BERTH_NAME,
+            EXAMINE_BY,
+            EXAMINE_BY_NAME,
+            EXAMINE_TIME,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            EQUIPMENT_NAMES_FRONT,
+            EQUIPMENT_NAMES_BACK,
+            EQUIPMENT_NAMES_ASSIST,
+            EQUIPMENT_NAMES_RESHIPMENT,
+            MASS_NAMES_SOURCE,
+            MASS_NAMES_TARGET
+            )VALUES(
+                #{item.id, jdbcType=BIGINT},
+                #{item.companyId, jdbcType=BIGINT},
+                #{item.companyName, jdbcType=VARCHAR},
+                #{item.workDate, jdbcType=TIMESTAMP},
+                #{item.classCode, jdbcType=VARCHAR},
+                #{item.className, jdbcType=VARCHAR},
+                #{item.trustId, jdbcType=BIGINT},
+                #{item.shipvoyageId, jdbcType=BIGINT},
+                #{item.shipvoyageItemId, jdbcType=BIGINT},
+                #{item.hatch, jdbcType=VARCHAR},
+                #{item.planNo, jdbcType=VARCHAR},
+                #{item.planType, jdbcType=VARCHAR},
+                #{item.processCode, jdbcType=VARCHAR},
+                #{item.processName, jdbcType=VARCHAR},
+                #{item.workContent, jdbcType=VARCHAR},
+                #{item.deptId, jdbcType=BIGINT},
+                #{item.deptName, jdbcType=VARCHAR},
+                #{item.quantityPlan, jdbcType=BIGINT},
+                #{item.tonPlan,jdbcType=DECIMAL},
+                #{item.startTimePlan, jdbcType=DATE},
+                #{item.endTimePlan, jdbcType=DATE},
+                #{item.startWorkTime, jdbcType=DATE},
+                #{item.endWorkTime, jdbcType=DATE},
+                #{item.remark, jdbcType=VARCHAR},
+                #{item.status, jdbcType=VARCHAR},
+                #{item.berthId, jdbcType=BIGINT},
+                #{item.berthName, jdbcType=VARCHAR},
+                #{item.examineBy, jdbcType=VARCHAR},
+                #{item.examineByName, jdbcType=VARCHAR},
+                #{item.examineTime, jdbcType=DATE},
+                #{loginUserId, jdbcType=BIGINT},
+                #{loginUserName, jdbcType=VARCHAR},
+                #{now,jdbcType=TIMESTAMP},
+                #{item.equipmentNamesFront, jdbcType=VARCHAR},
+                #{item.equipmentNamesBack, jdbcType=VARCHAR},
+                #{item.equipmentNamesAssist, jdbcType=VARCHAR},
+                #{item.equipmentNamesReshipment, jdbcType=VARCHAR},
+                #{item.massNamesSource, jdbcType=VARCHAR},
+                #{item.massNamesTarget, jdbcType=VARCHAR}
+                );
+        </foreach>
+        end;
+    </insert>
+
+    <!-- 修改 -->
+   <update id="update" parameterType="com.yy.ppm.produce.bean.dto.TPrdWorkPlanDTO">
+        UPDATE
+            T_PRD_WORK_PLAN
+        SET
+            COMPANY_ID = #{companyId, jdbcType=BIGINT},
+            COMPANY_NAME = #{companyName, jdbcType=VARCHAR},
+            WORK_DATE = #{workDate, jdbcType=DATE},
+            CLASS_CODE = #{classCode, jdbcType=VARCHAR},
+            CLASS_NAME = #{className, jdbcType=VARCHAR},
+            TRUST_ID = #{trustId,jdbcType=VARCHAR},
+            SHIPVOYAGE_ID = #{shipvoyageId,jdbcType=VARCHAR},
+            SHIPVOYAGE_ITEM_ID = #{shipvoyageItemId,jdbcType=VARCHAR},
+            HATCH = #{hatch,jdbcType=VARCHAR},
+            PROCESS_CODE = #{processCode,jdbcType=VARCHAR},
+            PROCESS_NAME = #{processName,jdbcType=VARCHAR},
+            WORK_CONTENT = #{workContent,jdbcType=VARCHAR},
+            QUANTITY_PLAN = #{quantityPlan,jdbcType=VARCHAR},
+            TON_PLAN = #{tonPlan,jdbcType=VARCHAR},
+            START_TIME_PLAN = #{startTimePlan,jdbcType=VARCHAR},
+            END_TIME_PLAN = #{endTimePlan,jdbcType=VARCHAR},
+            START_WORK_TIME = #{startWorkTime,jdbcType=VARCHAR},
+            END_WORK_TIME = #{endWorkTime,jdbcType=VARCHAR},
+            REMARK = #{remark,jdbcType=VARCHAR},
+            BERTH_ID = #{berthId,jdbcType=VARCHAR},
+            BERTH_NAME = #{berthName,jdbcType=VARCHAR},
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now},
+            EQUIPMENT_NAMES_FRONT = #{equipmentNamesFront, jdbcType=VARCHAR},
+            EQUIPMENT_NAMES_BACK = #{equipmentNamesBack, jdbcType=VARCHAR},
+            EQUIPMENT_NAMES_ASSIST = #{equipmentNamesAssist, jdbcType=VARCHAR},
+            EQUIPMENT_NAMES_RESHIPMENT = #{equipmentNamesReshipment, jdbcType=VARCHAR},
+            MASS_NAMES_SOURCE = #{massNamesSource, jdbcType=VARCHAR},
+            MASS_NAMES_TARGET = #{massNamesTarget, jdbcType=VARCHAR},
+            RESHIPMENT_TYPE_CODE = #{reshipmentTypeCode, jdbcType=VARCHAR},
+            BUS_CARGO_INFO_ID = #{busCargoInfoId, jdbcType=BIGINT},
+            CARGO_CATEGORY_CODE = #{cargoCategoryCode, jdbcType=VARCHAR},
+            CARGO_CATEGORY_NAME = #{cargoCategoryName, jdbcType=VARCHAR}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 派工 -->
+    <update id="updateDispatch" parameterType="com.yy.ppm.produce.bean.dto.TPrdWorkPlanDTO">
+        UPDATE
+            T_PRD_WORK_PLAN
+        SET
+        <if test="updateType == 1">
+            FRONT_TALLY_BY = #{frontTallyBy, jdbcType=VARCHAR},
+            FRONT_TALLY_BY_NAME = #{frontTallyByName, jdbcType=VARCHAR},
+            BACK_TALLY_BY = #{backTallyBy, jdbcType=VARCHAR},
+            BACK_TALLY_BY_NAME = #{backTallyByName, jdbcType=VARCHAR},
+        </if>
+        <if test="updateType == 2">
+            MASS_NAMES_SOURCE = #{massNamesSource, jdbcType=VARCHAR},
+            MASS_NAMES_TARGET = #{massNamesTarget, jdbcType=VARCHAR},
+        </if>
+        <if test="updateType == 3">
+            DISPATCH_BY = #{dispatchBy, jdbcType=VARCHAR},
+            DISPATCH_BY_NAME = #{dispatchByName, jdbcType=VARCHAR},
+        </if>
+        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+    <update id="updateDispatchPeople" parameterType="com.yy.ppm.produce.bean.dto.TPrdWorkPlanDTO">
+
+        <foreach collection="list" open="BEGIN" close="END;" item="item" separator=";" index="index">
+            UPDATE
+            T_PRD_WORK_PLAN
+            SET
+            DISPATCH_BY = #{dto.dispatchBy, jdbcType=VARCHAR},
+            DISPATCH_BY_NAME = #{dto.dispatchByName, jdbcType=VARCHAR},
+            UPDATE_BY = #{dto.loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{dto.loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{dto.now}
+            <where>
+                id = #{item}
+            </where>
+            <if test="(list.size-1) == index">
+                ;
+            </if>
+        </foreach>
+    </update>
+
+    <!-- 批量修改船舶計劃 -->
+    <update id="updateShipPlanBatch">
+        <foreach collection="list" open="BEGIN" close="END;" item="item" separator=";" index="index">
+            UPDATE
+                T_PRD_WORK_PLAN
+            SET
+                TRUST_ID = #{item.trustId,jdbcType=VARCHAR},
+                SHIPVOYAGE_ID = #{item.shipvoyageId,jdbcType=VARCHAR},
+                SHIPVOYAGE_ITEM_ID = #{item.shipvoyageItemId,jdbcType=VARCHAR},
+                HATCH = #{item.hatch,jdbcType=VARCHAR},
+                PROCESS_CODE = #{item.processCode,jdbcType=VARCHAR},
+                PROCESS_NAME = #{item.processName,jdbcType=VARCHAR},
+                WORK_CONTENT = #{item.workContent,jdbcType=VARCHAR},
+                QUANTITY_PLAN = #{item.quantityPlan,jdbcType=VARCHAR},
+                TON_PLAN = #{item.tonPlan,jdbcType=VARCHAR},
+                START_TIME_PLAN = #{item.startTimePlan,jdbcType=VARCHAR},
+                END_TIME_PLAN = #{item.endTimePlan,jdbcType=VARCHAR},
+                REMARK = #{item.remark,jdbcType=VARCHAR},
+                BERTH_ID = #{item.berthId,jdbcType=VARCHAR},
+                BERTH_NAME = #{item.berthName,jdbcType=VARCHAR},
+                EQUIPMENT_NAMES_FRONT = #{item.equipmentNamesFront, jdbcType=VARCHAR},
+                EQUIPMENT_NAMES_BACK = #{item.equipmentNamesBack, jdbcType=VARCHAR},
+                EQUIPMENT_NAMES_ASSIST = #{item.equipmentNamesAssist, jdbcType=VARCHAR},
+                EQUIPMENT_NAMES_RESHIPMENT = #{item.equipmentNamesReshipment, jdbcType=VARCHAR},
+                UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+                UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+                UPDATE_TIME = #{now}
+            <where>
+                id = #{item.id}
+            </where>
+            <if test="(list.size-1) == index">
+                ;
+            </if>
+        </foreach>
+    </update>
+
+    <!-- 修改 -->
+    <update id="updateOtherPlanBatch">
+        <foreach collection="list" open="BEGIN" close="END;" item="item" separator=";" index="index">
+            UPDATE
+                T_PRD_WORK_PLAN
+            SET
+                HATCH = #{item.hatch,jdbcType=VARCHAR},
+                WORK_CONTENT = #{item.workContent,jdbcType=VARCHAR},
+                QUANTITY_PLAN = #{item.quantityPlan,jdbcType=VARCHAR},
+                TON_PLAN = #{item.tonPlan,jdbcType=VARCHAR},
+                START_TIME_PLAN = #{item.startTimePlan,jdbcType=VARCHAR},
+                END_TIME_PLAN = #{item.endTimePlan,jdbcType=VARCHAR},
+                REMARK = #{item.remark,jdbcType=VARCHAR},
+                PROCESS_CODE = #{item.processCode,jdbcType=VARCHAR},
+                PROCESS_NAME = #{item.processName,jdbcType=VARCHAR},
+                EQUIPMENT_NAMES_FRONT = #{item.equipmentNamesFront, jdbcType=VARCHAR},
+                EQUIPMENT_NAMES_BACK = #{item.equipmentNamesBack, jdbcType=VARCHAR},
+                EQUIPMENT_NAMES_ASSIST = #{item.equipmentNamesAssist, jdbcType=VARCHAR},
+                EQUIPMENT_NAMES_RESHIPMENT = #{item.equipmentNamesReshipment    , jdbcType=VARCHAR},
+                UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+                UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+                UPDATE_TIME = #{now},
+                CARGO_CODE = #{item.cargoCode},
+                CARGO_NAME = #{item.cargoName},
+                CARGO_OWNER_ID = #{item.cargoOwnerId},
+                CARGO_OWNER_NAME = #{item.cargoOwnerName},
+                SHIPVOYAGE_ITEM_ID = #{item.shipvoyageItemId},
+                SHIPVOYAGE_ID = #{item.shipvoyageId},
+                COMPANY_ID = #{item.companyId},
+                COMPANY_NAME = #{item.companyName},
+                CARGO_INFO_NO = #{item.cargoInfoNo}
+            <where>
+                id = #{item.id}
+            </where>
+            <if test="(list.size-1) == index">
+                ;
+            </if>
+        </foreach>
+    </update>
+
+   <!-- 删除 -->
+   <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM
+            T_PRD_WORK_PLAN
+        WHERE
+            id = #{id}
+    </delete>
+
+    <!-- 删除 -->
+    <delete id="deleteByIds" parameterType="java.lang.Long">
+        DELETE FROM
+            T_PRD_WORK_PLAN
+        <where>
+            <if test="ids != null">
+                <foreach collection="ids" open=" AND ID IN (" separator="," item="id" close=")">
+                    #{id, jdbcType=VARCHAR}
+                </foreach>
+            </if>
+            AND STATUS = '10'
+        </where>
+    </delete>
+
+
+    <select id="getCheckCount" resultType="java.lang.Integer">
+        SELECT
+            COUNT(*)
+        FROM
+            T_PRD_WORK_PLAN
+        <where>
+            <if test="checkType == 'DELETE'">
+                and STATUS = '10'
+            </if>
+            <if test="checkType == 'UPDATE'">
+                and STATUS != '10'
+            </if>
+            <if test="checkType == 'APPROVE'">
+                and STATUS = '10'
+            </if>
+            <if test="checkType == 'CANCEL'">
+                and STATUS = '20'
+            </if>
+            <foreach collection="list" open="AND ID IN (" separator="," item="item" close=")">
+                #{item, jdbcType=VARCHAR}
+            </foreach>
+        </where>
+    </select>
+    <select id="getCheckCountById" resultType="java.lang.Integer">
+        SELECT
+            COUNT(*)
+        FROM
+            T_PRD_WORK_PLAN
+        <where>
+            <if test="checkType == 'DELETE'">
+                and STATUS = '10'
+            </if>
+            <if test="checkType == 'UPDATE'">
+                and STATUS != '10'
+            </if>
+            <if test="checkType == 'APPROVE'">
+                and STATUS = '10'
+            </if>
+            <if test="checkType == 'CANCEL'">
+                and STATUS = '20'
+            </if>
+            <if  test="id != null">
+                AND ID = #{id,jdbcType=BIGINT}
+            </if>
+        </where>
+    </select>
+
+    <select id="getTallyCountByPlanId" resultType="java.lang.Integer">
+        SELECT COUNT(0) FROM T_YARD_TALLY tyt
+        <where>
+            <if test="planId !=null">
+                PLAN_ID = #{planId}
+            </if>
+        </where>
+    </select>
+
+    <update id="updateStatusByIds">
+        UPDATE
+            T_PRD_WORK_PLAN
+        SET
+            STATUS = #{status,jdbcType=VARCHAR},
+            <if test="updateType == 'APPROVE'">
+                EXAMINE_BY = #{loginUserId,jdbcType=VARCHAR},
+                EXAMINE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+                EXAMINE_TIME = #{now,jdbcType=DATE},
+            </if>
+            <if test="updateType == 'CANCEL'">
+                EXAMINE_BY = null,
+                EXAMINE_BY_NAME = null,
+                EXAMINE_TIME = null,
+            </if>
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now}
+        <where>
+            <foreach collection="list" open="AND ID IN (" separator="," item="item" close=")">
+                #{item, jdbcType=VARCHAR}
+            </foreach>
+            <if test="updateType == 'APPROVE'">
+                AND STATUS = '10'
+            </if>
+            <if test="updateType == 'CANCEL'">
+                AND STATUS = '20'
+            </if>
+        </where>
+    </update>
+
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getSelectTrustList" resultType="java.util.HashMap" parameterType="java.lang.Long">
+        <include refid="commonList"></include>
+    </select>
+    <select id="getProcessName" resultType="com.yy.ppm.produce.bean.po.TPrdWorkPlanPO">
+
+    SELECT
+	PROCESS_CD AS PROCESS_CODE,
+	PROCESS_NM AS PROCESS_NAME,
+	PLAN_TYPE_NM,
+	PLAN_TYPE_CD
+	FROM
+	M_WORK_PROCESS
+	WHERE
+	PLAN_TYPE_CD= '3'
+    </select>
+    <select id="getByWorkProcess" resultType="java.lang.Long">
+    SELECT
+	ID
+	FROM
+	T_PRD_WORK_PLAN
+	WHERE
+        WORK_DATE = TO_DATE(#{workDate},'YYYY-MM-DD HH24:MI:SS')
+        AND CLASS_CODE = #{classCode}
+        AND TRUST_ID IN (
+        <foreach collection="ids" item="id" index="index" separator=",">
+            #{id}
+        </foreach>
+        )
+    </select>
+
+    <select id="getDayNigttPlan" resultType="com.yy.ppm.dispatch.bean.po.TDisShipDaynigttplanPO">
+	    SELECT
+	    	BERTHING_TIME_PLAN berthingTimePlan,
+	    	LEAVE_BERTH_TIME_PLAN leave_berthTimePlan,
+	    	STARTTIME_PLAN starttimePlan,
+	    	ENDTIME_PLAN endtimePlan,
+	    	BERTH_ID berthId,
+	    	BERTH_NAME berthName,
+			NIGHT_WORK_NUM nightWorkNum,
+			MORN_WORK_NUM mornWorkNum
+		FROM
+			T_DIS_SHIP_DAYNIGTTPLAN
+		WHERE
+	        PLAN_DATE = TO_DATE(#{planDate},'YYYY-MM-DD HH24:MI:SS')
+	        AND SHIPVOYAGE_ID = (SELECT SHIPVOYAGE_ID FROM T_BUS_TRUST WHERE ID = #{trustId})
+    </select>
+
+    <select id="getNormalWorkProcess" resultType="java.util.HashMap">
+	     SELECT
+    A.ID,
+    A.PROCESS_CD AS "value",
+    A.PROCESS_NM AS "label"
+FROM
+    M_WORK_PROCESS A
+LEFT JOIN M_DICT_DATA B ON B.DICT_VALUE = A.PROCESS_TYPE_CD AND B.DICT_TYPE = 'PROCESS_TYPE'
+WHERE
+    A.PARENT_ID = -1 AND B.DICT_VALUE = '0001'
+ORDER BY
+    A.PROCESS_NM
+    </select>
+<!-- 按计划类型 选作业过程 -->
+    <select id="workProcessType" resultType="java.util.HashMap">
+    SELECT
+        A.ID,
+        A.PROCESS_CD AS "value",
+        A.PROCESS_NM AS "label",
+        A.SOURCE_CD AS "sourceCd",
+        A.TARGET_CD AS "targetCd",
+        A.NEW_PROCESS AS "newProcess"
+    FROM
+        M_WORK_PROCESS A
+    LEFT JOIN M_DICT_DATA B ON B.DICT_VALUE = A.PROCESS_TYPE_CD AND B.DICT_TYPE = 'PROCESS_TYPE'
+    <where>
+        A.PARENT_ID = -1 AND B.DICT_VALUE = '0001'
+        <if test="planType !=null ">
+          AND  A.PLAN_TYPE_CD = #{planType,jdbcType=BIGINT}
+        </if>
+    </where>
+    ORDER BY  A.PROCESS_NM DESC
+    </select>
+
+    <select id="getByIds" resultType="com.yy.ppm.produce.bean.dto.TPrdWorkPlanDTO">
+        SELECT
+        T1.ID,
+        T1.PROCESS_CODE,
+        T1.PROCESS_NAME,
+        T8.CARGO_NAME,
+        T1.STATUS
+        FROM
+        T_PRD_WORK_PLAN T1
+        LEFT JOIN (
+        SELECT
+        REGEXP_REPLACE( LISTAGG ( TO_CHAR( CARGO_NAME ), ',' ) WITHIN GROUP ( ORDER BY CARGO_NAME ), '([^,]+)(,\1)+',
+        '\1' ) CARGO_NAME,
+        TRUST_ID,
+        REGEXP_REPLACE( LISTAGG ( TO_CHAR( CARGO_CODE ), ',' ) WITHIN GROUP ( ORDER BY CARGO_CODE ), '([^,]+)(,\1)+', '\1' ) CARGO_CODE
+        FROM T_BUS_TRUST_CARGO GROUP BY TRUST_ID ) T8 ON T1.TRUST_ID = T8.TRUST_ID
+        WHERE
+        T1.ID IN (
+        <foreach collection="ids" item="id" index="index" separator=",">
+            #{id}
+        </foreach>
+        )
+    </select>
+    <select id="getStatusCountById" resultType="com.yy.ppm.produce.bean.dto.TPrdWorkPlanDTO">
+    SELECT ID,STATUS,PLAN_NO,TRUST_ID FROM T_PRD_WORK_PLAN
+    WHERE TRUST_ID IN ( SELECT TRUST_ID FROM T_PRD_WORK_PLAN
+                        WHERE ID = #{id,jdbcType=BIGINT}
+                        <if test="status != null and status != ''">
+                            AND STATUS = #{status,jdbcType=VARCHAR}
+                        </if>
+     )
+    </select>
+    <update id="updateTrustStatus" parameterType="com.yy.ppm.business.bean.dto.TBusTrustDTO">
+        begin
+        <foreach collection="list" item="item" separator=" ">
+            UPDATE T_BUS_TRUST
+            <set>
+                <if test="item.status != null">
+                    STATUS = #{item.status,jdbcType=VARCHAR},
+                </if>
+                <if test="item.loginUserId != null">
+                    UPDATE_BY = #{item.loginUserId,jdbcType=BIGINT},
+                </if>
+                <if test="item.loginUserName != null">
+                    UPDATE_BY_NAME = #{item.loginUserName, jdbcType=VARCHAR},
+                </if>
+                <if test="item.now != null">
+                    UPDATE_TIME =#{item.now,jdbcType=TIMESTAMP}
+                </if>
+            </set>
+            <where>
+                ID = #{item.id};
+            </where>
+        </foreach>
+        end;
+    </update>
+
+    <select id="getNewIdsByOldsIds" resultType="com.yy.ppm.produce.bean.dto.TPrdWorkPlanDTO" parameterType="java.lang.Long">
+        SELECT ID,STATUS,PLAN_NO,TRUST_ID FROM T_PRD_WORK_PLAN
+        WHERE TRUST_ID IN
+        ( SELECT TRUST_ID FROM T_PRD_WORK_PLAN
+        WHERE ID IN (
+        <foreach collection="list" item="item" open=" (" separator="," close=")">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+        )
+        )
+    </select>
+	<select id="getWorkCompanyCode" resultType="java.util.HashMap">
+		SELECT DISTINCT
+			A . ID "id",
+			D .WORK_AREA_CD "workAreaCd"
+		FROM
+			T_PRD_WORK_PLAN A,
+			T_BUS_TRUST_LOCATION c,
+			M_STORAGE_YARD D
+		WHERE
+			A .TRUST_ID = c.TRUST_ID
+		AND c.STOREHOUSE_ID = D ."ID"
+		AND A.ID IN
+        <foreach collection="idList" item="id" index="index" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+	</select>
+    <!--<resultMap id="getLastWorkPlanList" type="com.yy.ppm.produce.bean.dto.TPrdWorkPlanDTO">
+
+        <result property="id" column="ID" jdbcType="BIGINT"/>
+        <result property="companyId" column="COMPANY_ID" jdbcType="BIGINT"/>
+        <result property="companyName" column="COMPANY_NAME" jdbcType="VARCHAR"/>
+        <result property="workDate" column="WORK_DATE" jdbcType="DATE"/>
+        <result property="classCode" column="CLASS_CODE" jdbcType="VARCHAR"/>
+        <result property="className" column="CLASS_NAME" jdbcType="VARCHAR"/>
+        <result property="trustId" column="TRUST_ID" jdbcType="BIGINT"/>
+        <result property="trustNo" column="TRUST_NO" jdbcType="VARCHAR"/>
+        <result property="shipvoyageId" column="SHIPVOYAGE_ID" jdbcType="BIGINT"/>
+        <result property="shipvoyageItemId" column="SHIPVOYAGE_ITEM_ID" jdbcType="BIGINT"/>
+        <result property="shipvoyageLabel" column="SHIPVOYAGE_LABEL" jdbcType="VARCHAR"/>
+        <result property="shipName" column="SHIP_NAME" jdbcType="VARCHAR"/>
+        <result property="hatch" column="HATCH" jdbcType="VARCHAR"/>
+        <result property="planNo" column="PLAN_NO" jdbcType="VARCHAR"/>
+        <result property="planType" column="PLAN_TYPE" jdbcType="VARCHAR"/>
+        <result property="processCode" column="PROCESS_CODE" jdbcType="VARCHAR"/>
+        <result property="processName" column="PROCESS_NAME" jdbcType="VARCHAR"/>
+        <result property="workContent" column="WORK_CONTENT" jdbcType="VARCHAR"/>
+        <result property="deptId" column="DEPT_ID" jdbcType="VARCHAR"/>
+        <result property="deptName" column="DEPT_NAME" jdbcType="VARCHAR"/>
+        <result property="quantityPlan" column="QUANTITY_PLAN" jdbcType="BIGINT"/>
+        <result property="tonPlan" column="TON_PLAN" jdbcType="DECIMAL"/>
+        <result property="startTimePlan" column="START_TIME_PLAN" jdbcType="DATE"/>
+        <result property="endTimePlan" column="END_TIME_PLAN" jdbcType="DATE"/>
+        <result property="startWorkTime" column="START_WORK_TIME" jdbcType="DATE"/>
+        <result property="endWorkTime" column="END_WORK_TIME" jdbcType="DATE"/>
+        <result property="remark" column="REMARK" jdbcType="VARCHAR"/>
+        <result property="status" column="STATUS" jdbcType="VARCHAR"/>
+        <result property="statusLabel" column="STATUS_LABEL" jdbcType="VARCHAR"/>
+        <result property="berthId" column="BERTH_ID" jdbcType="BIGINT"/>
+        <result property="berthName" column="BERTH_NAME" jdbcType="VARCHAR"/>
+        <result property="frontTallyBy" column="FRONT_TALLY_BY" jdbcType="VARCHAR"/>
+        <result property="frontTallyByName" column="FRONT_TALLY_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="backTallyBy" column="BACK_TALLY_BY" jdbcType="VARCHAR"/>
+        <result property="backTallyByName" column="BACK_TALLY_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="dispatchBy" column="DISPATCH_BY" jdbcType="VARCHAR"/>
+        <result property="dispatchByName" column="DISPATCH_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="createBy" column="CREATE_BY" jdbcType="BIGINT"/>
+        <result property="createByName" column="CREATE_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="DATE"/>
+        <result property="updateBy" column="UPDATE_BY" jdbcType="BIGINT"/>
+        <result property="updateByName" column="UPDATE_BY_NAME" jdbcType="VARCHAR"/>
+        <result property="updateTime" column="UPDATE_TIME" jdbcType="DATE"/>
+        <result property="examineBy" column="EXAMINE_BY" jdbcType="BIGINT"/>
+        <result property="examineByName" column="EXAMINE_BY_NAME" jdbcType="BIGINT"/>
+        <result property="examineTime" column="EXAMINE_TIME" jdbcType="VARCHAR"/>
+        <result property="reshipmentTypeCode" column="RESHIPMENT_TYPE_CODE" jdbcType="VARCHAR"/>
+        <result property="reshipmentTypeLabel" column="RESHIPMENT_TYPE_Label" jdbcType="VARCHAR"/>
+        <result property="busCargoInfoId" column="BUS_CARGO_INFO_ID" jdbcType="BIGINT"/>
+        <result property="hatchNum" column="HATCH_NUM" jdbcType="INTEGER"/>
+        <result property="loadUnload" column="LOAD_UNLOAD" jdbcType="VARCHAR"/>
+        <result property="portName" column="PORT_NAME" jdbcType="VARCHAR"/>
+        <result property="portCode" column="PORT_CODE" jdbcType="VARCHAR"/>
+         <collection property="statementStatusList" ofType="String">
+             <result column="STATEMENT_STATUS_CODE" jdbcType="VARCHAR"/>
+         </collection>
+    </resultMap>
+    <select id="getLastWorkPlanList" resultMap="getLastWorkPlanList" parameterType="com.yy.ppm.produce.bean.dto.TPrdWorkPlanSearchDTO">
+        SELECT  * FROM (
+        SELECT
+        T1.ID,
+        T1.COMPANY_ID,
+        T1.COMPANY_NAME,
+        T1.WORK_DATE,
+        T1.CLASS_CODE,
+        T1.CLASS_NAME,
+        T1.TRUST_ID,
+        T5.TRUST_NO,
+        T1.SHIPVOYAGE_ID,
+        T1.SHIPVOYAGE_ITEM_ID,
+        CASE WHEN T1.SHIPVOYAGE_ID IS NULL THEN null
+        ELSE
+        CONCAT(CONCAT(T3.SHIP_NAME, '_') , T4.VOYAGE)
+        END SHIPVOYAGE_LABEL,
+        T3.SHIP_NAME,
+        T4.VOYAGE,
+        T1.HATCH,
+        T1.PLAN_NO,
+        T1.PROCESS_CODE,
+        T1.PROCESS_NAME,
+        T1.WORK_CONTENT,
+        T1.DEPT_ID,
+        T1.DEPT_NAME,
+        T1.QUANTITY_PLAN,
+        T1.TON_PLAN,
+        T1.START_TIME_PLAN,
+        T1.END_TIME_PLAN,
+        T1.START_WORK_TIME,
+        T1.END_WORK_TIME,
+        T1.REMARK,
+        T1.STATUS,
+        M1.NM AS STATUS_LABEL,
+        T1.BERTH_ID,
+        T1.BERTH_NAME,
+        T1.FRONT_TALLY_BY,
+        T1.FRONT_TALLY_BY_NAME,
+        T1.BACK_TALLY_BY,
+        T1.BACK_TALLY_BY_NAME,
+        T1.DISPATCH_BY,
+        T1.DISPATCH_BY_NAME,
+        T1.CREATE_BY,
+        T1.CREATE_BY_NAME,
+        T1.CREATE_TIME,
+        T1.UPDATE_BY,
+        T1.UPDATE_BY_NAME,
+        T1.UPDATE_TIME,
+        T1.EXAMINE_BY,
+        T1.EXAMINE_BY_NAME,
+        T1.EXAMINE_TIME,
+        T1.RESHIPMENT_TYPE_CODE,
+        M2.NM AS RESHIPMENT_TYPE_Label,
+        T1.BUS_CARGO_INFO_ID,
+        T4.CARGO_CATEGORY_CODE,
+        T4.CARGO_CATEGORY_NAME,
+        NVL(M1.HATCH_NUM, 0) HATCH_NUM,
+        T4.LOAD_UNLOAD,
+        T5.PORT_CODE,
+        T5.PORT_NAME,
+        TBH.STATEMENT_STATUS_CODE,
+        CASE WHEN T1.PROCESS_CODE IS NULL THEN TO_CHAR(T1.PLAN_TYPE) ELSE TO_CHAR((SELECT PLAN_TYPE_CD FROM M_WORK_PROCESS m0 WHERE T1.PROCESS_CODE = m0.PROCESS_CD ))  END PLAN_TYPE
+
+        FROM
+        T_PRD_WORK_PLAN T1
+        LEFT JOIN m_constants M1 ON T1.STATUS = M1.CD AND M1.TYPE_CD = 'WORK_PLAN_STATUS'
+        LEFT JOIN m_constants M2 ON T1.RESHIPMENT_TYPE_CODE = M2.CD AND M2.TYPE_CD = 'RESHIPMENT_TYPE'
+        LEFT JOIN T_DIS_SHIPVOYAGE T3 ON T1.SHIPVOYAGE_ID = T3.ID
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM T4 ON T4.ID = T1.SHIPVOYAGE_ITEM_ID
+        LEFT JOIN M_SHIP M1 ON T3.SHIP_ID = M1.ID
+        LEFT JOIN T_BUS_TRUST T5 ON T1.TRUST_ID = T5.ID
+        LEFT JOIN T_BUS_TRUST_CARGO TBTC ON TBTC.TRUST_ID = T5.ID
+        LEFT JOIN T_BUS_HANDOVERLIST TBH ON TBTC.CARGO_INFO_ID =TBH.CARGO_INFO_ID
+        <where>
+            <if test="workDate != null">
+                AND T1.WORK_DATE = #{workDate}
+            </if>
+            <if test="classCode != null and classCode != ''">
+                AND T1.CLASS_CODE = #{classCode}
+            </if>
+            <if test="trustId != null ">
+                AND T1.TRUST_ID = #{trustId,jdbcType=BIGINT}
+            </if>
+            <if test="trustNo != null and trustNo!='' ">
+                <bind name="trustNo_like" value="'%'+trustNo+'%'"/>
+                AND T5.TRUST_NO LIKE #{trustNo_like}
+            </if>
+            <if test="shipvoyageItemId != null and planType!=2 " >
+                AND T1.SHIPVOYAGE_ITEM_ID = #{shipvoyageItemId,jdbcType=BIGINT}
+            </if>
+            <if test="processCode != null and processCode != '' ">
+                AND T1.PROCESS_CODE = #{processCode,jdbcType=VARCHAR}
+            </if>
+            <if test="portCode != null and portCode != '' ">
+                AND T5.PORT_CODE = #{portCode,jdbcType=VARCHAR}
+            </if>
+            &lt;!&ndash; 复制、导入用 &ndash;&gt;
+            <if test="ids != null">
+                <foreach collection="ids" open=" AND T1.ID IN (" separator="," item="id" close=")">
+                    #{id, jdbcType=VARCHAR}
+                </foreach>
+            </if>
+        </where>
+        )
+        <where>
+            <if test="planType != null and planType != ''">
+                AND PLAN_TYPE = #{planType}
+            </if>
+        </where>
+        ORDER BY NLSSORT("SHIP_NAME",'NLS_SORT = SCHINESE_PINYIN_M') ,VOYAGE DESC,PROCESS_NAME DESC
+    </select>-->
+
+
+
+    <select id="getYardTallyInfo" resultType="java.lang.Integer">
+        select COUNT(*)
+        from T_YARD_TALLY
+        where DEL_FLAG = 0 and PLAN_ID = #{id,jdbcType=BIGINT}
+        group by PLAN_ID
+    </select>
+    <select id="getTicketInfo" resultType="java.lang.Integer" >
+        select COUNT(*)
+        from T_PRD_WORK_TICKET where WORK_PLAN_ID  = #{id,jdbcType=BIGINT}
+        group by WORK_PLAN_ID
+    </select>
+    <select id="getWorkPlanById" resultType="com.yy.ppm.produce.bean.dto.TPrdWorkPlanDTO">
+        select TPWP.PlAN_NO PLAN_NO,TBT.TRUST_NO TRUST_NO
+        from T_PRD_WORK_PLAN TPWP
+        left join T_BUS_TRUST TBT on TPWP.TRUST_ID = TBT.ID
+        where TPWP.id = #{id,jdbcType=BIGINT}
+    </select>
+    <select id="getCargoInfoByIds" resultType="com.yy.ppm.business.bean.dto.TBusCargoInfoDTO">
+        SELECT * FROM T_BUS_CARGO_INFO WHERE
+        ID IN (
+        <foreach collection="cargoInfoIds" item="id" index="index" separator=",">
+            #{id}
+        </foreach>
+        )
+    </select>
+    <select id="getJSGDayNightWorkPlanList" resultType="com.yy.ppm.dispatch.bean.dto.TDisPortDaynightplanDTO">
+        SELECT
+        M1.ID,
+        M1.CREATE_TIME,
+        M1.START_TIME,
+        M1.END_TIME,
+        M1.COMPANY_ID ,
+        M1.COMPANY_NAME,
+        M1.TRUST_NO,
+        M1.PROCESS_CODE,
+        M1.PROCESS_NAME,
+        M1.CUSTOMER_NAME,
+        M1.SETTLEMENT_BASIS_CODE,
+        M1.SETTLEMENT_BASIS_NAME,
+        M1.REMARK,
+        M1.SHIPVOYAGE_ID,
+        M1.SHIPVOYAGE_ITEM_ID,
+        T2.LOAD_UNLOAD ,
+        CONCAT( CONCAT( M1.SHIP_NAME, '/' ), T2.VOYAGE ) AS "voyage",
+        CONCAT( CONCAT( M1.SHIP_NAME, '/' ), T2.VOYAGE ) AS "shipNameVoyages",
+        T3.BERTH_ID,
+        T3.BERTH_NAME,
+        122 AS "cars",
+        M1.PLAN_QUANTITY,
+        M1.PLAN_TON,
+        T3.CARGO_OWNER_NAME,
+        T4.CARGO_AGENT_NAME,
+        T5.CARGO_NAME,
+        M1.TYPE,
+        T3.SHIP_STATUS_CODE,
+        T3.SHIP_STATUS_NAME,
+        M1.RELEASE_TIME
+
+        FROM
+        T_BUS_TRUST M1
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM T2 ON M1.SHIPVOYAGE_ITEM_ID = T2.ID
+        LEFT JOIN T_DIS_SHIPVOYAGE T3 ON T2.SHIPVOYAGE_ID = T3.ID
+        LEFT JOIN (
+        SELECT
+        REGEXP_REPLACE( LISTAGG ( TO_CHAR( CARGO_OWNER_NAME ), ',' ) WITHIN GROUP ( ORDER BY CARGO_OWNER_NAME ),
+        '([^,]+)(,\1)+', '\1' ) CARGO_OWNER_NAME,TRUST_ID,
+        REGEXP_REPLACE( LISTAGG ( TO_CHAR( CARGO_OWNER_ID ), ',' ) WITHIN GROUP ( ORDER BY CARGO_OWNER_ID ),
+        '([^,]+)(,\1)+', '\1' ) CARGO_OWNER_ID
+        FROM
+        T_BUS_TRUST_CARGO
+        GROUP BY TRUST_ID
+        ) T3 ON M1.ID = T3.TRUST_ID
+        LEFT JOIN (
+        SELECT
+        REGEXP_REPLACE( LISTAGG ( TO_CHAR( CARGO_AGENT_NAME ), ',' ) WITHIN GROUP ( ORDER BY CARGO_AGENT_NAME ),
+        '([^,]+)(,\1)+', '\1' ) CARGO_AGENT_NAME,TRUST_ID
+        FROM
+        T_BUS_TRUST_CARGO GROUP BY TRUST_ID
+        ) T4 ON M1.ID = T4.TRUST_ID
+        LEFT JOIN (
+        SELECT
+        REGEXP_REPLACE( LISTAGG ( TO_CHAR( CARGO_NAME ), ',' ) WITHIN GROUP ( ORDER BY CARGO_NAME ), '([^,]+)(,\1)+',
+        '\1' ) CARGO_NAME,TRUST_ID
+        FROM
+        T_BUS_TRUST_CARGO GROUP BY TRUST_ID
+        ) T5 ON M1.ID = T5.TRUST_ID
+        LEFT JOIN T_BUS_TRUST_CARGO TBTC ON M1.ID = TBTC.TRUST_ID
+        LEFT JOIN T_BUS_CARGO_INFO TBCI ON TBTC.CARGO_INFO_ID = TBCI.ID
+        LEFT JOIN (SELECT
+        MAX(PDP.ID) id,
+        PDP.TRUST_ID,
+        PDP.PLAN_DATE,
+        SUM(PDP.PLAN_TON) planTon
+        FROM
+        T_DIS_PORT_DAYNIGHTPLAN PDP
+        GROUP BY
+        PDP.TRUST_ID,
+        PDP.PLAN_DATE
+        ) t on t.TRUST_ID =M1.ID
+        <where>
+            t.TRUST_ID IS NOT NULL
+            <if test="trustIds != null">
+                <foreach collection="trustIds" open="AND M1.ID IN (" separator="," item="item" close=")">
+                    #{item, jdbcType=VARCHAR}
+                </foreach>
+            </if>
+            <if test="trustIds == null">
+                AND M1.STATUS IN ('30', '40')
+                <if test="trustType != null and trustType !=''">
+                    AND M1.TRUST_TYPE = #{trustType}
+                </if>
+            </if>
+            <if test="shipvoyageItemId != null and shipvoyageItemId !='' ">
+                and ( M1.SHIPVOYAGE_ITEM_ID = #{shipvoyageItemId} OR TBCI.SHIPVOYAGE_ITEM_ID = #{shipvoyageItemId} )
+            </if>
+            <if test="customerName != null and customerName!='' ">
+                <bind name="customerNameBind" value="'%'+customerName+'%'"/>
+                AND M1.CUSTOMER_NAME LIKE #{customerNameBind}
+            </if>
+            <if test="trustNo != null and trustNo!='' ">
+                <bind name="trustNo_like" value="'%'+trustNo+'%'"/>
+                AND M1.TRUST_NO LIKE #{trustNo_like}
+            </if>
+            <if test="packageCode != null and packageCode != ''">
+                AND TBTC.PACKING_CODE = #{packageCode}
+            </if>
+            <if test="workDate !=null" >
+                <if test="classCode !=null and classCode == 01">
+                    AND TO_CHAR(PLAN_DATE, 'YYYY-MM-DD') = TO_CHAR(#{workDate} -1, 'YYYY-MM-DD')
+                </if>
+                <if test="classCode !=null and classCode == 02">
+                    AND TO_CHAR(PLAN_DATE, 'YYYY-MM-DD') = TO_CHAR(#{workDate}, 'YYYY-MM-DD')
+                </if>
+            </if>
+        </where>
+        group by
+        M1.ID,
+        M1.CREATE_TIME,
+        M1.COMPANY_ID,
+        M1.COMPANY_NAME,
+        M1.TRUST_NO,
+        M1.PROCESS_CODE,
+        M1.PROCESS_NAME,
+        M1.CUSTOMER_NAME,
+        M1.SETTLEMENT_BASIS_CODE,
+        M1.SETTLEMENT_BASIS_NAME,
+        M1.REMARK,
+        M1.SHIPVOYAGE_ID,
+        M1.SHIPVOYAGE_ITEM_ID,
+        T2.LOAD_UNLOAD,
+        CONCAT( CONCAT( M1.SHIP_NAME, '/' ), T2.VOYAGE ),
+        T3.BERTH_ID,
+        T3.BERTH_NAME,
+        122,
+        M1.PLAN_QUANTITY,
+        M1.PLAN_TON,
+        T3.CARGO_OWNER_NAME,
+        T4.CARGO_AGENT_NAME,
+        T5.CARGO_NAME,
+        M1.TYPE,
+        M1.RELEASE_TIME,
+        M1.START_TIME,
+        T3.SHIP_STATUS_CODE,
+        T3.SHIP_STATUS_NAME,
+        M1.END_TIME
+        <!--            TBH.STATEMENT_STATUS_CODE-->
+        ORDER BY
+        M1.CREATE_TIME DESC
+    </select>
+    <select id="getJSGWorkPlanList" resultType="com.yy.ppm.produce.bean.dto.TPrdWorkPlanDTO">
+        SELECT
+        T1.ID,
+        CASE WHEN T1.COMPANY_ID IS NULL THEN T5.COMPANY_ID ELSE T1.COMPANY_ID END COMPANY_ID,
+        CASE WHEN T1.COMPANY_NAME IS NULL THEN T5.COMPANY_NAME ELSE T1.COMPANY_NAME END COMPANY_NAME,
+        T1.WORK_DATE,
+        T1.CLASS_CODE,
+        T1.CLASS_NAME,
+        CASE
+        WHEN T1.TRUST_ID IS NULL AND t.TRUST_ID IS NOT NULL THEN t.TRUST_ID
+        ELSE T1.TRUST_ID END TRUST_ID,
+        T5.TRUST_NO,
+        T1.SHIPVOYAGE_ID,
+        T1.SHIPVOYAGE_ITEM_ID,
+        CASE WHEN T1.SHIPVOYAGE_ID IS NULL THEN null
+        ELSE
+        CONCAT(CONCAT(T3.SHIP_NAME, '_') , T4.VOYAGE)
+        END SHIPVOYAGE_LABEL,
+        T3.SHIP_NAME,
+        T4.VOYAGE,
+        T1.HATCH,
+        T1.PLAN_NO,
+        T1.PROCESS_CODE,
+        T1.PROCESS_NAME,
+        T1.WORK_CONTENT,
+        T1.DEPT_ID,
+        T1.DEPT_NAME,
+        T1.QUANTITY_PLAN,
+        T1.TON_PLAN,
+        T1.START_TIME_PLAN,
+        T1.END_TIME_PLAN,
+        T1.START_WORK_TIME,
+        T1.END_WORK_TIME,
+        T1.REMARK,
+        T1.STATUS,
+        M1.NM AS STATUS_LABEL,
+        T1.BERTH_ID,
+        T1.BERTH_NAME,
+        T1.FRONT_TALLY_BY,
+        T1.FRONT_TALLY_BY_NAME,
+        T1.BACK_TALLY_BY,
+        T1.BACK_TALLY_BY_NAME,
+        T1.DISPATCH_BY,
+        T1.DISPATCH_BY_NAME,
+        T1.CREATE_BY,
+        T1.CREATE_BY_NAME,
+        T1.CREATE_TIME,
+        T1.UPDATE_BY,
+        T1.UPDATE_BY_NAME,
+        T1.UPDATE_TIME,
+        T1.EXAMINE_BY,
+        T1.EXAMINE_BY_NAME,
+        T1.EXAMINE_TIME,
+        T1.RESHIPMENT_TYPE_CODE,
+        M2.NM AS RESHIPMENT_TYPE_Label,
+        T1.BUS_CARGO_INFO_ID,
+        T4.CARGO_CATEGORY_CODE,
+        T4.CARGO_CATEGORY_NAME,
+        NVL(M_SH.HATCH_NUM, 0) HATCH_NUM,
+        T4.LOAD_UNLOAD,
+        T5.PORT_CODE,
+        T5.PORT_NAME,
+        T8.PACKING_CODE,
+        CASE WHEN T1.PROCESS_CODE IS NULL THEN TO_CHAR(T1.PLAN_TYPE) ELSE TO_CHAR((SELECT PLAN_TYPE_CD FROM M_WORK_PROCESS m0 WHERE T1.PROCESS_CODE = m0.PROCESS_CD ))  END PLAN_TYPE
+        FROM
+        (SELECT
+        PDP.TRUST_ID,
+        SUM(PDP.PLAN_TON) planTon
+        FROM
+        T_DIS_PORT_DAYNIGHTPLAN PDP
+        <where>
+            <if test="JSGWorkDate !=null" >
+                <if test="classJSGCode !=null and classJSGCode == 01">
+                    AND TO_CHAR(PLAN_DATE, 'YYYY-MM-DD') = TO_CHAR(#{JSGWorkDate} -1, 'YYYY-MM-DD')
+                </if>
+                <if test="classJSGCode !=null and classJSGCode == 02">
+                    AND TO_CHAR(PLAN_DATE, 'YYYY-MM-DD') = TO_CHAR(#{JSGWorkDate}, 'YYYY-MM-DD')
+                </if>
+            </if>
+        </where>
+        GROUP BY
+        PDP.TRUST_ID
+        ) t
+        LEFT JOIN T_PRD_WORK_PLAN T1 on t.TRUST_ID = T1.TRUST_ID and T1.WORK_DATE = #{workDate} AND T1.CLASS_CODE = #{classCode}
+        LEFT JOIN T_BUS_TRUST T5 ON t.TRUST_ID = T5.ID
+        LEFT JOIN m_constants M1 ON T1.STATUS = M1.CD AND M1.TYPE_CD = 'WORK_PLAN_STATUS'
+        LEFT JOIN m_constants M2 ON T1.RESHIPMENT_TYPE_CODE = M2.CD AND M2.TYPE_CD = 'RESHIPMENT_TYPE'
+        LEFT JOIN T_DIS_SHIPVOYAGE T3 ON T1.SHIPVOYAGE_ID = T3.ID
+        LEFT JOIN T_DIS_SHIPVOYAGE_ITEM T4 ON T4.ID = T1.SHIPVOYAGE_ITEM_ID
+        LEFT JOIN M_SHIP M_SH ON T3.SHIP_ID = M_SH.ID
+        LEFT JOIN (
+        select
+        REGEXP_REPLACE( LISTAGG ( TO_CHAR( PACKING_CODE ), ',' ) WITHIN GROUP ( ORDER BY PACKING_CODE ),'([^,]+)(,\1)+', '\1' ) PACKING_CODE
+        ,TRUST_ID
+        FROM T_BUS_TRUST_CARGO
+        GROUP BY TRUST_ID
+        ) T8 ON T5.ID = T8.TRUST_ID
+        ORDER BY TRUST_NO ASC
+    </select>
+
+    <select id="getMassIdsWithPlanId" parameterType="com.yy.ppm.dispatch.bean.dto.TBusTrustLocationDTO"
+            resultType="java.util.HashMap">
+        SELECT CONCAT(CONCAT(CONCAT(CONCAT(M3.STORAGE_YARD_NM, '/'), M2.STORAGE_YARD_NM), '/'), M1.STORAGE_YARD_NM) as "label",
+               CONCAT(CONCAT(CONCAT(CONCAT(M3.STORAGE_YARD_NM, '/'), M2.STORAGE_YARD_NM), '/'),
+                      M1.STORAGE_YARD_NM)                                                                           as "massNameFull",
+               M1.ID                                                                                                as "value",
+               M1.ID                                                                                                as "massId",
+               M1.STORAGE_YARD_NM                                                                                   as "massName",
+               M3.ID                                                                                                as "storehouseId",
+               M3.STORAGE_YARD_NM                                                                                   as "storehouseName",
+               M2.ID                                                                                                as "regionId",
+               M2.STORAGE_YARD_NM                                                                                   as "regionName"
+        FROM M_STORAGE_YARD M1,
+             M_STORAGE_YARD M2,
+             M_STORAGE_YARD M3
+        WHERE M1.STORAGE_YARD_LEVEL = '3'
+          AND M1.PARENT_ID = M2.ID
+          AND M2.STORAGE_YARD_LEVEL = '2'
+          AND M2.PARENT_ID = M3.ID
+          AND M3.STORAGE_YARD_LEVEL = '1'
+          AND M1.ID in(
+            select distinct MASS_ID
+            from T_PRD_PORT_STORAGE where   CLEAN_MASS_SIGN = '0'
+                                      and CARGO_INFO_ID in (select T_BUS_TRUST_CARGO.CARGO_INFO_ID
+                                                            from T_BUS_TRUST_CARGO where TRUST_ID = (select trust_id from T_PRD_WORK_PLAN where id = #{planId,jdbcType=BIGINT})
+                )
+        )
+
+    </select>
+    <select id="getPlanTypeById" resultType="java.util.Map">
+        select tbt.type "planType",
+               MWP.SOURCE_CD "sourceCd",
+               MWP.TARGET_CD "targetCd"
+        from t_prd_work_plan tpwp
+                 left join t_bus_trust tbt on tpwp.trust_id = tbt.id
+                 left join M_WORK_PROCESS MWP  on MWP.PROCESS_CD = tpwp.PROCESS_CODE
+        where tpwp.id = #{planId,jdbcType=BIGINT}
+    </select>
+    <select id="workProcessType2" resultType="java.util.Map">
+        SELECT
+        A.ID,
+        A.PROCESS_CD AS "value",
+        A.PROCESS_NM AS "label",
+        A.SOURCE_CD AS "sourceCd",
+        A.TARGET_CD AS "targetCd",
+        A.NEW_PROCESS AS "newProcess"
+        FROM
+        M_WORK_PROCESS A
+        LEFT JOIN M_DICT_DATA B ON B.DICT_VALUE = A.PROCESS_TYPE_CD AND B.DICT_TYPE = 'PROCESS_TYPE'
+        <where>
+            A.PARENT_ID = -1 AND B.DICT_VALUE = #{dictValue}
+            <if test="planType !=null ">
+                AND  A.PLAN_TYPE_CD = #{planType,jdbcType=BIGINT}
+            </if>
+        </where>
+        ORDER BY  A.PROCESS_NM DESC
+    </select>
+    <select id="getLgMacNum" resultType="java.util.Map" parameterType="java.util.List">
+        SELECT
+        WORK_PLAN_ID || '_' || WORK_POSITION_NAME "workLocation",
+        LISTAGG (TO_CHAR(MAC_NUM),
+        ',') WITHIN GROUP (
+        ORDER BY MAC_NUM) "workLocationLabel"
+        FROM
+        (
+        SELECT
+        WORK_PLAN_ID,
+        WORK_POSITION_CODE ,
+        WORK_POSITION_NAME,
+        EQUIPMENT_TYPE_ID,
+        EQUIPMENT_TYPE_NAME || COUNT(0) MAC_NUM
+        FROM
+        T_PRD_DISPATCH_SECONDARY tpds
+        WHERE
+        WORK_POSITION_CODE IS NOT NULL
+        AND WORK_POSITION_NAME IS NOT NULL
+        <if test="ids!=null">
+            <foreach collection="ids" open="AND WORK_PLAN_ID IN (" separator="," item="id" close=")">
+                #{id,jdbcType=VARCHAR}
+            </foreach>
+        </if>
+        GROUP BY
+        WORK_POSITION_CODE ,
+        WORK_POSITION_NAME,
+        WORK_PLAN_ID,
+        EQUIPMENT_TYPE_ID,
+        EQUIPMENT_TYPE_NAME
+        )
+        GROUP BY
+        WORK_POSITION_CODE ,
+        WORK_POSITION_NAME,
+        WORK_PLAN_ID
+        ORDER BY WORK_PLAN_ID
+
+
+
+
+    </select>
+</mapper>
+

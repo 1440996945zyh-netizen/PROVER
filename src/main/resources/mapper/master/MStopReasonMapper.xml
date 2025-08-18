@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.master.mapper.MStopReasonMapper">
+
+    <sql id="commonList">
+        SELECT
+            M1.ID,
+            M1.STOP_REASON_CLASS_CODE,
+            d.DICT_LABEL STOP_REASON_CLASS_LABEL,
+            M1.STOP_REASON_TYPE_CODE,
+            e.DICT_LABEL STOP_REASON_TYPE_LABEL,
+            M1.STOP_REASON_NAME,
+            M1.SHORTHAND_CODE,
+            M1.SORT_NUM,
+            M1.CREATE_BY,
+            M1.CREATE_BY_NAME,
+            M1.CREATE_TIME
+        FROM
+            M_STOP_REASON M1
+            left join M_DICT_DATA d ON M1.STOP_REASON_CLASS_CODE=d.DICT_VALUE and d.DICT_TYPE='STOP_REASON_CLASS'
+            left join M_DICT_DATA e ON M1.STOP_REASON_TYPE_CODE=e.DICT_VALUE and e.DICT_TYPE='STOP_REASON_TYPE'
+        <where>
+            <if test="stopReasonClassCode != null and stopReasonClassCode != ''">
+                and M1.STOP_REASON_CLASS_CODE = #{stopReasonClassCode}
+            </if>
+            <if test="stopReasonName != null and stopReasonName != ''">
+                <bind name="stopReasonName" value="'%'+stopReasonName+'%'"/>
+                and M1.STOP_REASON_NAME LIKE #{stopReasonName}
+            </if>
+            <if test="stopReasonTypeCode != null and stopReasonTypeCode != ''">
+                and M1.STOP_REASON_TYPE_CODE = #{stopReasonTypeCode}
+            </if>
+        </where>
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.master.bean.dto.MStopReasonDTO"
+            parameterType="com.yy.ppm.master.bean.dto.MStopReasonSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.master.bean.dto.MStopReasonDTO"
+            parameterType="com.yy.ppm.master.bean.dto.MStopReasonSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.master.bean.dto.MStopReasonDTO" parameterType="java.lang.Long">
+        SELECT
+            ID,
+            STOP_REASON_CLASS_CODE,
+            STOP_REASON_TYPE_CODE,
+            STOP_REASON_NAME,
+            SHORTHAND_CODE,
+            SORT_NUM,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        FROM
+        M_STOP_REASON
+        <where>
+            id = #{id}
+        </where>
+    </select>
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.master.bean.dto.MStopReasonDTO">
+        INSERT INTO M_STOP_REASON(ID,
+                        STOP_REASON_CLASS_CODE,
+                        STOP_REASON_TYPE_CODE,
+                        STOP_REASON_NAME,
+                        SHORTHAND_CODE,
+                        SORT_NUM,
+                        CREATE_BY,
+                        CREATE_BY_NAME,
+                        CREATE_TIME)
+        VALUES (#{id, jdbcType=BIGINT},
+                #{stopReasonClassCode, jdbcType=VARCHAR},
+                #{stopReasonTypeCode, jdbcType=VARCHAR},
+                #{stopReasonName, jdbcType=VARCHAR},
+                #{shorthandCode, jdbcType=VARCHAR},
+                #{sortNum, jdbcType=BIGINT},
+                #{loginUserId, jdbcType=BIGINT},
+                #{loginUserName, jdbcType=VARCHAR},
+                #{now}
+                )
+    </insert>
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.master.bean.dto.MStopReasonDTO">
+        UPDATE
+            M_STOP_REASON
+        SET
+            STOP_REASON_NAME = #{stopReasonName,jdbcType=VARCHAR},
+            SHORTHAND_CODE = #{shorthandCode,jdbcType=VARCHAR},
+            STOP_REASON_CLASS_CODE = #{stopReasonClassCode,jdbcType=VARCHAR},
+            STOP_REASON_TYPE_CODE = #{stopReasonTypeCode,jdbcType=VARCHAR},
+            SORT_NUM = #{sortNum,jdbcType=BIGINT},
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=BIGINT},
+            UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE
+        FROM M_STOP_REASON
+        WHERE id = #{id}
+    </delete>
+</mapper>
+

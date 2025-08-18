@@ -1,0 +1,620 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.produce.mapper.TPrdDispatchSecondaryMapper">
+
+    <sql id="commonList">
+        SELECT
+            T1.ID,
+            T1.WORK_PLAN_ID,
+            T1.DISPATCH_TYPE,
+            T1.WORK_POSITION_CODE,
+            T1.WORK_POSITION_NAME,
+            T1.EQUIPMENT_TYPE_ID,
+            T1.EQUIPMENT_TYPE_NAME,
+            T1.EQUIPMENT_ID,
+            T1.EQUIPMENT_NO,
+            T1.OPERATORS_ID,
+            T1.OPERATORS_NAME,
+            T1.DEPT_ID,
+            T1.DEPT_NAME,
+            T1.REMARK,
+            T1.CREATE_BY,
+            T1.CREATE_BY_NAME,
+            T1.CREATE_TIME,
+            T1.UPDATE_BY,
+            T1.UPDATE_BY_NAME,
+            T1.UPDATE_TIME,
+            T1.COMPANY_ID,
+            T1.COMPANY_NAME,
+            T1.NUMBER_COUNT,
+            T1.SUB_PROCESS_CODE,
+            T1.SUB_PROCESS_NAME
+        FROM
+            T_PRD_DISPATCH_SECONDARY T1 
+            LEFT JOIN SYS_DEPT T2 ON T1.DEPT_ID = T2.ID
+        <where>
+            <if test="workPlanId != null">
+                and T1.WORK_PLAN_ID = #{workPlanId}
+            </if>
+            <if test="dispatchType != null">
+                and T1.DISPATCH_TYPE = #{dispatchType}
+            </if>
+	        <if test="deptNo != null and deptNo != ''">
+	            <bind name="deptNo_like" value="deptNo + '%'"/>
+	            AND T2.DEPT_NO like #{deptNo_like,jdbcType=VARCHAR}
+	        </if>
+        </where>
+       ORDER BY T1.EQUIPMENT_TYPE_NAME,T1.EQUIPMENT_NO
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.produce.bean.dto.TPrdDispatchSecondaryDTO" parameterType="com.yy.ppm.produce.bean.dto.TPrdDispatchSecondarySearchDTO">
+        SELECT
+            T1.ID,
+            T1.WORK_PLAN_ID,
+            T1.DISPATCH_TYPE,
+            T1.WORK_POSITION_CODE,
+            T1.WORK_POSITION_NAME,
+            T1.EQUIPMENT_TYPE_ID,
+            T1.EQUIPMENT_TYPE_NAME,
+            T1.EQUIPMENT_ID,
+            T1.EQUIPMENT_NO,
+            T1.OPERATORS_ID,
+            T1.OPERATORS_NAME,
+            T1.DEPT_ID,
+            T1.DEPT_NAME,
+            T1.REMARK,
+            T1.CREATE_BY,
+            T1.CREATE_BY_NAME,
+            T1.CREATE_TIME,
+            T1.UPDATE_BY,
+            T1.UPDATE_BY_NAME,
+            T1.UPDATE_TIME,
+            T1.COMPANY_ID,
+            T1.COMPANY_NAME,
+            T1.NUMBER_COUNT,
+            T1.SUB_PROCESS_CODE,
+            T1.SUB_PROCESS_NAME
+        FROM
+            T_PRD_DISPATCH_SECONDARY T1
+        LEFT JOIN SYS_DEPT T2 ON T1.DEPT_ID = T2.ID
+        <where>
+            <if test="workPlanId != null">
+                and T1.WORK_PLAN_ID = #{workPlanId}
+            </if>
+            <if test="dispatchType != null">
+                and T1.DISPATCH_TYPE = #{dispatchType}
+            </if>
+	        <if test="deptNo != null and deptNo != ''">
+	            <bind name="deptNo_like" value="deptNo + '%'"/>
+	            AND (T2.DEPT_NO like #{deptNo_like,jdbcType=VARCHAR}
+	            <if test="canDispatchDept != null and canDispatchDept != ''"> 
+	            	${canDispatchDept}
+		        </if>
+		        )
+	        </if>
+        </where>
+        ORDER BY T1.EQUIPMENT_TYPE_NAME,T1.EQUIPMENT_NO
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getListLabor" resultType="com.yy.ppm.produce.bean.dto.TPrdDispatchSecondaryDTO" parameterType="com.yy.ppm.produce.bean.dto.TPrdDispatchSecondarySearchDTO">
+        SELECT
+        T1.ID,
+        T1.WORK_PLAN_ID,
+        T1.DISPATCH_TYPE,
+        T1.WORK_POSITION_CODE,
+        T1.WORK_POSITION_NAME,
+        T1.EQUIPMENT_TYPE_ID,
+        T1.EQUIPMENT_TYPE_NAME,
+        T1.EQUIPMENT_ID,
+        T1.EQUIPMENT_NO,
+        T1.OPERATORS_ID,
+        T1.OPERATORS_NAME,
+        T1.DEPT_ID,
+        T1.DEPT_NAME,
+        T1.REMARK,
+        T1.CREATE_BY,
+        T1.CREATE_BY_NAME,
+        T1.CREATE_TIME,
+        T1.UPDATE_BY,
+        T1.UPDATE_BY_NAME,
+        T1.UPDATE_TIME,
+        T1.COMPANY_ID,
+        T1.COMPANY_NAME,
+        T1.NUMBER_COUNT,
+        T1.SUB_PROCESS_CODE,
+        T1.SUB_PROCESS_NAME,
+        T1.DEPT_PARENT_ID,
+        T1.DEPT_PARENT_NAME
+        FROM
+        T_PRD_DISPATCH_SECONDARY T1
+        LEFT JOIN SYS_DEPT T2 ON T1.DEPT_ID = T2.ID
+        <where>
+            <if test="workPlanId != null">
+                and T1.WORK_PLAN_ID = #{workPlanId}
+            </if>
+            <if test="dispatchType != null">
+                and T1.DISPATCH_TYPE = #{dispatchType}
+            </if>
+            <if test="deptNo != null and deptNo != ''">
+                <bind name="deptNo_like" value="deptNo + '%'"/>
+                AND T2.DEPT_NO like #{deptNo_like,jdbcType=VARCHAR}
+            </if>
+        </where>
+        ORDER BY T1.EQUIPMENT_TYPE_NAME,T1.EQUIPMENT_NO
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.produce.bean.dto.TPrdDispatchSecondaryDTO" parameterType="com.yy.ppm.produce.bean.dto.TPrdDispatchSecondarySearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.produce.bean.dto.TPrdDispatchSecondaryDTO" parameterType="java.lang.Long">
+        SELECT
+            T1.ID,
+            T1.WORK_PLAN_ID,
+            T1.DISPATCH_TYPE,
+            T1.WORK_POSITION_CODE,
+            T1.WORK_POSITION_NAME,
+            T1.EQUIPMENT_TYPE_ID,
+            T1.EQUIPMENT_TYPE_NAME,
+            T1.EQUIPMENT_ID,
+            T1.EQUIPMENT_NO,
+            T1.OPERATORS_ID,
+            T1.OPERATORS_NAME,
+            T1.DEPT_ID,
+            T1.DEPT_NAME,
+            T1.REMARK,
+            T1.CREATE_BY,
+            T1.CREATE_BY_NAME,
+            T1.CREATE_TIME,
+            T1._BY,
+            T1.UPDATE_BY_NAME,
+            T1.UPDATE_TIME,
+            T1.SUB_PROCESS_CODE,
+            T1.SUB_PROCESS_NAME
+        FROM
+            T_PRD_DISPATCH_SECONDARY T1
+        <where>
+            id = #{id}
+        </where>
+    </select>
+<!--    <select id="getLaborList" resultType="com.yy.ppm.system.bean.dto.SysUserDTO">
+        SELECT
+            U.ID as operatorsId,
+            U.USER_NAME as operatorsName,
+            U.DEPT_ID,
+            D.DEPT_NAME,
+            DS.WORK_POSITION_CODE,
+            DS.WORK_POSITION_NAME,
+            DS.WORK_PLAN_ID,
+            DS.NUMBER_COUNT
+        FROM
+            SYS_USER U
+        LEFT JOIN SYS_DEPT D ON D.DEPT_ID = U.DEPT_ID
+        LEFT JOIN T_PRD_DISPATCH_SECONDARY DS ON DS.OPERATORS_ID = U.ID
+         AND DS.WORK_PLAN_ID = #{workPlanId}
+         AND DS.DISPATCH_TYPE = '2'
+        WHERE U.IS_LABOR = '1'
+    </select>-->
+
+<!--        <select id="getLaborList" resultType="com.yy.ppm.produce.bean.dto.TPrdDispatchSecondManResultType">
+       SELECT
+        t2.id AS deptId,
+        t2.DEPT_NAME AS deptName
+        FROM
+        SYS_DEPT t2
+        LEFT JOIN SYS_DEPT t1 ON  t2.PARENT_ID = t1.id  AND t1.DEPT_LEVEL = 2 AND t1.IS_LABOR = 1
+        WHERE
+        t2.DEPT_LEVEL = 4
+        AND t1.STATUS = '1'
+        AND t2.STATUS = '1'
+            <if test="deptNo != null and deptNo != ''">
+                <bind name="deptNo_like" value="deptNo + '%'"/>
+                AND t2.DEPT_NO like #{deptNo_like}
+            </if>
+        ORDER BY t2.DEPT_NAME ASC
+    </select>-->
+
+    <select id="getLaborList" resultType="com.yy.ppm.produce.bean.dto.TPrdDispatchSecondManResultType">
+        SELECT
+        t2.id AS deptId,
+        t2.DEPT_NAME AS deptName
+        FROM
+        SYS_DEPT t2
+        LEFT JOIN SYS_DEPT t1 ON  t2.PARENT_ID = t1.id  AND t1.DEPT_LEVEL = 2 AND t1.IS_LABOR = 1
+        WHERE
+        t2.DEPT_LEVEL = 4
+        AND t1.STATUS = '1'
+        AND t2.STATUS = '1'
+        <if test="deptNo != null and deptNo != ''">
+            <bind name="deptNo_like" value="deptNo + '%'"/>
+            AND t2.DEPT_NO like #{deptNo_like}
+        </if>
+        ORDER BY t2.DEPT_NAME DESC
+    </select>
+
+    <select id="getByworkplanId"  resultType="com.yy.ppm.produce.bean.dto.TPrdDispatchSecondManResultType">
+         SELECT
+            DS.ID,
+            DS.DEPT_ID,
+            DS.COMPANY_ID,
+            DS.COMPANY_NAME,
+            DS.WORK_POSITION_CODE,
+            DS.WORK_POSITION_NAME,
+            DS.WORK_PLAN_ID,
+            DS.NUMBER_COUNT,
+            DS.SUB_PROCESS_CODE,
+            DS.SUB_PROCESS_NAME,
+            DS.DEPT_PARENT_ID,
+            DS.DEPT_PARENT_NAME
+        FROM
+           T_PRD_DISPATCH_SECONDARY DS
+        WHERE
+            DS.DISPATCH_TYPE = '2'
+         AND DS.WORK_PLAN_ID = #{workPlanId}
+    </select>
+    <select id="getLaborListLever2" resultType="com.yy.ppm.produce.bean.dto.TPrdDispatchSecondManResultType">
+    SELECT
+       t.id AS companyId,
+       t.DEPT_NAME AS companyName,
+       t1.id AS deptId,
+       t1.DEPT_NAME AS deptName
+    FROM
+    SYS_DEPT t
+    LEFT JOIN SYS_DEPT t1 ON t1.PARENT_ID = t.id AND t.DEPT_LEVEL = 1
+    WHERE
+	    (t1.DEPT_LEVEL = 3 OR t1.DEPT_LEVEL = 4)
+    AND t.STATUS = '1'
+    AND t1.STATUS = '1'
+    AND t.IN_OUT_TYPE = 'O'
+    </select>
+    <select id="getLaborListLever3" resultType="com.yy.ppm.produce.bean.dto.TPrdDispatchSecondManResultType">
+    SELECT
+        t.id AS companyId,
+        t.DEPT_NAME AS companyName,
+        t2.id AS deptId,
+        t2.DEPT_NAME AS deptName
+    FROM
+        SYS_DEPT t2
+        LEFT JOIN SYS_DEPT t1 ON  t2.PARENT_ID = t1.id  AND t1.DEPT_LEVEL = 2
+        LEFT JOIN SYS_DEPT t ON  t1.PARENT_ID = t.id  AND t.DEPT_LEVEL = 1
+    WHERE
+         (t2.DEPT_LEVEL = 3 OR t2.DEPT_LEVEL = 4)
+    AND t.STATUS = '1'
+    AND t1.STATUS = '1'
+    AND t2.STATUS = '1'
+    AND t.IN_OUT_TYPE = 'O'
+    </select>
+
+<!--
+    <select id="getLaborList" resultType="com.yy.ppm.produce.bean.dto.TPrdDispatchSecondManResultType">
+       SELECT
+            t1.id AS companyId,
+            t1.DEPT_NAME AS companyName,
+            t.id AS deptId,
+            t.DEPT_NAME AS DEPT_NAME
+        FROM
+            SYS_DEPT t
+            LEFT JOIN SYS_DEPT t1 ON t.PARENT_ID = t1.id AND t1.DEPT_LEVEL = 1
+        WHERE
+            t.DEPT_LEVEL = 2
+            AND t.STATUS = '1'
+            AND t1.STATUS = '1'
+            AND t.IN_OUT_TYPE = 'O'
+    </select>
+-->
+
+
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.produce.bean.dto.TPrdDispatchSecondaryDTO">
+        INSERT INTO T_PRD_DISPATCH_SECONDARY(
+            ID,
+            WORK_PLAN_ID,
+            DISPATCH_TYPE,
+            WORK_POSITION_CODE,
+            WORK_POSITION_NAME,
+            EQUIPMENT_TYPE_ID,
+            EQUIPMENT_TYPE_NAME,
+            EQUIPMENT_ID,
+            EQUIPMENT_NO,
+            OPERATORS_ID,
+            OPERATORS_NAME,
+            DEPT_ID,
+            DEPT_NAME,
+            REMARK,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )VALUES (
+            #{id, jdbcType=VARCHAR},
+            #{workPlanId, jdbcType=VARCHAR},
+            #{dispatchType, jdbcType=VARCHAR},
+            #{workPositionCode, jdbcType=VARCHAR},
+            #{workPositionName, jdbcType=VARCHAR},
+            #{equipmentTypeId, jdbcType=VARCHAR},
+            #{equipmentTypeName, jdbcType=VARCHAR},
+            #{equipmentId, jdbcType=VARCHAR},
+            #{equipmentNo, jdbcType=VARCHAR},
+            #{operatorsId, jdbcType=VARCHAR},
+            #{operatorsName, jdbcType=VARCHAR},
+            #{deptId, jdbcType=VARCHAR},
+            #{deptName, jdbcType=VARCHAR},
+            #{remark, jdbcType=VARCHAR},
+            #{loginUserId, jdbcType=BIGINT},
+            #{loginUserName, jdbcType=VARCHAR},
+            #{now}
+        )
+    </insert>
+
+    <!-- 批量新增 -->
+    <insert id="insertBatch">
+        INSERT INTO T_PRD_DISPATCH_SECONDARY(
+            ID,
+            WORK_PLAN_ID,
+            DISPATCH_TYPE,
+            WORK_POSITION_CODE,
+            WORK_POSITION_NAME,
+            EQUIPMENT_TYPE_ID,
+            EQUIPMENT_TYPE_NAME,
+            EQUIPMENT_ID,
+            EQUIPMENT_NO,
+            OPERATORS_ID,
+            OPERATORS_NAME,
+            DEPT_ID,
+            DEPT_NAME,
+            COMPANY_ID,
+            COMPANY_NAME,
+            REMARK,
+            NUMBER_COUNT,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME,
+            SUB_PROCESS_CODE,
+            SUB_PROCESS_NAME,
+            DEPT_PARENT_ID,
+            DEPT_PARENT_NAME
+        ) (
+          <foreach collection="list" item="item"  open="" close="" separator=" UNION ALL " >
+                SELECT
+                    #{item.id, jdbcType=VARCHAR},
+                    #{item.workPlanId, jdbcType=VARCHAR},
+                    #{item.dispatchType, jdbcType=VARCHAR},
+                    #{item.workPositionCode, jdbcType=VARCHAR},
+                    #{item.workPositionName, jdbcType=VARCHAR},
+                    #{item.equipmentTypeId, jdbcType=VARCHAR},
+                    #{item.equipmentTypeName, jdbcType=VARCHAR},
+                    #{item.equipmentId, jdbcType=VARCHAR},
+                    #{item.equipmentNo, jdbcType=VARCHAR},
+                    #{item.operatorsId, jdbcType=BIGINT},
+                    #{item.operatorsName, jdbcType=VARCHAR},
+                    #{item.deptId, jdbcType=BIGINT},
+                    #{item.deptName, jdbcType=VARCHAR},
+                    #{item.companyId, jdbcType=BIGINT},
+                    #{item.companyName, jdbcType=VARCHAR},
+                    #{item.remark, jdbcType=VARCHAR},
+                    #{item.numberCount, jdbcType=BIGINT},
+                    #{loginUserId, jdbcType=BIGINT},
+                    #{loginUserName, jdbcType=VARCHAR},
+                    #{now},
+                    #{loginUserId, jdbcType=BIGINT},
+                    #{loginUserName, jdbcType=VARCHAR},
+                    #{now},
+                    #{item.subProcessCode, jdbcType=VARCHAR},
+                    #{item.subProcessName, jdbcType=VARCHAR},
+                    #{item.deptParentId, jdbcType=BIGINT},
+                    #{item.deptParentName, jdbcType=VARCHAR}
+                FROM DUAL
+              </foreach>
+            )
+    </insert>
+
+    <!-- 修改 -->
+   <update id="update" parameterType="com.yy.ppm.produce.bean.dto.TPrdDispatchSecondaryDTO">
+        UPDATE
+            T_PRD_DISPATCH_SECONDARY
+        SET
+            ID = #{id,jdbcType=VARCHAR},
+            WORK_PLAN_ID = #{workPlanId,jdbcType=VARCHAR},
+            DISPATCH_TYPE = #{dispatchType,jdbcType=VARCHAR},
+            WORK_POSITION_CODE = #{workPositionCode,jdbcType=VARCHAR},
+            WORK_POSITION_NAME = #{workPositionName,jdbcType=VARCHAR},
+            EQUIPMENT_TYPE_ID = #{equipmentTypeId,jdbcType=VARCHAR},
+            EQUIPMENT_TYPE_NAME = #{equipmentTypeName,jdbcType=VARCHAR},
+            EQUIPMENT_ID = #{equipmentId,jdbcType=VARCHAR},
+            EQUIPMENT_NO = #{equipmentNo,jdbcType=VARCHAR},
+            NUM = #{num,jdbcType=VARCHAR},
+            OPERATORS_ID = #{operatorsId,jdbcType=VARCHAR},
+            OPERATORS_NAME = #{operatorsName,jdbcType=VARCHAR},
+            DEPT_ID = #{deptId,jdbcType=VARCHAR},
+            DEPT_NAME = #{deptName,jdbcType=VARCHAR},
+            REMARK = #{remark,jdbcType=VARCHAR},
+            COMPANY_ID = #{item.companyId, jdbcType=BIGINT},
+            COMPANY_NAME = #{item.companyName, jdbcType=VARCHAR},
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now},
+            SUB_PROCESS_CODE = #{subProcessCode, jdbcType=VARCHAR},
+            SUB_PROCESS_NAME = #{subProcessName, jdbcType=VARCHAR}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+   <!-- 删除 -->
+   <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM
+            T_PRD_DISPATCH_SECONDARY
+        WHERE
+            id = #{id}
+    </delete>
+
+    <!-- 批量删除 -->
+   <delete id="deleteByIds" parameterType="java.lang.Long">
+        DELETE FROM
+            T_PRD_DISPATCH_SECONDARY
+       <where>
+            <foreach collection="ids" open="AND ID IN (" separator="," item="id" close=")">
+                #{id, jdbcType=VARCHAR}
+            </foreach>
+        </where>
+    </delete>
+
+    <!-- 删除 -->
+    <delete id="deleteDispatch">
+    	DELETE
+		FROM
+			T_PRD_DISPATCH_SECONDARY
+		WHERE
+			"ID" IN (
+				SELECT
+					T1. ID
+				FROM
+					T_PRD_DISPATCH_SECONDARY T1,
+					SYS_DEPT T2
+				WHERE
+		        	T1.DEPT_ID = T2.ID
+		            AND T1.WORK_PLAN_ID = #{workPlanId}
+		            AND T1.DISPATCH_TYPE = #{dispatchType}
+			        <if test="deptNo != null and deptNo != ''">
+			            <bind name="deptNo_like" value="deptNo + '%'"/>
+			            AND (T2.DEPT_NO like #{deptNo_like,jdbcType=VARCHAR}
+			            <if test="canDispatchDept != null and canDispatchDept != ''"> 
+			            	${canDispatchDept}
+				        </if>
+				        )
+			        </if>
+                    
+			)
+    </delete>
+    <!-- 装卸队 删除 -->
+    <delete id="deleteDispatchLabor">
+        DELETE
+        FROM
+        T_PRD_DISPATCH_SECONDARY
+        WHERE
+        "ID" IN (
+        SELECT
+        T1. ID
+        FROM
+        T_PRD_DISPATCH_SECONDARY T1
+        WHERE
+         T1.WORK_PLAN_ID = #{workPlanId}
+        AND T1.DISPATCH_TYPE = #{dispatchType}
+        )
+    </delete>
+
+    <select id="getCompanyByDeptId" resultType="java.util.HashMap">
+        SELECT
+        ID AS "id",
+        DEPT_NAME AS "deptName",
+        DEPT_LEVEL AS "deptLevel"
+         FROM
+        SYS_DEPT
+        START WITH ID = #{deptId,jdbcType=BIGINT}
+        CONNECT BY PRIOR  PARENT_ID=ID
+    </select>
+    <select id="getWorkTicketBack" resultType="java.util.HashMap">
+        SELECT
+        SHIPVOYAGE_ITEM_ID "shipvoyageItemId",
+        TO_CHAR(A.WORK_DATE,'yyyy-mm-dd') || A.CLASS_NAME "shijianBanci",
+        A.PROCESS_NAME "processName",
+        A.DEPT_NAME "deptName",
+        A.TON_PLAN "tonPlan"
+        FROM T_PRD_WORK_PLAN A
+        LEFT JOIN T_PRD_WORK_TICKET B
+        ON A.ID = B.WORK_PLAN_ID
+        <where>
+            B.TICKET_TYPE = '1'
+            <if test="shipVoyageItemIds!=null">
+                AND A.SHIPVOYAGE_ITEM_ID IN (
+                <foreach collection="shipVoyageItemIds" item="id" index="index" separator=",">
+                    #{id}
+                </foreach>
+                )
+            </if>
+        </where>
+
+    </select>
+    <select id="getWorkTicket" resultType="java.util.HashMap">
+        SELECT
+            TO_CHAR (T1.WORK_DATE, 'yyyy-mm-dd') || '  ' || T1.CLASS_NAME "className",
+            T2.PROCESS_DETAIL_NAME "processDetailName",
+            T2.PERSONNEL_NAME "personnelName",
+            LISTAGG (T5.EQUIPMENT_NO, ',') WITHIN GROUP (ORDER BY T5.EQUIPMENT_NO) "equipmentNo",
+			T2.DEPT_NAME "deptItemName",
+			T2.TON "ton",
+            T5.EQUIPMENT_TYPE_NAME "equipmentTypeName",
+			TDSI.ID "shipvoyageItemId"
+        FROM
+            T_PRD_WORK_TICKET T1
+            LEFT JOIN T_PRD_WORK_TICKET_DETAIL T2 ON T1. ID = T2.WORK_TICKET_ID
+            LEFT JOIN T_PRD_WORK_PLAN T3 ON T3. ID = T1.WORK_PLAN_ID
+            LEFT JOIN T_DIS_SHIPVOYAGE TDS ON T3.SHIPVOYAGE_ID = TDS. ID
+            LEFT JOIN T_DIS_SHIPVOYAGE_ITEM TDSI ON T3.SHIPVOYAGE_ITEM_ID = TDSI. ID
+            LEFT JOIN T_PRD_WORK_TICKET_EQUIPMENT T5 ON T5.WORK_TICKET_DETAIL_ID = T2. ID
+        WHERE
+            WORK_TICKET_STATUS IN ('10','20') AND TICKET_TYPE = '1'
+
+            <if test="shipVoyageItemIds!=null">
+            AND TDSI.ID IN (
+            <foreach collection="shipVoyageItemIds" item="id" index="index" separator=",">
+                #{id}
+            </foreach>
+            )
+        </if>
+        GROUP BY
+            TO_CHAR (T1.WORK_DATE, 'yyyy-mm-dd') || '  ' || T1.CLASS_NAME,
+            T2.PROCESS_DETAIL_NAME,
+            T2.PERSONNEL_NAME,
+            T2.DEPT_NAME,
+            T2.TON,
+            TDSI.ID,
+            T2.TON,
+            T5.EQUIPMENT_TYPE_NAME,
+            T2.CAR_COUNT
+    </select>
+<!--    LEFT JOIN M_WORK_PROCESS T6 ON T6.PROCESS_CD = T1.PROCESS_CODE-->
+<!--    AND T6.IS_DISPATCH_TALLY = '1'-->
+
+    <select id="getWorkTicketInfo" resultType="java.util.Map" parameterType="java.lang.Long">
+
+        select TPWTD.id "ticketDetailId",
+               decode(TPWTD.ALLOT_TYPE,'2','机械分配','3','人员分配') "allotType",
+               TBT.TRUST_NO "trustNo"
+        from T_PRD_WORK_TICKET TPWT
+                 left join T_PRD_WORK_TICKET_DETAIL TPWTD on  TPWT.id = TPWTD.WORK_TICKET_ID
+                 left join T_PRD_WORK_PLAN TPWP on TPWP.id  = TPWT.WORK_PLAN_ID
+                 left join T_BUS_TRUST TBT on TBT.id = TPWP.TRUST_ID
+        where TPWT.WORK_PLAN_ID = #{workPlanId,jdbcType=BIGINT} and TPWTD.id is not null and  TPWTD.ALLOT_TYPE in (2,3)
+    </select>
+    <select id="getLaborDeptList" resultType="com.yy.ppm.produce.bean.dto.TPrdDispatchSecondManResultType">
+        SELECT
+        t2.id AS deptParentId,
+        t2.DEPT_NAME AS deptParentName
+        FROM
+        SYS_DEPT t2
+        WHERE
+        t2.DEPT_LEVEL = 2
+        AND t2.STATUS = '1'
+        AND t2.IS_LABOR = 1
+        ORDER BY t2.DEPT_NAME DESC
+    </select>
+    <select id="getLaborGroupList" resultType="com.yy.ppm.produce.bean.dto.TPrdDispatchSecondManResultType">
+        SELECT
+        t2.id AS deptId,
+        t2.DEPT_NAME AS deptName
+        FROM
+        SYS_DEPT t2
+        WHERE
+        t2.STATUS = '1'
+        AND t2.PARENT_ID= #{deptParentId}
+        ORDER BY t2.DEPT_NAME DESC
+    </select>
+</mapper>
+

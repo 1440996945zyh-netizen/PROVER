@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.business.mapper.TBusOrderMapper">
+
+    <sql id="commonList">
+        SELECT
+        ID,
+        ORDER_TYPE,
+        CASE WHEN ORDER_TYPE = '1' THEN '疏港' WHEN ORDER_TYPE = '3' THEN '装船' END ORDER_TYPE_NAME,
+        CUSTOMER_ID,
+        CUSTOMER_NAME,
+        STATUS,
+        CASE WHEN STATUS = '0' THEN '待审核' WHEN STATUS = '1' THEN '已审核' END STATUS_NAME,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME,
+        APPROVED_BY,
+        APPROVED_BY_NAME,
+        APPROVED_TIME,
+        SHIPVOYAGE_ID,
+        SHIPVOYAGE_ITEM_ID,
+        SHIP_NAME,
+        VOYAGE
+        FROM
+        T_BUS_ORDER
+        <where>
+            <if test="id != null">
+                and ID = #{id}
+            </if>
+            <if test="orderType != null">
+                and ORDER_TYPE = #{orderType}
+            </if>
+            <if test="customerId != null">
+                and CUSTOMER_ID = #{customerId}
+            </if>
+            <if test="customerName != null and customerName != ''">
+                and CUSTOMER_NAME = #{customerName}
+            </if>
+            <if test="status != null">
+                and STATUS = #{status}
+            </if>
+            <if test="approvedBy != null">
+                and APPROVED_BY = #{approvedBy}
+            </if>
+            <if test="approvedByName != null and approvedByName != ''">
+                and APPROVED_BY_NAME = #{approvedByName}
+            </if>
+            <if test="approvedTime != null">
+                and APPROVED_TIME = #{approvedTime}
+            </if>
+            <if test="shipvoyageId != null">
+                and SHIPVOYAGE_ID = #{shipvoyageId}
+            </if>
+            <if test="shipvoyageItemId != null">
+                and SHIPVOYAGE_ITEM_ID = #{shipvoyageItemId}
+            </if>
+            <if test="shipName != null and shipName != ''">
+                and SHIP_NAME = #{shipName}
+            </if>
+            <if test="voyage != null and voyage != ''">
+                and VOYAGE = #{voyage}
+            </if>
+        </where>
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.business.bean.dto.TBusOrderDTO" parameterType="com.yy.ppm.business.bean.dto.TBusOrderSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.business.bean.dto.TBusOrderDTO"
+            parameterType="com.yy.ppm.business.bean.dto.TBusOrderSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.business.bean.dto.TBusOrderDTO" parameterType="java.lang.Long">
+        SELECT
+        ID,
+        ORDER_TYPE,
+        CUSTOMER_ID,
+        CUSTOMER_NAME,
+        STATUS,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME,
+        APPROVED_BY,
+        APPROVED_BY_NAME,
+        APPROVED_TIME,
+        SHIPVOYAGE_ID,
+        SHIPVOYAGE_ITEM_ID,
+        SHIP_NAME,
+        VOYAGE
+        FROM
+        T_BUS_ORDER
+        <where>
+            id = #{id}
+        </where>
+    </select>
+    <select id="getDetailByOrderId" parameterType="java.lang.Long" resultType="java.util.Map">
+        SELECT tboi.BILL_NO "billNo",
+               TBCI.CARGO_INFO_NO "cargoInfoNo",
+               TBCI.CARGO_OWNER_NAME "cargoOwnerName",
+               TBCI.CARGO_NAME "cargoName",
+               TBOI.QUANTITY "quantity",
+               TBOI.TON "ton"
+        FROM T_BUS_ORDER_ITEM tboi
+        LEFT JOIN T_BUS_CARGO_INFO tbci ON tbci.ID = TBOI.CARGO_INFO_ID
+        WHERE ORDER_ID = #{id}
+    </select>
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.business.bean.dto.TBusOrderDTO">
+        INSERT INTO T_BUS_ORDER(ID,
+                                ORDER_TYPE,
+                                CUSTOMER_ID,
+                                CUSTOMER_NAME,
+                                STATUS,
+                                APPROVED_BY,
+                                APPROVED_BY_NAME,
+                                APPROVED_TIME,
+                                SHIPVOYAGE_ID,
+                                SHIPVOYAGE_ITEM_ID,
+                                SHIP_NAME,
+                                VOYAGE,
+                                CREATE_BY,
+                                CREATE_BY_NAME,
+                                CREATE_TIME)
+        VALUES (#{id, jdbcType=VARCHAR},
+                #{orderType, jdbcType=VARCHAR},
+                #{customerId, jdbcType=VARCHAR},
+                #{customerName, jdbcType=VARCHAR},
+                #{status, jdbcType=VARCHAR},
+                #{approvedBy, jdbcType=VARCHAR},
+                #{approvedByName, jdbcType=VARCHAR},
+                #{approvedTime, jdbcType=VARCHAR},
+                #{shipvoyageId, jdbcType=VARCHAR},
+                #{shipvoyageItemId, jdbcType=VARCHAR},
+                #{shipName, jdbcType=VARCHAR},
+                #{voyage, jdbcType=VARCHAR},
+                #{loginUserId, jdbcType=BIGINT},
+                #{loginUserName, jdbcType=VARCHAR},
+                #{now})
+    </insert>
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.business.bean.dto.TBusOrderDTO">
+        UPDATE
+        T_BUS_ORDER
+        SET
+        ID = #{id},
+        ORDER_TYPE = #{orderType},
+        CUSTOMER_ID = #{customerId},
+        CUSTOMER_NAME = #{customerName,jdbcType=VARCHAR},
+        STATUS = #{status},
+        APPROVED_BY = #{approvedBy},
+        APPROVED_BY_NAME = #{approvedByName,jdbcType=VARCHAR},
+--         APPROVED_TIME = TO_DATE(#{approvedTime,jdbcType=VARCHAR},'YYYY-MM-DD hh24:mi:ss'),
+        SHIPVOYAGE_ID = #{shipvoyageId},
+        SHIPVOYAGE_ITEM_ID = #{shipvoyageItemId},
+        SHIP_NAME = #{shipName,jdbcType=VARCHAR},
+        VOYAGE = #{voyage,jdbcType=VARCHAR},
+        UPDATE_BY = #{loginUserId},
+        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR}
+--         UPDATE_TIME = TO_DATE(#{now},'YYYY-MM-DD hh24:mi:ss')
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <update id="updateStatus" parameterType="com.yy.ppm.business.bean.dto.TBusOrderDTO">
+        UPDATE
+        T_BUS_ORDER
+        <set>
+            STATUS = #{status},
+            APPROVED_BY = #{approvedBy},
+            APPROVED_BY_NAME = #{approvedByName},
+            APPROVED_TIME = #{approvedTime},
+            UPDATE_BY = #{loginUserId},
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now}
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE
+        FROM T_BUS_ORDER
+        WHERE id = #{id}
+    </delete>
+</mapper>
+

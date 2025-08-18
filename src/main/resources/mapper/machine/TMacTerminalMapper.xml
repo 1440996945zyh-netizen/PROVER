@@ -1,0 +1,1502 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.machine.mapper.TMacTerminalMapper">
+
+	<select id="getMachineByImei" resultType="com.yy.ppm.machine.bean.dto.TMacTerminalDTO">
+		SELECT
+			*
+		FROM
+			(
+				SELECT
+					ID,
+					MAC_CODE,
+					MAC_NAME,
+					MAC_TYPE_CODE,
+					MAC_MODEL_CODE,
+					DEPT_ID,
+					IMEI,
+					STATUS,
+					CREATE_BY,
+					CREATE_TIME,
+					UPDATE_BY,
+					UPDATE_TIME,
+					MAC_MODEL_NAME,
+					MAC_TYPE_NAME,
+					IS_ELECTRON_FENCE
+				FROM
+					M_MACHINE
+				WHERE STATUS = '1' and
+					IMEI = #{imei}
+			)
+		WHERE
+			ROWNUM = 1
+	</select>
+
+	<select id="getWorkPlanList" resultType="java.lang.Long">
+		SELECT
+			DISTINCT
+			B.WORK_PLAN_ID "workPlanId"
+		FROM
+			T_PRD_DISPATCH_SECONDARY B, T_PRD_WORK_PLAN A
+		WHERE
+			A.WORK_DATE = TO_DATE (#{workDate}, 'YYYY-MM-DD')
+		AND A.CLASS_CODE = #{classCode}
+		AND (A.PLAN_TYPE = '2' OR A.PLAN_TYPE = '1')
+		AND A.ID = b.WORK_PLAN_ID
+		AND B.EQUIPMENT_NO = #{macCode}
+	</select>
+
+	<select id="getWorkPlan" resultType="com.yy.ppm.machine.bean.dto.TPrdWorkPlanDTO">
+		SELECT
+			A.ID ID,
+			TEMP_T1.MASS_NAME MASS_NAMES_SOURCE,
+			TEMP_T2.CARGO_NAME,
+			TEMP_T2.CARGO_OWNER_NAME,
+			TEMP_T2.SCN SCN,
+			TEMP_T2.SHIP_NAME SHIP_NAME,
+			T1.POUND_REMARK POUND_REMARK,
+			T1.TRUST_NO TRUST_NO
+		FROM
+			T_PRD_WORK_PLAN A
+		LEFT JOIN (
+			SELECT
+				REGEXP_REPLACE (
+					LISTAGG (TO_CHAR(MASS_NAME), ',') WITHIN GROUP (ORDER BY WORK_PLAN_ID),
+					'([^,]+)(,\1)+',
+					'\1'
+				) MASS_NAME,
+				WORK_PLAN_ID
+			FROM
+				T_PRD_WORK_PLAN_LOCATION
+			WHERE
+				MASS_NAME IS NOT NULL
+			GROUP BY
+				WORK_PLAN_ID
+		) TEMP_T1 ON TEMP_T1.WORK_PLAN_ID = A . ID
+		LEFT JOIN (
+			SELECT
+				REGEXP_REPLACE (
+					LISTAGG (TO_CHAR(A2.CARGO_NAME), ',') WITHIN GROUP (ORDER BY A1.TRUST_ID),
+					'([^,]+)(,\1)+',
+					'\1'
+				) CARGO_NAME,
+				REGEXP_REPLACE (
+					LISTAGG (
+						TO_CHAR (A2.CARGO_OWNER_NAME),
+						','
+					) WITHIN GROUP (ORDER BY A1.TRUST_ID),
+					'([^,]+)(,\1)+',
+					'\1'
+				) CARGO_OWNER_NAME,
+				REGEXP_REPLACE (
+					LISTAGG (
+						TO_CHAR (A4.SHIP_NAME),
+						','
+					) WITHIN GROUP (ORDER BY A1.TRUST_ID),
+					'([^,]+)(,\1)+',
+					'\1'
+				) SHIP_NAME,
+				REGEXP_REPLACE (
+					LISTAGG (
+						TO_CHAR (A4.SCN),
+						','
+					) WITHIN GROUP (ORDER BY A1.TRUST_ID),
+					'([^,]+)(,\1)+',
+					'\1'
+				) SCN,
+				A1.TRUST_ID
+			FROM
+				T_BUS_TRUST_CARGO A1,
+				T_BUS_CARGO_INFO A2,
+				T_DIS_SHIPVOYAGE_ITEM A3,
+				T_DIS_SHIPVOYAGE A4
+			WHERE
+				A1.CARGO_INFO_ID = A2. ID
+				AND A2.SHIPVOYAGE_ITEM_ID = A3.ID
+				AND A3.SHIPVOYAGE_ID = A4.ID
+			GROUP BY
+				A1.TRUST_ID
+		) TEMP_T2 ON TEMP_T2.TRUST_ID = A .TRUST_ID
+		LEFT JOIN T_BUS_TRUST T1 ON T1. ID = A .TRUST_ID
+		LEFT JOIN T_DIS_SHIPVOYAGE_ITEM F ON T1.SHIPVOYAGE_ITEM_ID = F. ID
+		LEFT JOIN T_DIS_SHIPVOYAGE TDS ON F.SHIPVOYAGE_ID = TDS. ID
+		WHERE
+			A.ID IN
+		<foreach collection="workPlanIds" close=")" open="(" item="workPlanId" separator=",">
+			#{workPlanId}
+		</foreach>
+	</select>
+
+	<select id="getShipWorkPlanList" resultType="com.yy.ppm.machine.bean.dto.TMacTerminalWorkPlanDTO">
+		SELECT DISTINCT
+			A.TRUST_ID,
+			A.PLAN_TYPE,
+			TEMP_T1.MASS_NAME MASS_NAMES_SOURCE,
+			A.MASS_NAMES_TARGET,
+			A.ID WORK_PLAN_ID
+		FROM
+			T_PRD_DISPATCH_SECONDARY B left join
+			T_PRD_WORK_PLAN A ON A . ID = b.WORK_PLAN_ID
+			LEFT JOIN M_WORK_PROCESS C ON C.PROCESS_CD = A.PROCESS_CODE
+			LEFT JOIN (
+				SELECT
+					REGEXP_REPLACE (
+						LISTAGG (
+							TO_CHAR (MASS_NAME),
+							','
+						) WITHIN GROUP (ORDER BY WORK_PLAN_ID),
+						'([^,]+)(,\1)+',
+						'\1'
+					) MASS_NAME,  WORK_PLAN_ID
+				FROM
+					T_PRD_WORK_PLAN_LOCATION
+				WHERE MASS_NAME IS NOT NULL
+				GROUP BY
+					WORK_PLAN_ID
+			) TEMP_T1 ON TEMP_T1.WORK_PLAN_ID = A.ID
+		WHERE
+			A.WORK_DATE = TO_DATE (#{workDate}, 'YYYY-MM-DD')
+		AND A.CLASS_CODE = #{classCode}
+		AND A .PLAN_TYPE = '1'
+		AND C.IS_DIRECT_ACCESS = '1'
+		<if test="macCode != null and macCode != ''">
+			AND B.EQUIPMENT_NO = #{macCode}
+		</if>
+		<if test="workPlanId != null and workPlanId != ''">
+			AND b.WORK_PLAN_ID = #{workPlanId}
+		</if>
+	</select>
+	<select id="getDyWorkPlanList" resultType="com.yy.ppm.machine.bean.dto.TMacTerminalWorkPlanDTO">
+		SELECT DISTINCT
+			A.TRUST_ID,
+			A.PLAN_TYPE,
+			A.MASS_NAMES_SOURCE,
+			A.MASS_NAMES_TARGET,
+			A.ID WORK_PLAN_ID
+		FROM
+			T_PRD_DISPATCH_SECONDARY B left join
+			T_PRD_WORK_PLAN A ON A . ID = b.WORK_PLAN_ID
+			LEFT JOIN M_WORK_PROCESS C ON C.PROCESS_CD = A.PROCESS_CODE
+		WHERE
+			A.WORK_DATE = TO_DATE (#{workDate}, 'YYYY-MM-DD')
+		AND A.CLASS_CODE = #{classCode}
+		AND A.PLAN_TYPE = '3'
+		<if test="macCode != null and macCode != ''">
+			AND B.EQUIPMENT_NO = #{macCode}
+		</if>
+		<if test="workPlanId != null and workPlanId != ''">
+			AND B.WORK_PLAN_ID = #{workPlanId}
+		</if>
+	</select>
+
+	<select id="getBusinessNoList" resultType="java.lang.String">
+		SELECT
+			DISTINCT
+			t2.BUSINESS_NO "businessNo"
+		FROM
+			T_BUS_TRUST t1
+		LEFT JOIN T_BUS_TRUST_CARGO t2 ON t1. ID = t2.TRUST_ID
+		WHERE
+			t2.CARGO_INFO_ID IN (
+				SELECT
+					A1.CARGO_INFO_ID
+				FROM
+					T_BUS_TRUST_CARGO A1
+				WHERE
+					A1.TRUST_ID = #{trustId}
+			)
+		AND t1. TYPE IN ('集港', '拆箱集港', '疏港')
+	</select>
+
+	<select id="getShipDataWorkPlanList" resultType="com.yy.ppm.machine.bean.dto.TMacTerminalWorkPlanDTO">
+		SELECT
+			C.WORK_TIME_START,
+			C.WORK_TIME_END,
+			TBTC.ID TRUST_CARGO_INFO_ID,
+			PP.NOTE_ID WEIGHBRIDGE_ID,
+			NULL MAC_ID,
+			PP.TRUCK_PLATE WORK_MAC_NAME,
+			PP.WEIGH_IN_DT IN_PORT_TIME,
+			TDS.SCN,
+			TDS.ID SHIPVOYAGE_ID,
+			TDS.SHIP_NAME,
+			TBCI.ID CARGO_INFO_ID,
+			TBCI.CARGO_CODE,
+			TBCI.CARGO_NAME,
+			TBCI.CARGO_OWNER_NAME,
+			T1.POUND_REMARK,
+			TO_CHAR(PP.WEIGH_IN_DT,'MM-DD HH24:MI') WEIGH_IN_DT,
+			C.CREATE_BY
+		FROM
+			WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND PP
+		LEFT JOIN T_BUS_TRUST_CARGO TBTC ON TBTC.BUSINESS_NO = PP.PLAN_NO
+		LEFT JOIN T_BUS_TRUST T1 ON T1.ID = TBTC.TRUST_ID
+		LEFT JOIN T_BUS_CARGO_INFO TBCI ON TBTC.CARGO_INFO_ID = TBCI.ID
+		LEFT JOIN T_DIS_SHIPVOYAGE_ITEM F ON TBCI.SHIPVOYAGE_ITEM_ID = F. ID
+		LEFT JOIN T_DIS_SHIPVOYAGE TDS ON F.SHIPVOYAGE_ID = TDS. ID
+		LEFT JOIN T_MAC_WORK_TIME C ON C.WEIGHBRIDGE_ID = PP.NOTE_ID
+		WHERE
+			PP.IS_FINISHED = 0 AND PP.IS_TALLY = 0
+		<!-- <if test="loginUserId != null">
+			AND (C.CREATE_BY = #{loginUserId} OR C.CREATE_BY IS NULL)
+		</if> -->
+		<if test="portCode != null and portCode != ''">
+			AND PP.PORT_CODE = #{portCode}
+		</if>
+		<if test="carNo !=null and carNo != ''">
+			<bind name="carNo_like" value="'%'+carNo+'%'"/>
+			AND PP.TRUCK_PLATE LIKE #{carNo_like,jdbcType=VARCHAR}
+		</if>
+		AND TBTC.BUSINESS_NO IN
+		<foreach collection="businessNoList" item="businessNo" open="(" close=")" separator=",">
+			#{businessNo}
+		</foreach>
+	</select>
+
+	<select id="getShipDataWorkPlanListForAppPC" resultType="com.yy.ppm.machine.bean.dto.TMacTerminalWorkPlanDTO">
+		SELECT
+			C.WORK_TIME_START,
+			C.WORK_TIME_END,
+			TBTC.ID TRUST_CARGO_INFO_ID,
+			PP.NOTE_ID WEIGHBRIDGE_ID,
+			NULL MAC_ID,
+			PP.TRUCK_PLATE WORK_MAC_NAME,
+			PP.WEIGH_IN_DT IN_PORT_TIME,
+			TDS.SCN,
+			TDS.ID SHIPVOYAGE_ID,
+			TDS.SHIP_NAME,
+			TBCI.ID CARGO_INFO_ID,
+			TBCI.CARGO_CODE,
+			TBCI.CARGO_NAME,
+			TBCI.CARGO_OWNER_ID,
+			TBCI.CARGO_OWNER_NAME,
+			T1.POUND_REMARK,
+			TO_CHAR(PP.WEIGH_IN_DT,'MM-DD HH24:MI') WEIGH_IN_DT
+		FROM
+			WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND PP
+		LEFT JOIN T_BUS_TRUST_CARGO TBTC ON TBTC.BUSINESS_NO = PP.PLAN_NO
+		LEFT JOIN T_BUS_TRUST T1 ON T1.ID = TBTC.TRUST_ID
+		LEFT JOIN T_BUS_CARGO_INFO TBCI ON TBTC.CARGO_INFO_ID = TBCI.ID
+		LEFT JOIN T_DIS_SHIPVOYAGE_ITEM F ON TBCI.SHIPVOYAGE_ITEM_ID = F. ID
+		LEFT JOIN T_DIS_SHIPVOYAGE TDS ON F.SHIPVOYAGE_ID = TDS. ID
+		LEFT JOIN T_MAC_WORK_TIME C ON C.WEIGHBRIDGE_ID = PP.NOTE_ID
+		WHERE
+			PP.IS_FINISHED = 0
+		<if test="portCode != null and portCode != ''">
+			AND PP.PORT_CODE = #{portCode}
+		</if>
+		<if test="carNo !=null and carNo != ''">
+			<bind name="carNo_like" value="'%'+carNo+'%'"/>
+			AND PP.TRUCK_PLATE LIKE #{carNo_like,jdbcType=VARCHAR}
+		</if>
+		AND TBTC.BUSINESS_NO IN
+		<foreach collection="businessNoList" item="businessNo" open="(" close=")" separator=",">
+			#{businessNo}
+		</foreach>
+	</select>
+
+	<select id="getWorkPlanByCondition" resultType="com.yy.ppm.machine.bean.dto.TMacTerminalWorkPlanDTO">
+		SELECT
+			PLAN_TYPE,
+			MASS_NAMES_SOURCE,
+			MASS_NAMES_TARGET,
+			WORK_PLAN_ID,
+			WORK_TIME_START,
+			WORK_TIME_END,
+			TRUST_CARGO_INFO_ID,
+			SHIPVOYAGE_ID,
+			WEIGHBRIDGE_ID,
+			MAC_ID,
+			WORK_MAC_NAME,
+			IN_PORT_TIME,
+			SCN,
+			SHIPVOYAGE_ID,
+			SHIP_NAME,
+			CARGO_INFO_ID,
+			CARGO_CODE,
+			CARGO_NAME,
+			CARGO_OWNER_NAME,
+			POUND_REMARK,
+			WEIGH_IN_DT,
+			CREATE_BY
+ 		FROM (
+			SELECT
+				A.PLAN_TYPE,
+				TEMP_T1.MASS_NAME MASS_NAMES_SOURCE,
+				A.MASS_NAMES_TARGET,
+				B.WORK_PLAN_ID,
+				C.WORK_TIME_START,
+				C.WORK_TIME_END,
+				C.CREATE_BY,
+				TBTC.ID TRUST_CARGO_INFO_ID,
+				PP.NOTE_ID WEIGHBRIDGE_ID,
+				NULL MAC_ID,
+				PP.WEIGH_IN_DT IN_PORT_TIME,
+				TDS.SCN,
+				TDS.ID SHIPVOYAGE_ID,
+				TDS.SHIP_NAME,
+				TBCI.ID CARGO_INFO_ID,
+				TBCI.CARGO_CODE,
+				TBCI.CARGO_NAME,
+				TBCI.CARGO_OWNER_NAME,
+				T1.POUND_REMARK,
+				TO_CHAR(PP.WEIGH_IN_DT,'MM-DD HH24:MI') WEIGH_IN_DT,
+				CASE to_char(A.PROCESS_CODE)
+				WHEN '1047' THEN
+				pp.TRUCK_PLATE||'(直)'
+				WHEN '1039' THEN
+				pp.TRUCK_PLATE||'(直)'
+				ELSE
+				pp.TRUCK_PLATE
+				END AS WORK_MAC_NAME
+			FROM
+				T_PRD_DISPATCH_SECONDARY B, T_PRD_WORK_PLAN A
+			LEFT JOIN (
+				SELECT
+					REGEXP_REPLACE (
+						LISTAGG (
+							TO_CHAR (MASS_NAME),
+							','
+						) WITHIN GROUP (ORDER BY WORK_PLAN_ID),
+						'([^,]+)(,\1)+',
+						'\1'
+					) MASS_NAME,  WORK_PLAN_ID
+				FROM
+					T_PRD_WORK_PLAN_LOCATION
+				WHERE MASS_NAME IS NOT NULL
+				GROUP BY
+					WORK_PLAN_ID
+			) TEMP_T1 ON TEMP_T1.WORK_PLAN_ID = A.ID
+			LEFT JOIN T_BUS_TRUST_CARGO TBTC ON A .TRUST_ID = TBTC.TRUST_ID
+			LEFT JOIN T_BUS_CARGO_INFO TBCI ON TBTC.CARGO_INFO_ID = TBCI.ID
+			LEFT JOIN WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND PP ON TBTC.BUSINESS_NO = PP.PLAN_NO
+			LEFT JOIN T_DIS_SHIPVOYAGE_ITEM F ON TBCI.SHIPVOYAGE_ITEM_ID = F. ID
+			LEFT JOIN T_DIS_SHIPVOYAGE TDS ON F.SHIPVOYAGE_ID = TDS. ID
+			LEFT JOIN T_MAC_WORK_TIME C ON C.WEIGHBRIDGE_ID = PP.NOTE_ID
+			LEFT JOIN T_BUS_TRUST T1 ON T1.ID = A.TRUST_ID
+			WHERE
+				A.WORK_DATE = TO_DATE (#{workDate}, 'YYYY-MM-DD')
+			AND A.CLASS_CODE = #{classCode}
+			AND A.PLAN_TYPE = '2'
+			AND A.ID = b.WORK_PLAN_ID
+			AND B.EQUIPMENT_NO = #{macCode}
+			<!-- AND (C.CREATE_BY = #{loginUserId} OR C.CREATE_BY IS NULL) -->
+			AND PP.IS_FINISHED = 0 AND PP.IS_TALLY = 0
+			<if test="workPlanId != null and workPlanId != ''">
+				AND b.WORK_PLAN_ID = #{workPlanId}
+			</if>
+			<if test="portCode != null and portCode != ''">
+				AND PP.PORT_CODE = #{portCode}
+			</if>
+		) TEMP_ALL_T
+		<where>
+			<if test="carNo !=null and carNo != ''">
+				<bind name="carNo_like" value="'%'+carNo+'%'"/>
+				AND WORK_MAC_NAME LIKE #{carNo_like,jdbcType=VARCHAR}
+			</if>
+		</where>
+		<if test="workPlanId != null and workPlanId != ''">
+			ORDER BY　TEMP_ALL_T.WEIGH_IN_DT, TEMP_ALL_T.SHIP_NAME,　TEMP_ALL_T.CARGO_NAME,　TEMP_ALL_T.MASS_NAMES_SOURCE
+		</if>
+		<if test="workPlanId == null or workPlanId == ''">
+			ORDER BY　TEMP_ALL_T.MASS_NAMES_SOURCE, TEMP_ALL_T.WEIGH_IN_DT, TEMP_ALL_T.SHIP_NAME,　TEMP_ALL_T.CARGO_NAME
+		</if>
+	</select>
+
+	<select id="getWorkPlanByConditionForAppPC" resultType="com.yy.ppm.machine.bean.dto.TMacTerminalWorkPlanDTO">
+		SELECT
+			PLAN_TYPE,
+			MASS_NAMES_SOURCE,
+			MASS_NAMES_TARGET,
+			WORK_PLAN_ID,
+			WORK_TIME_START,
+			WORK_TIME_END,
+			TRUST_CARGO_INFO_ID,
+			SHIPVOYAGE_ID,
+			WEIGHBRIDGE_ID,
+			MAC_ID,
+			WORK_MAC_NAME,
+			IN_PORT_TIME,
+			SCN,
+			SHIPVOYAGE_ID,
+			SHIP_NAME,
+			CARGO_INFO_ID,
+			CARGO_CODE,
+			CARGO_NAME,
+			 CARGO_OWNER_ID,
+			CARGO_OWNER_NAME,
+			POUND_REMARK,
+			WEIGH_IN_DT
+ 		FROM (
+			SELECT
+				A.PLAN_TYPE,
+				TEMP_T1.MASS_NAME MASS_NAMES_SOURCE,
+				A.MASS_NAMES_TARGET,
+				A.ID WORK_PLAN_ID,
+				C.WORK_TIME_START,
+				C.WORK_TIME_END,
+				TBTC.ID TRUST_CARGO_INFO_ID,
+				PP.NOTE_ID WEIGHBRIDGE_ID,
+				NULL MAC_ID,
+				PP.TRUCK_PLATE WORK_MAC_NAME,
+				PP.WEIGH_IN_DT IN_PORT_TIME,
+				TDS.SCN,
+				TDS.ID SHIPVOYAGE_ID,
+				TDS.SHIP_NAME,
+				TBCI.ID CARGO_INFO_ID,
+				TBCI.CARGO_CODE,
+				TBCI.CARGO_NAME,
+				TBCI.CARGO_OWNER_ID,
+				TBCI.CARGO_OWNER_NAME,
+				T1.POUND_REMARK,
+				TO_CHAR(PP.WEIGH_IN_DT,'MM-DD HH24:MI') WEIGH_IN_DT
+			FROM
+				T_PRD_WORK_PLAN A
+			LEFT JOIN (
+				SELECT
+					REGEXP_REPLACE (
+						LISTAGG (TO_CHAR(V1.MASS_NAME), ',') WITHIN GROUP (ORDER BY V1.WORK_PLAN_ID),
+						'([^,]+)(,\1)+',
+						'\1'
+					) MASS_NAME,
+					REGEXP_REPLACE (
+						LISTAGG (TO_CHAR(V2.WORK_AREA_CD), ',') WITHIN GROUP (ORDER BY V1.WORK_PLAN_ID),
+						'([^,]+)(,\1)+',
+						'\1'
+					) WORK_AREA_CD,
+					V1.WORK_PLAN_ID
+				FROM
+					T_PRD_WORK_PLAN_LOCATION V1
+					LEFT JOIN M_STORAGE_YARD V2 ON V1.STOREHOUSE_ID = V2.ID
+				GROUP BY
+					V1.WORK_PLAN_ID
+			) TEMP_T1 ON TEMP_T1.WORK_PLAN_ID = A.ID
+			LEFT JOIN T_BUS_TRUST_CARGO TBTC ON A .TRUST_ID = TBTC.TRUST_ID
+			LEFT JOIN T_BUS_CARGO_INFO TBCI ON TBTC.CARGO_INFO_ID = TBCI.ID
+			LEFT JOIN WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND PP ON TBTC.BUSINESS_NO = PP.PLAN_NO
+			LEFT JOIN T_DIS_SHIPVOYAGE_ITEM F ON TBCI.SHIPVOYAGE_ITEM_ID = F. ID
+			LEFT JOIN T_DIS_SHIPVOYAGE TDS ON F.SHIPVOYAGE_ID = TDS. ID
+			LEFT JOIN T_MAC_WORK_TIME C ON C.WEIGHBRIDGE_ID = PP.NOTE_ID
+			LEFT JOIN T_BUS_TRUST T1 ON T1.ID = A.TRUST_ID
+			WHERE
+				A.WORK_DATE = TO_DATE (#{workDate}, 'YYYY-MM-DD')
+			AND A.CLASS_CODE = #{classCode}
+			AND A.PLAN_TYPE = '2'
+			<!-- AND TBTC.PACKING_CODE = '01' -->
+			AND PP.IS_FINISHED = 0
+			AND PP.IS_TALLY = 0
+			<if test="workAreaCd != null and workAreaCd != ''">
+				AND (TEMP_T1.WORK_AREA_CD = #{workAreaCd} OR TEMP_T1.WORK_AREA_CD IS NULL)
+			</if>
+			<if test="portCode != null and portCode != ''">
+				AND PP.PORT_CODE = #{portCode}
+			</if>
+		) TEMP_ALL_T
+		<where>
+			<if test="carNo !=null and carNo != ''">
+				<bind name="carNo_like" value="'%'+carNo+'%'"/>
+				AND WORK_MAC_NAME LIKE #{carNo_like,jdbcType=VARCHAR}
+			</if>
+		</where>
+		ORDER BY　TEMP_ALL_T.WEIGH_IN_DT, TEMP_ALL_T.SHIP_NAME,　TEMP_ALL_T.CARGO_NAME,　TEMP_ALL_T.MASS_NAMES_SOURCE
+	</select>
+
+		<select id="getWorkPlanByConditionCarInHarbor"
+			parameterType="com.yy.ppm.machine.bean.dto.TCarInHarborForAppDTO"
+			resultType="com.yy.ppm.machine.bean.dto.TCarInHarborForAppDTO">
+
+		SELECT
+			PP.TRUCK_PLATE WORK_MAC_NAME,
+			PP.LOCATION,
+			A .PLAN_TYPE,
+			pp.PLAN_NO,
+			PP.PORT_CODE,
+			TEMP_T1.MASS_NAME MASS_NAMES_SOURCE,
+			A.MASS_NAMES_TARGET,
+			C.WORK_TIME_START,
+			C.WORK_TIME_END,
+			TBTC.CARGO_NAME,
+			TBTC. ID TRUST_CARGO_INFO_ID,
+			TDS. ID AS SHIPVOYAGE_ID,
+			PP.NOTE_ID WEIGHBRIDGE_ID,
+			NULL MAC_ID,
+			PP.WEIGH_IN_DT IN_PORT_TIME,
+			TDS. SCN,
+			TDS. ID SHIPVOYAGE_ID,
+			TDS.SHIP_NAME || '_' || F.VOYAGE SHIP_NAME,
+			TBCI. ID CARGO_INFO_ID,
+			TBCI.CARGO_CODE,
+			TBCI.CARGO_NAME,
+			TBCI.cargo_info_no,
+			TBTC.PACKING_CODE,
+			TBTC.PACKING_NAME,
+			TBCI.CARGO_OWNER_NAME,
+			T1.POUND_REMARK,
+			TBVR.DRIVER_NO_ONE,
+			TBVR.DRIVER_NAME_ONE,
+			TBVR.DRIVER_PHONE_ONE,
+			TYT.remark tallRemark,
+			TYT.id tallyId,
+			TYT.del_flag tyt_del_flag,
+			TO_CHAR (
+				PP.WEIGH_IN_DT,
+				'MM-DD HH24:MI'
+			) WEIGH_IN_DT,
+			COALESCE(TYT.CREATE_BY_NAME,C.CREATE_BY_NAME) TALLY_NAME,
+			CASE
+		WHEN A . ID IS NULL THEN
+			'30'
+		ELSE
+			''
+		END WORK_TIME_STATUS
+		FROM
+			WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND PP
+		LEFT JOIN T_BUS_TRUST_CARGO TBTC ON TBTC.BUSINESS_NO = PP.PLAN_NO
+		LEFT JOIN T_BUS_CARGO_INFO TBCI ON TBTC.CARGO_INFO_ID = TBCI. ID
+		LEFT JOIN T_DIS_SHIPVOYAGE_ITEM F ON TBCI.SHIPVOYAGE_ITEM_ID = F. ID
+		LEFT JOIN T_PRD_WORK_PLAN A ON TBTC.TRUST_ID = A .TRUST_ID
+		AND A .WORK_DATE = TO_DATE (#{workDate}, 'YYYY-MM-DD')
+		AND A .CLASS_CODE = #{classCode}
+		LEFT JOIN (
+			SELECT
+				REGEXP_REPLACE (
+					LISTAGG (TO_CHAR(MASS_NAME), ',') WITHIN GROUP (ORDER BY WORK_PLAN_ID),
+					'([^,]+)(,\1)+',
+					'\1'
+				) MASS_NAME,
+				WORK_PLAN_ID
+			FROM
+				T_PRD_WORK_PLAN_LOCATION
+			WHERE
+				MASS_NAME IS NOT NULL
+			GROUP BY
+				WORK_PLAN_ID
+		) TEMP_T1 ON TEMP_T1.WORK_PLAN_ID = A . ID
+		LEFT JOIN T_DIS_SHIPVOYAGE TDS ON F.SHIPVOYAGE_ID = TDS. ID
+		LEFT JOIN T_MAC_WORK_TIME C ON C.WEIGHBRIDGE_ID = PP.NOTE_ID
+		LEFT JOIN T_BUS_TRUST T1 ON T1. ID = A .TRUST_ID
+		LEFT JOIN T_BUS_VEHICLE_RESERVATION TBVR ON PP.TSPT_ID = TBVR.TASK_NO
+		left join T_YARD_TALLY TYT  on  (TYT.WEIGHBRIDGE_ID = pp.NOTE_ID and TYT.del_flag !='1')
+		WHERE
+			PP.IS_FINISHED = 0
+			AND PP.INV_NO IS NOT NULL
+			<if test="planNo != null and planNo != ''">
+				<bind name="planNo_like" value="'%'+planNo+'%'"/>
+				AND PP.PLAN_NO LIKE #{planNo_like,jdbcType=VARCHAR}
+			</if>
+			<if test="carNum != null and carNum != ''">
+				<bind name="carNum_like" value="'%'+carNum+'%'"/>
+				AND PP.TRUCK_PLATE LIKE #{carNum_like,jdbcType=VARCHAR}
+			</if>
+			<if test="portCode!=null and portCode !=''">
+				AND PP.PORT_CODE =#{portCode,jdbcType=VARCHAR}
+			</if>
+		ORDER BY TDS.SHIP_NAME ASC ,F.VOYAGE ASC, TBCI.CARGO_NAME ASC, PP.WEIGH_IN_DT ASC
+	</select>
+	<select id="queryPortVehicleNum" resultType="com.yy.ppm.machine.bean.dto.TPortVehicleNumDTO">
+		SELECT
+			PP.PORT_CODE,COUNT(1) AS NUM
+		FROM
+			WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND PP
+		WHERE
+			PP.IS_FINISHED = 0
+			AND PP.INV_NO IS NOT NULL
+			AND PP.PORT_CODE IN ('01','02','03')
+		GROUP BY PP.PORT_CODE
+	</select>
+	<select id="getWorkPlanByConditionCarInHarborForLeave"
+			parameterType="com.yy.ppm.machine.bean.dto.TCarInHarborForAppDTO"
+			resultType="com.yy.ppm.machine.bean.dto.TCarInHarborForAppDTO">
+
+		SELECT
+		PP.TRUCK_PLATE WORK_MAC_NAME,
+		PP.LOCATION,
+		PP.PLAN_NO,
+	   PP.PORT_CODE,
+		C.REGION_NAME ||'-'|| NVL(C.MASS_NAME,'')   MASS_NAMES_SOURCE,
+		C.WORK_TIME_START,
+		C.WORK_TIME_END,
+		TBTC.CARGO_NAME,
+		TBTC.ID TRUST_CARGO_INFO_ID,
+		TDS.ID AS SHIPVOYAGE_ID,
+		PP.NOTE_ID WEIGHBRIDGE_ID,
+		NULL MAC_ID,
+		PP.WEIGH_IN_DT IN_PORT_TIME,
+		PP.WEIGH_OUT_DT OUT_PORT_TIME,
+		TDS.SCN,
+		TDS.ID SHIPVOYAGE_ID,
+		TDS.SHIP_NAME || '_' || F.VOYAGE SHIP_NAME,
+		TBCI.ID CARGO_INFO_ID,
+		TBCI.CARGO_CODE,
+		TBCI.CARGO_NAME,
+		tbci.cargo_info_no,
+		TBTC.PACKING_CODE,
+		TBTC.PACKING_NAME,
+		TBCI.CARGO_OWNER_NAME,
+		T1.POUND_REMARK,
+		TO_CHAR( PP.WEIGH_IN_DT, 'MM-DD HH24:MI' ) WEIGH_IN_DT,
+		C.CREATE_BY_NAME TALLY_NAME,
+		TBVR.DRIVER_NO_ONE,
+		TBVR.DRIVER_NAME_ONE,
+		TBVR.DRIVER_PHONE_ONE
+		FROM
+		WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND PP
+		LEFT JOIN T_BUS_TRUST_CARGO TBTC ON TBTC.BUSINESS_NO = PP.PLAN_NO
+		LEFT JOIN T_BUS_CARGO_INFO TBCI ON TBTC.CARGO_INFO_ID = TBCI.ID
+		LEFT JOIN T_DIS_SHIPVOYAGE_ITEM F ON TBCI.SHIPVOYAGE_ITEM_ID = F.ID
+		LEFT JOIN T_DIS_SHIPVOYAGE TDS ON F.SHIPVOYAGE_ID = TDS.ID
+		LEFT JOIN T_MAC_WORK_TIME C ON C.WEIGHBRIDGE_ID = PP.NOTE_ID
+		LEFT JOIN T_BUS_TRUST T1 ON T1.ID = TBCI.TRUST_ID
+		LEFT JOIN T_BUS_VEHICLE_RESERVATION TBVR ON PP.TSPT_ID = TBVR.TASK_NO
+		<where>
+			PP.IS_FINISHED = 1 AND PP.IS_TALLY = 1
+			<if test="planNo != null and planNo != ''">
+				<bind name="planNo_like" value="'%'+planNo+'%'"/>
+				AND PP.PLAN_NO LIKE #{planNo_like,jdbcType=VARCHAR}
+			</if>
+			<if test="carNum != null and carNum != ''">
+				<bind name="carNum_like" value="'%'+carNum+'%'"/>
+				AND PP.TRUCK_PLATE LIKE #{carNum_like,jdbcType=VARCHAR}
+			</if>
+		<if test="portCode !=null and portCode !=''">
+			AND PP.PORT_CODE = #{portCode,jdbcType=VARCHAR}
+		</if>
+		</where>
+		ORDER BY PP.WEIGH_IN_DT DESC
+	</select>
+
+
+
+	<select id="getStackPositionList" resultType="com.yy.ppm.machine.bean.dto.TMacTerminalStackPositionDTO">
+		SELECT
+			T2.STACK_ID,
+			T2.STACK_CODE,
+			T2.STACK_NAME,
+			T2.POSITION,
+			T2.POSITION_FROM,
+			T1.POSITION_TIME
+		FROM
+			(
+				SELECT
+					STACK_ID STACK_ID,
+					MAX (POSITION_TIME) POSITION_TIME
+				FROM
+					M_STORAGE_STACK_POSITION
+				WHERE DEL_FLAG = '0'
+				GROUP BY
+					STACK_ID
+				ORDER BY STACK_ID
+			) T1
+		LEFT JOIN M_STORAGE_STACK_POSITION T2 ON T1.STACK_ID = T2.STACK_ID AND T1.POSITION_TIME = T2.POSITION_TIME
+	</select>
+
+	<select id="getTMacTerminalWorkPlanLocation" resultType="com.yy.ppm.machine.bean.dto.TMacTerminalWorkPlanLocationDTO">
+		SELECT DISTINCT
+			A . ID,
+			A .WORK_PLAN_ID,
+			A .DIRECTION,
+			A .STOREHOUSE_ID,
+			A .STOREHOUSE_NAME,
+			A .REGION_ID,
+			A .REGION_NAME,
+			A .MASS_ID,
+			A .MASS_NAME,
+			B.CARGO_INFO_ID,
+			C.TYPE
+		FROM
+			T_PRD_WORK_PLAN_LOCATION A
+		LEFT JOIN T_PRD_WORK_PLAN D ON A.WORK_PLAN_ID = D.ID
+		LEFT JOIN T_BUS_TRUST C ON C. ID = D.TRUST_ID
+		LEFT JOIN T_PRD_PORT_STORAGE B ON A .MASS_ID = B.MASS_ID
+		AND B.CLEAN_MASS_SIGN != '1'
+		<if test="cargoInfoId != null">
+			AND b.CARGO_INFO_ID = #{cargoInfoId}
+		</if>
+		WHERE
+			A .WORK_PLAN_ID = #{workPlanId}
+	</select>
+
+	<select id="getStackPositionListByStackId" resultType="com.yy.ppm.machine.bean.dto.TMacTerminalStackPositionDTO">
+		SELECT
+			T2.STACK_ID,
+			T2.STACK_CODE,
+			T2.STACK_NAME,
+			T2.POSITION,
+			T2.POSITION_FROM,
+			T1.POSITION_TIME,
+			T4.ID REGION_ID,
+			T4.STORAGE_YARD_NM REGION_NAME,
+			T5.ID STOREHOUSE_ID,
+			T5.STORAGE_YARD_NM STOREHOUSE_NAME
+		FROM
+			(
+				SELECT
+					STACK_ID STACK_ID,
+					MAX (POSITION_TIME) POSITION_TIME
+				FROM
+					M_STORAGE_STACK_POSITION
+				WHERE
+					DEL_FLAG = '0'
+				GROUP BY
+					STACK_ID
+			) T1
+		LEFT JOIN M_STORAGE_STACK_POSITION T2 ON T1.STACK_ID = T2.STACK_ID
+		AND T1.POSITION_TIME = T2.POSITION_TIME
+		LEFT JOIN M_STORAGE_YARD T3 ON T3. ID = T1.STACK_ID
+		LEFT JOIN M_STORAGE_YARD T4 ON T3.Parent_id = T4. ID
+		AND T4.STORAGE_YARD_LEVEL = '2'
+		LEFT JOIN M_STORAGE_YARD T5 ON T4.Parent_id = T5. ID
+		AND T5.STORAGE_YARD_LEVEL = '1'
+		WHERE T1.STACK_ID IN
+        <foreach collection="itemList" separator=", " close=")" open="(" item="item">
+            #{item.massId, jdbcType=BIGINT}
+        </foreach>
+	</select>
+
+	<select id="getTMacWorkTimeListByConditionStart" resultType="com.yy.ppm.machine.bean.po.TMacWorkTimePO">
+		SELECT
+			ID,
+			WORK_PLAN_ID,
+			PLAN_TYPE,
+			RESERVAT_CAR_ID,
+			CAR_NO,
+			DISPATCH_SECONDARY_ID,
+			MAC_ID,
+			MAC_CODE,
+			MAC_NAME,
+			WORK_TIME_START,
+			WORK_TIME_END,
+			REMARK,
+			WEIGHBRIDGE_ID
+		FROM T_MAC_WORK_TIME
+		<where>
+			<if test="planType == 1">
+				<if test="weighbridgeId != null">
+					AND WEIGHBRIDGE_ID = #{weighbridgeId} AND WORK_TIME_END IS NULL
+				</if>
+			</if>
+			<if test="planType == 2">
+				<if test="weighbridgeId != null">
+					AND WEIGHBRIDGE_ID = #{weighbridgeId} AND WORK_TIME_END IS NULL
+				</if>
+			</if>
+			<if test="planType == 3">
+				<if test="dispatchSecondaryId != null">
+					AND DISPATCH_SECONDARY_ID = #{dispatchSecondaryId}
+					AND MAC_ID = #{macId} AND WORK_TIME_END IS NULL
+				</if>
+			</if>
+			<if test="planType == 4">
+				<if test="dispatchSecondaryId != null">
+					AND DISPATCH_SECONDARY_ID = #{dispatchSecondaryId}
+					AND MAC_ID = #{macId} AND WORK_TIME_END IS NULL
+				</if>
+			</if>
+		</where>
+	</select>
+
+	<select id="getMacStartWork" resultType="java.lang.Integer">
+		SELECT count(*) FROM T_MAC_WORK_TIME where MAC_ID = #{macId} and WORK_TIME_END is  null
+	</select>
+
+
+	<select id="checkMacWorkTimeIsEnd" resultType="com.yy.ppm.machine.bean.po.TMacWorkTimePO">
+		SELECT
+			ID,
+			WORK_PLAN_ID,
+			PLAN_TYPE,
+			RESERVAT_CAR_ID,
+			CAR_NO,
+			DISPATCH_SECONDARY_ID,
+			MAC_ID,
+			MAC_CODE,
+			MAC_NAME,
+			WORK_TIME_START,
+			WORK_TIME_END,
+			REMARK,
+			WEIGHBRIDGE_ID,
+			STOREHOUSE_ID,
+			STOREHOUSE_NAME,
+			REGION_ID,
+			REGION_NAME,
+			MASS_ID,
+			MASS_NAME
+		FROM T_MAC_WORK_TIME
+		<where>
+			<if test="planType == 1">
+				<if test="weighbridgeId != null">
+					AND WEIGHBRIDGE_ID = #{weighbridgeId} AND WORK_TIME_START IS NOT NULL AND WORK_TIME_END IS NOT NULL
+				</if>
+			</if>
+			<if test="planType == 2">
+				<if test="weighbridgeId != null">
+					AND WEIGHBRIDGE_ID = #{weighbridgeId} AND WORK_TIME_START IS NOT NULL AND WORK_TIME_END IS NOT NULL
+				</if>
+			</if>
+			<if test="planType == 3">
+				<if test="dispatchSecondaryId != null">
+					AND DISPATCH_SECONDARY_ID = #{dispatchSecondaryId}
+					AND MAC_ID = #{macId} AND WORK_TIME_END IS NULL
+				</if>
+			</if>
+			<if test="planType == 4">
+				<if test="dispatchSecondaryId != null">
+					AND DISPATCH_SECONDARY_ID = #{dispatchSecondaryId}
+					AND MAC_ID = #{macId} AND WORK_TIME_END IS NULL
+				</if>
+			</if>
+		</where>
+	</select>
+
+	<select id="getTMacWorkTimeListByConditionEnd" resultType="com.yy.ppm.machine.bean.po.TMacWorkTimePO">
+		SELECT
+			ID,
+			WORK_PLAN_ID,
+			PLAN_TYPE,
+			RESERVAT_CAR_ID,
+			CAR_NO,
+			DISPATCH_SECONDARY_ID,
+			MAC_ID,
+			MAC_CODE,
+			MAC_NAME,
+			WORK_TIME_START,
+			WORK_TIME_END,
+			REMARK,
+			WEIGHBRIDGE_ID,
+			STOREHOUSE_ID,
+			STOREHOUSE_NAME,
+			REGION_ID,
+			REGION_NAME,
+			MASS_ID,
+			MASS_NAME
+		FROM T_MAC_WORK_TIME
+		<where>
+			<if test="planType == 1">
+				<if test="weighbridgeId != null">
+					AND WEIGHBRIDGE_ID = #{weighbridgeId} AND WORK_TIME_END IS NULL AND WORK_TIME_START IS NOT NULL
+				</if>
+			</if>
+			<if test="planType == 2">
+				<if test="weighbridgeId != null">
+					AND WEIGHBRIDGE_ID = #{weighbridgeId} AND WORK_TIME_END IS NULL AND WORK_TIME_START IS NOT NULL
+				</if>
+			</if>
+			<if test="planType == 3">
+				<if test="dispatchSecondaryId != null">
+					AND DISPATCH_SECONDARY_ID = #{dispatchSecondaryId}
+					AND MAC_ID = #{macId} AND WORK_TIME_END IS NULL AND WORK_TIME_START IS NOT NULL
+				</if>
+			</if>
+			<if test="planType == 4">
+				<if test="dispatchSecondaryId != null">
+					AND DISPATCH_SECONDARY_ID = #{dispatchSecondaryId}
+					AND MAC_ID = #{macId} AND WORK_TIME_END IS NULL AND WORK_TIME_START IS NOT NULL
+				</if>
+			</if>
+		</where>
+	</select>
+
+	<insert id="insertTMacWorkTime">
+		INSERT INTO T_MAC_WORK_TIME(
+			ID,
+			WORK_PLAN_ID,
+			PLAN_TYPE,
+			RESERVAT_CAR_ID,
+			CAR_NO,
+			DISPATCH_SECONDARY_ID,
+			MAC_ID,
+			MAC_CODE,
+			MAC_NAME,
+			WORK_TIME_START,
+			WORK_TIME_END,
+			REMARK,
+			CREATE_BY,
+			CREATE_BY_NAME,
+			CREATE_TIME,
+			WEIGHBRIDGE_ID,
+			STOREHOUSE_ID,
+			STOREHOUSE_NAME,
+			REGION_ID,
+			REGION_NAME,
+			MASS_ID,
+			MASS_NAME
+		) VALUES (
+			#{id, jdbcType=BIGINT},
+			#{workPlanId, jdbcType=BIGINT},
+			#{planType, jdbcType=VARCHAR},
+			#{reservatCarId, jdbcType=BIGINT},
+			#{carNo, jdbcType=VARCHAR},
+			#{dispatchSecondaryId, jdbcType=BIGINT},
+			#{macId, jdbcType=BIGINT},
+			#{macCode, jdbcType=VARCHAR},
+			#{macName, jdbcType=VARCHAR},
+			#{workTimeStart, jdbcType=TIMESTAMP},
+			#{workTimeEnd, jdbcType=TIMESTAMP},
+			#{remark, jdbcType=BIGINT},
+			#{loginUserId, jdbcType=BIGINT},
+			#{loginUserName, jdbcType=VARCHAR},
+			#{now, jdbcType=TIMESTAMP},
+			#{weighbridgeId, jdbcType=BIGINT},
+			#{storehouseId, jdbcType=BIGINT},
+			#{storehouseName, jdbcType=VARCHAR},
+			#{regionId, jdbcType=BIGINT},
+			#{regionName, jdbcType=VARCHAR},
+			#{massId, jdbcType=BIGINT},
+			#{massName, jdbcType=VARCHAR}
+		)
+	</insert>
+
+	<update id="updateTMacWorkTime">
+		UPDATE T_MAC_WORK_TIME SET
+			WORK_TIME_END = #{workTimeEnd, jdbcType=TIMESTAMP},
+			UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+			UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+			UPDATE_TIME = #{now, jdbcType=TIMESTAMP}
+		WHERE ID = #{id, jdbcType=BIGINT}
+	</update>
+
+	<select id="getTrustTradeReservatCarById" resultType="com.yy.ppm.business.bean.po.TBusTrustTradeReservatCarPO">
+		SELECT
+			ID,
+			TRUST_ID,
+			CAR_NO,
+			DRIVER_NAME,
+			DRIVER_ID_CARD,
+			DRIVER_PHONE
+		FROM T_BUS_TRUST_TRADE_RESERVAT_CAR
+		WHERE ID = #{id}
+	</select>
+
+	<select id="getPrdDispatchSecondaryByIdAndMacId" resultType="com.yy.ppm.business.bean.po.TBusTrustTradeReservatCarPO">
+		SELECT
+			ID,
+			EQUIPMENT_ID,
+			EQUIPMENT_NO
+		FROM T_PRD_DISPATCH_SECONDARY
+		WHERE ID = #{id}
+	</select>
+
+	<select id="getWeightRecordPound" resultType="com.yy.ppm.machine.bean.dto.WeightRecordPoundDTO">
+		SELECT
+			NOTE_ID,
+			TRUCK_PLATE,
+			PLAN_NO,
+			WORK_ERWEI_ID,
+			TSPT_ID
+		FROM
+			WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND
+		WHERE
+			NOTE_ID = #{noteId}
+	</select>
+
+	<update id="updateWeightRecordPound">
+		UPDATE WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND
+		SET IS_TALLY = 1,
+			IS_DIRECTION = #{isDirection}
+		WHERE NOTE_ID = #{noteId}
+	</update>
+	<update id="doSave">
+		update
+		WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND
+		set
+		LOCATION = #{location, jdbcType=VARCHAR}
+		where
+		NOTE_ID = #{weighbridgeId}
+	</update>
+
+	<insert id="insertYardTally">
+		INSERT INTO T_YARD_TALLY
+		(
+			ID,
+			PLAN_ID,
+			SHIPVOYAGE_ID,
+			PROCESS_CODE,
+			PROCESS_NAME,
+			EQUIPMENT_ID,
+			EQUIPMENT_NO,
+			TRANSPORT_EQUIPMENT_ID,
+			TRANSPORT_EQUIPMENT_NO,
+			QUANTITY,
+			TON,
+			REMARK,
+			CREATE_BY,
+			CREATE_BY_NAME,
+			CREATE_TIME,
+			OPERATORS_ID,
+			OPERATORS_NAME,
+			TRANSPORT_OPERATORS_ID,
+			TRANSPORT_OPERATORS_NAME,
+			WEIGHBRIDGE_ID,
+			PLAN_NO,
+			TSPT_ID,
+			WORK_ERWEI_ID
+		) VALUES (
+			#{id},
+			#{planId},
+			#{shipvoyageId},
+			#{processCode},
+			#{processName},
+			#{equipmentId},
+			#{equipmentNo},
+			#{transportEquipmentId},
+			#{transportEquipmentNo},
+			#{quantity},
+			#{ton},
+			#{remark},
+			#{loginUserId, jdbcType=BIGINT},
+			#{loginUserName, jdbcType=VARCHAR},
+			#{now, jdbcType=TIMESTAMP},
+			#{operatorsId},
+			#{operatorsName},
+			#{transportOperatorsId},
+			#{transportOperatorsName},
+			#{weighbridgeId},
+			#{planNo},
+			#{tsptId},
+			#{workErWeiId}
+		)
+	</insert>
+
+	<insert id="insertYardTallyItem">
+		INSERT INTO T_YARD_TALLY_ITEM
+		(
+			ID,
+			TALLY_ID,
+			CARGO_INFO_ID,
+			CARGO_CODE,
+			CARGO_NAME,
+			QUANTITY,
+			TON,
+			REMARK,
+			CREATE_BY,
+			CREATE_BY_NAME,
+			CREATE_TIME,
+			TRUST_CARGO_INFO_ID,
+			STOREHOUSE_ID,
+			STOREHOUSE_NAME,
+			LOCATION_ID,
+			LOCATION_NO,
+			STACK_POSITION_NAME,
+			STACK_POSITION_ID,
+			DIRECT_FETCHING,
+			SOURCE_OR_TARGET_FLAG
+		) VALUES (
+			#{id},
+			#{tallyId},
+			#{cargoInfoId},
+			#{cargoCode},
+			#{cargoName},
+			#{quantity},
+			#{ton},
+			#{remark},
+			#{loginUserId, jdbcType=BIGINT},
+			#{loginUserName, jdbcType=VARCHAR},
+			#{now, jdbcType=TIMESTAMP},
+			#{trustCargoInfoId},
+			#{storehouseId},
+			#{storehouseName},
+			#{locationId},
+			#{locationNo},
+			#{stackPositionName},
+			#{stackPositionId},
+			#{directFetching},
+			#{sourceOrTargetFlag}
+		)
+	</insert>
+
+	<select id="getFirstChildProcess" resultType="java.util.Map">
+		SELECT
+			*
+		FROM
+			(
+				SELECT
+					T .PROCESS_CD "processCode",
+					T .PROCESS_NM "processName"
+				FROM
+					M_WORK_PROCESS T
+				WHERE
+					T .PARENT_ID = (
+						SELECT
+							b."ID"
+						FROM
+							T_PRD_WORK_PLAN A,
+							M_WORK_PROCESS b
+						WHERE
+							A .PROCESS_CODE = b.PROCESS_CD
+						AND A ."ID" = #{workPlanId}
+					)
+				ORDER BY T.SORT_NUM
+			)
+		WHERE
+			ROWNUM = 1
+	</select>
+	<select id="getLoadCarByWeighbridgeId" resultType="com.yy.ppm.machine.bean.dto.TMacTerminalLoadCarDTO">
+		SELECT
+			PLAN_NO,
+			COM_NAME SHIP_NAME,
+			SCN,
+			WEIGHT_SELF,
+		 	INV_REM,
+		 	GOODS_NAME
+		FROM
+			WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND
+		WHERE
+			NOTE_ID = #{weighbridgeId}
+	</select>
+
+	<select id="getMacDistance" resultType="java.lang.Integer">
+		SELECT PARAM_VAL FROM SYS_PARAMETER WHERE PARAM_CD = 'MAC_DISTANCE'
+	</select>
+
+	<select id="getTallyCountByWeighbridgeId" resultType="java.lang.Integer">
+		SELECT COUNt(*) FROM T_YARD_TALLY WHERE WEIGHBRIDGE_ID = #{weighbridgeId} and DEL_FLAG != 1
+	</select>
+
+	<select id="getMacWorkNow" resultType="com.yy.ppm.machine.bean.po.TMacWorkNowPO" parameterType="com.yy.ppm.machine.bean.dto.TMacWorkNowDTO">
+		SELECT
+			*
+		FROM
+			T_MAC_WORK_NOW
+		WHERE
+			MAC_ID = #{macId}
+		AND WORK_DATE = #{workDate}
+		AND CLASS_CODE = #{classCode}
+		AND ROWNUM = 1
+		ORDER BY WORK_DATE DESC, CLASS_CODE DESC
+
+	</select>
+	<select id="getDetailLocation" resultType="com.yy.ppm.machine.bean.dto.TMacWorKLocationDTO">
+		SELECT
+		LOCATION
+		FROM
+		WFG_PORTMIS_POUND.WEIGHT_RECORD_POUND
+		where
+		NOTE_ID = #{weighbridgeId}
+	</select>
+	<select id="getYardByName" resultType="java.util.HashMap">
+		SELECT ID "value",STORAGE_YARD_NM "label" FROM M_STORAGE_YARD
+		<where>
+			STORAGE_YARD_NM IN
+			<foreach collection="storageYardNms" item="item" close=")" open="(" separator=",">
+				#{item}
+			</foreach>
+		</where>
+	</select>
+    <select id="getTonByMassIdAndCargoInfoId" resultType="java.math.BigDecimal">
+		select ton from T_PRD_PORT_STORAGE WHERE MASS_ID =#{massId}  AND CARGO_INFO_ID = #{cargoInfoId}
+	</select>
+	<select id="getListByTrustCargoId" resultType="java.lang.Long">
+		select TBTC.ID
+	FROM T_BUS_TRUST_CARGO TBTC
+	left join T_BUS_TRUST TBT on TBTC.TRUST_ID = TBT.ID
+	where TBT.TYPE ='集港'
+	AND TBTC.ID = #{trustCargoInfoId}
+	</select>
+
+	<insert id="insertMacWorkNow" parameterType="com.yy.ppm.machine.bean.dto.TMacWorkNowDTO">
+		INSERT INTO T_MAC_WORK_NOW (
+			ID,
+			MAC_ID,
+			MAC_CODE,
+			MAC_NAME,
+			REMARK,
+			CREATE_BY,
+			CREATE_BY_NAME,
+			CREATE_TIME,
+			STACK_ID,
+			STACK_CODE,
+			STACK_NAME,
+			WORK_DATE,
+			CLASS_CODE
+		) VALUES (
+			#{id},
+			#{macId},
+			#{macCode},
+			#{macName},
+			#{remark},
+			#{loginUserId, jdbcType=BIGINT},
+			#{loginUserName, jdbcType=VARCHAR},
+			#{now, jdbcType=TIMESTAMP},
+			#{stackId},
+			#{stackCode},
+			#{stackName},
+			#{workDate},
+			#{classCode}
+		)
+	</insert>
+	<select id="getOutTimeByNoteId" resultType="com.yy.ppm.machine.bean.dto.PoundDTO">
+		select note_id,WEIGH_IN_DT,WEIGH_OUT_DT,IS_FINISHED
+		from "WFG_PORTMIS_POUND".WEIGHT_RECORD_POUND
+		where note_id = #{noteId}
+	</select>
+	<select id="getStorageList" resultType="com.yy.ppm.produce.bean.po.TPrdPortStorageDetailPO">
+		select TPPSD.*
+		from T_YARD_TALLY TYT
+				 left join T_YARD_TALLY_ITEM TYTI on TYTI.TALLY_ID = TYT.ID
+				 left join T_PRD_PORT_STORAGE_DETAIL TPPSD on TPPSD.CARGO_TALLY_DETAIL_ID = TYTI.id
+		where TPPSD.id is not null and TYT.WEIGHBRIDGE_ID = #{noteId}
+	</select>
+    <select id="getDyPlanList" resultType="java.util.Map" parameterType="java.util.Map">
+		SELECT
+			tpwp.ID "workPlanId",
+			tpwp.WORK_DATE "workDate",
+			tpwp.CLASS_CODE "classCode",
+			tpwp.CLASS_NAME "className",
+			tpwp.PROCESS_CODE "processCode",
+			tpwp.PROCESS_NAME "processName",
+			tbt.ID "trustId",
+			tbt.trust_no "trustNo",
+			tbci.CARGO_NAME "cargoName",
+			tbci.CARGO_INFO_NO "cargoInfoNo",
+			tbci.CARGO_OWNER_ID "cargoOwnerId",
+			tbci.CARGO_OWNER_NAME "cargoOwnerName"
+		FROM
+			T_BUS_TRUST_CARGO tbtc
+		LEFT JOIN T_PRD_WORK_PLAN tpwp ON
+			TBTC.TRUST_ID = tpwp.TRUST_ID
+		LEFT JOIN T_BUS_TRUST tbt ON
+			TPWP.TRUST_ID = TBT.ID
+		LEFT JOIN T_BUS_CARGO_INFO tbci ON
+			TBTC.CARGO_INFO_ID = tbci.ID
+		LEFT JOIN T_PRD_DISPATCH_SECONDARY tpds ON
+			TPDS.WORK_PLAN_ID = TPWP.ID
+		LEFT JOIN M_MACHINE mm ON
+			mm.ID = tpds.EQUIPMENT_ID
+		WHERE tpwp.PLAN_TYPE = '3'
+		  <if test="imei!=null">
+			  AND mm.IMEI = #{imei}
+		  </if>
+		  <if test="classCode!=null">
+			  AND tpwp.CLASS_CODE = #{classCode}
+		  </if>
+		  <if test="workDate!=null">
+			  AND tpwp.WORK_DATE = TO_DATE(#{workDate},'YYYY-MM-DD hh24:mi:ss')
+		  </if>
+	</select>
+
+	<!--  获取表单数据  -->
+<!--	tpds.DEPT_ID "deptId",-->
+<!--	tpds.DEPT_NAME "deptName",-->
+	<select id="getPickUpFrom" resultType="java.util.Map">
+		SELECT
+			tpwp.TRUST_ID "trustId",
+			tpwp.COMPANY_ID "companyId",
+			tpwp.COMPANY_NAME "companyName",
+			tpwp.WORK_DATE "workDate",
+			tpwp.CLASS_CODE "classCode",
+			tpwp.CLASS_NAME "className",
+			tpwp.SHIPVOYAGE_ID "shipvoyageId",
+			tpwp.SHIPVOYAGE_ITEM_ID "shipvoyageItemId",
+			mwp.SOURCE_CD "sourceCd",
+			mwp.SOURCE_NM "sourceNm",
+			mwp.TARGET_CD "targetCd",
+			mwp.TARGET_NM "targetNm",
+			mwp.UPDATE_POINT "updatePoint",
+			tpds.WORK_PLAN_ID "workPlanId",
+			tpds.SUB_PROCESS_CODE "processCode",
+			tpds.SUB_PROCESS_NAME "processName",
+			TPDS.EQUIPMENT_ID "equipmentId",
+			tpds.EQUIPMENT_NO "equipmentNo",
+			mm.IMEI "imei",
+			mm.MAC_CODE "macCode"
+		FROM T_PRD_DISPATCH_SECONDARY tpds
+		LEFT JOIN M_MACHINE mm ON mm.ID = TPDS.EQUIPMENT_ID
+		LEFT JOIN T_PRD_WORK_PLAN tpwp ON tpwp.id = tpds.WORK_PLAN_ID
+		LEFT JOIN M_WORK_PROCESS mwp ON tpds.SUB_PROCESS_CODE = MWP.PROCESS_CD
+		WHERE
+			mm.IMEI = #{imei}
+		  	AND WORK_PLAN_ID = #{workPlanId}
+	</select>
+	<select id="getCargoNameList" resultType="java.util.Map" parameterType="java.lang.Long">
+		SELECT
+			TBTC.CARGO_OWNER_NAME || '/' || TBCI.CARGO_INFO_NO || '/' || tbtc.cargo_name "text",
+			TBTC.CARGO_INFO_ID "value",
+			tbtc.ID "trustCargoInfoId",
+			TBCI.CARGO_INFO_NO "cargoInfoNo",
+			TBCI.CARGO_CODE "cargoCode",
+			TBCI.CARGO_NAME "cargoName",
+			TBTC.CARGO_OWNER_ID "cargoOwnerId",
+			TBTC.CARGO_OWNER_NAME "cargoOwnerName",
+			TBTC.PACKING_CODE "packingCode",
+			TBTC.PACKING_NAME "packingName"
+		FROM T_BUS_TRUST_CARGO tbtc
+				 LEFT JOIN T_PRD_WORK_PLAN tpwp ON TPWP.TRUST_ID = TBTC.TRUST_ID
+				 LEFT JOIN T_BUS_CARGO_INFO tbci ON TBCI.ID = TBTC.CARGO_INFO_ID
+		WHERE tpwp.id = #{workPlanId}
+	</select>
+	<!--  获取水平机械  -->
+	<select id="getTransportEquipment" resultType="java.util.Map" parameterType="java.lang.Long">
+		SELECT
+			EQUIPMENT_ID "value",
+			EQUIPMENT_NO "text",
+			EQUIPMENT_TYPE_ID ,
+			EQUIPMENT_TYPE_NAME ,
+			EQUIPMENT_ID "equipmentId",
+			EQUIPMENT_NO "equipmentNo"
+		FROM T_PRD_DISPATCH_SECONDARY tpds
+		WHERE
+			WORK_POSITION_CODE = '03'
+		  AND TPDS.WORK_PLAN_ID = #{workPlanId}
+	</select>
+
+	<select id="getPortStorage" resultType="java.util.Map">
+		SELECT
+			tpwp.ID "workPlanId",
+			tpwpl.DIRECTION "direction",
+			tbci.CARGO_CODE "cargoCode",
+			tbci.CARGO_NAME "cargoName",
+			tbci.ID "cargoInfoId",
+			tbci.CARGO_INFO_NO "cargoInfoNo",
+			tbci.PACKING_CODE "packingCode",
+			tbci.PACKING_NAME "packingName",
+			tbci.CARGO_OWNER_ID "cargoOwnerId",
+			tbci.CARGO_OWNER_NAME "cargoOwnerName",
+			tpps.STOREHOUSE_ID "storehouseId",
+			tpps.STOREHOUSE_NAME "storehouseName",
+			tpps.REGION_ID "locationId",
+			tpps.REGION_NAME "locationNo",
+			tpps.MASS_ID "stackPositionId",
+			tpps.MASS_NAME "stackPositionName",
+			CASE WHEN tpwpl.DIRECTION = '2' THEN 0 ELSE tpps.QUANTITY END "quantitySurplus",
+			CASE WHEN tpwpl.DIRECTION = '2' THEN 0 ELSE tpps.TON END "tonSurplus",
+			'1' "sourceOrTargetFlag",
+			tpps.STOREHOUSE_NAME || '/' || tpps.REGION_NAME || '/' || tpps.MASS_NAME "text"
+		FROM
+			T_PRD_WORK_PLAN_LOCATION tpwpl
+				INNER JOIN T_PRD_PORT_STORAGE tpps ON tpps.MASS_ID = tpwpl.MASS_ID
+				LEFT JOIN T_PRD_WORK_PLAN tpwp ON TPWPL.WORK_PLAN_ID = TPWP.ID
+				LEFT JOIN T_BUS_CARGO_INFO tbci ON tbci.id = tpps.CARGO_INFO_ID
+		WHERE tpwpl.DIRECTION = #{direction} AND tpps.CLEAN_MASS_SIGN = '0'
+		  AND tpps.CARGO_INFO_ID = #{cargoInfoId}
+		  AND TPWPL.WORK_PLAN_ID = #{workPlanId}
+	</select>
+	<select id="getPlanLocation" resultType="java.util.Map">
+		SELECT
+			tpwp.ID "workPlanId",
+			tpwpl.DIRECTION "direction",
+			tbci.CARGO_CODE "cargoCode",
+			tbci.CARGO_NAME "cargoName",
+			tbci.ID "cargoInfoId",
+			tbci.CARGO_INFO_NO "cargoInfoNo",
+			tbci.PACKING_CODE "packingCode",
+			tbci.PACKING_NAME "packingName",
+			tbci.CARGO_OWNER_ID "cargoOwnerId",
+			tbci.CARGO_OWNER_NAME "cargoOwnerName",
+			tpwpl.STOREHOUSE_ID "storehouseId",
+			tpwpl.STOREHOUSE_NAME "storehouseName",
+			tpwpl.REGION_ID "locationId",
+			tpwpl.REGION_NAME "locationNo",
+			tpwpl.MASS_ID "value",
+			tpwpl.MASS_ID "stackPositionId",
+			tpwpl.MASS_NAME "stackPositionName",
+			tpwpl.STOREHOUSE_NAME || '/' || tpwpl.REGION_NAME || '/' || tpwpl.MASS_NAME "text"
+		FROM
+			T_PRD_WORK_PLAN_LOCATION tpwpl
+				LEFT JOIN T_PRD_WORK_PLAN tpwp ON TPWPL.WORK_PLAN_ID = TPWP.ID
+				LEFT JOIN T_BUS_TRUST_CARGO tbtc ON tbtc.TRUST_ID = TPWP.TRUST_ID
+				LEFT JOIN T_BUS_CARGO_INFO tbci ON tbci.id = tbtc.CARGO_INFO_ID
+		WHERE tpwpl.DIRECTION = #{direction}
+		  AND tbci.ID  = #{cargoInfoId}
+		  AND TPWPL.WORK_PLAN_ID = #{workPlanId}
+	</select>
+	<select id="getTallyByPlanId" resultType="java.util.Map" parameterType="java.lang.String">
+		SELECT
+			tyt.PLAN_ID "workPlanId",
+			tyti.TALLY_ID "tallyId",
+			tbci.CARGO_INFO_NO "cargoInfoNo",
+			tyti.CARGO_NAME "cargoName",
+			tyt.PROCESS_NAME "processName",
+			tyt.EQUIPMENT_NO "equipmentNo",
+			tyt.TRANSPORT_EQUIPMENT_NO "transportEquipmentNo",
+			tyt.DEPT_NAME "deptName",
+			max(CASE WHEN tyti.SOURCE_OR_TARGET_FLAG = 1 THEN tyti.STOREHOUSE_NAME || '/' || tyti.LOCATION_NO || '/' || tyti.STACK_POSITION_NAME END) "sourceMassName",
+			max(CASE WHEN tyti.SOURCE_OR_TARGET_FLAG = 1 THEN tyti.TON END) "sourceTon",
+			max(CASE WHEN tyti.SOURCE_OR_TARGET_FLAG = 2 THEN tyti.STOREHOUSE_NAME || '/' || tyti.LOCATION_NO || '/' || tyti.STACK_POSITION_NAME END) "targetMassName",
+			max(CASE WHEN tyti.SOURCE_OR_TARGET_FLAG = 2 THEN tyti.TON END) "targetTon"
+		FROM T_YARD_TALLY_ITEM tyti
+			LEFT JOIN T_YARD_TALLY tyt ON TYT.ID = TYTI.TALLY_ID
+			LEFT JOIN T_PRD_WORK_PLAN tpwp ON TYT.PLAN_ID = TPWP.ID
+			LEFT JOIN T_BUS_CARGO_INFO tbci ON TYTI.CARGO_INFO_ID = TBCI.ID
+		WHERE tyt.DEL_FLAG = '0'
+		  AND tpwp.TRUST_ID = #{trustId}
+		  AND tpwp.WORK_DATE = TO_DATE(#{workDate},'YYYY-MM-DD')
+		  AND tpwp.CLASS_CODE = #{classCode}
+		GROUP BY tyti.TALLY_ID,tyt.PROCESS_NAME ,tyt.EQUIPMENT_NO ,TYT.DEPT_NAME,tyt.PLAN_ID,tyti.CARGO_NAME,tbci.CARGO_INFO_NO,tyt.TRANSPORT_EQUIPMENT_NO
+		ORDER BY max(tyt.CREATE_TIME) DESC
+	</select>
+
+	<select id="getTallySum" resultType="java.util.Map" parameterType="java.lang.String">
+		SELECT
+			SUM(tyt.ton) "ton"
+		FROM T_YARD_TALLY tyt
+			LEFT JOIN T_PRD_WORK_PLAN tpwp ON TYT.PLAN_ID = TPWP.ID
+		WHERE tyt.DEL_FLAG = '0'
+		  AND tpwp.TRUST_ID = #{trustId}
+		  AND tpwp.WORK_DATE = TO_DATE(#{workDate},'YYYY-MM-DD')
+		  AND tpwp.CLASS_CODE = #{classCode}
+		ORDER BY tyt.CREATE_TIME
+	</select>
+
+
+	<update id="delTallLog">
+		update T_YARD_TALLY set DEL_FLAG = '1' where WEIGHBRIDGE_ID = #{noteId}
+	</update>
+	<update id="changPoundTallyStatusWithZero">
+		update "WFG_PORTMIS_POUND".WEIGHT_RECORD_POUND set IS_TALLY = '0' where note_id = #{noteId}
+	</update>
+	<update id="tallyListDelete" parameterType="java.lang.String">
+		UPDATE T_YARD_TALLY
+		<set>
+			DEL_FLAG = '1',
+			UPDATE_BY = #{createBy, jdbcType=BIGINT},
+			UPDATE_BY_NAME = #{createByName, jdbcType=VARCHAR},
+			UPDATE_TIME = #{createTime, jdbcType=TIMESTAMP}
+		</set>
+		WHERE ID = #{tallyId, jdbcType=BIGINT}
+	</update>
+
+	<delete id="deleteStorageDetail" parameterType="java.lang.String">
+		DELETE FROM T_PRD_PORT_STORAGE_DETAIL
+		WHERE CARGO_TALLY_ID = #{tallyId}
+	</delete>
+
+
+
+	<select id="getSumPortStorage" resultType="java.util.HashMap" parameterType="java.lang.String">
+		SELECT
+		tpps.ID "portStorageId",
+		sum(NVL(tppsd.TON,0)) "ton"
+		FROM T_PRD_PORT_STORAGE tpps
+		LEFT JOIN T_PRD_PORT_STORAGE_DETAIL tppsd ON TPPS.ID = TPPSD.PORT_STORAGE_ID
+		WHERE tpps.ID
+		<foreach collection="ids" open=" IN (" separator="," item="id" close=")">
+			#{id,jdbcType=VARCHAR}
+		</foreach>
+		GROUP BY tpps.ID
+	</select>
+	<select id="getPortStorageList" resultType="java.util.Map">
+		SELECT
+			ID "portStorageDetailId",
+			PORT_STORAGE_ID "portStorageId",
+			QUANTITY "quantity",
+			TON "ton"
+		FROM T_PRD_PORT_STORAGE_DETAIL tppsd WHERE  CARGO_TALLY_ID = #{tallyId, jdbcType=BIGINT}
+	</select>
+
+	<update id="updatePortStorage">
+		UPDATE T_PRD_PORT_STORAGE
+		<set>
+			TON = #{ton},
+			UPDATE_BY = #{createBy, jdbcType=BIGINT},
+			UPDATE_BY_NAME = #{createByName, jdbcType=VARCHAR},
+			UPDATE_TIME = #{createTime, jdbcType=TIMESTAMP}
+		</set>
+		WHERE ID = #{id, jdbcType=BIGINT}
+	</update>
+	<select id="getWorkPlanById" resultType="java.lang.String">
+		select mwp.IS_DIRECT_ACCESS
+		from T_PRD_WORK_PLAN TPWP
+				 join M_WORK_PROCESS MWP on TPWP.PROCESS_CODE = MWP.PROCESS_CD
+		where tpwp.id  = #{planId,jdbcType=BIGINT}
+	</select>
+</mapper>

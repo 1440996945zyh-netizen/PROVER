@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.business.mapper.TBusStackFeeReduceMapper">
+
+    <insert id="insert" parameterType="com.yy.ppm.business.bean.dto.TBusStackFeeReduceDTO">
+        insert into T_BUS_STACK_FEE_REDUCE (ID,CARGO_INFO_ID,REDUCE_TYPE,REDUCE_DAYS,REDUCE_END_DATE,CAL_END_DATE,
+                                            REMARK,CREATE_BY,CREATE_BY_NAME,CREATE_TIME)
+        values
+               (#{id,jdbcType=BIGINT},#{cargoInfoId,jdbcType=BIGINT},#{reduceType,jdbcType=BIGINT},#{reduceDays,jdbcType=BIGINT},
+                #{reduceEndDate},#{calEndDate},#{remark,jdbcType=VARCHAR},
+                #{loginUserId,jdbcType=BIGINT},
+                #{loginUserName,jdbcType=VARCHAR},
+                #{now,jdbcType=TIMESTAMP}
+               )
+    </insert>
+    <update id="update" parameterType="com.yy.ppm.business.bean.dto.TBusStackFeeReduceDTO">
+        update T_BUS_STACK_FEE_REDUCE
+        SET REDUCE_TYPE = #{reduceType,jdbcType=BIGINT},
+            REDUCE_DAYS = #{reduceDays,jdbcType=BIGINT},
+            REDUCE_END_DATE = #{reduceEndDate,jdbcType=TIMESTAMP},
+            CAL_END_DATE = #{calEndDate},
+            REMARK = #{remark,jdbcType=VARCHAR},
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            update_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now}
+            where ID = #{id} and CARGO_INFO_ID = #{cargoInfoId,jdbcType=BIGINT}
+    </update>
+    <select id="getList" parameterType="com.yy.ppm.business.bean.dto.TBusStackFeeReduceDTO"
+    resultType="com.yy.ppm.business.bean.dto.TBusStackFeeReduceDTO">
+        select * FROM  T_BUS_STACK_FEE_REDUCE
+        <where>
+            <if test="cargoInfoId!=null and cargoInfoId!=''">
+                CARGO_INFO_ID = #{cargoInfoId,jdbcType=BIGINT}
+            </if>
+        </where>
+    </select>
+    <select id="getSettleList" resultType="com.yy.ppm.statement.bean.dto.storageFee.TCostStorageSettleDTO">
+        select *
+        from T_COST_STORAGE_SETTLE
+        where CARGO_INFO_ID = #{cargoInfoId}
+    </select>
+
+</mapper>

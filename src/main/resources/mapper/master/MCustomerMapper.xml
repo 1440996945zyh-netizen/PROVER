@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.master.mapper.MCustomerMapper">
+
+    <sql id="commonList">
+        SELECT
+        ID,
+        CUSTOMER_CODE,
+        CUSTOMER_NAME,
+        EN_CUSTOMER_NAME,
+        CUSTOMER_SHORT,
+        REMARK,
+        STAUTS,
+        CREATE_BY,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_TIME
+        FROM
+        M_CUSTOMER
+        <where>
+            <if test="id != null">
+                and ID = #{id}
+            </if>
+            <if test="customerCode != null and customerCode != ''">
+                <bind name="customerCode" value="'%'+customerCode+'%'"/>
+                and CUSTOMER_CODE LIKE #{customerCode}
+            </if>
+            <if test="customerName != null and customerName != ''">
+                <bind name="customerName" value="'%'+customerName+'%'"/>
+                and CUSTOMER_NAME LIKE #{customerName}
+            </if>
+            <if test="enCustomerName != null and enCustomerName != ''">
+                and EN_CUSTOMER_NAME = #{enCustomerName}
+            </if>
+            <if test="customerShort != null and customerShort != ''">
+                and CUSTOMER_SHORT = #{customerShort}
+            </if>
+            <if test="remark != null and remark != ''">
+                and REMARK = #{remark}
+            </if>
+            <if test="status != null">
+                and STAUTS = #{stauts}
+            </if>
+        </where>
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.master.bean.dto.MCustomerDTO"
+            parameterType="com.yy.ppm.master.bean.dto.MCustomerSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.master.bean.dto.MCustomerDTO"
+            parameterType="com.yy.ppm.master.bean.dto.MCustomerSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.master.bean.dto.MCustomerDTO" parameterType="java.lang.Long">
+        SELECT
+        ID, CUSTOMER_CODE, CUSTOMER_NAME, EN_CUSTOMER_NAME, CUSTOMER_SHORT, REMARK, STAUTS, CREATE_BY, CREATE_TIME,
+        UPDATE_BY, UPDATE_TIME FROM
+        M_CUSTOMER
+        <where>
+            id = #{id}
+        </where>
+    </select>
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.master.bean.dto.MCustomerDTO">
+        INSERT INTO M_CUSTOMER(ID,
+                               CUSTOMER_CODE,
+                               CUSTOMER_NAME,
+                               EN_CUSTOMER_NAME,
+                               CUSTOMER_SHORT,
+                               REMARK,
+                               STAUTS,
+                               CREATE_BY,
+                               CREATE_TIME)
+        VALUES (#{id, jdbcType=VARCHAR},
+                #{customerCode, jdbcType=VARCHAR},
+                #{customerName, jdbcType=VARCHAR},
+                #{enCustomerName, jdbcType=VARCHAR},
+                #{customerShort, jdbcType=VARCHAR},
+                #{remark, jdbcType=VARCHAR},
+                #{stauts, jdbcType=VARCHAR},
+                #{loginUserId, jdbcType=BIGINT},
+                #{now})
+    </insert>
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.master.bean.dto.MCustomerDTO">
+        UPDATE
+        M_CUSTOMER
+        SET
+        ID = #{id,jdbcType=BIGINT},
+        CUSTOMER_CODE = #{customerCode,jdbcType=VARCHAR},
+        CUSTOMER_NAME = #{customerName,jdbcType=VARCHAR},
+        EN_CUSTOMER_NAME = #{enCustomerName,jdbcType=VARCHAR},
+        CUSTOMER_SHORT = #{customerShort,jdbcType=VARCHAR},
+        REMARK = #{remark,jdbcType=VARCHAR},
+        STAUTS = #{stauts,jdbcType=VARCHAR},
+        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE
+        FROM M_CUSTOMER
+        WHERE id = #{id}
+    </delete>
+
+    <select id="getInvoiceList" resultType="com.yy.ppm.master.bean.dto.MCustomerInvoiceDTO">
+        SELECT ID,
+               CUSTOMER_CODE,
+               INVOICE_NAME,
+               INV_ADDRESS,
+               INV_TEL,
+               INV_BANK,
+               INV_BANK_NO,
+               INV_TAX_NO,
+               INV_KIND_FLAG,
+               REMARK,
+               CREATE_BY,
+               CREATE_TIME
+        FROM M_CUSTOMER_INVOICE
+        where CUSTOMER_CODE = #{customerCode}
+    </select>
+
+
+    <!-- 新增 -->
+    <insert id="insertInvoceBatch" parameterType="com.yy.ppm.master.bean.dto.MCustomerInvoiceDTO">
+        INSERT INTO M_CUSTOMER_INVOICE(
+        ID,
+        CUSTOMER_CODE,
+        INVOICE_NAME,
+        INV_ADDRESS,
+        INV_TEL,
+        INV_BANK,
+        INV_BANK_NO,
+        INV_TAX_NO,
+        INV_KIND_FLAG,
+        REMARK,
+        CREATE_BY,
+        CREATE_TIME
+        )
+        <foreach collection="list" close=")" open="(" separator="union all" item="item">
+            select
+            #{item.id, jdbcType=BIGINT},
+            #{item.customerCode, jdbcType=VARCHAR},
+            #{item.invoiceName, jdbcType=VARCHAR},
+            #{item.invAddress, jdbcType=VARCHAR},
+            #{item.invTel, jdbcType=VARCHAR},
+            #{item.invBank, jdbcType=VARCHAR},
+            #{item.invBankNo, jdbcType=VARCHAR},
+            #{item.invTaxNo, jdbcType=VARCHAR},
+            #{item.invKindFlag, jdbcType=BIGINT},
+            #{item.remark, jdbcType=VARCHAR},
+            #{item.loginUserId, jdbcType=BIGINT},
+            #{item.now}
+            FROM DUAL
+        </foreach>
+    </insert>
+
+    <select id="getTypeList" resultType="com.yy.ppm.master.bean.dto.MCustomerTypeDTO">
+        SELECT ID,
+               CUSTOMER_CODE,
+               CUSTOMER_TYPE_CODE,
+               CUSTOMER_TYPE_NAME
+        FROM M_CUSTOMER_TYPE
+        where CUSTOMER_CODE = #{customerCode}
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insertTypeBatch" parameterType="com.yy.ppm.master.bean.dto.MCustomerInvoiceDTO">
+        INSERT INTO M_CUSTOMER_TYPE(
+        ID,
+        CUSTOMER_CODE,
+        CUSTOMER_TYPE_CODE,
+        CUSTOMER_TYPE_NAME
+        )
+        <foreach collection="list" close=")" open="(" separator="union all" item="item">
+            select
+            #{item.id, jdbcType=BIGINT},
+            #{item.customerCode, jdbcType=VARCHAR},
+            #{item.customerTypeCode, jdbcType=VARCHAR},
+            #{item.customerTypeName, jdbcType=VARCHAR}
+            FROM DUAL
+        </foreach>
+    </insert>
+</mapper>
+

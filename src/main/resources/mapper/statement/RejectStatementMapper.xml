@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.statement.mapper.RejectStatementMapper">
+    <select id="getList"
+            parameterType="com.yy.ppm.statement.bean.dto.RejectStatementSearchDTO"
+            resultType="com.yy.ppm.statement.bean.dto.RejectStatementResDTO">
+        select TCS2.id,
+               TCS2.company_id,
+               to_char(TCS2.company_name) company_name,
+               to_char(TCS2.statement_no) statement_no,
+               TCS2.customer_id,
+               to_char(TCS2.customer_name) customer_name,
+               decode(TCS2.TYPE,'10','包干费','20','包干费陆集陆疏') type,
+               TCS2.handoverlist_id,
+               to_char(TBH.SHIP_NAME) ship_voyage,
+               to_char(TCS2.cargo_name) cargo_name ,
+               cast(TCS2D.bill_quantity as NUMBER(12, 4))  bill_quantity,
+               cast(TCS2D.amount  as NUMBER(12, 4)) AMOUNT,
+               to_char(TCS2.create_by_name) create_by_name,
+               to_char(TCS2.create_time,'yyyy-MM-dd hh24:mi:ss') create_time,
+               to_char(TCS2.trade_type) trade_type,
+               null start_date,
+               null end_date,
+               decode(to_char(TCS2.status),'10', '生产结算','20','计费待审核','30','计费审核','31','商务确认','40','部分开票','50','已开票' ) status,
+               '' process_name,
+               TBH.cargo_info_id ,
+               TBCI2.CARGO_INFO_NO,
+               to_char(TCS2.statement_time,'yyyy-mm-dd hh24:mi:ss') statement_time,
+               to_char(TCS2.statement_by_name) statement_by_name,
+               to_char(TCS2.reject_by_name) reject_by_name,
+               to_char(TCS2.reject_time,'yyyy-mm-dd hh24:mi:ss') reject_time,
+               to_char(TCS2.reject_reason) reject_reason
+        from T_COST_STATEMENT TCS2
+                 left join T_BUS_HANDOVERLIST TBH on TCS2.HANDOVERLIST_ID = TBH.ID
+                 left join T_BUS_CARGO_INFO TBCI2 on  TBH.CARGO_INFO_ID = TBCI2.ID
+                 left join (select  STATEMENT, cast(sum(T_COST_STATEMENT_DETAIL."NUMBER") as number(12,4)) bill_quantity, sum(AMOUNT) amount  FROM T_COST_STATEMENT_DETAIL group by STATEMENT) TCS2D on TCS2.ID = TCS2D.STATEMENT
+        where TCS2.TYPE in ('10','20') and TCS2.status &lt; '30' and TCS2.REJECT_REASON is not null
+        union
+        select TMB.id,
+               TMB.company_id,
+               to_char(TMB.company_name) company_name,
+               to_char(TCS.statement_no) statement_no,
+               TMB.customer_id,
+               to_char(TBC.customer_name) customer_name,
+               '杂项计费' type,
+               null handoverlist_id,
+               TMB.ship_voyage,
+               to_char(TBCI.CARGO_NAME) cargo_name,
+               cast(TMB.bill_quantity AS NUMBER(12, 4)) bill_quantity,
+               cast( TMB.amount_money as NUMBER(12,4)) AMOUNT,
+               to_char(TMB.create_by_name) create_by_name,
+               to_char(TMB.create_time,'yyyy-MM-dd hh24:mi:ss') create_time,
+               '' trade_type,
+               null start_date,
+               null end_date,
+               decode(to_char(TMB.STATUS) ,'10','待计费','20','计费待审核') status,
+               TMB.process_name,
+               TMB.cargo_info_id,
+               TBCI.CARGO_INFO_NO CARGO_INFO_NO,
+               to_char(TMB.statement_time,'yyyy-mm-dd hh24:mi:ss') statement_time,
+               to_char(TMB.statement_by_name) statement_by_name,
+               to_char(TMB.reject_by_name) reject_by_name,
+               to_char(TMB.reject_time,'yyyy-mm-dd hh24:mi:ss') reject_time,
+               to_char(TMB.reject_reason) reject_reason
+        from T_MISC_BILLING TMB
+                 left join T_COST_STATEMENT TCS  on  TMB.STATEMENT_ID = TCS.ID
+                 left join T_BUS_CARGO_INFO TBCI on TBCI.id = TMB.CARGO_INFO_ID
+                 left join T_BUS_CUSTOMER TBC  on TBC.ID = TMB.CUSTOMER_ID
+        where (tcs.status is null or TCS.status &lt; '30') and TMB.REJECT_REASON is not null
+        union
+        select TCSS.id,
+               TCSS.company_id,
+               to_char(TCSS.company_name) company_name,
+               '' statement_no,
+               TCSS.cargo_owner_id as customer_id,
+               to_char(TCSS.cargo_owner_name) as customer_name,
+               '堆存费' type,
+               TCSS.handoverlist_id handoverlist_id,
+               '' ship_voyage,
+               to_char(TBCI3.CARGO_NAME) CARGO_NAME,
+               cast('0.0000' as number(12,4)) bill_quantity,
+               cast(TCSS.amount as number(12,4)) amount,
+               to_char(TCSS.create_by_name) create_by_name,
+               to_char(TCSS.create_time,'yyyy-MM-dd hh24:mi:ss') create_time,
+               '' trade_type,
+               TCSS.start_date,
+               TCSS.end_date,
+               decode(TCSS.status,'10','已计费','20','已审核') status,
+               '' process_name,
+               TBCI3.id cargo_info_id,
+               TBCI3.CARGO_INFO_NO CARGO_INFO_NO,
+               to_char(TCSS.create_by_name) as statement_by_name,
+               to_char(TCSS.create_time,'yyyy-mm-dd hh24:mi:ss') statement_time,
+               to_char(TCSS.reject_by_name) reject_by_name,
+               to_char(TCSS.reject_time,'yyyy-mm-dd hh24:mi:ss') reject_time,
+               to_char(TCSS.reject_reason) reject_reason
+        from T_COST_STORAGE_SETTLE TCSS
+                 left join T_BUS_CARGO_INFO TBCI3 on  TBCI3.id = TCSS.CARGO_INFO_ID
+                 left join T_COST_STATEMENT_DETAIL  TCSD  on TCSS.id  = TCSD.BUSINESS_ID
+        where TCSS.REJECT_REASON is not null and TCSD.id is null
+    </select>
+</mapper>

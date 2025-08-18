@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.business.mapper.BusServiceMapper">
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.business.bean.dto.TBusServiceDTO"
+            parameterType="com.yy.ppm.business.bean.dto.BusServiceSearchDTO">
+        SELECT
+        DISTINCT
+        A.ID,
+        A.SERVICE_NM,
+        A.SHORT_CD,
+        A.PROCESS_NMS,
+        A.REMARK,
+        A.CREATE_BY,
+        A.CREATE_BY_NAME,
+        A.CREATE_TIME,
+        A.UPDATE_BY,
+        A.UPDATE_BY_NAME,
+        A.UPDATE_TIME,
+        A.IN_OUT,
+        A.IN_OUT_STORAGE
+        FROM
+        t_bus_service A
+        left join t_bus_service_process C on C.BUS_SERVICE_GID=A.ID
+        <where>
+            <if test="id != null">
+                and ID = #{id}
+            </if>
+            <if test="serviceNm != null and serviceNm != ''">
+                <bind name="serviceNmLike" value="'%'+serviceNm+'%'"/>
+                and (SERVICE_NM LIKE #{serviceNmLike} or SHORT_CD LIKE #{serviceNmLike})
+            </if>
+            <if test="shortCd != null and shortCd != ''">
+                and SHORT_CD = #{shortCd}
+            </if>
+            <if test="processNms != null and processNms != ''">
+                and PROCESS_NMS = #{processNms}
+            </if>
+            <if test="remark != null and remark != ''">
+                and REMARK = #{remark}
+            </if>
+            <if test="workProcessCd!=null and workProcessCd!=''">
+                AND C.WORK_PROCESS_CD =#{workProcessCd}
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据id查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.business.bean.dto.TBusServiceDTO" parameterType="java.lang.Long">
+        SELECT
+        A.ID,
+        A.SERVICE_NM,
+        A.SHORT_CD,
+        A.PROCESS_NMS,
+        A.REMARK,
+        A.CREATE_BY,
+        A.CREATE_BY_NAME,
+        A.CREATE_TIME,
+        A.UPDATE_BY,
+        A.UPDATE_BY_NAME,
+        A.UPDATE_TIME,
+        A.IN_OUT,
+        A.IN_OUT_STORAGE,
+        (select LISTAGG ( WORK_PROCESS_CD, ',' ) WITHIN GROUP ( ORDER BY WORK_PROCESS_CD ) from t_bus_service_process where BUS_SERVICE_GID=A.id) PROCESS_STR
+        FROM
+        t_bus_service A
+        <where>
+            A.id =#{id}
+        </where>
+    </select>
+
+
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.business.bean.dto.TBusServiceDTO">
+        INSERT INTO t_bus_service(ID,
+                                SERVICE_NM,
+                                SHORT_CD,
+                                PROCESS_NMS,
+                                REMARK,
+                                CREATE_BY,
+                                CREATE_BY_NAME,
+                                CREATE_TIME,
+                                IN_OUT,
+                                IN_OUT_STORAGE)
+        VALUES (#{id,jdbcType=INTEGER},
+                #{serviceNm,jdbcType=VARCHAR},
+                #{shortCd,jdbcType=VARCHAR},
+                #{processNms,jdbcType=VARCHAR},
+                #{remark,jdbcType=VARCHAR},
+                #{loginUserId, jdbcType=BIGINT},
+                #{loginUserName, jdbcType=VARCHAR},
+                #{now},
+                #{inOut,jdbcType=VARCHAR},
+                #{inOutStorage,jdbcType=INTEGER})
+    </insert>
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.business.bean.dto.TBusServiceDTO">
+        UPDATE
+        t_bus_service
+        SET
+        SERVICE_NM = #{serviceNm,jdbcType=VARCHAR}, SHORT_CD = #{shortCd,jdbcType=VARCHAR}, PROCESS_NMS =
+        #{processNms,jdbcType=VARCHAR}, REMARK = #{remark,jdbcType=VARCHAR},
+        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        UPDATE_TIME = #{now},
+        IN_OUT = #{inOut,jdbcType=VARCHAR},
+        IN_OUT_STORAGE = #{inOutStorage,jdbcType=INTEGER}
+        <where>
+            ID = #{id}
+        </where>
+    </update>
+
+    <!--插入服务与主票货关系表-->
+    <insert id="insertBusServiceProcess" parameterType="com.yy.ppm.business.bean.dto.TBusServiceDTO">
+        INSERT INTO t_bus_service_process ( BUS_SERVICE_GID, WORK_PROCESS_CD )
+        <foreach collection="processList" separator=" UNION ALL " item="item">
+            SELECT  #{id,jdbcType=BIGINT}, #{item,jdbcType=VARCHAR}  FROM dual
+        </foreach>
+    </insert>
+
+</mapper>

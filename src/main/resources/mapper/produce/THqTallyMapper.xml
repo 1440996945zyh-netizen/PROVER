@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.produce.mapper.THqTallyMapper">
+
+    <sql id="commonList">
+        SELECT
+        ID,
+        TALLY_ID,
+        HQ_DATA_ID,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME
+        FROM
+        T_HQ_TALLY
+        <where>
+            <if test="id != null">
+                and ID = #{id}
+            </if>
+            <if test="tallyId != null">
+                and TALLY_ID = #{tallyId}
+            </if>
+            <if test="hqDataId != null">
+                and HQ_DATA_ID = #{hqDataId}
+            </if>
+        </where>
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.produce.bean.dto.THqTallyDTO"
+            parameterType="com.yy.ppm.produce.bean.dto.THqTallySearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.produce.bean.dto.THqTallyDTO"
+            parameterType="com.yy.ppm.produce.bean.dto.THqTallySearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.produce.bean.dto.THqTallyDTO" parameterType="java.lang.Long">
+        SELECT
+        ID
+        TALLY_ID
+        HQ_DATA_ID
+        CREATE_BY
+        CREATE_BY_NAME
+        CREATE_TIME
+        UPDATE_BY
+        UPDATE_BY_NAME
+        UPDATE_TIME
+        FROM
+        T_HQ_TALLY
+        <where>
+            id = #{id}
+        </where>
+    </select>
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.produce.bean.dto.THqTallyDTO">
+        INSERT INTO T_HQ_TALLY(ID,
+                               TALLY_ID,
+                               HQ_DATA_ID,
+                               CREATE_BY,
+                               CREATE_BY_NAME,
+                               CREATE_TIME)
+        VALUES (#{tallyId, jdbcType=VARCHAR},
+                #{hqDataId, jdbcType=VARCHAR},
+                #{loginUserId, jdbcType=BIGINT},
+                #{loginUserName, jdbcType=VARCHAR},
+                #{now})
+    </insert>
+    <insert id="insertList" parameterType="com.yy.ppm.produce.bean.dto.THqTallyDTO">
+        INSERT INTO T_HQ_TALLY(
+        ID,
+        TALLY_ID,
+        HQ_DATA_ID,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME) (
+        <foreach collection="list" item="item"  open="" close="" separator=" UNION ALL " >
+            SELECT
+            #{item.id},
+            #{item.tallyId, jdbcType=VARCHAR},
+            #{item.hqDataId, jdbcType=VARCHAR},
+            #{item.loginUserId, jdbcType=BIGINT},
+            #{item.loginUserName, jdbcType=VARCHAR},
+            #{item.now}
+            from dual
+        </foreach>
+        )
+    </insert>
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.produce.bean.dto.THqTallyDTO">
+        UPDATE
+        T_HQ_TALLY
+        SET
+        TALLY_ID = #{tallyId,jdbcType=VARCHAR},
+        HQ_DATA_ID = #{hqDataId,jdbcType=VARCHAR},
+        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE
+        FROM T_HQ_TALLY
+        WHERE id = #{id}
+    </delete>
+</mapper>
+

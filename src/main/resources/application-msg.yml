@@ -1,0 +1,5 @@
+yy:
+  message:
+    common:
+      error:
+        repeate: "{0}重复"

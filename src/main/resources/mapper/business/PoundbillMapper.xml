@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.business.mapper.PoundbillMapper">
+
+    <sql id="commonList">
+        SELECT ID,
+               WORK_PLAN_ID,
+               CHECK_PLAN_ID,
+               STANDARD_SYSTEM_ID,
+               STANDARD_SYSTEM_NAME,
+               PROCESS_ID,
+               PROCESS_NAME,
+               CHECK_PLAN_TYPE,
+               BUSINESS_ID,
+               BUSINESS_ITEM_ID,
+               PRACTICAL_VALUE,
+               IS_QUALIFIED,
+               REMARK,
+               CREATE_BY,
+               CREATE_BY_NAME,
+               CREATE_TIME,
+               UPDATE_BY,
+               UPDATE_BY_NAME,
+               UPDATE_TIME
+        FROM T_STD_SHIP_RECORD
+    </sql>
+    <sql id="condition">
+        <where>
+            <if test="id != null">
+                and ID = #{id}
+            </if>
+            <if test="workPlanId != null">
+                and WORK_PLAN_ID = #{workPlanId}
+            </if>
+            <if test="checkPlanId != null">
+                and CHECK_PLAN_ID = #{checkPlanId}
+            </if>
+            <if test="standardSystemId != null">
+                and STANDARD_SYSTEM_ID = #{standardSystemId}
+            </if>
+            <if test="standardSystemName != null">
+                and STANDARD_SYSTEM_NAME = #{standardSystemName}
+            </if>
+            <if test="processId != null">
+                and PROCESS_ID = #{processId}
+            </if>
+            <if test="processName != null">
+                and PROCESS_NAME = #{processName}
+            </if>
+            <if test="checkPlanType != null">
+                and CHECK_PLAN_TYPE = #{checkPlanType}
+            </if>
+            <if test="businessId != null">
+                and BUSINESS_ID = #{businessId}
+            </if>
+            <if test="businessItemId != null">
+                and BUSINESS_ITEM_ID = #{businessItemId}
+            </if>
+            <if test="practicalValue != null">
+                and PRACTICAL_VALUE = #{practicalValue}
+            </if>
+            <if test="isQualified != null">
+                and IS_QUALIFIED = #{isQualified}
+            </if>
+            <if test="remark != null">
+                and REMARK = #{remark}
+            </if>
+        </where>
+    </sql>
+
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getPageList" resultType="com.yy.ppm.business.bean.dto.PoundbillDTO"
+            parameterType="com.yy.ppm.business.bean.dto.PoundbillSearchDTO">
+        <include refid="commonList"></include>
+        <include refid="condition"></include>
+    </select>
+
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getDetailList" resultType="com.yy.ppm.business.bean.dto.PoundbillDTO"
+            parameterType="com.yy.ppm.business.bean.dto.PoundbillSearchDTO">
+        <include refid="commonList"></include>
+        <include refid="condition"></include>
+    </select>
+
+</mapper>
+
