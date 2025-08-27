@@ -2,7 +2,6 @@ package com.yy.ppm.common.service;
 
 import com.yy.ppm.common.bean.dto.ResponsePopupTrustDTO;
 import com.yy.ppm.common.bean.dto.SelecSearchDTO;
-import com.yy.ppm.master.bean.dto.MCityDTO;
 import com.yy.ppm.master.bean.po.*;
 import com.yy.ppm.system.bean.dto.SysDeptDTO;
 
@@ -36,9 +35,5 @@ public interface SelectService {
      */
     HashMap<String, List<Map<String, Object>>> getLocalSelects(String types);
 
-    /**
-     * 通用指令信息
-     */
-    public List<ResponsePopupTrustDTO> getPopupTrust(Map<String, Object> params);
 
 }

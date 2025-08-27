@@ -1,7 +1,6 @@
 package com.yy.ppm.common.mapper;
 
 import com.yy.ppm.master.bean.po.MDictDataPO;
-import com.yy.ppm.master.bean.po.MWorkSchedulePO;
 import com.yy.ppm.system.bean.dto.SysDeptDTO;
 import com.yy.ppm.system.bean.dto.SysParameterDTO;
 import org.apache.ibatis.annotations.Param;
@@ -63,8 +62,6 @@ public interface PublicMapper {
 	public List<Map<String, Object>> getUserInfoAndDeptInfo(@Param("userId") Long userId);
 
     List<MDictDataPO> listDictData();
-
-    List<MWorkSchedulePO> listWorkSchedule();
 
     List<Map<String, Object>> getMachineList2(Map<String, Object> map);
 }

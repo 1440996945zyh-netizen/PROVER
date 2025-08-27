@@ -4,7 +4,6 @@ import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import com.yy.common.log.MicroLogger;
-import com.yy.ppm.machine.controller.MLocationHistoryController;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -40,7 +39,7 @@ public class LogFileDeleteTask {
     /**
      * 日志组件
      **/
-    private static final MicroLogger LOGGER = new MicroLogger(MLocationHistoryController.class);
+    private static final MicroLogger LOGGER = new MicroLogger(LogFileDeleteTask.class);
 
     protected static final List<String> FILE_PATH_LIST = Arrays.asList(
             "C:\\wfppm-logs\\info\\info-log-",

@@ -7,27 +7,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.yy.common.log.MicroLogger;
-import com.yy.ppm.appWork.service.TallyService;
-import com.yy.ppm.produce.service.TPoundService;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
- 
+
 /**
  * I/O数据读写处理类
  *
  */
 @Component
 public class CustomsChannelInboundHandler extends ChannelInboundHandlerAdapter{
-	
+
     private static final MicroLogger LOGGER = new MicroLogger(CustomsChannelInboundHandler.class);
 
-    static TPoundService tPoundService;
-
-    @Autowired
-    public void init(TPoundService tPoundService) {
-    	CustomsChannelInboundHandler.tPoundService = tPoundService;;
-    }
 
 	/**
      * 从客户端收到新的数据时，这个方法会在收到消息时被调用
@@ -42,14 +34,14 @@ public class CustomsChannelInboundHandler extends ChannelInboundHandlerAdapter{
     	if (msg != null && msg instanceof CustomsBaseMessage) {
 
     		CustomsBaseMessage baseMessage = (CustomsBaseMessage) msg;
-    		
+
     		if(CustomsServerConsts.CUSTOMS_0X22 == baseMessage.getMessageType()) {
     			//tPoundService.XMLInfoWLJKRet(baseMessage);
     		}
             //ctx.write("");
     	}
     }
-    
+
 	/**
      * 从客户端收到新的数据、读取完成时调用
      *
@@ -60,7 +52,7 @@ public class CustomsChannelInboundHandler extends ChannelInboundHandlerAdapter{
     {
     	ctx.flush();
     }
- 
+
     /**
      * 当出现 Throwable 对象才会被调用，即当 Netty 由于 IO 错误或者处理器在处理事件时抛出的异常时
      *
@@ -90,7 +82,7 @@ public class CustomsChannelInboundHandler extends ChannelInboundHandlerAdapter{
         //此处不能使用ctx.close()，否则客户端始终无法与服务端建立连接
         LOGGER.error("channelActive:" + clientIp + ctx.name());
     }
- 
+
     /**
      * 客户端与服务端 断连时 执行
      *
@@ -106,7 +98,7 @@ public class CustomsChannelInboundHandler extends ChannelInboundHandlerAdapter{
         ctx.close(); //断开连接时，必须关闭，否则造成资源浪费，并发量很大情况下可能造成宕机
         System.out.println("channelInactive:" + clientIp);
     }
- 
+
     /**
      * 服务端当read超时, 会调用这个方法
      *
@@ -123,20 +115,20 @@ public class CustomsChannelInboundHandler extends ChannelInboundHandlerAdapter{
         ctx.close();//超时时断开连接
     	System.out.println("userEventTriggered:" + clientIp);
     }
- 
+
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception{
     	System.out.println("channelRegistered");
     }
- 
+
     @Override
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception{
     	System.out.println("channelUnregistered");
     }
- 
+
     @Override
     public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception{
     	System.out.println("channelWritabilityChanged");
     }
- 
+
 }

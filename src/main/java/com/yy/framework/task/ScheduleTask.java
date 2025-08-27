@@ -12,27 +12,11 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Component;
 
-import com.yy.ppm.customs.service.TCustomsService;
-import com.yy.ppm.dispatch.service.TDisPortDaynightplanService;
 
 @Component
 @EnableScheduling
 public class ScheduleTask implements SchedulingConfigurer {
 
-    @Autowired
-    private TCustomsService tCustomsService;
-
-    @Autowired
-    private TDisPortDaynightplanService tDisPortDaynightplanService;
-
-
-    private void customsScheduleTask() {
-        tCustomsService.plan2customsXML();
-    }
-
-    private void tosToBoHaiTongDayNightPlanTask() {
-    	tDisPortDaynightplanService.tosToBoHaiTongDayNightPlanTask(null);
-    }
 
     private void pushToCustoms() {
 //        vehicleReservationService.pushToCustomer();
