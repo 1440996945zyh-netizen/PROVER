@@ -1,7 +1,6 @@
 package com.yy.ppm.system.service.impl;
 
 import com.yy.common.enums.RedisEnum;
-import com.yy.ppm.dispatch.bean.dto.disShipDynamic.TDisShipDynamicDTO;
 import com.yy.ppm.system.bean.dto.SysUserDTO;
 import com.yy.ppm.system.service.SysOnLineUserService;
 import com.yy.ppm.system.mapper.SysOnLineUserMapper;

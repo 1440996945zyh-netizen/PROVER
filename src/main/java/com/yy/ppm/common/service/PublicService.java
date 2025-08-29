@@ -44,30 +44,4 @@ public interface PublicService {
      */
     List<SysDeptDTO> getDeptList(SysDeptDTO deptDTO);
 
-    /**
-     * 传入计划日期，返回计划的执行开始结束时间
-     * @param planDte
-     * @return
-     */
-    public String getShiftClassInfoByPlanDate(String planDte);
-
-    /**
-     * 获取当前时间的班次
-     * @param
-     * @return
-     */
-    public Map<String, Object> getCurrentShiftClassInfo(String time);
-
-    /**
-     * 获取机械列表
-     * @param map
-     * @return
-     */
-    List<Map<String, Object>> getMachineList(Map<String, Object> map);
-
-    List<Map<String, Object>> listMass(Long regionId);
-
-    Map<String, Object> getDateAndShift(LocalDateTime dateTime);
-
-    List<Map<String, Object>> getMachineList2(Map<String, Object> map);
 }

@@ -236,7 +236,6 @@
             </if>
             AND (DICT_TYPE =  #{dictType,jdbcType=VARCHAR})
         </where>
-        order by to_number(SORT_NUM)
     </select>
     <select id="getDictsByType" resultType="com.yy.ppm.master.bean.dto.MDictDataDTO">
         SELECT

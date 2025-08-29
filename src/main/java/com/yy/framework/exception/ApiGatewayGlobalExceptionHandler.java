@@ -2,8 +2,6 @@ package com.yy.framework.exception;
 
 import com.yy.common.enums.Response;
 import com.yy.common.enums.Response.GateWayCode;
-import com.yy.common.excel.export.exception.ExcelExportException;
-import com.yy.common.excel.export.exception.PdfConversionException;
 import com.yy.common.log.MicroLogger;
 import com.yy.common.util.SecurityUtils;
 import com.yy.common.util.str.StringUtil;
@@ -149,32 +147,6 @@ public class ApiGatewayGlobalExceptionHandler {
 		LOGGER.error(methodName,
 				"账号: "  +  loginAccount() + ", 并发异常message: " + StringUtil.getErrorText(exception));
 		return Response.FAIL.newBuilder().addGateWayCode(GateWayCode.E9998).out("并发异常，请联系管理员！").toResult();
-	}
-
-	/**
-	 * excel导出异常
-	 *
-	 * @author
-	 **/
-	@ExceptionHandler(value = {ExcelExportException.class})
-	public Map<String, Object> excelExportException(ExcelExportException exception) {
-		final String methodName = "excelExportException";
-		LOGGER.error(methodName,
-				"账号: " +  loginAccount()  + ", excel导出异常message: " + StringUtil.getErrorText(exception));
-		return Response.FAIL.newBuilder().addGateWayCode(GateWayCode.E0501).out("数据异常，请联系管理员！").toResult();
-	}
-
-	/**
-	 * pdf转换导出异常
-	 *
-	 * @author
-	 **/
-	@ExceptionHandler(value = {PdfConversionException.class})
-	public Map<String, Object> pdfConversionException(PdfConversionException exception) {
-		final String methodName = "pdfConversionException";
-		LOGGER.error(methodName,
-				"账号: " +  loginAccount()  + ", pdf转换导出异常message: " + StringUtil.getErrorText(exception));
-		return Response.FAIL.newBuilder().addGateWayCode(GateWayCode.E0502).out("数据异常，请联系管理员！").toResult();
 	}
 
 	/**

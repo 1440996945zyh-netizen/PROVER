@@ -120,8 +120,5 @@ public interface CommonMapper {
      * 查询行数
      */
     int getCountByParentId(@Param("tableName") String tableName, @Param("parentId") Long parentId);
-
-    @Select("select cron from SYS_SCHEDULED where id = #{id} and status = 1")
-    String getCron(Long id);
 }
 

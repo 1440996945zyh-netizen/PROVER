@@ -1,25 +1,18 @@
 package com.yy.ppm.common.controller;
 
-import cn.hutool.core.util.ObjectUtil;
-import com.yy.common.enums.OperateTypeEnum;
 import com.yy.common.enums.Response;
 import com.yy.common.log.MicroLogger;
 import com.yy.common.util.str.StringUtil;
-import com.yy.framework.annotation.Log;
-import com.yy.ppm.common.bean.dto.ResponsePopupTrustDTO;
 import com.yy.ppm.common.bean.dto.SelecSearchDTO;
 import com.yy.ppm.common.service.PublicService;
-import com.yy.ppm.common.service.SelectService;
 import com.yy.ppm.system.bean.dto.SysDeptDTO;
 import com.yy.ppm.system.bean.dto.SysParameterDTO;
 import com.yy.ppm.system.mapper.SysParameterMapper;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.annotation.Resource;
-import jakarta.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,9 +29,6 @@ public class PublicController {
 
     @Resource
     PublicService publicService;
-
-    @Resource
-    SelectService selectService;
     @Resource
     private SysParameterMapper sysParameterMapper;
 
@@ -132,166 +122,12 @@ public class PublicController {
     }
 
     /**
-     * 获取远程下拉框数据源
-     *
-     * @param selectCommonSearch
-     * @return
-     */
-    @PostMapping("/getRemoteSelect")
-    public Map<String, Object> getSelectDataSource(@RequestBody SelecSearchDTO selectCommonSearch) {
-        final String methodName = "PublicController:selectCommonSearch";
-        LOGGER.enter(methodName + "[start]", "param:" + selectCommonSearch.toString());
-
-        List<Map<String, Object>> res = selectService.getRemoteSelect(selectCommonSearch);
-
-        LOGGER.exit(methodName + "result:" + res);
-        return Response.SUCCESS.newBuilder().out("查询成功").toResult(res);
-    }
-
-    /**
-     * 获取本地下拉框数据源
-     *
-     * @return
-     */
-    @GetMapping("/getLocalSelect")
-    public Map<String, Object> getLocalSelect(@RequestParam Map<String, Object> params) {
-        final String methodName = "PublicController:selectCommonSearch";
-        LOGGER.enter(methodName + "[start]", "params:" + params);
-        List<Map<String, Object>> res = selectService.getLocalSelect(params);
-
-        LOGGER.exit(methodName + "result:" + res);
-        return Response.SUCCESS.newBuilder().out("查询成功").toResult(res);
-    }
-
-    /**
-     * 获取本地下拉框数据源
-     *
-     * @return
-     */
-    @GetMapping("/getLocalSelects")
-    public Map<String, Object> getLocalSelects(String types) {
-        final String methodName = "PublicController:getLocalSelects";
-        LOGGER.enter(methodName + "[start]", "param:" + types);
-
-        Map<String, List<Map<String, Object>>> map = selectService.getLocalSelects(types);
-
-        LOGGER.exit(methodName + "result:" + map);
-        return Response.SUCCESS.newBuilder().out("查询成功").toResult(map);
-    }
-
-    /**
      * 获取部门列表
      */
     @GetMapping("/getDeptList")
     public Map<String, Object> list(SysDeptDTO deptDTO) {
         List<SysDeptDTO> depts = publicService.getDeptList(deptDTO);
         return Response.SUCCESS.newBuilder().out("查询成功").toResult(depts);
-    }
-
-    /**
-     * 传入计划日期，返回计划的执行开始结束时间
-     *
-     * @author yy
-     * @param planDte
-     */
-    @GetMapping(value = "/getShiftClassInfoByPlanDate")
-    public Map<String, Object> getShiftClassInfoByPlanDate(String planDte)  {
-        final String methodName = "getShiftClassInfoByPlanDate";
-        LOGGER.enter(methodName, "传入计划日期，返回计划的执行开始结束时间[start], planDte: " + planDte);
-
-        String res = publicService.getShiftClassInfoByPlanDate(planDte);
-
-        LOGGER.exit(methodName, "传入时间戳返回班次[end], result: " + res);
-        return Response.SUCCESS.newBuilder().toResult(res);
-    }
-
-    /**
-     * 获取当前时间的班次
-     *
-     * @author yy
-     * @param
-     */
-    @GetMapping(value = "/getCurrentShiftClassInfo")
-    public Map<String, Object> getCurrentShiftClassInfo(String time)  {
-        final String methodName = "getCurrentShiftClassInfo";
-        LOGGER.enter(methodName, "获取当前时间的班次[start]");
-
-        Map<String, Object> res = publicService.getCurrentShiftClassInfo(time);
-
-        LOGGER.exit(methodName, "获取当前时间的班次[end], result: " + res);
-        return Response.SUCCESS.newBuilder().toResult(res);
-    }
-
-    /**
-     * 通用指令popup
-     *
-     * @author yy
-     * @param
-     */
-    @GetMapping(value = "/getPopupTrust")
-    @Log(value=OperateTypeEnum.QUERY, title="通用指令获取")
-    public Map<String, Object> getPopupTrust(@RequestParam Map<String, Object> params)  {
-        final String methodName = "getScheduleType";
-        LOGGER.enter(methodName, "通用指令popup[start], params: " + params);
-
-        List<ResponsePopupTrustDTO> list  = selectService.getPopupTrust(params);
-
-        LOGGER.exit(methodName, "通用指令popup[end], result: " + list);
-        return Response.SUCCESS.newBuilder().toResult(list);
-    }
-
-
-    /**
-     * 查询机械列表
-     * @param map
-     * @return
-     */
-    @GetMapping("/getMachineList")
-    public Map<String, Object> getMachineList(@RequestParam Map<String, Object> map) {
-        final String methodName = "CommonController:getMachineList";
-        LOGGER.enter(methodName + "按条件查询通用设备接口 [start]", "map:" + map);
-
-        List<Map<String, Object>> list = publicService.getMachineList(map);;
-
-        LOGGER.exit(methodName + " 按条件查询通用设备接口 [end] result:" + list);
-        return Response.SUCCESS.newBuilder().out("删除成功").toResult(list);
-    }
-
-    /**
-     * 查询机械列表(不控制权限)
-     * @param map
-     * @return
-     */
-    @GetMapping("/getMachineList2")
-    public Map<String, Object> getMachineList2(@RequestParam Map<String, Object> map) {
-        final String methodName = "CommonController:getMachineList";
-        LOGGER.enter(methodName + "按条件查询通用设备接口 [start]", "map:" + map);
-
-        List<Map<String, Object>> list = publicService.getMachineList2(map);;
-
-        LOGGER.exit(methodName + " 按条件查询通用设备接口 [end] result:" + list);
-        return Response.SUCCESS.newBuilder().out("查询成功").toResult(list);
-    }
-    /**
-     * 根据区域ID查垛位
-     *
-     * @return
-     */
-    @GetMapping("/listMass")
-    public Map<String, Object> listMass(@NotNull(message = "区域ID不能为空") Long regionId) {
-        final String methodName = "PublicController:listMass";
-        LOGGER.enter(methodName + "根据区域ID查垛位[start]", "regionId:" + regionId);
-
-        List<Map<String, Object>> list = publicService.listMass(regionId);
-
-        LOGGER.exit(methodName + " 根据区域ID查垛位[end] result:" + list);
-        return Response.SUCCESS.newBuilder().toResult(list);
-    }
-
-    @GetMapping("/getDateAndShift")
-    public Map<String, Object> getDateAndShift(@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime dateTime) {
-        Map<String, Object> result = publicService.getDateAndShift(dateTime);
-        return Response.SUCCESS.newBuilder().toResult(result);
     }
 
 

@@ -117,39 +117,28 @@
     <select id="selectMenuList" resultType="com.yy.ppm.system.bean.dto.SysMenuDTO">
 
         SELECT
-        A.id as menu_id,
-        A.id,
-        A.menu_name,
-        A.parent_id,
-        A.order_num,
-        A.path,
-        A.component,
-        A.query,
-        A.is_frame,
-        A.is_cache,
-        A.menu_type,
-        A.visible,
-        A.status,
-        A.data_type,
-        A.MENU_ICON_COLOR as menuIconColor,
-        DECODE( A.status, '1', '正常', '停用') as statusLabel,
-        nvl(perms,'') as perms,
-        A.icon,
-        A.create_time,
-        CASE
-        WHEN (
-        SELECT
-        COUNT(B.ID)
-        FROM
-        SYS_MENU B
-        WHERE
-        B.PARENT_ID = A.ID) > 0 THEN '1'
-        ELSE '0'
-        END AS has_children,
-        A.LINK
+            A.id as menu_id,
+            A.menu_name,
+            A.parent_id,
+            A.order_num,
+            A.path,
+            A.component,
+            A.query,
+            A.is_frame,
+            A.is_cache,
+            A.menu_type,
+            A.visible,
+            A.status,
+            A.data_type,
+            A.MENU_ICON_COLOR as menuIconColor,
+            DECODE( A.status, '1', '正常', '停用') as statusLabel,
+            nvl(perms,'') as perms,
+            A.icon,
+            A.create_time,
+            A.LINK
         <if test="isAdmin == 1">
             FROM
-            SYS_MENU A
+                SYS_MENU A
             WHERE 1 = 1
         </if>
         <if test="isAdmin != 1">
@@ -164,13 +153,13 @@
         </if>
         <if test='menuName != null and menuName !=""'>
             <bind name="menuNameLike" value="'%' + menuName + '%'"/>
-            AND A.menu_name LIKE #{menuNameLike,jdbcType=VARCHAR}
+            AND A.menu_name LIKE  #{menuNameLike,jdbcType=VARCHAR}
         </if>
         <if test='menuName == null'>
             AND A.PARENT_ID = 0
         </if>
         <if test='status != null and status !=""'>
-            AND A.status = #{status}
+            AND A.status =  #{status}
         </if>
         order by parent_id, order_num
     </select>
@@ -286,21 +275,16 @@
         A.MENU_ICON_COLOR,
         A.DATA_TYPE,
         CASE
-        WHEN (
-        SELECT
-        COUNT(B.ID)
-        FROM
-        SYS_MENU B
-        WHERE
-        B.PARENT_ID = A.ID) > 0 THEN '1'
-        ELSE '0'
-        END AS has_children,
+        WHEN (SELECT COUNT(B.ID) FROM SYS_MENU B WHERE B.PARENT_ID = A.ID) > 0
+        THEN true
+        ELSE false
+        END AS always_show,
         DECODE(A.STATUS, '1', '在用', '停用') STATUS_LABEL,
         DECODE(A.MENU_TYPE, 'C', '菜单', 'M', '目录', '按钮') MENU_TYPE_LABEL
         <if test="isAdmin == 1">
             FROM
             SYS_MENU A
-            WHERE PARENT_ID = #{parentGid}
+            WHERE PARENT_ID = #{parentId}
         </if>
         <if test="isAdmin != 1">
             FROM
@@ -308,7 +292,7 @@
             SYS_ROLE_MENU B,
             SYS_ROLE_USER C
             where
-            AND PARENT_ID = #{parentGid}
+            AND PARENT_ID = #{parentId}
             C.USER_ID = #{userId}
             AND C.ROLE_ID = B.ROLE_ID
             AND B.MENU_ID = A.ID

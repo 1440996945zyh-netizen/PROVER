@@ -23,7 +23,7 @@ public class SysMenuDTO extends SysMenuPO implements Serializable {
     /**
      * 是否有子菜单
      */
-    private String hasChildren;
+    private boolean hasChildren;
     /**
      * 状态（0：停用；1：在用）
      */

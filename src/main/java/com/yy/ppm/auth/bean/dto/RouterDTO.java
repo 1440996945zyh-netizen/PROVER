@@ -43,7 +43,7 @@ private Long id;
     private HashMap<String, Object> meta;
 
     /**是否为外链（0是 1否） */
-    private Integer isFrame;
+    private Long isFrame;
     /**外链地址 */
     private String link;
     private String isQuickEnter;
