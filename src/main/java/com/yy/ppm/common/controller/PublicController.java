@@ -130,7 +130,10 @@ public class PublicController {
         return Response.SUCCESS.newBuilder().out("查询成功").toResult(depts);
     }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 15220007c834eef857a61e97004449a8c90a4e28
     /**
      * 查询系统参数，是否为新流程
      * @param

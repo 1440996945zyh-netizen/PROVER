@@ -107,6 +107,100 @@
         WHERE PARAM_CD = #{code}
     </select>
 
+<<<<<<< HEAD
+=======
+    <select id="getScheduleTypeList" resultType="java.util.Map">
+        SELECT WORK_SCHEDULE_CODE                        as "workScheduleCode",
+               m.DICT_LABEL                              as "workScheduleName",
+               START_DAY_TYPE                            as "startDayType",
+               case
+                   when START_DAY_TYPE = '0' then '昨天'
+                   when START_DAY_TYPE = '1' then '今天'
+                   when START_DAY_TYPE = '2' then '明天' end  "startDayName",
+               TO_CHAR(START_TIME, 'YYYY-MM-DD')         as "startTime",
+               TO_CHAR(START_TIME, 'HH24MI')             as "startTimeHm",
+               END_DAY_TYPE                              as "endDayType",
+               case
+                   when END_DAY_TYPE = '0' then '昨天'
+                   when END_DAY_TYPE = '1' then '今天'
+                   when END_DAY_TYPE = '2' then '明天' end as "endDayName",
+               TO_CHAR(END_TIME, 'YYYY-MM-DD')           as "endTime",
+               TO_CHAR(END_TIME, 'HH24MI')               as "endTimeHm"
+        FROM m_work_schedule ssc left join M_DICT_DATA m on ssc.WORK_SCHEDULE_CODE = m.DICT_VALUE AND M.DICT_TYPE = 'WORK_SCHEDULE'
+        ORDER BY SSC.ID
+    </select>
+    <select id="getMachineList" resultType="java.util.Map">
+        SELECT
+        DISTINCT
+        MM.ID as "id",
+        MM.MAC_CODE as "macCode",
+        MM.MAC_NAME as "macName",
+        MM.MAC_TYPE_CODE as "macTypeCode",
+        MM.MAC_MODEL_CODE as "macModelCode",
+        MM.DEPT_ID as "deptId",
+        MM.IMEI as "imei",
+        MM.STATUS as "status",
+        MM.CREATE_BY as "createBy",
+        MM.CREATE_TIME as "createTime",
+        MM.UPDATE_BY as "updateBy",
+        MM.UPDATE_TIME as "updateTime",
+        MM.MAC_MODEL_NAME as "macModelName",
+        MMT.MAC_TYPE_NAME as "macTypeName",
+        MM.MAC_CODE as "equipmentNo",
+        MM.ID as "equipmentId",
+        MMT.MAC_TYPE_NAME as "equipmentTypeName",
+        MMT.ID as "equipmentTypeId",
+        MMT.ID as "macTypeId",
+        SD.DEPT_NAME as "deptName"
+        FROM
+        M_MACHINE MM
+        INNER JOIN SYS_DEPT SD ON MM.DEPT_ID = SD.ID
+        LEFT JOIN M_MACHINE_TYPE MMT ON MMT.MAC_TYPE_CODE = MM.MAC_TYPE_CODE
+        <where>
+            <if test="macCode!=null and macCode !=''">
+                AND MM.MAC_CODE  = #{macCode,jdbcType=VARCHAR}
+            </if>
+            <if test="equipmentTypeCode != null and equipmentTypeCode != ''">
+                AND MMT.MAC_TYPE_CODE = #{equipmentTypeCode}
+            </if>
+            <if test="deptId != null and deptId != ''">
+                AND MM.DEPT_ID = #{deptId}
+            </if>
+	        <if test="deptNo != null and deptNo != ''">
+	            <bind name="deptNo_like" value="deptNo + '%'"/>
+	            AND (SD.DEPT_NO like #{deptNo_like,jdbcType=VARCHAR}
+	            <if test="canDispatchDept != null and canDispatchDept != ''">
+	            	${canDispatchDept}
+		        </if>
+		        )
+	        </if>
+        </where>
+        ORDER BY MMT.MAC_TYPE_NAME,MM.MAC_CODE
+    </select>
+
+    <select id="listMass" resultType="java.util.Map">
+        SELECT ID              "massId",
+               STORAGE_YARD_NM "massName"
+        FROM M_STORAGE_YARD
+        WHERE STORAGE_YARD_LEVEL = '3'
+          AND PARENT_ID = #{param.}
+        ORDER BY SORT_NUM
+    </select>
+
+    <select id="getUserInfoAndDeptInfo" resultType="java.util.Map">
+    	SELECT
+			T2.DEPT_NO "deptNo",
+			T1.IS_SUPERADMIN "isSuperadmin",
+			T2.CAN_DISPATCH_DEPT "canDispatchDept"
+		FROM
+			SYS_USER T1,
+			SYS_DEPT t2
+		WHERE
+			T1.DEPT_ID = T2.ID
+		AND T1.ID = #{userId}
+    </select>
+
+>>>>>>> 15220007c834eef857a61e97004449a8c90a4e28
     <select id="listDictData" resultType="com.yy.ppm.master.bean.po.MDictDataPO">
         SELECT ID,
                DICT_TYPE,
@@ -127,8 +221,11 @@
           AND STATUS = '1'
         ORDER BY SORT_NUM
     </select>
+<<<<<<< HEAD
 
 
 
+=======
+>>>>>>> 15220007c834eef857a61e97004449a8c90a4e28
 </mapper>
 

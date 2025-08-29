@@ -6,7 +6,6 @@ import com.yy.common.util.DateUtils;
 import com.yy.common.util.SecurityUtils;
 import com.yy.common.util.str.StringUtil;
 import com.yy.framework.exception.BusinessRuntimeException;
-import com.yy.ppm.common.enums.ShiftClassEnum;
 import com.yy.ppm.common.mapper.PublicMapper;
 import com.yy.ppm.common.service.PublicService;
 import com.yy.ppm.system.bean.dto.SysDeptDTO;
@@ -15,6 +14,10 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
+<<<<<<< HEAD
+=======
+
+>>>>>>> 15220007c834eef857a61e97004449a8c90a4e28
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -116,6 +119,9 @@ public class PublicServiceImpl implements PublicService {
         return publicMapper.getDeptList(deptDTO);
     }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 15220007c834eef857a61e97004449a8c90a4e28
 }

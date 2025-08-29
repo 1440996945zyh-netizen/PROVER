@@ -47,4 +47,8 @@ public interface PublicMapper {
 
     List<MDictDataPO> listDictData();
 
+<<<<<<< HEAD
+=======
+    List<Map<String, Object>> getMachineList2(Map<String, Object> map);
+>>>>>>> 15220007c834eef857a61e97004449a8c90a4e28
 }
