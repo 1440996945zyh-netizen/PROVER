@@ -8,27 +8,17 @@ package com.yy.ppm.common.enums;
 public enum SelectEnum {
     /** 用户 */
     USER("USER",  "sys_user","ID", "USER_NAME","用户信息"),
-<<<<<<< HEAD
     CUSTOMER_ALL("CUSTOMER_ALL", "", "", "", "全部客户"),
-=======
->>>>>>> 15220007c834eef857a61e97004449a8c90a4e28
     /** 按级别查询组织架构 */
     DEPT_LEVEL("DEPT_LEVEL","SYS_DEPT","id", "DEPT_NAME","按级别查询组织架构"),
     /** 按级别查询组织架构 */
     DEPT_LEVEL_SALARY("DEPT_LEVEL","SYS_DEPT","id", "DEPT_NAME","按级别查询组织架构"),
-<<<<<<< HEAD
-=======
-
->>>>>>> 15220007c834eef857a61e97004449a8c90a4e28
     PROVINCE("PROVINCE","M_CITY","PROVINCE_CODE", "NAME","省"),
     CITY("CITY","M_CITY","CITY_CODE", "NAME","市"),
     // 字典
     DICT("DICT","M_DICT_DATA","DICT_VALUE", "DICT_LABEL","字典"),
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 15220007c834eef857a61e97004449a8c90a4e28
     /** 常量 */
     CONSTANT("CONSTANT","M_CONSTANTS","CD", "NM","常量信息"),
 
