@@ -131,8 +131,11 @@
             A.status,
             A.data_type,
             A.MENU_ICON_COLOR as menuIconColor,
-            DECODE( A.status, '1', '正常', '停用') as statusLabel,
-            nvl(perms,'') as perms,
+            CASE A.status
+                WHEN  '1' THEN '正常'
+                ELSE '停用'
+                END as statusLabel,
+            IFNULL(perms, '') as perms,
             A.icon,
             A.create_time,
             A.LINK
@@ -181,8 +184,11 @@
         A.status,
         A.data_type,
         A.icon_app,
-        DECODE( A.status, '1', '正常', '停用') as statusLabel,
-        nvl(perms,'') as perms,
+        CASE A.status
+                WHEN  '1' THEN '正常'
+                ELSE '停用'
+                END as statusLabel,
+        IFNULL(perms, '') as perms,
         A.icon,
         A.create_time,
         A.LINK
@@ -215,8 +221,11 @@
         A.status,
         A.data_type,
         A.icon_app,
-        DECODE( A.status, '1', '正常', '停用') as statusLabel,
-        nvl(perms,'') as perms,
+        CASE A.status
+                WHEN  '1' THEN '正常'
+                ELSE '停用'
+                END as statusLabel,
+        IFNULL(perms, '') as perms,
         A.icon,
         A.create_time
         FROM
@@ -279,8 +288,15 @@
         THEN true
         ELSE false
         END AS always_show,
-        DECODE(A.STATUS, '1', '在用', '停用') STATUS_LABEL,
-        DECODE(A.MENU_TYPE, 'C', '菜单', 'M', '目录', '按钮') MENU_TYPE_LABEL
+        CASE A.STATUS
+                WHEN  '1' THEN '在用'
+                ELSE '停用'
+                END STATUS_LABEL,
+        CASE A.MENU_TYPE
+                WHEN  'C' THEN '菜单'
+                WHEN  'M' THEN '目录'
+                ELSE '按钮'
+                END MENU_TYPE_LABEL
         <if test="isAdmin == 1">
             FROM
             SYS_MENU A

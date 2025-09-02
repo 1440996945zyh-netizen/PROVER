@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.system.mapper.SysCustomRegionMapper">
+
+    <sql id="commonList">
+        SELECT
+        ID,
+        USER_ACCOUNT,
+        USER_ID,
+        MENU_NAME,
+        MENU_ID,
+        MENU_ROUTER,
+        SORT_NUM,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME
+        FROM
+        sys_custom_region
+        where
+        USER_ID = #{loginUserId}
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.system.bean.dto.SysCustomRegionDTO" parameterType="java.lang.Long">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.system.bean.dto.SysCustomRegionDTO" parameterType="java.lang.Long">
+        SELECT
+        ID,
+        USER_ACCOUNT,
+        USER_ID,
+        MENU_NAME,
+        MENU_ID,
+        SORT_NUM,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME
+        FROM
+        sys_custom_region
+        <where>
+            id = #{id}
+        </where>
+    </select>
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.system.bean.dto.SysCustomRegionDTO">
+        INSERT INTO sys_custom_region(
+            ID,
+            USER_ACCOUNT,
+            USER_ID,
+            MENU_NAME,
+            MENU_ID,
+            MENU_ROUTER,
+            SORT_NUM,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )VALUES (
+                    #{id, jdbcType=VARCHAR},
+                    #{userAccount, jdbcType=VARCHAR},
+                    #{userId, jdbcType=VARCHAR},
+                    #{menuName, jdbcType=VARCHAR},
+                    #{menuId, jdbcType=VARCHAR},
+                    #{menuRouter, jdbcType=VARCHAR},
+                    #{sortNum, jdbcType=VARCHAR},
+                    #{loginUserId, jdbcType=BIGINT},
+                    #{loginUserName, jdbcType=VARCHAR},
+                    #{now}
+                )
+    </insert>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+
+        INSERT INTO sys_custom_region(
+        ID,
+        USER_ACCOUNT,
+        USER_ID,
+        MENU_NAME,
+        MENU_ID,
+        MENU_ROUTER,
+        SORT_NUM,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.id, jdbcType=VARCHAR},
+            #{item.userAccount, jdbcType=VARCHAR},
+            #{item.userId, jdbcType=VARCHAR},
+            #{item.menuName, jdbcType=VARCHAR},
+            #{item.menuId, jdbcType=VARCHAR},
+            #{item.menuRouter, jdbcType=VARCHAR},
+            #{item.sortNum, jdbcType=VARCHAR},
+            #{item.createBy, jdbcType=BIGINT},
+            #{item.createByName, jdbcType=VARCHAR},
+            #{item.createTime}
+            )
+        </foreach>
+    </insert>
+
+
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.system.bean.dto.SysCustomRegionDTO">
+        UPDATE
+        sys_custom_region
+        SET
+        USER_ACCOUNT = #{userAccount,jdbcType=VARCHAR},
+        USER_ID = #{userId,jdbcType=VARCHAR},
+        MENU_ID = #{menuId,jdbcType=VARCHAR},
+        MENU_NAME = #{menuName,jdbcType=VARCHAR},
+        MENU_ROUTER = #{menuRouter,jdbcType=VARCHAR},
+        SORT_NUM = #{sortNum,jdbcType=VARCHAR},
+        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM
+            sys_custom_region
+        WHERE
+            id = #{id}
+    </delete>
+
+    <delete id="deleteSingleData" parameterType="com.yy.ppm.system.bean.dto.SysCustomRegionDTO">
+        DELETE FROM
+            sys_custom_region
+        WHERE
+            USER_ID = #{userId,jdbcType=VARCHAR}
+            AND MENU_ID = #{menuId,jdbcType=VARCHAR}
+    </delete>
+</mapper>
+

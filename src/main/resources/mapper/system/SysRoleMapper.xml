@@ -61,7 +61,10 @@
             A.UPDATE_TIME,
             A.ROLE_CODE,
             A.ROLE_SORT,
-            DECODE(A.STATUS, '1', '在用', '停用') statusLabel,
+            CASE A.STATUS
+                WHEN  '1' THEN '在用'
+                ELSE '停用'
+                END statusLabel,
             A.MENU_CHECK_STRICTLY,
             A.DEPT_CHECK_STRICTLY,
             A.DATA_SCOPE

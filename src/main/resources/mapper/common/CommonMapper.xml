@@ -90,8 +90,8 @@
     <select id="getNextValue" parameterType="java.lang.String" resultType="java.lang.Integer">
         select
             case
-            when (NVL(MAX(${columnName}), 0) + 1) > 99999999 then 99999999
-            else (NVL(MAX(${columnName}), 0) + 1)
+            when (IFNULL(MAX(${columnName}), 0) + 1) > 99999999 then 99999999
+            else (IFNULL(MAX(${columnName}), 0) + 1)
             end
         FROM
             ${tableName}
