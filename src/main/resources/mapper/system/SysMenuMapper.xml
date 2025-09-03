@@ -117,6 +117,7 @@
     <select id="selectMenuList" resultType="com.yy.ppm.system.bean.dto.SysMenuDTO">
 
         SELECT
+            A.ID,
             A.id as menu_id,
             A.menu_name,
             A.parent_id,
