@@ -8,6 +8,7 @@ import org.springframework.web.socket.server.standard.ServerEndpointExporter;
  * @Author linqi
  * @Description
  * @Date 2023-05-18 15:38
+ * 自动扫描并注册 @ServerEndpoint 注解的类为WebSocket端点
  */
 @Configuration
 public class WebSocketConfig {

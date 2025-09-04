@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.master.mapper.MDictMapper">
+    <insert id="insertDictType" parameterType="com.yy.ppm.master.bean.dto.MDictTypeDTO">
+        INSERT INTO M_DICT_TYPE(
+            ID,
+            DICT_TYPE,
+            DICT_NAME,
+            IS_OPEN,
+            STATUS,
+            REMARK,
+            CREATE_BY,
+            create_by_name,
+            CREATE_TIME,
+            SORT_NUM
+        )VALUES(
+                #{id,jdbcType=BIGINT},
+                #{dictType,jdbcType=VARCHAR},
+                #{dictName,jdbcType=VARCHAR},
+                #{isOpen,jdbcType=VARCHAR},
+                #{status,jdbcType=VARCHAR},
+                #{remark,jdbcType=VARCHAR},
+                #{loginUserId},
+                #{loginUserName},
+                #{now},
+                #{sortNum,jdbcType=BIGINT}
+                )
+    </insert>
+
+    <insert id="insertDict" parameterType="com.yy.ppm.master.bean.dto.MDictDataDTO">
+        INSERT INTO M_DICT_DATA(
+            ID,
+            DICT_TYPE,
+            DICT_VALUE,
+            DICT_LABEL,
+            SORT_NUM,
+            STATUS,
+            REMARK,
+            CREATE_BY,
+            create_by_name,
+            CREATE_TIME
+        )VALUES(
+                   #{id,jdbcType=BIGINT},
+                   #{dictType,jdbcType=VARCHAR},
+                   #{dictValue,jdbcType=VARCHAR},
+                   #{dictLabel,jdbcType=VARCHAR},
+                   #{sortNum,jdbcType=BIGINT},
+                   #{status,jdbcType=VARCHAR},
+                   #{remark,jdbcType=VARCHAR},
+                   #{loginUserId, jdbcType=BIGINT},
+                   #{loginUserName, jdbcType=VARCHAR},
+                   #{now}
+               )
+    </insert>
+
+    <update id="updateDictType" parameterType="com.yy.ppm.master.bean.dto.MDictTypeDTO">
+        UPDATE
+            M_DICT_TYPE
+        SET
+            DICT_TYPE = #{dictType,jdbcType=VARCHAR},
+            DICT_NAME = #{dictName,jdbcType=VARCHAR},
+            IS_OPEN = #{isOpen,jdbcType=VARCHAR},
+            STATUS = #{status,jdbcType=VARCHAR},
+            REMARK = #{remark,jdbcType=VARCHAR},
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            update_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now},
+            SORT_NUM = #{sortNum,jdbcType=BIGINT}
+        WHERE
+            ID = #{id}
+    </update>
+
+    <update id="updateDict" parameterType="com.yy.ppm.master.bean.dto.MDictDataDTO">
+        UPDATE
+            M_DICT_DATA
+        SET
+            DICT_TYPE = #{dictType,jdbcType=VARCHAR},
+            DICT_VALUE = #{dictValue,jdbcType=VARCHAR},
+            DICT_LABEL = #{dictLabel,jdbcType=VARCHAR},
+            STATUS = #{status,jdbcType=VARCHAR},
+            REMARK = #{remark,jdbcType=VARCHAR},
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            update_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now},
+            SORT_NUM = #{sortNum,jdbcType=BIGINT}
+        WHERE
+            ID = #{id}
+    </update>
+
+    <delete id="deleteDictTypeById">
+        DELETE FROM
+            M_DICT_TYPE
+        WHERE
+            ID = #{id}
+    </delete>
+
+    <delete id="deleteDictById">
+        DELETE FROM
+            M_DICT_DATA
+        WHERE
+            ID = #{id}
+    </delete>
+
+    <select id="getDictTypeList" resultType="com.yy.ppm.master.bean.dto.MDictTypeDTO"
+            parameterType="com.yy.ppm.master.bean.dto.MDictTypeSearchDTO">
+        SELECT
+            ID,
+            DICT_TYPE,
+            DICT_NAME,
+            IS_OPEN,
+            STATUS,
+            CASE STATUS
+            WHEN '1' THEN '在用'
+            ELSE '停用'
+            END STATUS_LABEL,
+            REMARK,
+            CREATE_BY,
+            create_by_name,
+            CREATE_TIME,
+            UPDATE_BY,
+            update_BY_NAME,
+            UPDATE_TIME,
+            SORT_NUM
+        FROM M_DICT_TYPE<where>
+            <if test="dictName != null and dictName != ''">
+                <bind name="dictName" value="'%' + dictName + '%'"/>
+                AND (DICT_NAME LIKE  #{dictName,jdbcType=VARCHAR})
+            </if>
+            <if test="dictType != null and dictType != ''">
+                <bind name="dictType" value="'%' + dictType + '%'"/>
+                AND (DICT_TYPE LIKE  #{dictType,jdbcType=VARCHAR})
+            </if>
+            <if test="status != null and status != ''">
+                <bind name="status" value="'%' + status + '%'"/>
+                AND (STATUS LIKE  #{status,jdbcType=VARCHAR})
+            </if>
+        </where>
+    </select>
+
+    <select id="getDictTypeById" resultType="com.yy.ppm.master.bean.dto.MDictTypeDTO">
+        SELECT
+            ID,
+            DICT_TYPE,
+            DICT_NAME,
+            IS_OPEN,
+            STATUS,
+            REMARK,
+            CREATE_BY,
+            create_by_name,
+            CREATE_TIME,
+            UPDATE_BY,
+            update_BY_NAME,
+            UPDATE_TIME,
+            SORT_NUM
+        FROM M_DICT_TYPE
+        WHERE ID = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="getDictListByType" resultType="com.yy.ppm.master.bean.dto.MDictDataDTO" >
+        SELECT
+            A.ID,
+            A.DICT_VALUE,
+            A.DICT_LABEL,
+            A.SORT_NUM,
+            A.STATUS,
+            A.REMARK,
+            A.CREATE_BY,
+            A.create_by_name,
+            A.CREATE_TIME,
+            A.SORT_NUM
+        FROM
+            M_DICT_DATA A
+        WHERE
+            A.DICT_TYPE = #{dictType}
+    </select>
+
+    <select id="getCountDictByType" resultType="java.lang.Integer">
+        SELECT
+            COUNT(*)
+        FROM
+            M_DICT_DATA A
+        LEFT JOIN
+            M_DICT_TYPE T ON A.DICT_TYPE = T.DICT_TYPE
+        WHERE
+            T.ID = #{id}
+    </select>
+
+    <select id="getDictById" resultType="com.yy.ppm.master.bean.dto.MDictDataDTO">
+        SELECT
+            ID,
+            DICT_VALUE,
+            DICT_LABEL,
+            DICT_TYPE,
+            SORT_NUM,
+            STATUS,
+            SORT_NUM,
+            REMARK,
+            CREATE_BY,
+            create_by_name,
+            CREATE_TIME
+        FROM
+            M_DICT_DATA
+        WHERE ID = #{id}
+    </select>
+
+    <select id="getDictList" resultType="com.yy.ppm.master.bean.dto.MDictDataDTO">
+        SELECT
+            ID,
+            DICT_VALUE,
+            DICT_LABEL,
+            DICT_TYPE,
+            SORT_NUM,
+            STATUS,
+            CASE STATUS
+            WHEN '1' THEN '在用'
+            ELSE '停用'
+            END STATUS_LABEL,
+            REMARK,
+            CREATE_BY,
+            create_by_name,
+            CREATE_TIME
+        FROM
+             M_DICT_DATA
+        <where>
+            <if test="dictLabel != null and dictLabel != ''">
+                <bind name="dictLabel" value="'%' + dictLabel + '%'"/>
+                AND (DICT_LABEL LIKE  #{dictLabel,jdbcType=VARCHAR})
+            </if>
+            <if test="dictValue != null and dictValue != ''">
+            <bind name="dictValue" value="'%' + dictValue + '%'"/>
+                AND (DICT_VALUE LIKE  #{dictValue,jdbcType=VARCHAR})
+            </if>
+            <if test="status != null and status != ''">
+                <bind name="status" value="'%' + status + '%'"/>
+                AND (STATUS LIKE  #{status,jdbcType=VARCHAR})
+            </if>
+            AND (DICT_TYPE =  #{dictType,jdbcType=VARCHAR})
+        </where>
+    </select>
+    <select id="getDictsByType" resultType="com.yy.ppm.master.bean.dto.MDictDataDTO">
+        SELECT
+            A.ID,
+            A.DICT_VALUE,
+            A.DICT_LABEL,
+            A.SORT_NUM,
+            A.STATUS,
+            A.REMARK,
+            A.CREATE_BY,
+            A.create_by_name,
+            A.CREATE_TIME,
+            A.SORT_NUM
+        FROM
+            M_DICT_DATA A
+        WHERE
+            A.DICT_TYPE = #{dictType}
+    </select>
+</mapper>

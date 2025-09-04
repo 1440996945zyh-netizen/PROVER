@@ -233,9 +233,6 @@ logging:
   level:
     com.yy.ppm.mappers: debug
 
-deploy:
-  env: prd
-
 management:
   endpoints:
     web:

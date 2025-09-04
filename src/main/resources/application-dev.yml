@@ -57,7 +57,7 @@ spring:
   quartz:
     job-store-type: jdbc
     # 全局启用或者关闭quartz
-    enabled: true
+    enabled: false
     data-source: masterDataSource
     jdbc:
       initialize-schema: never # 若未创建qrtz_表，首次可改为always，创建后改回never
@@ -142,12 +142,12 @@ spring:
             enabled: true  # 启用监听
 #mybatis-plus
 mybatis-plus:
-  mapper-locations: classpath*:mapper/**/*Mapper.xml
-  typeAliasesPackage: com.yy.ppm.**.model
+  mapper-locations: classpath*:mapper/mysqlMapper/**/*Mapper.xml  # MySQL 专属 Mapper 路径
+  typeAliasesPackage: com.yy.ppm.**.model  # 实体类别名扫描路径（保持不变）
   configuration:
-    mapUnderscoreToCamelCase: true
-    call-setters-on-nulls: true
-    jdbc-type-for-null: 'null'
+    mapUnderscoreToCamelCase: true  # 下划线转驼峰（保持不变）
+    call-setters-on-nulls: true  # 空值返回字段（保持不变）
+    jdbc-type-for-null: 'null'  # 空值的 JDBC 类型（保持不变）
 
 #cros
 cros:
@@ -234,10 +234,6 @@ snowflake:
 logging:
   level:
     com.yy.ppm.mappers: debug
-
-deploy:
-  env: dev
-
 
 management:
   endpoints:

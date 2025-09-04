@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.auth.mapper.RouterMapper">
+    <select id="getRouters" resultType="com.yy.ppm.auth.bean.dto.RouterDTO">
+        SELECT
+        DISTINCT A.id,
+        A.MENU_NAME as name,
+        A.PATH,
+        A.COMPONENT,
+        A.VISIBLE as hidden,
+        A.ICON,
+        A.ORDER_NUM,
+        A.IS_FRAME,
+        A.MENU_ICON_COLOR as menuIconColor,
+        CASE
+        WHEN (SELECT COUNT(B1.ID) FROM SYS_MENU B1 WHERE B1.PARENT_ID = A.ID AND B1.MENU_TYPE IN ('M', 'C')) > 0
+        THEN 1
+        ELSE 0
+        END AS always_show,
+        CASE
+        WHEN E.ID IS NULL
+        THEN 0
+        ELSE 1
+        END AS IS_QUICK_ENTER,
+        A.query
+        <if test="isAdmin == 1">
+            FROM
+            SYS_MENU A
+            LEFT JOIN SYS_CUSTOM_REGION E ON A.id = E.MENU_ID AND E.USER_ID= #{userId}
+            where
+            A.PARENT_ID = #{parentId}
+            AND a.MENU_TYPE IN ('M', 'C')
+            AND A.status = 0
+        </if>
+        <if test="isAdmin != 1">
+            FROM
+            SYS_MENU A JOIN SYS_ROLE_MENU B ON B.MENU_ID = A.ID
+            JOIN SYS_ROLE_USER C ON C.ROLE_ID = B.ROLE_ID
+            LEFT JOIN SYS_CUSTOM_REGION E ON A.id = E.MENU_ID AND E.USER_ID= #{userId}
+            where
+            C.USER_ID = #{userId}
+            AND A.PARENT_ID = #{parentId}
+            AND A.MENU_TYPE IN ('M', 'C')
+            AND A.status = 0
+        </if>
+        AND A.DATA_TYPE = #{loginType} AND A.VISIBLE = 0
+        ORDER BY
+        A.ORDER_NUM
+    </select>
+
+</mapper>
