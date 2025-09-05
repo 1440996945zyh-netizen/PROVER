@@ -8,7 +8,10 @@ import com.yy.common.util.JSONUtils;
 import com.yy.common.util.JwtUtils;
 import com.yy.common.util.str.StringUtil;
 import com.yy.framework.ws.CustomServerEndpointConfigurator;
+import com.yy.ppm.middleware.bean.po.WsOfflineMessagePO;
+import com.yy.ppm.middleware.service.WsOfflineMessageService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import jakarta.websocket.*;
@@ -16,6 +19,8 @@ import jakarta.websocket.server.HandshakeRequest;
 import jakarta.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -32,31 +37,44 @@ public class WebSocketServer {
 
     private static final MicroLogger LOGGER = new MicroLogger(WebSocketServer.class);
 
+    private static WsOfflineMessageService offlineMessageService;
+
+    @Autowired
+    public void setOfflineMessageService(WsOfflineMessageService offlineMessageService) {
+        WebSocketServer.offlineMessageService = offlineMessageService;
+    }
+
     @OnOpen
     public void onOpen(Session session, EndpointConfig config) throws IOException {
         final String methodName = "onOpen";
         LOGGER.enter(methodName, "尝试连接websocket");
 
-        HandshakeRequest request = (HandshakeRequest) config.getUserProperties().get("request");
+        // 1. 从Session获取查询参数（前端传递的 ?token=xxx）
+        Map<String, List<String>> parameterMap = session.getRequestParameterMap();
+        List<String> tokenList = parameterMap.get("token"); // 获取名为"token"的查询参数
+        String token = null;
 
-        String token = request.getHeaders().get(CommonConstants.CONTEXT_TOKEN).get(0);
+        // 2. 安全判断：避免tokenList为null或空
+        if (tokenList != null && !tokenList.isEmpty()) {
+            token = tokenList.get(0); // 取第一个token值（查询参数通常只有一个）
+        }
+        // --------------------------------------------------------------------------------
 
+        // 原Token空值校验逻辑（不变，但需处理null安全）
         if (StringUtils.isBlank(token)) {
             LOGGER.warn("token不存在,鉴权失败!");
             String responseJson = JSONUtils.NON_NULL
                     .toJSONString(Response.FAIL.newBuilder().addGateWayCode(Response.GateWayCode.E0001).toResult());
             session.getBasicRemote().sendText(responseJson);
-            session.close();
+            session.close(); // 主动关闭，状态码1000
             LOGGER.exit(methodName, StringUtils.EMPTY);
             return;
         }
 
+        // 后续Token解析、鉴权逻辑（完全不变）
         Jwt.JwtBean bean;
         try {
-            // 本地鉴权
             bean = JwtUtils.parseToken(token);
-
-            // 系统日期与令牌时间戳比较
             boolean bool = JwtUtils.verifyToken(bean);
             if (!bool) {
                 LOGGER.warn("token已过期,鉴权失败!");
@@ -68,6 +86,7 @@ public class WebSocketServer {
                 return;
             }
         } catch (Exception ex) {
+            // 原异常处理逻辑（不变）
             String msg = StringUtil.getErrorText(ex);
             String responseJson = JSONUtils.NON_NULL
                     .toJSONString(Response.FAIL.newBuilder().addGateWayCode(Response.GateWayCode.E0100).toResult());
@@ -126,6 +145,9 @@ public class WebSocketServer {
         // 将定时任务Future与Session关联，以便在@OnClose时取消它
         session.getUserProperties().put("HEARTBEAT_FUTURE", heartbeatFuture);
         session.getUserProperties().put("HEARTBEAT_SCHEDULER", scheduler);
+
+        // 查询是否有离线消息，有的话则推送
+
 
         LOGGER.exit(methodName, StringUtils.EMPTY);
     }
@@ -208,6 +230,33 @@ public class WebSocketServer {
             session.close();
         } catch (IOException e) {
             // 忽略关闭时的异常
+        }
+    }
+
+    // 发送用户的离线消息
+    private void sendOfflineMessages(String account, Session session) {
+        try {
+            List<WsOfflineMessagePO> offlineMessages =
+                    offlineMessageService.getMessageByReceiver(1111L);
+
+            for (WsOfflineMessagePO offlineMessage : offlineMessages) {
+
+            }
+
+            for (WsOfflineMessagePO offlineMessage : offlineMessages) {
+                try {
+                    // 直接发送原始消息内容（已经是JSON格式）
+                    session.getBasicRemote().sendText(offlineMessage.getContent());
+                    // 标记为已发送
+                    offlineMessageService.updateIsSent(offlineMessage);
+                } catch (IOException e) {
+                    LOGGER.error("发送离线消息失败，消息ID: " + offlineMessage.getId());
+                    // 发送失败，保持未发送状态，下次重试
+                }
+            }
+
+        } catch (Exception e) {
+            LOGGER.error("获取或发送离线消息时发生异常");
         }
     }
 }
