@@ -1,4 +1,4 @@
-package com.yy.ppm.system.mapper;
+package com.yy.ppm.middleware.mapper;
 
 
 import com.github.pagehelper.Page;

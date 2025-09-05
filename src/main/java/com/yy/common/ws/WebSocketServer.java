@@ -15,11 +15,16 @@ import jakarta.websocket.*;
 import jakarta.websocket.server.HandshakeRequest;
 import jakarta.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
- * @Author linqi
+ * @Author hukang
  * @Description
- * @Date 2023-05-18 15:46
+ * @Date 2025-09-04 15:46
  */
 @Component
 @ServerEndpoint(value = "/api/websocket", configurator = CustomServerEndpointConfigurator.class)
@@ -86,6 +91,32 @@ public class WebSocketServer {
         session.getBasicRemote().sendText(responseJson);
 
         WebSocketSessionContext.put(bean.getAccount(), session);
+
+        // 心跳机制
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        final ScheduledFuture<?>[] heartbeatFutureRef = new ScheduledFuture[1];
+        ScheduledFuture<?> heartbeatFuture = scheduler.scheduleAtFixedRate(() -> {
+            try {
+                if (session.isOpen()) {
+                    // 获取基本远程端点并发送Ping
+                    RemoteEndpoint.Basic basicRemote = session.getBasicRemote();
+                    basicRemote.sendPing(ByteBuffer.wrap("HEARTBEAT".getBytes()));
+                    LOGGER.enter("向账号[" + bean.getAccount() + "]发送Ping帧");
+                }
+            } catch (IOException | IllegalArgumentException e) {
+                // IOException: 连接已失效
+                // IllegalArgumentException: session已关闭
+                LOGGER.error("发送Ping帧失败，准备关闭连接：" + e.getMessage());
+                cancelHeartbeatFuture(heartbeatFutureRef[0], scheduler); // 使用数组引用
+                closeSessionSilently(session);
+            }
+        }, 30, 30, TimeUnit.SECONDS); // 初始延迟30秒，之后每30秒执行一次
+
+        heartbeatFutureRef[0] = heartbeatFuture;
+        // 将定时任务Future与Session关联，以便在@OnClose时取消它
+        session.getUserProperties().put("HEARTBEAT_FUTURE", heartbeatFuture);
+        session.getUserProperties().put("HEARTBEAT_SCHEDULER", scheduler);
+
         LOGGER.exit(methodName, StringUtils.EMPTY);
     }
 
@@ -97,6 +128,8 @@ public class WebSocketServer {
         LOGGER.warn("客户端连接断开：" + reason.getReasonPhrase());
 
         WebSocketSessionContext.remove(session);
+        // 取消心跳任务
+        cancelHeartbeatTask(session);
 
         LOGGER.exit(methodName, StringUtils.EMPTY);
     }
@@ -140,6 +173,32 @@ public class WebSocketServer {
 
         String accNo = WebSocketSessionContext.getAccNo(session);
 
+        cancelHeartbeatTask(session); // 新增：取消心跳任务
+
         LOGGER.error("账号：" + accNo + "，websocket连接错误");
+    }
+
+    // 新增一个方法来取消心跳任务
+    private void cancelHeartbeatTask(Session session) {
+        ScheduledFuture<?> future = (ScheduledFuture<?>) session.getUserProperties().get("HEARTBEAT_FUTURE");
+        ScheduledExecutorService scheduler = (ScheduledExecutorService) session.getUserProperties().get("HEARTBEAT_SCHEDULER");
+        cancelHeartbeatFuture(future, scheduler);
+    }
+
+    private void cancelHeartbeatFuture(ScheduledFuture<?> future, ScheduledExecutorService scheduler) {
+        if (future != null) {
+            future.cancel(true);
+        }
+        if (scheduler != null) {
+            scheduler.shutdown();
+        }
+    }
+    // 工具方法：安静地关闭Session
+    private void closeSessionSilently(Session session) {
+        try {
+            session.close();
+        } catch (IOException e) {
+            // 忽略关闭时的异常
+        }
     }
 }
