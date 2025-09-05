@@ -98,7 +98,17 @@ public class WebSocketServer {
         ScheduledFuture<?> heartbeatFuture = scheduler.scheduleAtFixedRate(() -> {
             try {
                 if (session.isOpen()) {
-                    // 获取基本远程端点并发送Ping
+                    // 检查上次收到Pong的时间
+                    Long lastPongTime = (Long) session.getUserProperties().get("LAST_PONG_TIME");
+                    long currentTime = System.currentTimeMillis();
+                    // 如果超过60秒没收到Pong，认为连接已死亡
+                    if (lastPongTime != null && (currentTime - lastPongTime) > 60000) {
+                        LOGGER.warn("账号[" + bean.getAccount() + "]心跳超时，强制关闭连接");
+                        cancelHeartbeatFuture(heartbeatFutureRef[0], scheduler);
+                        closeSessionSilently(session);
+                        return;
+                    }
+                    // 发送新的Ping
                     RemoteEndpoint.Basic basicRemote = session.getBasicRemote();
                     basicRemote.sendPing(ByteBuffer.wrap("HEARTBEAT".getBytes()));
                     LOGGER.enter("向账号[" + bean.getAccount() + "]发送Ping帧");
@@ -149,10 +159,9 @@ public class WebSocketServer {
     public void onMessage(Session session, PongMessage message) {
         final String methodName = "onMessage";
         LOGGER.enter(methodName, "接收Pong消息");
-
         String accNo = WebSocketSessionContext.getAccNo(session);
         LOGGER.info("账号：" + accNo + "，接收Pong消息：" + message);
-
+        session.getUserProperties().put("LAST_PONG_TIME", System.currentTimeMillis());
         LOGGER.exit(methodName, StringUtils.EMPTY);
     }
 
