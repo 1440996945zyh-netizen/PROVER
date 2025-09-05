@@ -88,13 +88,13 @@
 
     <!-- 根据表名和字段名获取该字段的下一个值 -->
     <select id="getNextValue" parameterType="java.lang.String" resultType="java.lang.Integer">
-        select
-            case
-            when (IFNULL(MAX(${columnName}), 0) + 1) > 99999999 then 99999999
-            else (IFNULL(MAX(${columnName}), 0) + 1)
-            end
+        SELECT
+        CASE
+        WHEN (NVL(MAX(${columnName}), 0) + 1) > 99999999 THEN 99999999
+        ELSE (NVL(MAX(${columnName}), 0) + 1)
+        END AS next_value
         FROM
-            ${tableName}
+        ${tableName}
         <where>
             ${otherCondition}
         </where>

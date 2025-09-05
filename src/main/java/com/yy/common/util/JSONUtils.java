@@ -1,5 +1,6 @@
 package com.yy.common.util;
 
+import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -130,5 +131,10 @@ public enum JSONUtils {
         } catch (JsonProcessingException e) {
             throw new JSONParseException(e);
         }
+    }
+
+
+    public static <T> T parseObject(String text, Class<T> clazz) {
+        return JSON.parseObject(text, clazz);
     }
 }

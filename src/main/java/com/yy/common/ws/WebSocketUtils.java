@@ -24,22 +24,36 @@ public class WebSocketUtils {
     private static Snowflake snowflake;
     private static WsOfflineMessageService offlineMessageService;
 
-    // 使用setter注入，避免循环依赖
+
     @Autowired
     public void setOfflineMessageService(WsOfflineMessageService offlineMessageService) {
         WebSocketUtils.offlineMessageService = offlineMessageService;
     }
 
-    public static void sendMessage(String sender, String receiver, String textMsg) {
-        Session session = WebSocketSessionContext.getSession(receiver);
+    @Autowired
+    public void setSnowflake(Snowflake snowflake) {
+        WebSocketUtils.snowflake = snowflake;
+    }
+
+    public static void sendMessage(String sender, Map<String, Object> messageMap) {
+        Session session = WebSocketSessionContext.getSession(messageMap.get("receiverAccount").toString());
         Map<String, Object> result = new HashMap<>();
         result.put("sender", sender);
-        result.put("textMsg", textMsg);
+        result.put("mesType", "40");
+        result.put("contentType", messageMap.get("contentType").toString());
+        result.put("content", messageMap.get("content").toString());
         result.put("timestamp", System.currentTimeMillis());
         String text = JSONUtils.NON_NULL.toJSONString(Response.SUCCESS.newBuilder().toResult(result));
 
         WsOfflineMessagePO wsOfflineMessagePO = new WsOfflineMessagePO();
         wsOfflineMessagePO.setId(snowflake.nextId());
+        wsOfflineMessagePO.setContent(messageMap.get("content").toString());
+        wsOfflineMessagePO.setIsSent("0");
+        wsOfflineMessagePO.setMesType("40");
+        wsOfflineMessagePO.setContentType(messageMap.get("contentType").toString());
+        wsOfflineMessagePO.setReceiverAccount(messageMap.get("ReceiverAccount").toString());
+        wsOfflineMessagePO.setSenderAccount(messageMap.get("senderAccount").toString());
+
         try {
             if (session != null && session.isOpen()) {
                 // 接收者在线，直接发送

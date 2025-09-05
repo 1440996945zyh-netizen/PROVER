@@ -19,6 +19,7 @@ import jakarta.websocket.server.HandshakeRequest;
 import jakarta.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -49,18 +50,15 @@ public class WebSocketServer {
         final String methodName = "onOpen";
         LOGGER.enter(methodName, "尝试连接websocket");
 
-        // 1. 从Session获取查询参数（前端传递的 ?token=xxx）
+        // token校验
         Map<String, List<String>> parameterMap = session.getRequestParameterMap();
-        List<String> tokenList = parameterMap.get("token"); // 获取名为"token"的查询参数
+        List<String> tokenList = parameterMap.get("token");
         String token = null;
 
-        // 2. 安全判断：避免tokenList为null或空
         if (tokenList != null && !tokenList.isEmpty()) {
-            token = tokenList.get(0); // 取第一个token值（查询参数通常只有一个）
+            token = tokenList.get(0);
         }
-        // --------------------------------------------------------------------------------
 
-        // 原Token空值校验逻辑（不变，但需处理null安全）
         if (StringUtils.isBlank(token)) {
             LOGGER.warn("token不存在,鉴权失败!");
             String responseJson = JSONUtils.NON_NULL
@@ -71,7 +69,6 @@ public class WebSocketServer {
             return;
         }
 
-        // 后续Token解析、鉴权逻辑（完全不变）
         Jwt.JwtBean bean;
         try {
             bean = JwtUtils.parseToken(token);
@@ -111,44 +108,42 @@ public class WebSocketServer {
 
         WebSocketSessionContext.put(bean.getAccount(), session);
 
-        // 心跳机制
-        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-        final ScheduledFuture<?>[] heartbeatFutureRef = new ScheduledFuture[1];
-        ScheduledFuture<?> heartbeatFuture = scheduler.scheduleAtFixedRate(() -> {
+        // 检测心跳机制
+        ScheduledExecutorService heartbeatCheckScheduler = Executors.newSingleThreadScheduledExecutor();
+        final ScheduledFuture<?>[] heartbeatCheckFutureRef = new ScheduledFuture[1];
+
+        // 初始化最后心跳时间
+        session.getUserProperties().put("LAST_CLIENT_HEARTBEAT", System.currentTimeMillis());
+        ScheduledFuture<?> heartbeatCheckFuture = heartbeatCheckScheduler.scheduleAtFixedRate(() -> {
             try {
                 if (session.isOpen()) {
-                    // 检查上次收到Pong的时间
-                    Long lastPongTime = (Long) session.getUserProperties().get("LAST_PONG_TIME");
+                    // 检查上次收到客户端心跳的时间
+                    Long lastClientHeartbeat = (Long) session.getUserProperties().get("LAST_CLIENT_HEARTBEAT");
                     long currentTime = System.currentTimeMillis();
-                    // 如果超过60秒没收到Pong，认为连接已死亡
-                    if (lastPongTime != null && (currentTime - lastPongTime) > 60000) {
-                        LOGGER.warn("账号[" + bean.getAccount() + "]心跳超时，强制关闭连接");
-                        cancelHeartbeatFuture(heartbeatFutureRef[0], scheduler);
+
+                    // 如果超过100秒没收到客户端心跳，认为连接已死亡
+                    if (lastClientHeartbeat != null && (currentTime - lastClientHeartbeat) > 100000) {
+                        LOGGER.warn("账号[" + bean.getAccount() + "]客户端心跳超时，强制关闭连接");
+                        cancelHeartbeatFuture(heartbeatCheckFutureRef[0], heartbeatCheckScheduler);
                         closeSessionSilently(session);
                         return;
                     }
-                    // 发送新的Ping
-                    RemoteEndpoint.Basic basicRemote = session.getBasicRemote();
-                    basicRemote.sendPing(ByteBuffer.wrap("HEARTBEAT".getBytes()));
-                    LOGGER.enter("向账号[" + bean.getAccount() + "]发送Ping帧");
+
+                    LOGGER.enter("账号[" + bean.getAccount() + "]心跳检测正常");
                 }
-            } catch (IOException | IllegalArgumentException e) {
-                // IOException: 连接已失效
-                // IllegalArgumentException: session已关闭
-                LOGGER.error("发送Ping帧失败，准备关闭连接：" + e.getMessage());
-                cancelHeartbeatFuture(heartbeatFutureRef[0], scheduler); // 使用数组引用
+            } catch (Exception e) {
+                LOGGER.error("心跳检测异常，准备关闭连接：" + e.getMessage());
+                cancelHeartbeatFuture(heartbeatCheckFutureRef[0], heartbeatCheckScheduler);
                 closeSessionSilently(session);
             }
-        }, 30, 30, TimeUnit.SECONDS); // 初始延迟30秒，之后每30秒执行一次
+        }, 45, 45, TimeUnit.SECONDS); // 每45秒检查一次
+        heartbeatCheckFutureRef[0] = heartbeatCheckFuture;
+        // 将定时任务Future与Session关联
+        session.getUserProperties().put("HEARTBEAT_CHECK_FUTURE", heartbeatCheckFuture);
+        session.getUserProperties().put("HEARTBEAT_CHECK_SCHEDULER", heartbeatCheckScheduler);
 
-        heartbeatFutureRef[0] = heartbeatFuture;
-        // 将定时任务Future与Session关联，以便在@OnClose时取消它
-        session.getUserProperties().put("HEARTBEAT_FUTURE", heartbeatFuture);
-        session.getUserProperties().put("HEARTBEAT_SCHEDULER", scheduler);
-
-        // 查询是否有离线消息，有的话则推送
-
-
+        // 查询是否有离线消息，有的话则推送-
+        sendOfflineMessages(bean.getAccount(), session);
         LOGGER.exit(methodName, StringUtils.EMPTY);
     }
 
@@ -171,8 +166,40 @@ public class WebSocketServer {
         final String methodName = "onMessage";
         LOGGER.enter(methodName, "接收文本消息");
 
-        String accNo = WebSocketSessionContext.getAccNo(session);
-        LOGGER.info("账号：" + accNo + "，接收文本消息：" + message);
+        String senderAccNo = WebSocketSessionContext.getAccNo(session);
+        LOGGER.info("账号：" + senderAccNo + "，接收文本消息：" + message);
+
+        try {
+            // 解析消息
+            Map<String, Object> messageMap = JSONUtils.NON_NULL.parseObject(message, Map.class);
+            String receiverAccount = (String) messageMap.get("receiverAccount");
+            String content = (String) messageMap.get("content");
+
+            // 检查是否是心跳消息
+            if ("9".equals((String) messageMap.get("mesType"))) {
+                // 更新最后收到客户端心跳的时间
+                session.getUserProperties().put("LAST_CLIENT_HEARTBEAT", System.currentTimeMillis());
+                LOGGER.enter("账号[" + senderAccNo + "]收到客户端心跳");
+                // 可以选择发送一个响应，但不是必须的
+                Map<String, Object> result = new HashMap<>();
+                result.put("mesType", "9");
+                result.put("content", "Pong");
+                result.put("timestamp", System.currentTimeMillis());
+                String text = JSONUtils.NON_NULL.toJSONString(Response.SUCCESS.newBuilder().toResult(result));
+                session.getBasicRemote().sendText(text);
+                LOGGER.exit(methodName, StringUtils.EMPTY);
+                return;
+            }
+            // 其他消息类型
+            if (StringUtils.isNotBlank(receiverAccount) && StringUtils.isNotBlank(content)) {
+                // 使用工具类发送消息（会自动处理在线/离线状态）
+                WebSocketUtils.sendMessage(senderAccNo, messageMap);
+            } else {
+                LOGGER.warn("消息格式错误，缺少接收者或内容");
+            }
+        } catch (Exception e) {
+            LOGGER.error("处理消息时发生异常");
+        }
 
         LOGGER.exit(methodName, StringUtils.EMPTY);
     }
@@ -204,7 +231,7 @@ public class WebSocketServer {
 
         String accNo = WebSocketSessionContext.getAccNo(session);
 
-        cancelHeartbeatTask(session); // 新增：取消心跳任务
+        cancelHeartbeatTask(session);
 
         LOGGER.error("账号：" + accNo + "，websocket连接错误");
     }
@@ -237,11 +264,7 @@ public class WebSocketServer {
     private void sendOfflineMessages(String account, Session session) {
         try {
             List<WsOfflineMessagePO> offlineMessages =
-                    offlineMessageService.getMessageByReceiver(1111L);
-
-            for (WsOfflineMessagePO offlineMessage : offlineMessages) {
-
-            }
+                    offlineMessageService.getMessageByReceiver(account);
 
             for (WsOfflineMessagePO offlineMessage : offlineMessages) {
                 try {

@@ -46,7 +46,6 @@ public class WsOfflineMessageServiceImpl implements WsOfflineMessageService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int add(WsOfflineMessagePO wsOfflineMessagePO) {
-        wsOfflineMessagePO.setId(snowflake.nextId());
         return wsOfflineMessageMapper.add(wsOfflineMessagePO);
     }
 
@@ -54,8 +53,8 @@ public class WsOfflineMessageServiceImpl implements WsOfflineMessageService {
      * 按照接收人查询离线消息
      */
     @Override
-    public List<WsOfflineMessagePO> getMessageByReceiver(Long receiverId) {
-        return wsOfflineMessageMapper.getMessageByReceiver(receiverId);
+    public List<WsOfflineMessagePO> getMessageByReceiver(String receiverAccount) {
+        return wsOfflineMessageMapper.getMessageByReceiver(receiverAccount);
     }
 
     /**

@@ -18,14 +18,14 @@ public class WsOfflineMessagePO {
     private Long id;
 
     /**
-     * 发送者id
+     * 发送者账户
      */
-    private Long senderId;
+    private String senderAccount;
 
     /**
-     * 接受者id
+     * 接受者账户
      */
-    private Long receiverId;
+    private String receiverAccount;
 
     /**
      * 消息内容
@@ -35,7 +35,12 @@ public class WsOfflineMessagePO {
     /**
      * 消息类型
      */
-    private String messageType;
+    private String mesType;
+
+    /**
+     * 消息类型消息划分
+     */
+    private String contentType;
 
     /**
      * 是否发送

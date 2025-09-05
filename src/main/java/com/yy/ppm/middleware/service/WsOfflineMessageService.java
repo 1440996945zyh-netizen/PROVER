@@ -19,7 +19,7 @@ public interface WsOfflineMessageService {
     /**
      * 按照接收人查询离线消息
      */
-    List<WsOfflineMessagePO> getMessageByReceiver(Long receiverId);
+    List<WsOfflineMessagePO> getMessageByReceiver(String receiverAccount);
 
     /**
      * 标记消息为已发送

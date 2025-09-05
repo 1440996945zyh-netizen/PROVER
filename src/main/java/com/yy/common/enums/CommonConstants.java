@@ -18,7 +18,7 @@ public class CommonConstants {
     /**
      * 默认密码
      */
-    public final static String DEF_PASSWORD = "Wfg@2023";
+    public final static String DEF_PASSWORD = "Rever168@";
 
     /**
      * 请求ip

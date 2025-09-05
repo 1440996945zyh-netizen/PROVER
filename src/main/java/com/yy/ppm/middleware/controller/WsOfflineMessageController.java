@@ -39,8 +39,8 @@ public class WsOfflineMessageController {
      * 按照接收人查询离线消息
      */
     @GetMapping("/getMessageByReceiver")
-    public Map<String,Object> getMessageByReceiver(@RequestParam("receiverId") Long receiverId) {
-        List<WsOfflineMessagePO> wsOfflineMessagePOList = wsOfflineMessageService.getMessageByReceiver(receiverId);
+    public Map<String,Object> getMessageByReceiver(@RequestParam("receiverId") String receiverAccount) {
+        List<WsOfflineMessagePO> wsOfflineMessagePOList = wsOfflineMessageService.getMessageByReceiver(receiverAccount);
         return Response.SUCCESS.newBuilder().out("查询成功").toResult(wsOfflineMessagePOList);
     }
 
