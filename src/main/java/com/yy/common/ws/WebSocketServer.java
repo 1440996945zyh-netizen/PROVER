@@ -2,6 +2,7 @@ package com.yy.common.ws;
 
 import com.yy.common.enums.CommonConstants;
 import com.yy.common.enums.Response;
+import com.yy.common.enums.WebsocketEnum;
 import com.yy.common.jwt.Jwt;
 import com.yy.common.log.MicroLogger;
 import com.yy.common.util.JSONUtils;
@@ -176,18 +177,16 @@ public class WebSocketServer {
             String content = (String) messageMap.get("content");
 
             // 检查是否是心跳消息
-            if ("9".equals((String) messageMap.get("mesType"))) {
+            if (WebsocketEnum.HEART_MSG.getCode().equals((String) messageMap.get("mesType"))) {
                 // 更新最后收到客户端心跳的时间
                 session.getUserProperties().put("LAST_CLIENT_HEARTBEAT", System.currentTimeMillis());
-                LOGGER.enter("账号[" + senderAccNo + "]收到客户端心跳");
                 // 可以选择发送一个响应，但不是必须的
                 Map<String, Object> result = new HashMap<>();
-                result.put("mesType", "9");
+                result.put("mesType", WebsocketEnum.HEART_MSG.getCode());
                 result.put("content", "Pong");
                 result.put("timestamp", System.currentTimeMillis());
                 String text = JSONUtils.NON_NULL.toJSONString(Response.SUCCESS.newBuilder().toResult(result));
                 session.getBasicRemote().sendText(text);
-                LOGGER.exit(methodName, StringUtils.EMPTY);
                 return;
             }
             // 其他消息类型
@@ -268,8 +267,14 @@ public class WebSocketServer {
 
             for (WsOfflineMessagePO offlineMessage : offlineMessages) {
                 try {
+                    Map<String, Object> result = new HashMap<>();
+                    result.put("mesType", WebsocketEnum.SERVER_MSG.getCode());
+                    result.put("contentType",offlineMessage.getContentType());
+                    result.put("content", offlineMessage.getContent());
+                    result.put("timestamp", System.currentTimeMillis());
+                    String text = JSONUtils.NON_NULL.toJSONString(Response.SUCCESS.newBuilder().toResult(result));
                     // 直接发送原始消息内容（已经是JSON格式）
-                    session.getBasicRemote().sendText(offlineMessage.getContent());
+                    session.getBasicRemote().sendText(text);
                     // 标记为已发送
                     offlineMessageService.updateIsSent(offlineMessage);
                 } catch (IOException e) {

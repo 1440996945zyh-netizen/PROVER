@@ -11,8 +11,7 @@
             MES_TYPE,
             IS_SENT,
             CONTENT_TYPE,
-            CREATE_TIME,
-            CREATE_BY
+            CREATE_TIME
         ) VALUES (
                      #{id,jdbcType=BIGINT},
                      #{senderAccount,jdbcType=VARCHAR},
@@ -21,8 +20,7 @@
                      #{mesType,jdbcType=VARCHAR},
                      #{isSent,jdbcType=VARCHAR},
                      #{contentType,jdbcType=VARCHAR},
-                     #{now},
-                     #{loginUserId}
+                     #{createTime,jdbcType=TIMESTAMP}
                  )
     </insert>
     <update id="updateIsSent">
@@ -39,8 +37,7 @@
             MES_TYPE,
             IS_SENT,
             CONTENT_TYPE,
-            CREATE_TIME,
-            CREATE_BY
+            CREATE_TIME
         FROM WS_OFFLINE_MESSAGE
         WHERE RECEIVER_ACCOUNT = #{receiverAccount,jdbcType=BIGINT}
     </select>

@@ -2,6 +2,7 @@ package com.yy.common.ws;
 
 import cn.hutool.core.lang.Snowflake;
 import com.yy.common.enums.Response;
+import com.yy.common.enums.WebsocketEnum;
 import com.yy.common.util.JSONUtils;
 import com.yy.ppm.middleware.bean.po.WsOfflineMessagePO;
 import com.yy.ppm.middleware.service.WsOfflineMessageService;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,7 +41,7 @@ public class WebSocketUtils {
         Session session = WebSocketSessionContext.getSession(messageMap.get("receiverAccount").toString());
         Map<String, Object> result = new HashMap<>();
         result.put("sender", sender);
-        result.put("mesType", "40");
+        result.put("mesType", WebsocketEnum.SERVER_MSG.getCode());
         result.put("contentType", messageMap.get("contentType").toString());
         result.put("content", messageMap.get("content").toString());
         result.put("timestamp", System.currentTimeMillis());
@@ -49,10 +51,11 @@ public class WebSocketUtils {
         wsOfflineMessagePO.setId(snowflake.nextId());
         wsOfflineMessagePO.setContent(messageMap.get("content").toString());
         wsOfflineMessagePO.setIsSent("0");
-        wsOfflineMessagePO.setMesType("40");
+        wsOfflineMessagePO.setMesType(WebsocketEnum.SERVER_MSG.getCode());
         wsOfflineMessagePO.setContentType(messageMap.get("contentType").toString());
-        wsOfflineMessagePO.setReceiverAccount(messageMap.get("ReceiverAccount").toString());
+        wsOfflineMessagePO.setReceiverAccount(messageMap.get("receiverAccount").toString());
         wsOfflineMessagePO.setSenderAccount(messageMap.get("senderAccount").toString());
+        wsOfflineMessagePO.setCreateTime(new Date());
 
         try {
             if (session != null && session.isOpen()) {
