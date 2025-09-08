@@ -1,15 +1,8 @@
-package com.yy.ppm.middleware.controller;
+package com.yy.ppm.midCore.controller;
 
 import com.yy.common.enums.Response;
-import com.yy.common.page.Pages;
-import com.yy.ppm.middleware.bean.po.WsOfflineMessagePO;
-import com.yy.ppm.middleware.service.QuartzJobService;
-import com.yy.ppm.middleware.service.WsOfflineMessageService;
-import com.yy.ppm.system.bean.dto.*;
-import com.yy.ppm.system.bean.dto.HttpJobDetailDTO;
-import com.yy.ppm.system.bean.dto.HttpJobDetailSearchDTO;
-import com.yy.ppm.system.bean.dto.HttpJobLogsDTO;
-import com.yy.ppm.system.bean.dto.HttpJobLogsSearchDTO;
+import com.yy.ppm.midCore.bean.po.WsOfflineMessagePO;
+import com.yy.ppm.midCore.service.WsMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -20,10 +13,10 @@ import java.util.Map;
 @RestController
 @RequestMapping(value = "/api/internal/wsOfflineMessage")
 @Validated
-public class WsOfflineMessageController {
+public class WsMessageController {
 
     @Autowired
-    private WsOfflineMessageService wsOfflineMessageService;
+    private WsMessageService wsMessageService;
 
     /**
      * 新增离线消息
@@ -31,7 +24,7 @@ public class WsOfflineMessageController {
      */
     @PostMapping("/add")
     public Map<String, Object> add(@RequestBody WsOfflineMessagePO wsOfflineMessagePO) {
-        int count = wsOfflineMessageService.add(wsOfflineMessagePO);
+        int count = wsMessageService.add(wsOfflineMessagePO);
         return Response.SUCCESS.newBuilder().out(count > 0 ? "新增成功" : "新增失败").toResult();
     }
 
@@ -40,7 +33,7 @@ public class WsOfflineMessageController {
      */
     @GetMapping("/getMessageByReceiver")
     public Map<String,Object> getMessageByReceiver(@RequestParam("receiverId") String receiverAccount) {
-        List<WsOfflineMessagePO> wsOfflineMessagePOList = wsOfflineMessageService.getMessageByReceiver(receiverAccount);
+        List<WsOfflineMessagePO> wsOfflineMessagePOList = wsMessageService.getMessageByReceiver(receiverAccount);
         return Response.SUCCESS.newBuilder().out("查询成功").toResult(wsOfflineMessagePOList);
     }
 
@@ -49,7 +42,7 @@ public class WsOfflineMessageController {
      */
     @PostMapping("updateIsSent")
     public Map<String, Object> updateIsSent(@RequestBody WsOfflineMessagePO wsOfflineMessagePO) {
-        int count = wsOfflineMessageService.updateIsSent(wsOfflineMessagePO);
+        int count = wsMessageService.updateIsSent(wsOfflineMessagePO);
         return Response.SUCCESS.newBuilder().out(count > 0 ? "修改成功" : "修改失败").toResult();
     }
 }

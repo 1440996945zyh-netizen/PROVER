@@ -4,9 +4,8 @@ import cn.hutool.core.lang.Snowflake;
 import com.yy.common.enums.Response;
 import com.yy.common.enums.WebsocketEnum;
 import com.yy.common.util.JSONUtils;
-import com.yy.ppm.middleware.bean.po.WsOfflineMessagePO;
-import com.yy.ppm.middleware.service.WsOfflineMessageService;
-import jakarta.annotation.Resource;
+import com.yy.ppm.midCore.bean.po.WsOfflineMessagePO;
+import com.yy.ppm.midCore.service.WsMessageService;
 import jakarta.websocket.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,11 +23,11 @@ import java.util.Map;
 @Component
 public class WebSocketUtils {
     private static Snowflake snowflake;
-    private static WsOfflineMessageService offlineMessageService;
+    private static WsMessageService offlineMessageService;
 
 
     @Autowired
-    public void setOfflineMessageService(WsOfflineMessageService offlineMessageService) {
+    public void setOfflineMessageService(WsMessageService offlineMessageService) {
         WebSocketUtils.offlineMessageService = offlineMessageService;
     }
 

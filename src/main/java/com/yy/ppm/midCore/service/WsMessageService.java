@@ -1,15 +1,10 @@
-package com.yy.ppm.middleware.service;
+package com.yy.ppm.midCore.service;
 
-import com.yy.common.page.Pages;
-import com.yy.ppm.middleware.bean.po.WsOfflineMessagePO;
-import com.yy.ppm.system.bean.dto.HttpJobDetailDTO;
-import com.yy.ppm.system.bean.dto.HttpJobDetailSearchDTO;
-import com.yy.ppm.system.bean.dto.HttpJobLogsDTO;
-import com.yy.ppm.system.bean.dto.HttpJobLogsSearchDTO;
+import com.yy.ppm.midCore.bean.po.WsOfflineMessagePO;
 
 import java.util.List;
 
-public interface WsOfflineMessageService {
+public interface WsMessageService {
     /**
      * 新增离线消息
      * @param wsOfflineMessagePO

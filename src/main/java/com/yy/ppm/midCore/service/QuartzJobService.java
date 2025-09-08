@@ -1,6 +1,5 @@
-package com.yy.ppm.middleware.service;
+package com.yy.ppm.midCore.service;
 
-import cn.hutool.db.Page;
 import com.yy.common.page.Pages;
 import com.yy.ppm.system.bean.dto.HttpJobDetailDTO;
 import com.yy.ppm.system.bean.dto.HttpJobDetailSearchDTO;

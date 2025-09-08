@@ -1,4 +1,4 @@
-package com.yy.ppm.middleware.controller;
+package com.yy.ppm.midCore.controller;
 
 import com.yy.common.enums.Response;
 import com.yy.common.page.Pages;
@@ -6,7 +6,7 @@ import com.yy.ppm.system.bean.dto.HttpJobDetailDTO;
 import com.yy.ppm.system.bean.dto.HttpJobDetailSearchDTO;
 import com.yy.ppm.system.bean.dto.HttpJobLogsDTO;
 import com.yy.ppm.system.bean.dto.HttpJobLogsSearchDTO;
-import com.yy.ppm.middleware.service.QuartzJobService;
+import com.yy.ppm.midCore.service.QuartzJobService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;

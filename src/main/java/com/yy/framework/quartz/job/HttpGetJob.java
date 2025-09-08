@@ -3,7 +3,7 @@ import cn.hutool.core.lang.Snowflake;
 import com.yy.common.enums.Constants;
 import com.yy.common.util.HttpClientUtil;
 import com.yy.ppm.system.bean.po.HttpJobLogsPO;
-import com.yy.ppm.middleware.mapper.QuartzJobMapper;
+import com.yy.ppm.midCore.mapper.QuartzJobMapper;
 import jakarta.annotation.Resource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

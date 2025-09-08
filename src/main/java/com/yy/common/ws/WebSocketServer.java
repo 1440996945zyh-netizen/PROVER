@@ -1,6 +1,5 @@
 package com.yy.common.ws;
 
-import com.yy.common.enums.CommonConstants;
 import com.yy.common.enums.Response;
 import com.yy.common.enums.WebsocketEnum;
 import com.yy.common.jwt.Jwt;
@@ -9,17 +8,15 @@ import com.yy.common.util.JSONUtils;
 import com.yy.common.util.JwtUtils;
 import com.yy.common.util.str.StringUtil;
 import com.yy.framework.ws.CustomServerEndpointConfigurator;
-import com.yy.ppm.middleware.bean.po.WsOfflineMessagePO;
-import com.yy.ppm.middleware.service.WsOfflineMessageService;
+import com.yy.ppm.midCore.bean.po.WsOfflineMessagePO;
+import com.yy.ppm.midCore.service.WsMessageService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import jakarta.websocket.*;
-import jakarta.websocket.server.HandshakeRequest;
 import jakarta.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,10 +36,10 @@ public class WebSocketServer {
 
     private static final MicroLogger LOGGER = new MicroLogger(WebSocketServer.class);
 
-    private static WsOfflineMessageService offlineMessageService;
+    private static WsMessageService offlineMessageService;
 
     @Autowired
-    public void setOfflineMessageService(WsOfflineMessageService offlineMessageService) {
+    public void setOfflineMessageService(WsMessageService offlineMessageService) {
         WebSocketServer.offlineMessageService = offlineMessageService;
     }
 

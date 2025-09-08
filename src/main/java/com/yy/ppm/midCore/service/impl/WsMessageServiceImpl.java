@@ -1,0 +1,50 @@
+package com.yy.ppm.midCore.service.impl;
+
+import cn.hutool.core.lang.Snowflake;
+import com.yy.ppm.midCore.bean.po.WsOfflineMessagePO;
+import com.yy.ppm.midCore.mapper.WsMessageMapper;
+import com.yy.ppm.midCore.service.WsMessageService;
+import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+public class WsMessageServiceImpl implements WsMessageService {
+
+    @Resource
+    WsMessageMapper wsMessageMapper;
+
+    @Autowired
+    private Snowflake snowflake;
+
+    /**
+     * 新增离线消息
+     * @param wsOfflineMessagePO
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int add(WsOfflineMessagePO wsOfflineMessagePO) {
+        return wsMessageMapper.add(wsOfflineMessagePO);
+    }
+
+    /**
+     * 按照接收人查询离线消息
+     */
+    @Override
+    public List<WsOfflineMessagePO> getMessageByReceiver(String receiverAccount) {
+        return wsMessageMapper.getMessageByReceiver(receiverAccount);
+    }
+
+    /**
+     * 标记消息为已发送
+     */
+    @Override
+    public int updateIsSent(WsOfflineMessagePO wsOfflineMessagePO) {
+        return wsMessageMapper.updateIsSent(wsOfflineMessagePO);
+    }
+
+
+}
