@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.system.mapper.SysVersionControlMapper">
+
+    <select id="getWfmacVersion" resultType="com.yy.ppm.system.bean.po.SysVersionControlPO">
+        SELECT
+            *
+        FROM
+            (
+                SELECT
+                    ID,
+                    VERSION_NAME,
+                    VERSION_CODE,
+                    LINK_ADDRESS,
+                    FILE_ID,
+                    RELEASE_STATE,
+                    VERSION_TYPE,
+                    REMARK
+                FROM
+                    SYS_VERSION_CONTROL
+                WHERE RELEASE_STATE = '1'
+                  AND VERSION_TYPE = #{versionType}
+                ORDER BY VERSION_CODE DESC
+            )
+        WHERE
+            ROWNUM = 1
+    </select>
+	<select id="getVersion" resultType="com.yy.ppm.system.bean.po.SysVersionControlPO">
+		SELECT
+			*
+		FROM
+			(
+				SELECT
+					ID,
+					VERSION_NAME,
+					VERSION_CODE,
+					LINK_ADDRESS,
+					FILE_ID,
+					RELEASE_STATE,
+					VERSION_TYPE,
+					REMARK
+				FROM
+					SYS_VERSION_CONTROL
+				WHERE RELEASE_STATE = '1'
+				AND VERSION_TYPE = #{versionType}
+				ORDER BY VERSION_CODE DESC
+			)
+		WHERE
+			ROWNUM = 1
+	</select>
+	
+    <!--通过id查询文件信息-->
+    <select id="getFileById" resultType="com.yy.ppm.common.bean.po.SysFilePO">
+        SELECT
+            ID,
+            BUSINESS_TYPE,
+            FILE_BUCKET,
+            FILE_PATH,
+            FILE_SAVE_NAME,
+            FILE_NAME,
+            FILE_ICON,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME
+        FROM
+            SYS_FILE
+        WHERE
+            ID = #{id}
+    </select>
+    
+    <!-- 查询列表数据 -->
+    <select id="getList" resultType="com.yy.ppm.system.bean.dto.SysVersionControlDTO" parameterType="com.yy.ppm.system.bean.dto.SysVersionControlDTO">
+       SELECT
+            ID,
+			VERSION_NAME,
+			VERSION_CODE,
+			LINK_ADDRESS,
+			FILE_ID,
+			RELEASE_STATE,
+			VERSION_TYPE,
+			REMARK,
+			CREATE_BY,
+			CREATE_BY_NAME,
+			CREATE_TIME,
+			UPDATE_BY,
+			UPDATE_BY_NAME,
+			UPDATE_TIME
+        FROM
+            SYS_VERSION_CONTROL
+        <where>
+            <if test="versionName != null and versionName != ''">
+                AND VERSION_NAME = #{versionName}
+            </if>
+            <if test="versionCode != null and versionCode != ''">
+                AND VERSION_CODE = #{versionCode}
+            </if>
+            <if test="versionType != null and versionType != ''">
+                AND VERSION_TYPE = #{versionType}
+            </if>
+        </where>
+        ORDER BY CREATE_TIME DESC
+    </select>
+    
+    <!-- 根据id查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.system.bean.dto.SysVersionControlDTO" parameterType="java.lang.Long">
+        SELECT
+            ID,
+			VERSION_NAME,
+			VERSION_CODE,
+			LINK_ADDRESS,
+			FILE_ID,
+			RELEASE_STATE,
+			VERSION_TYPE,
+			REMARK,
+			CREATE_BY,
+			CREATE_BY_NAME,
+			CREATE_TIME,
+			UPDATE_BY,
+			UPDATE_BY_NAME,
+			UPDATE_TIME
+        FROM
+            SYS_VERSION_CONTROL 
+        <where>
+            ID = #{id}
+        </where>
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.system.bean.po.SysVersionControlPO">
+        INSERT INTO SYS_VERSION_CONTROL(
+            ID,
+			VERSION_NAME,
+			VERSION_CODE,
+			LINK_ADDRESS,
+			FILE_ID,
+			RELEASE_STATE,
+			VERSION_TYPE,
+			REMARK,
+			CREATE_BY,
+			CREATE_BY_NAME,
+			CREATE_TIME
+        )VALUES (
+            #{id},
+			#{versionName},
+			#{versionCode},
+			#{linkAddress},
+			#{fileId},
+			#{releaseState},
+			#{versionType},
+			#{remark},
+            #{loginUserId},
+            #{loginUserName},
+            #{now}
+        )
+    </insert>
+
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.system.bean.po.SysVersionControlPO">
+        UPDATE
+            SYS_VERSION_CONTROL
+        SET
+			VERSION_NAME = #{versionName},
+			VERSION_CODE = #{versionCode},
+			LINK_ADDRESS = #{linkAddress},
+			FILE_ID = #{fileId},
+			RELEASE_STATE = #{releaseState},
+			VERSION_TYPE = #{versionType},
+			REMARK = #{remark},
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now}
+        where
+            ID = #{id}
+    </update>
+
+    <!-- 修改 -->
+    <update id="updateStatus" parameterType="com.yy.ppm.system.bean.po.SysVersionControlPO">
+        UPDATE
+            SYS_VERSION_CONTROL
+        SET
+			RELEASE_STATE = #{releaseState},
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now}
+        where
+            ID = #{id}
+    </update>
+</mapper>
