@@ -46,8 +46,6 @@ public interface CommonMapper {
      */
     int deleteByIds(@Param("tableName") String tableName, @Param("ids") List<Long> ids);
 
-    int isDelFlagExists(@Param("tableName") String tableName);
-
     /**
      * 根据表名、列名、条件列名、条件列值、sql、要验证的列值 校验唯一性
      * @param tableName
@@ -59,8 +57,7 @@ public interface CommonMapper {
     int checkRepeat(@Param("tableName") String tableName, @Param("conditionColNm") String conditionColNm,
                     @Param("conditionColVal") String conditionColVal,
                     @Param("id") String id,
-                    @Param("list") List<CheckDTO> keyValues,
-                    @Param("isDelFlagExists") int isDelFlagExists
+                    @Param("list") List<CheckDTO> keyValues
     );
 
     /**
@@ -74,8 +71,7 @@ public interface CommonMapper {
     int isRepeat(@Param("tableName") String tableName, @Param("conditionColNm") String conditionColNm,
                     @Param("conditionColVal") String conditionColVal,
                     @Param("id") String id,
-                    @Param("list") List<CheckDTO> keyValues,
-                    @Param("isDelFlagExists") int isDelFlagExists
+                    @Param("list") List<CheckDTO> keyValues
     );
 
     /**

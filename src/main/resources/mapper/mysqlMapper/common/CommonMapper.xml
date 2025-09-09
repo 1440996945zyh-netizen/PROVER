@@ -34,15 +34,6 @@
             )
     </delete>
 
-    <select id="isDelFlagExists" resultType="int">
-        SELECT
-            COUNT( * )
-        FROM
-            USER_TAB_COLUMNS
-        WHERE
-            TABLE_NAME = upper(#{tableName})
-            AND COLUMN_NAME = 'DEL_FLAG'
-    </select>
 
     <!--简单判断重复-->
     <select id="checkRepeat" parameterType="java.lang.String" resultType="java.lang.Integer">
@@ -52,9 +43,6 @@
             ${tableName}
         WHERE
             ${conditionColNm} = #{conditionColVal}
-        <if test="isDelFlagExists > 0">
-            AND DEL_FLAG = '0'
-        </if>
         <if test="id != '' and id != null">
             and ID != #{id}
         </if>
@@ -73,9 +61,6 @@
             ${tableName}
         WHERE
             ${conditionColNm} = #{conditionColVal}
-        <if test="isDelFlagExists > 0">
-            AND DEL_FLAG = '0'
-        </if>
         <if test="id != '' and id != null">
             and ID = #{id}
         </if>

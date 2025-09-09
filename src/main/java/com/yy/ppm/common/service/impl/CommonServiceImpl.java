@@ -109,9 +109,8 @@ public class CommonServiceImpl implements CommonService {
         // 是否显示msg
         String showMsgFlag = (otherCondition != null && otherCondition.length == 2) ? otherCondition[1] : null;
 
-        int isDelFlagExists = baseMapper.isDelFlagExists(tableName);
 
-        int count = baseMapper.checkRepeat(tableName, conditionColNm, conditionColVal, id, keyValues, isDelFlagExists);
+        int count = baseMapper.checkRepeat(tableName, conditionColNm, conditionColVal, id, keyValues);
 
         if(count > 0) {
 
@@ -143,9 +142,9 @@ public class CommonServiceImpl implements CommonService {
         // 是否显示msg
         String showMsgFlag = (otherCondition != null && otherCondition.length == 2) ? otherCondition[1] : null;
 
-        int isDelFlagExists = baseMapper.isDelFlagExists(tableName);
 
-        int count = baseMapper.isRepeat(tableName, conditionColNm, conditionColVal, id, keyValues, isDelFlagExists);
+
+        int count = baseMapper.isRepeat(tableName, conditionColNm, conditionColVal, id, keyValues);
 
         if(count > 0) {
 

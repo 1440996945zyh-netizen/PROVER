@@ -5,6 +5,7 @@ import com.yy.common.log.MicroLogger;
 import com.yy.common.util.str.StringUtil;
 import com.yy.ppm.common.bean.dto.SelecSearchDTO;
 import com.yy.ppm.common.service.PublicService;
+import com.yy.ppm.common.service.SelectService;
 import com.yy.ppm.system.bean.dto.SysDeptDTO;
 import com.yy.ppm.system.bean.dto.SysParameterDTO;
 import com.yy.ppm.system.mapper.SysParameterMapper;
@@ -31,6 +32,9 @@ public class PublicController {
     PublicService publicService;
     @Resource
     private SysParameterMapper sysParameterMapper;
+
+    @Resource
+    private SelectService selectService;
 
     /**
      * 根据字典类型获取字典值
@@ -120,6 +124,55 @@ public class PublicController {
         LOGGER.exit(methodName, "获取单个系统参数[end], result: " + dto);
         return Response.SUCCESS.newBuilder().toResult(dto);
     }
+
+    /**
+     * 获取远程下拉框数据源
+     *
+     * @param selectCommonSearch
+     * @return
+     */
+    @PostMapping("/getRemoteSelect")
+    public Map<String, Object> getSelectDataSource(@RequestBody SelecSearchDTO selectCommonSearch) {
+        final String methodName = "PublicController:selectCommonSearch";
+        LOGGER.enter(methodName + "[start]", "param:" + selectCommonSearch.toString());
+
+        List<Map<String, Object>> res = selectService.getRemoteSelect(selectCommonSearch);
+
+        LOGGER.exit(methodName + "result:" + res);
+        return Response.SUCCESS.newBuilder().out("查询成功").toResult(res);
+    }
+
+    /**
+     * 获取本地下拉框数据源
+     *
+     * @return
+     */
+    @GetMapping("/getLocalSelect")
+    public Map<String, Object> getLocalSelect(@RequestParam Map<String, Object> params) {
+        final String methodName = "PublicController:selectCommonSearch";
+        LOGGER.enter(methodName + "[start]", "params:" + params);
+        List<Map<String, Object>> res = selectService.getLocalSelect(params);
+
+        LOGGER.exit(methodName + "result:" + res);
+        return Response.SUCCESS.newBuilder().out("查询成功").toResult(res);
+    }
+
+    /**
+     * 获取本地下拉框数据源
+     *
+     * @return
+     */
+    @GetMapping("/getLocalSelects")
+    public Map<String, Object> getLocalSelects(String types) {
+        final String methodName = "PublicController:getLocalSelects";
+        LOGGER.enter(methodName + "[start]", "param:" + types);
+
+        Map<String, List<Map<String, Object>>> map = selectService.getLocalSelects(types);
+
+        LOGGER.exit(methodName + "result:" + map);
+        return Response.SUCCESS.newBuilder().out("查询成功").toResult(map);
+    }
+
 
     /**
      * 获取部门列表
