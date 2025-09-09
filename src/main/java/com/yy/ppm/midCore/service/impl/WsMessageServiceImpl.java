@@ -46,5 +46,16 @@ public class WsMessageServiceImpl implements WsMessageService {
         return wsMessageMapper.updateIsSent(wsOfflineMessagePO);
     }
 
+    /**
+     * 根据组织单位、岗位信息查询用户账号
+     * @param deptId
+     * @param postCode
+     * @return
+     */
+    @Override
+    public List<String> getUserAccounts(String deptId, String postCode) {
+        return wsMessageMapper.getUserAccounts(deptId,postCode);
+    }
+
 
 }

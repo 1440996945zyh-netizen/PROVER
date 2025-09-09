@@ -1,5 +1,6 @@
 package com.yy.common.ws;
 
+import com.yy.common.enums.CommonEnum;
 import com.yy.common.enums.Response;
 import com.yy.common.enums.WebsocketEnum;
 import com.yy.common.jwt.Jwt;
@@ -189,7 +190,7 @@ public class WebSocketServer {
             // 其他消息类型
             if (StringUtils.isNotBlank(receiverAccount) && StringUtils.isNotBlank(content)) {
                 // 使用工具类发送消息（会自动处理在线/离线状态）
-                WebSocketUtils.sendMessage(senderAccNo, messageMap);
+                WebSocketUtils.sendMessage(messageMap);
             } else {
                 LOGGER.warn("消息格式错误，缺少接收者或内容");
             }
@@ -261,19 +262,23 @@ public class WebSocketServer {
         try {
             List<WsOfflineMessagePO> offlineMessages =
                     offlineMessageService.getMessageByReceiver(account);
-
             for (WsOfflineMessagePO offlineMessage : offlineMessages) {
                 try {
                     Map<String, Object> result = new HashMap<>();
+                    result.put("id", offlineMessage.getId());
                     result.put("mesType", WebsocketEnum.SERVER_MSG.getCode());
                     result.put("contentType",offlineMessage.getContentType());
                     result.put("content", offlineMessage.getContent());
+                    result.put("mesShowType", offlineMessage.getMesShowType());
+                    result.put("isOffline", CommonEnum.YesNoMode.YES.getCode());
                     result.put("timestamp", System.currentTimeMillis());
                     String text = JSONUtils.NON_NULL.toJSONString(Response.SUCCESS.newBuilder().toResult(result));
                     // 直接发送原始消息内容（已经是JSON格式）
                     session.getBasicRemote().sendText(text);
-                    // 标记为已发送
-                    offlineMessageService.updateIsSent(offlineMessage);
+                    // 通知类型直接标记为已发送
+                    if (WebsocketEnum.NOTICE_TYPE.getCode().equals(offlineMessage.getMesShowType())) {
+                        offlineMessageService.updateIsSent(offlineMessage);
+                    }
                 } catch (IOException e) {
                     LOGGER.error("发送离线消息失败，消息ID: " + offlineMessage.getId());
                     // 发送失败，保持未发送状态，下次重试

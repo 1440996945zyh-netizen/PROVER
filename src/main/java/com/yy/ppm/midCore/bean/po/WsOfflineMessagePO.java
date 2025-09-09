@@ -53,4 +53,29 @@ public class WsOfflineMessagePO {
     @JsonFormat(timezone="GMT+8",pattern="yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
+
+    /**
+     * 业务ID
+     */
+    private Long businessId;
+
+    /**
+     * 业务类型
+     */
+    private String businessType;
+
+    /**
+     * 组织单位id
+     */
+    private Long deptId;
+
+    /**
+     * 岗位编码
+     */
+    private String postCode;
+
+    /**
+     * 消息展示类型
+     */
+    private String mesShowType;
 }

@@ -3,25 +3,32 @@
 <mapper namespace="com.yy.ppm.midCore.mapper.WsMessageMapper">
 
     <insert id="add" parameterType="com.yy.ppm.midCore.bean.po.WsOfflineMessagePO">
-        INSERT INTO WS_OFFLINE_MESSAGE (
-            ID,
-            SENDER_ACCOUNT,
-            RECEIVER_ACCOUNT,
-            CONTENT,
-            MES_TYPE,
-            IS_SENT,
-            CONTENT_TYPE,
-            CREATE_TIME
-        ) VALUES (
-                     #{id,jdbcType=BIGINT},
-                     #{senderAccount,jdbcType=VARCHAR},
-                     #{receiverAccount,jdbcType=VARCHAR},
-                     #{content,jdbcType=VARCHAR},
-                     #{mesType,jdbcType=VARCHAR},
-                     #{isSent,jdbcType=VARCHAR},
-                     #{contentType,jdbcType=VARCHAR},
-                     #{createTime,jdbcType=TIMESTAMP}
-                 )
+        INSERT INTO WS_OFFLINE_MESSAGE (ID,
+                                        SENDER_ACCOUNT,
+                                        RECEIVER_ACCOUNT,
+                                        CONTENT,
+                                        MES_TYPE,
+                                        IS_SENT,
+                                        CONTENT_TYPE,
+                                        CREATE_TIME,
+                                        BUSINESS_ID,
+                                        BUSINESS_TYPE,
+                                        DEPT_ID,
+                                        POST_CODE,
+                                        MES_SHOW_TYPE)
+        VALUES (#{id,jdbcType=BIGINT},
+                #{senderAccount,jdbcType=VARCHAR},
+                #{receiverAccount,jdbcType=VARCHAR},
+                #{content,jdbcType=VARCHAR},
+                #{mesType,jdbcType=VARCHAR},
+                #{isSent,jdbcType=VARCHAR},
+                #{contentType,jdbcType=VARCHAR},
+                #{createTime,jdbcType=TIMESTAMP},
+                #{businessId,jdbcType=BIGINT},
+                #{businessType,jdbcType=VARCHAR},
+                #{deptId,jdbcType=BIGINT},
+                #{postCode,jdbcType=VARCHAR},
+                #{mesShowType,jdbcType=VARCHAR})
     </insert>
     <update id="updateIsSent">
         UPDATE WS_OFFLINE_MESSAGE
@@ -37,11 +44,25 @@
             MES_TYPE,
             IS_SENT,
             CONTENT_TYPE,
-            CREATE_TIME
+            CREATE_TIME,
+            BUSINESS_ID,
+            BUSINESS_TYPE,
+            DEPT_ID,
+            POST_CODE,
+            MES_SHOW_TYPE
         FROM WS_OFFLINE_MESSAGE
         WHERE RECEIVER_ACCOUNT = #{receiverAccount,jdbcType=BIGINT}
+            AND IS_SENT = '0'
     </select>
-
+    <select id="getUserAccounts" resultType="java.lang.String">
+        select
+            USER_ACCOUNT
+        from
+            sys_user
+        where
+            DEPT_ID = #{deptId}
+        and POST_CODE = #{postCode}
+    </select>
 
 
 </mapper>

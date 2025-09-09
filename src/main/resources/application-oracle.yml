@@ -253,7 +253,3 @@ pagehelper:
   auto-dialect: true
   #默认值为 false。设置为 true 时，允许在运行时根据多数据源自动识别对应方言的分页
   auto-runtime-dialect: true
-
-# 吨包理货接口
-dblh:
-  url: https://000.00.00.000:8000

@@ -40,6 +40,17 @@
             CREATE_TIME
         FROM WS_OFFLINE_MESSAGE
         WHERE RECEIVER_ACCOUNT = #{receiverAccount,jdbcType=BIGINT}
+          AND IS_SENT = '0'
+    </select>
+
+    <select id="getUserAccounts" resultType="java.lang.String">
+        select
+            USER_ACCOUNT
+        from
+            sys_user
+        where
+            DEPT_ID = #{deptId}
+          and POST_CODE = #{postCode}
     </select>
 
 
