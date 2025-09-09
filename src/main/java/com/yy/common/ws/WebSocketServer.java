@@ -265,7 +265,7 @@ public class WebSocketServer {
             for (WsOfflineMessagePO offlineMessage : offlineMessages) {
                 try {
                     Map<String, Object> result = new HashMap<>();
-                    result.put("id", offlineMessage.getId());
+                    result.put("id", String.valueOf(offlineMessage.getId()));
                     result.put("mesType", WebsocketEnum.SERVER_MSG.getCode());
                     result.put("contentType",offlineMessage.getContentType());
                     result.put("content", offlineMessage.getContent());

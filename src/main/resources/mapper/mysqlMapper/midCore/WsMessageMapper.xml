@@ -11,6 +11,7 @@
             MES_TYPE,
             IS_SENT,
             CONTENT_TYPE,
+            MES_SHOW_TYPE,
             CREATE_TIME
         ) VALUES (
                      #{id,jdbcType=BIGINT},
@@ -20,6 +21,7 @@
                      #{mesType,jdbcType=VARCHAR},
                      #{isSent,jdbcType=VARCHAR},
                      #{contentType,jdbcType=VARCHAR},
+                     #{mesShowType,jdbcType=VARCHAR},
                      #{createTime,jdbcType=TIMESTAMP}
                  )
     </insert>
@@ -37,7 +39,8 @@
             MES_TYPE,
             IS_SENT,
             CONTENT_TYPE,
-            CREATE_TIME
+            CREATE_TIME,
+            MES_SHOW_TYPE
         FROM WS_OFFLINE_MESSAGE
         WHERE RECEIVER_ACCOUNT = #{receiverAccount,jdbcType=BIGINT}
           AND IS_SENT = '0'

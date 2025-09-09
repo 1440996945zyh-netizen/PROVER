@@ -38,7 +38,7 @@ public class WebSocketUtils {
     public static void sendMessage(Map<String, Object> messageMap) {
         List<String> accountList = new ArrayList<>();
         String contentType = messageMap.get("contentType").toString();
-        if (WebsocketEnum.PERSONAL_TYPE.equals(contentType)) {
+        if (WebsocketEnum.PERSONAL_TYPE.getCode().equals(contentType)) {
             accountList.add(messageMap.get("receiverAccount").toString());
         }else {
             List<String> userAccounts = offlineMessageService.getUserAccounts(messageMap.get("deptId").toString(), messageMap.get("postCode").toString());
@@ -60,10 +60,11 @@ public class WebSocketUtils {
             wsOfflineMessagePO.setContent(messageMap.get("content").toString());
             wsOfflineMessagePO.setIsSent("0");
             wsOfflineMessagePO.setMesType(WebsocketEnum.SERVER_MSG.getCode());
+            wsOfflineMessagePO.setMesShowType(messageMap.get("mesShowType").toString());
             wsOfflineMessagePO.setContentType(messageMap.get("contentType").toString());
             wsOfflineMessagePO.setSenderAccount(messageMap.get("senderAccount").toString());
             wsOfflineMessagePO.setCreateTime(new Date());
-            if (WebsocketEnum.PERSONAL_TYPE.equals(contentType)) {
+            if (WebsocketEnum.PERSONAL_TYPE.getCode().equals(contentType)) {
                 wsOfflineMessagePO.setReceiverAccount(account);
                 wsOfflineMessagePO.setContentType(WebsocketEnum.PERSONAL_TYPE.getCode());
             }else {
