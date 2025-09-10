@@ -69,8 +69,8 @@ public class WebSocketUtils {
                 wsOfflineMessagePO.setContentType(WebsocketEnum.PERSONAL_TYPE.getCode());
             }else {
                 wsOfflineMessagePO.setReceiverAccount(account);
-                wsOfflineMessagePO.setReceiverAccount(messageMap.get("deptId").toString());
-                wsOfflineMessagePO.setSenderAccount(messageMap.get("postCode").toString());
+                wsOfflineMessagePO.setDeptId(Long.valueOf(messageMap.get("deptId").toString()));
+                wsOfflineMessagePO.setPostCode(messageMap.get("postCode").toString());
                 wsOfflineMessagePO.setContentType(WebsocketEnum.GROUP_TYPE.getCode());
             }
 

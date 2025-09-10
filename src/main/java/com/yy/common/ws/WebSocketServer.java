@@ -188,7 +188,7 @@ public class WebSocketServer {
                 return;
             }
             // 其他消息类型
-            if (StringUtils.isNotBlank(receiverAccount) && StringUtils.isNotBlank(content)) {
+            if ((StringUtils.isNotBlank(receiverAccount)||StringUtils.isNotBlank((String) messageMap.get("deptId"))) && StringUtils.isNotBlank(content)) {
                 // 使用工具类发送消息（会自动处理在线/离线状态）
                 WebSocketUtils.sendMessage(messageMap);
             } else {
