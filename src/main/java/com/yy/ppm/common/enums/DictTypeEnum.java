@@ -118,7 +118,8 @@ public enum DictTypeEnum {
     TRUCK_MODEL("TRUCK_MODEL", "汽车车型"),
     HANDOVERLIST_TYPE("HANDOVERLIST_TYPE", "结算单类型"),
     ODD_WORK_TYPE("ODD_WORK_TYPE", "零工作业分类"),
-    STANDARDIZED_CARGO("STANDARDIZED_CARGO", "标准化货物");
+    STANDARDIZED_CARGO("STANDARDIZED_CARGO", "标准化货物"),
+    MODEL_TYPE("MODEL_TYPE", "模板类型");
 
 
     private final String type;
