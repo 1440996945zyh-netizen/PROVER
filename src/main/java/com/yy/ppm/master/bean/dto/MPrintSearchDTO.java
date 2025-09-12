@@ -1,9 +1,10 @@
 package com.yy.ppm.master.bean.dto;
 
 import com.yy.common.page.PageParameter;
+import lombok.Data;
 
 import java.io.Serializable;
-
+@Data
 public class MPrintSearchDTO extends PageParameter implements Serializable {
     /**
      * 主键ID*/

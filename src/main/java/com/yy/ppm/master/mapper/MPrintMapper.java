@@ -21,4 +21,12 @@ public interface MPrintMapper {
 
 
      Page<MPrintDTO> getList(MPrintSearchDTO mPrintSearchDTO);
+
+    void update(MPrintDTO po);
+
+    Integer deleteById(Long id);
+
+    MPrintDTO getDetail(Long id);
+
+    List<MPrintDTO> getModelTypeList();
 }

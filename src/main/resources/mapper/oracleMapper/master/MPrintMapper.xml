@@ -23,6 +23,21 @@
                    #{now}
                )
     </insert>
+    <update id="update"  parameterType="com.yy.ppm.master.bean.dto.MPrintDTO">
+        UPDATE
+            M_PRINT_MODEL
+        SET
+            MODEL_TYPE_CODE = #{modelTypeCode,jdbcType=VARCHAR},
+            MODEL_TYPE_NAME = #{modelTypeName,jdbcType=VARCHAR},
+            MODEL_NAME = #{modelName,jdbcType=VARCHAR},
+            MODEL_CONTENT = #{modelContent,jdbcType=VARCHAR},
+            UPDATE_BY = #{loginUserId},
+            UPDATE_NAME = #{loginUserName},
+            UPDATE_TIME = #{now}
+        WHERE
+            ID = #{id,jdbcType=BIGINT}
+    </update>
+
     <select id="getList" resultType="com.yy.ppm.master.bean.dto.MPrintDTO"  parameterType="com.yy.ppm.master.bean.dto.MDictTypeSearchDTO">
         SELECT
         ID,
@@ -45,5 +60,38 @@
             </if>
 
         </where>
+
     </select>
+    <select id="getDetail" resultType="com.yy.ppm.master.bean.dto.MPrintDTO">
+        SELECT
+            ID,
+            MODEL_TYPE_CODE,
+            MODEL_TYPE_NAME,
+            MODEL_NAME,
+            MODEL_CONTENT,
+            CREATE_BY,
+            CREATE_NAME,
+            CREATE_TIME
+        FROM
+            M_PRINT_MODEL
+        WHERE ID = #{id,jdbcType=BIGINT}
+    </select>
+    <select id="getModelTypeList" resultType="com.yy.ppm.master.bean.dto.MPrintDTO">
+        SELECT
+            ID,
+            MODEL_TYPE_CODE,
+            MODEL_TYPE_NAME,
+            MODEL_NAME,
+            MODEL_CONTENT,
+            CREATE_BY,
+            CREATE_NAME,
+            CREATE_TIME
+        FROM M_PRINT_MODEL
+    </select>
+    <delete id="deleteById">
+        DELETE FROM
+            M_PRINT_MODEL
+        WHERE
+            ID = #{id,jdbcType=BIGINT}
+    </delete>
 </mapper>

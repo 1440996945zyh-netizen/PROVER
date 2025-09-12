@@ -48,7 +48,7 @@ public class MPrintServiceImpl implements MPrintService {
 
     @Override
     public void insert(MPrintDTO po) {
-        final String methodName = "DictServiceImpl:insertDict";
+        final String methodName = "PrintServiceImpl:insert";
         LOGGER.enter(methodName, "业务执行");
 
         po.setId(snowflake.nextId());
@@ -71,5 +71,50 @@ public class MPrintServiceImpl implements MPrintService {
 
         LOGGER.exit(methodName, StringUtils.EMPTY);
         return pages;
+    }
+
+    @Override
+    public void update(MPrintDTO po) {
+        final String methodName = "PrintServiceImpl:update";
+        LOGGER.enter(methodName, "业务执行");
+
+        mPrintMapper.update(po);
+
+        LOGGER.exit(methodName, StringUtils.EMPTY);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        final String methodName = "PrintServiceImpl:deleteById";
+        LOGGER.enter(methodName, "业务执行");
+
+        Integer count = mPrintMapper.deleteById(id);
+        if(count<=0){
+            throw new BusinessRuntimeException("删除失败！");
+        }
+
+        LOGGER.exit(methodName, StringUtils.EMPTY);
+    }
+
+    @Override
+    public MPrintDTO getDetail(Long id) {
+        final String methodName = "PrintServiceImpl:getDetail";
+        LOGGER.enter(methodName, "业务执行");
+
+        MPrintDTO list = mPrintMapper.getDetail(id);
+
+        LOGGER.exit(methodName, StringUtils.EMPTY);
+        return list;
+    }
+
+    @Override
+    public List<MPrintDTO> getModelTypeList(MPrintSearchDTO mPrintSearchDTO) {
+        final String methodName = "PrintServiceImpl:getModelTypeList";
+        LOGGER.enter(methodName, "业务执行");
+
+        List<MPrintDTO> list = mPrintMapper.getModelTypeList();
+
+        LOGGER.exit(methodName, StringUtils.EMPTY);
+        return list;
     }
 }
