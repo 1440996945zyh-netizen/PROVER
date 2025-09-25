@@ -34,7 +34,8 @@ public enum ConstantsTypeEnum {
     TRANSFER_CARGO_OWNER_FLAG,
     LOAD_FLAG,
     CUSTOMER_STATUS,
-    PRO_COST_TYPE;
+    PRO_COST_TYPE,
+    AD_SEARCH_COL_TYPE;
 
     public static String match(String code) {
         return Arrays.stream(ConstantsTypeEnum.values()).map(Enum::name).filter(v1 -> v1.equals(code)).findFirst().orElse(StringUtils.EMPTY);
