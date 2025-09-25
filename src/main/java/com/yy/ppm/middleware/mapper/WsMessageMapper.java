@@ -1,7 +1,7 @@
-package com.yy.ppm.midCore.mapper;
+package com.yy.ppm.middleware.mapper;
 
 
-import com.yy.ppm.midCore.bean.po.WsOfflineMessagePO;
+import com.yy.ppm.middleware.bean.po.WsOfflineMessagePO;
 
 import java.util.List;
 

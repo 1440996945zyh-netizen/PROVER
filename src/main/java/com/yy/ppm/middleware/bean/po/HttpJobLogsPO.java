@@ -1,4 +1,4 @@
-package com.yy.ppm.system.bean.po;
+package com.yy.ppm.middleware.bean.po;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonFormat;

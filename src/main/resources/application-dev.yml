@@ -142,7 +142,7 @@ spring:
             enabled: true  # 启用监听
 #mybatis-plus
 mybatis-plus:
-  mapper-locations: classpath*:mapper/mysqlMapper/**/*Mapper.xml  # MySQL 专属 Mapper 路径
+  mapper-locations: classpath*:mapper/**/*Mapper.xml  # MySQL 专属 Mapper 路径
   typeAliasesPackage: com.yy.ppm.**.model  # 实体类别名扫描路径（保持不变）
   configuration:
     mapUnderscoreToCamelCase: true  # 下划线转驼峰（保持不变）

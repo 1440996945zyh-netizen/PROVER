@@ -1,6 +1,6 @@
-package com.yy.ppm.system.bean.dto;
+package com.yy.ppm.middleware.bean.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.yy.ppm.system.bean.po.HttpJobDetailPO;
+import com.yy.ppm.middleware.bean.po.HttpJobDetailPO;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

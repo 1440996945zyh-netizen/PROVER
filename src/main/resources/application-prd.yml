@@ -7,107 +7,45 @@ server:
 #druid
 spring:
   datasource:
-    type: com.alibaba.druid.pool.DruidDataSource
-    # 动态数据源文档 https://www.kancloud.cn/tracy5546/dynamic-datasource/content
     dynamic:
-      # 性能分析插件(有性能损耗 不建议生产环境使用)
+      # 是否开启 P6Spy 性能分析（开发环境可开启）
       p6spy: false
-      # 设置默认的数据源或者数据源组,默认值即为 master
+      # 默认数据源
       primary: master
-      # 严格模式 匹配不到数据源则报错
+      # 严格模式：找不到数据源时抛出异常
       strict: true
+
       datasource:
-        # 主库数据源
+        # 主数据源 - MySQL
         master:
-          driverClassName: oracle.jdbc.OracleDriver
-          # jdbc 所有参数配置参考 https://lionli.blog.csdn.net/article/details/122018562
-          # rewriteBatchedStatements=true 批处理优化 大幅提升批量插入更新删除性能(对数据库有性能损耗 使用批量操作应考虑性能问题)
-          username: WFG_PORTMIS
-          password: Wfg@0923
-          url: jdbc:oracle:thin:@//172.18.2.6:1521/sdgswfg
-        # 能耗
-        energy:
-          driverClassName: oracle.jdbc.OracleDriver
-          url: jdbc:oracle:thin:@//10.180.51.26:1521/ORCL
-          username: bhweam
-          password: Cft1Yjm9
-        # 能耗
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          username: root
+          password: rever168
+          url: jdbc:mysql://123.207.147.75:3306/yy_framework?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+
+        # 第二个数据源（可选）
         bhtnewdb:
-          driverClassName: oracle.jdbc.OracleDriver
-          url: jdbc:oracle:thin:@//10.180.51.26:1521/ORCL
-          username: bhweam
-          password: Cft1Yjm9
-        # 过磅
-        # simeauto:
-        #   driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-        #   url: jdbc:sqlserver://172.29.61.99:1433;database=simeauto;trustServerCertificate=true
-        #   username: sa
-        #   password: DB@simeauto
-        #   druid:
-        #     validationQuery: SELECT 1
-        # eport:
-        #   driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-        #   url: jdbc:sqlserver://172.29.61.103:1433;database=eport;trustServerCertificate=true
-        #   username: sa
-        #   password: Eport@2018
-        #   druid:
-        #     validationQuery: SELECT 1
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          username: root
+          password: rever168
+          url: jdbc:mysql://123.207.147.75:3306/yy_framework?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+
+      # Druid 连接池配置
       druid:
-        # 初始连接数
         initialSize: 32
-        # 最小连接池数量
         minIdle: 32
-        # 最大连接池数量
         maxActive: 128
-        # 配置获取连接等待超时的时间
         maxWait: 15000
-        # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
         timeBetweenEvictionRunsMillis: 3000
-        # 配置一个连接在池中最小生存的时间，单位是毫秒
         minEvictableIdleTimeMillis: 300000
-        # 配置一个连接在池中最大生存的时间，单位是毫秒
         maxEvictableIdleTimeMillis: 900000
-        # 配置检测连接是否有效 避免 mysql空闲8小时断开连接
-        #        validationQuery: SELECT 1
-        #        testWhileIdle: true
-        #        testOnBorrow: false
-        #        testOnReturn: false
-        # 注意这个值和druid原生不一致，默认启动了stat
         filters: stat
-  #    driver-class-name: oracle.jdbc.OracleDriver
-  #    #  oracle.jdbc.OracleDriver  net.sf.log4jdbc.DriverSpy
-  #    druid:
-  #      name: wfppm
-  #      master:
-  #        username: WFPORT
-  #        password: wfport
-  #  #      url: jdbc:oracle:thin:@(DESCRIPTION =(ADDRESS = (PROTOCOL = TCP)(HOST = 49.233.67.104)(PORT = 1521))(CONNECT_DATA =(SERVER = DEDICATED)(SERVICE_NAME = orcl)))
-  #        url: jdbc:oracle:thin:@(DESCRIPTION =(ADDRESS = (PROTOCOL = TCP)(HOST = 42.120.10.45)(PORT = 1521))(CONNECT_DATA =(SERVER = DEDICATED)(SERVICE_NAME = orcl)))
-  #      slave:
-  #        # 从数据源开关/默认关闭
-  #        enabled: true
-  #        username: WFPORT
-  #        password: wfport
-  #        url: jdbc:oracle:thin:@(DESCRIPTION =(ADDRESS = (PROTOCOL = TCP)(HOST = 42.120.10.45)(PORT = 1521))(CONNECT_DATA =(SERVER = DEDICATED)(SERVICE_NAME = orcl)))
-  #      async-init: true
-  #      initial-size: 8
-  #      max-active: 32
-  #      min-idle: 8
-  #      max-wait: 2000
-  #      # 配置连接超时时间
-  #      connect-timeout: 30000
-  #      # 配置网络超时时间
-  #      socket-timeout: 60000
-  #      use-unfair-lock: true
-  #      pool-prepared-statements: true
-  #      max-open-prepared-statements: 32
-  #      time-between-eviction-runs-millis: 5000
-  #      min-evictable-idle-time-millis: 600000
-  #      max-evictable-idle-time-millis: 900000
-  #      validation-query: SELECT 1 FROM DUAL
-  #      test-on-borrow: false
-  #      test-while-idle: true
-  #      test-on-return: false
+        # MySQL 健康检查语句
+        validation-query: SELECT 1
+        test-while-idle: true
+        test-on-borrow: false
+        test-on-return: false
+
   servlet:
     multipart:
       enabled: true
@@ -115,52 +53,101 @@ spring:
       max-request-size: 500MB #上传数据总大小
   application:
     name: dev-api
-  redis:
-    client-name: wfppm
-    password: Rever168
-    database: 0
-    host: 127.0.0.1
-    timeout: 3000
-    lettuce:
-      shutdown-timeout: 2000
-      pool:
-        max-active: 8
-        max-idle: 4
-        min-idle: 1
-        max-wait: 200
-        time-between-eviction-runs: 120000
-    port: 6380
-  # mq
-#  rabbitmq:
-#    # 虚拟机
-#    virtual-host: /
-#    host: 127.0.0.1
-#    port: 5672
-#    username: guest
-#    password: guest
-#    listener:
-#      simple:
-#        # 初始化并发数量
-#        concurrency: 10
-#        # 设置并发最大数量
-#        max-concurrency: 20
 
+  quartz:
+    job-store-type: jdbc
+    # 全局启用或者关闭quartz
+    enabled: false
+    data-source: masterDataSource
+    jdbc:
+      initialize-schema: never # 若未创建qrtz_表，首次可改为always，创建后改回never
+    # 关闭项目时是否等待正在执行的任务完成（避免任务中断）
+    wait-for-jobs-to-complete-on-shutdown: true
+    # 是否覆盖已存在的任务配置
+    overwrite-existing-jobs: true
+    properties:
+      org:
+        quartz:
+          # 2. 新增：配置Quartz数据源（masterDataSource）的连接信息（与你的master数据源一致）
+          dataSource:
+            masterDataSource:
+              driver: com.mysql.cj.jdbc.Driver # 与master的driver-class-name一致
+              URL: jdbc:mysql://123.207.147.75:3306/yy_framework?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true # 与master的url一致
+              user: root # 与master的username一致
+              password: rever168 # 与master的password一致
+              maxConnections: 30 # 数据源最大连接数（建议与Druid的maxActive匹配，你的Druid是128，这里可设30-50）
+          scheduler:
+            instanceName: BusinessScheduler
+            instanceId: AUTO
+          threadPool:
+            threadCount: 10
+            threadPriority: 5
+            class: org.quartz.simpl.SimpleThreadPool
+          jobStore:
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            useProperties: false
+            tablePrefix: qrtz_
+            isClustered: true
+            clusterCheckinInterval: 20000
+            misfireThreshold: 60000
+            # 3. 保留：指定JobStore使用的数据源名称（必须与上方dataSource的key一致：masterDataSource）
+            dataSource: masterDataSource
 
-#mybatis
-mybatis:
-  mapper-locations: classpath*:mapper/**/*Mapper.xml
-  type-aliases-package: com.yy.ppm.bean
-  configuration:
-    map-underscore-to-camel-case: true
-    call-setters-on-nulls: true
+  data:
+    redis:
+      client-name: bdss-redis
+      database: 4
+      host: 123.207.147.75
+      password: yyRever168.com!#@
+      port: 6379
+      timeout: 3000ms
+      lettuce:
+        shutdown-timeout: 2000ms
+        pool:
+          max-active: 8
+          max-idle: 4
+          min-idle: 1
+          max-wait: 200ms
+          time-between-eviction-runs-millis: 120000
+  rabbitmq:
+    producer:
+      virtual-host: yangyi-eport
+      host: 114.55.226.181
+      port: 5672
+      username: yangyi
+      password: "Rever168@"
+
+    # 消费者配置（支持连接多个RabbitMQ服务器）
+    consumers:
+      - server-id: rabbit-server-1  # 第一台服务器唯一标识
+        virtual-host: yangyi-eport
+        host: 114.55.226.181
+        port: 5672
+        username: yangyi
+        password: "Rever168@"
+        listener:
+          concurrency: 10
+          max-concurrency: 20
+          acknowledge-mode: manual  # 手动确认模式（必填）
+
+        exchanges: # 该服务器下的交换机配置
+          - name: rabbitmq测试
+            type: direct  # 交换机类型（direct/topic/fanout/headers）
+
+        queues: # 该服务器下的队列配置
+          - name: 测试_queues
+            routing-key: exchange_cs
+            exchange: rabbitmq测试  # 关联的交换机名称
+            enabled: true  # 启用监听
 #mybatis-plus
 mybatis-plus:
-  mapper-locations: classpath*:mapper/**/*Mapper.xml
-  typeAliasesPackage: com.yy.ppm.**.model
+  mapper-locations: classpath*:mapper/**/*Mapper.xml  # MySQL 专属 Mapper 路径
+  typeAliasesPackage: com.yy.ppm.**.model  # 实体类别名扫描路径（保持不变）
   configuration:
-    mapUnderscoreToCamelCase: true
-    call-setters-on-nulls: true
-    jdbc-type-for-null: 'null'
+    mapUnderscoreToCamelCase: true  # 下划线转驼峰（保持不变）
+    call-setters-on-nulls: true  # 空值返回字段（保持不变）
+    jdbc-type-for-null: 'null'  # 空值的 JDBC 类型（保持不变）
 
 #cros
 cros:
@@ -210,9 +197,6 @@ yy:
     accounts:
       - admin
       - test
-      - wfkjgs511
-      - superme
-      - xielinqi
     urls:
       - /api/internal/login
       - /api/internal/loginApp
@@ -226,20 +210,20 @@ yy:
 minio:
   url: 127.0.0.1
   port: 9000
-  accessKey: rever
-  secretKey: rever168
+  accessKey: minioadmin
+  secretKey: minioadmin
   connectTimeout: 30
   writeTimeout: 30
   readTimeout: 30
   secure: false
 
 service:
-  url: 172.18.5.223
+  url: localhost
 
 #snowflake 配置雪花算法的workId IP地址需要替换成服务器地址  在com.port.common.snowflake包中使用
 snowflake:
   ipdz: {
-    "[172.18.5.223]": "1"
+    "[192.168.75.134]": "1"
   }
 
 #log
@@ -255,6 +239,9 @@ management:
   endpoint:
     health:
       show-details: always
+  health:
+    rabbit:
+      enabled: false
 
 #pagehelper
 pagehelper:
@@ -264,16 +251,6 @@ pagehelper:
   #默认值为 false。设置为 true 时，允许在运行时根据多数据源自动识别对应方言的分页
   auto-runtime-dialect: true
 
-ftp:
-  host: 172.29.61.9
-  port: 21
-  username: WSDP
-  password: abc@123
-  localTempPath: F:/tmp/
-  customsCode: 4310
-  unitCode: 91370700778433376A
-  unitName: 潍坊森达美有限公司
-  saveFilePath: /
 # 吨包理货接口
 dblh:
-  url: http://172.18.20.235:8000
+  url: https://000.00.00.000:8000

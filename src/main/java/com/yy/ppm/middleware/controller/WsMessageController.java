@@ -1,8 +1,8 @@
-package com.yy.ppm.midCore.controller;
+package com.yy.ppm.middleware.controller;
 
 import com.yy.common.enums.Response;
-import com.yy.ppm.midCore.bean.po.WsOfflineMessagePO;
-import com.yy.ppm.midCore.service.WsMessageService;
+import com.yy.ppm.middleware.bean.po.WsOfflineMessagePO;
+import com.yy.ppm.middleware.service.WsMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;

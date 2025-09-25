@@ -10,10 +10,10 @@
         <version>3.5.4</version>
     </parent>
 
-    <groupId>com.yy.wfppm</groupId>
-    <artifactId>wfppm-security</artifactId>
+    <groupId>com.yy.ppm</groupId>
+    <artifactId>yy-framework</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>wfppm-security</name>
+    <name>yy-framework</name>
     <description>扬奕软件Java基础框架</description>
 
     <properties>

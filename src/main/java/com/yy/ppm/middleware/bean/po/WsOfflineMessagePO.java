@@ -1,4 +1,4 @@
-package com.yy.ppm.midCore.bean.po;
+package com.yy.ppm.middleware.bean.po;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;

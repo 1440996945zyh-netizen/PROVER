@@ -1,10 +1,10 @@
-package com.yy.ppm.midCore.service;
+package com.yy.ppm.middleware.service;
 
 import com.yy.common.page.Pages;
-import com.yy.ppm.system.bean.dto.HttpJobDetailDTO;
-import com.yy.ppm.system.bean.dto.HttpJobDetailSearchDTO;
-import com.yy.ppm.system.bean.dto.HttpJobLogsDTO;
-import com.yy.ppm.system.bean.dto.HttpJobLogsSearchDTO;
+import com.yy.ppm.middleware.bean.dto.HttpJobDetailDTO;
+import com.yy.ppm.middleware.bean.dto.HttpJobDetailSearchDTO;
+import com.yy.ppm.middleware.bean.dto.HttpJobLogsDTO;
+import com.yy.ppm.middleware.bean.dto.HttpJobLogsSearchDTO;
 
 public interface QuartzJobService {
     /**

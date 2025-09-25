@@ -1,6 +1,6 @@
-package com.yy.ppm.midCore.service;
+package com.yy.ppm.middleware.service;
 
-import com.yy.ppm.midCore.bean.po.WsOfflineMessagePO;
+import com.yy.ppm.middleware.bean.po.WsOfflineMessagePO;
 
 import java.util.List;
 

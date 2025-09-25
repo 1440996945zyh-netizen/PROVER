@@ -1,12 +1,12 @@
-package com.yy.ppm.midCore.mapper;
+package com.yy.ppm.middleware.mapper;
 
 
 import com.github.pagehelper.Page;
-import com.yy.ppm.system.bean.dto.HttpJobDetailDTO;
-import com.yy.ppm.system.bean.dto.HttpJobDetailSearchDTO;
-import com.yy.ppm.system.bean.dto.HttpJobLogsDTO;
-import com.yy.ppm.system.bean.dto.HttpJobLogsSearchDTO;
-import com.yy.ppm.system.bean.po.HttpJobLogsPO;
+import com.yy.ppm.middleware.bean.dto.HttpJobDetailDTO;
+import com.yy.ppm.middleware.bean.dto.HttpJobDetailSearchDTO;
+import com.yy.ppm.middleware.bean.dto.HttpJobLogsDTO;
+import com.yy.ppm.middleware.bean.dto.HttpJobLogsSearchDTO;
+import com.yy.ppm.middleware.bean.po.HttpJobLogsPO;
 
 public interface QuartzJobMapper {
 

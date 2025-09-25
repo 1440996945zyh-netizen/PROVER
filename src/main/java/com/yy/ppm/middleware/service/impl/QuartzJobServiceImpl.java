@@ -1,4 +1,4 @@
-package com.yy.ppm.midCore.service.impl;
+package com.yy.ppm.middleware.service.impl;
 
 import cn.hutool.core.lang.Snowflake;
 import com.alibaba.fastjson.JSON;
@@ -10,12 +10,12 @@ import com.yy.common.util.PageHelperUtils;
 import com.yy.framework.quartz.job.HttpGetJob;
 import com.yy.framework.quartz.job.HttpPostFormDataJob;
 import com.yy.framework.quartz.job.HttpPostJsonJob;
-import com.yy.ppm.midCore.service.QuartzJobService;
-import com.yy.ppm.system.bean.dto.HttpJobDetailDTO;
-import com.yy.ppm.system.bean.dto.HttpJobDetailSearchDTO;
-import com.yy.ppm.system.bean.dto.HttpJobLogsDTO;
-import com.yy.ppm.system.bean.dto.HttpJobLogsSearchDTO;
-import com.yy.ppm.midCore.mapper.QuartzJobMapper;
+import com.yy.ppm.middleware.service.QuartzJobService;
+import com.yy.ppm.middleware.bean.dto.HttpJobDetailDTO;
+import com.yy.ppm.middleware.bean.dto.HttpJobDetailSearchDTO;
+import com.yy.ppm.middleware.bean.dto.HttpJobLogsDTO;
+import com.yy.ppm.middleware.bean.dto.HttpJobLogsSearchDTO;
+import com.yy.ppm.middleware.mapper.QuartzJobMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.*;

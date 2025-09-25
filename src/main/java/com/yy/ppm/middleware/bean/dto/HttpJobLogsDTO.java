@@ -1,6 +1,6 @@
-package com.yy.ppm.system.bean.dto;
+package com.yy.ppm.middleware.bean.dto;
 
-import com.yy.ppm.system.bean.po.HttpJobLogsPO;
+import com.yy.ppm.middleware.bean.po.HttpJobLogsPO;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

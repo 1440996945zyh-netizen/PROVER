@@ -1,9 +1,9 @@
-package com.yy.ppm.midCore.service.impl;
+package com.yy.ppm.middleware.service.impl;
 
 import cn.hutool.core.lang.Snowflake;
-import com.yy.ppm.midCore.bean.po.WsOfflineMessagePO;
-import com.yy.ppm.midCore.mapper.WsMessageMapper;
-import com.yy.ppm.midCore.service.WsMessageService;
+import com.yy.ppm.middleware.bean.po.WsOfflineMessagePO;
+import com.yy.ppm.middleware.mapper.WsMessageMapper;
+import com.yy.ppm.middleware.service.WsMessageService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

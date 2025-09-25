@@ -2,7 +2,7 @@
 <configuration scan="true" scanPeriod="60 seconds" debug="false">
 
     <!-- 使用 Spring Property 支持 -->
-    <springProperty scope="context" name="LOG_FILE" source="logging.file.name" defaultValue="c:/wfppm-logs"/>
+    <springProperty scope="context" name="LOG_FILE" source="logging.file.name" defaultValue="c:/ppm-logs"/>
     <springProperty scope="context" name="MAX_HISTORY" source="logging.file.max-history" defaultValue="180"/>
 
     <!-- 日志输出格式 -->

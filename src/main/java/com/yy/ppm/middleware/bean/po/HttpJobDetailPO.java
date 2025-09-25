@@ -1,4 +1,4 @@
-package com.yy.ppm.system.bean.po;
+package com.yy.ppm.middleware.bean.po;
 
 import com.yy.ppm.common.bean.po.BasePO;
 import lombok.Getter;

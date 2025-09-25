@@ -1,4 +1,4 @@
-package com.yy.ppm.system.bean.dto;
+package com.yy.ppm.middleware.bean.dto;
 
 import com.yy.common.page.PageParameter;
 import lombok.Getter;
