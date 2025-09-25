@@ -1,28 +1,19 @@
 package com.yy.ppm.common.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
-import com.google.common.collect.Lists;
 import com.yy.common.log.MicroLogger;
 import com.yy.common.util.str.StringUtil;
 import com.yy.ppm.common.bean.dto.SelecSearchDTO;
-import com.yy.ppm.common.enums.ConstantsTypeEnum;
-import com.yy.ppm.common.enums.CustomerPropertyEnum;
-import com.yy.ppm.common.enums.DictTypeEnum;
 import com.yy.ppm.common.enums.SelectEnum;
 import com.yy.ppm.common.mapper.SelectMapper;
 import com.yy.ppm.common.service.SelectService;
 import lombok.Getter;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import jakarta.annotation.Resource;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
-import static com.yy.ppm.common.enums.ShipStatusEnum.*;
+import  com.yy.ppm.common.enums.DictTypeEnum;
+import  com.yy.ppm.common.enums.ConstantsTypeEnum;
 /**
  * 下拉框数据源
  */

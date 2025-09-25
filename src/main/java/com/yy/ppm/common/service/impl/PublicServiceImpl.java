@@ -1,21 +1,15 @@
 package com.yy.ppm.common.service.impl;
 
-import com.yy.common.enums.CommonEnum;
 import com.yy.common.log.MicroLogger;
-import com.yy.common.util.DateUtils;
 import com.yy.common.util.SecurityUtils;
-import com.yy.common.util.str.StringUtil;
-import com.yy.framework.exception.BusinessRuntimeException;
-import com.yy.ppm.common.enums.ShiftClassEnum;
 import com.yy.ppm.common.mapper.PublicMapper;
 import com.yy.ppm.common.service.PublicService;
 import com.yy.ppm.system.bean.dto.SysDeptDTO;
 import com.yy.ppm.system.bean.dto.SysParameterDTO;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
-import java.util.Date;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
