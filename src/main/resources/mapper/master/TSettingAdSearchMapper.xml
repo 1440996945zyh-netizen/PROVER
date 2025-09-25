@@ -12,6 +12,8 @@
         STATUS,
         REMARK,
         COL_SELECT_KEY,
+        MENU_ID,
+        SORT_NUM,
         CREATE_BY,
         CREATE_BY_NAME,
         CREATE_TIME,
@@ -22,6 +24,7 @@
         FROM
         T_SETTING_AD_SEARCH
         <where>
+            SORT_NUM = 1
             <if test="id != null">
                 and ID = #{id}
             </if>
@@ -75,7 +78,9 @@
         UPDATE_BY,
         UPDATE_BY_NAME,
         UPDATE_TIME,
-        COL_SELECT_KEY
+        COL_SELECT_KEY,
+        MENU_ID,
+        SORT_NUM
         FROM
         T_SETTING_AD_SEARCH
         <where>
@@ -93,6 +98,8 @@
             STATUS,
             REMARK,
             COL_SELECT_KEY,
+            MENU_ID,
+            SORT_NUM,
             CREATE_BY,
             CREATE_BY_NAME,
             CREATE_TIME
@@ -105,6 +112,8 @@
                     #{status, jdbcType=VARCHAR},
                     #{remark, jdbcType=VARCHAR},
                     #{colSelectKey, jdbcType=VARCHAR},
+                    #{menuId, jdbcType=BIGINT},
+                    #{sortNum, jdbcType=INTEGER},
                     #{loginUserId, jdbcType=BIGINT},
                     #{loginUserName, jdbcType=VARCHAR},
                     #{now}
@@ -115,7 +124,6 @@
         UPDATE
         T_SETTING_AD_SEARCH
         SET
-        ID = #{id,jdbcType=VARCHAR},
         TABLE_ID = #{tableId,jdbcType=VARCHAR},
         COL_KEY = #{colKey,jdbcType=VARCHAR},
         COL_LABEL = #{colLabel,jdbcType=VARCHAR},
@@ -123,6 +131,8 @@
         STATUS = #{status,jdbcType=VARCHAR},
         REMARK = #{remark,jdbcType=VARCHAR},
         COL_SELECT_KEY = #{colSelectKey,jdbcType=VARCHAR},
+        MENU_ID = #{menuId, jdbcType=BIGINT},
+        SORT_NUM = #{sortNum, jdbcType=INTEGER},
         UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
         UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
         UPDATE_TIME = #{now}

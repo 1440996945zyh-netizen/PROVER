@@ -59,7 +59,7 @@
     </select>
 
     <!-- 根据gid查询数据 -->
-    <select id="getById" resultType="com.yy.ppm.master.bean.dto.TSettingAdSearchDTO" parameterType="java.lang.Long">
+    <select id="getByMenuIdAndTableId" resultType="com.yy.ppm.master.bean.dto.TSettingAdSearchDTO">
         SELECT
         ID,
         TABLE_ID,
@@ -78,12 +78,14 @@
         FROM
         T_SETTING_AD_SEARCH
         <where>
-            id = #{id}
+            MENU_ID = #{menuId}
+            and TABLE_ID = #{tableId}
         </where>
     </select>
-    <!-- 新增 -->
-    <insert id="insert" parameterType="com.yy.ppm.master.bean.dto.TSettingAdSearchDTO">
-        INSERT INTO T_SETTING_AD_SEARCH(
+    <insert id="insertBatch" parameterType="com.yy.ppm.master.bean.dto.TSettingAdSearchDTO">
+        INSERT ALL
+        <foreach collection="list" item="item">
+            INTO T_SETTING_AD_SEARCH(
             ID,
             TABLE_ID,
             COL_KEY,
@@ -92,50 +94,36 @@
             STATUS,
             REMARK,
             COL_SELECT_KEY,
+            MENU_ID,
+            SORT_NUM,
             CREATE_BY,
             CREATE_BY_NAME,
             CREATE_TIME
-        )VALUES (
-                    #{id, jdbcType=VARCHAR},
-                    #{tableId, jdbcType=VARCHAR},
-                    #{colKey, jdbcType=VARCHAR},
-                    #{colLabel, jdbcType=VARCHAR},
-                    #{colType, jdbcType=VARCHAR},
-                    #{status, jdbcType=VARCHAR},
-                    #{remark, jdbcType=VARCHAR},
-                    #{colSelectKey, jdbcType=VARCHAR},
-                    #{loginUserId, jdbcType=BIGINT},
-                    #{loginUserName, jdbcType=VARCHAR},
-                    #{now}
-                )
+            )VALUES (
+                        #{item.id, jdbcType=VARCHAR},
+                        #{item.tableId, jdbcType=VARCHAR},
+                        #{item.colKey, jdbcType=VARCHAR},
+                        #{item.colLabel, jdbcType=VARCHAR},
+                        #{item.colType, jdbcType=VARCHAR},
+                        #{item.status, jdbcType=VARCHAR},
+                        #{item.remark, jdbcType=VARCHAR},
+                        #{item.colSelectKey, jdbcType=VARCHAR},
+                        #{item.menuId, jdbcType=BIGINT},
+                        #{item.sortNum, jdbcType=INTEGER},
+                        #{item.loginUserId, jdbcType=BIGINT},
+                        #{item.loginUserName, jdbcType=VARCHAR},
+                        #{item.now}
+                    )
+        </foreach>
+        SELECT 1 FROM DUAL
     </insert>
-    <!-- 修改 -->
-    <update id="update" parameterType="com.yy.ppm.master.bean.dto.TSettingAdSearchDTO">
-        UPDATE
-        T_SETTING_AD_SEARCH
-        SET
-        ID = #{id,jdbcType=VARCHAR},
-        TABLE_ID = #{tableId,jdbcType=VARCHAR},
-        COL_KEY = #{colKey,jdbcType=VARCHAR},
-        COL_LABEL = #{colLabel,jdbcType=VARCHAR},
-        COL_TYPE = #{colType,jdbcType=VARCHAR},
-        STATUS = #{status,jdbcType=VARCHAR},
-        REMARK = #{remark,jdbcType=VARCHAR},
-        COL_SELECT_KEY = #{colSelectKey,jdbcType=VARCHAR},
-        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
-        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
-        UPDATE_TIME = #{now}
-        <where>
-            id = #{id}
-        </where>
-    </update>
 
-    <!-- 删除 -->
-    <delete id="deleteById" parameterType="java.lang.Long">
+    <delete id="deleteByMenuIdAndTableId">
         DELETE FROM
             T_SETTING_AD_SEARCH
         WHERE
-            id = #{id}
+            menu_id = #{menuId}
+            and table_id = #{tableId}
     </delete>
 </mapper>
 

@@ -36,18 +36,13 @@ public interface TSettingAdSearchMapper {
 
  /**
   * 根据id获取高級查詢配置表
-  * @param id 主键
+  * @param menuId 页面id
+  * @param tableId 前端table的ID
   * @return
   */
- public TSettingAdSearchDTO getById(Long id);
+ public TSettingAdSearchDTO getByMenuIdAndTableId(@Param("menuId") Long menuId, @Param("tableId") String tableId);
 
- /**
-  * 新增高級查詢配置表
-  * @param tSettingAdSearchDTO
-  * @return
-  */
- @Edit
- public int insert(TSettingAdSearchDTO tSettingAdSearchDTO);
+
 
  /**
   * 修改高級查詢配置表
@@ -64,5 +59,15 @@ public interface TSettingAdSearchMapper {
   * @return
   */
  public int deleteById(Long id);
+
+ /**
+  * 新增高級查詢配置表
+  * @param
+  * @return
+  */
+ void insertBatch(List<TSettingAdSearchDTO> tSettingAdSearchDTOList);
+
+
+ void deleteByMenuIdAndTableId(@Param("menuId") Long menuId, @Param("tableId") String tableId);
 }
 

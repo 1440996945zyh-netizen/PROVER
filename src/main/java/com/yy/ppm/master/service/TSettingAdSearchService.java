@@ -6,7 +6,9 @@ import com.yy.common.page.Pages;
 import com.yy.ppm.master.bean.dto.TSettingAdSearchDTO;
 import com.yy.ppm.master.bean.dto.TSettingAdSearchSearchDTO;
 
- /**
+import java.util.List;
+
+/**
  * @ClassName 高級查詢配置表(TSettingAdSearch)Service
  * @author zws
  * @version 1.0.0
@@ -26,10 +28,10 @@ public interface TSettingAdSearchService {
      /**
       * 查询单条记录
       *
-      * @param id
+      * @param menuId,tableId
       * @return 实体
       */
-     public TSettingAdSearchDTO getDetail(Long id);
+     public TSettingAdSearchDTO getDetail(Long menuId,String tableId);
 
     /**
      * 保存
@@ -39,13 +41,6 @@ public interface TSettingAdSearchService {
      */
     public boolean doSave(TSettingAdSearchDTO tSettingAdSearchDTO);
 
-    /**
-     * 删除
-     *
-     * @param id
-     * @return 是否成功
-     */
-    public boolean deleteById(Long id);
 
-}
+ }
 

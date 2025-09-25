@@ -15,8 +15,10 @@ import org.springframework.stereotype.Service;
 
 import cn.hutool.core.lang.Snowflake;
 
+import java.util.List;
 
- /**
+
+/**
  * @ClassName 高級查詢配置表(TSettingAdSearch)ServiceImpl
  * @author zws
  * @version 1.0.0
@@ -54,12 +56,12 @@ public class TSettingAdSearchServiceImpl implements TSettingAdSearchService {
     /**
       * 查询单条记录
       *
-      * @param id
+      * @param menuId,tableId
       * @return 实体
       */
      @Override
-     public TSettingAdSearchDTO getDetail(Long id) {
-         return tSettingAdSearchMapper.getById(id);
+     public TSettingAdSearchDTO getDetail(Long menuId,String tableId) {
+         return tSettingAdSearchMapper.getByMenuIdAndTableId(menuId,tableId);
      }
 
     /**
@@ -71,30 +73,22 @@ public class TSettingAdSearchServiceImpl implements TSettingAdSearchService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean doSave(TSettingAdSearchDTO dto) {
-
-        // 新增
-        if (dto.getId() == null) {
-            dto.setId(snowflake.nextId());
-            return tSettingAdSearchMapper.insert(dto) == 1;
-
-            // 修改
-        } else {
-            return tSettingAdSearchMapper.update(dto) == 1;
+        int count = 1;
+        // 新增(此处无法验重，无法控制menuId和tableId的重复)
+        //先删后插
+        tSettingAdSearchMapper.deleteByMenuIdAndTableId(dto.getMenuId(), dto.getTableId());
+        for (TSettingAdSearchDTO tSettingAdSearchDTO : dto.getTSettingAdSearchDTOList()) {
+            tSettingAdSearchDTO.setId(snowflake.nextId());
+            tSettingAdSearchDTO.setMenuId(dto.getMenuId());
+            tSettingAdSearchDTO.setTableId(dto.getTableId());
+            tSettingAdSearchDTO.setSortNum(count++);
         }
+        tSettingAdSearchMapper.insertBatch(dto.getTSettingAdSearchDTOList());
 
+        return count > 1 ;
     }
 
-    /**
-     * 删除
-     *
-     * @param  id
-     * @return 是否成功
-     */
-    @Override
-    public boolean deleteById(Long id) {
 
-        return tSettingAdSearchMapper.deleteById(id) == 1;
 
-    }
 }
 
