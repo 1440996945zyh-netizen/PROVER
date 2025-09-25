@@ -115,7 +115,6 @@
         UPDATE
         T_SETTING_AD_SEARCH
         SET
-        ID = #{id,jdbcType=VARCHAR},
         TABLE_ID = #{tableId,jdbcType=VARCHAR},
         COL_KEY = #{colKey,jdbcType=VARCHAR},
         COL_LABEL = #{colLabel,jdbcType=VARCHAR},
