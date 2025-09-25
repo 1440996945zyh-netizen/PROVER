@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.master.mapper.TSettingAdSearchMapper">
+
+    <sql id="commonList">
+        SELECT
+        ID,
+        TABLE_ID,
+        COL_KEY,
+        COL_LABEL,
+        COL_TYPE,
+        STATUS,
+        REMARK,
+        COL_SELECT_KEY,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME
+
+        FROM
+        T_SETTING_AD_SEARCH
+        <where>
+            <if test="id != null">
+                and ID = #{id}
+            </if>
+            <if test="tableId != null and tableId != ''">
+                and TABLE_ID = #{tableId}
+            </if>
+            <if test="colKey != null and colKey != ''">
+                and COL_KEY = #{colKey}
+            </if>
+            <if test="colLabel != null and colLabel != ''">
+                and COL_LABEL = #{colLabel}
+            </if>
+            <if test="colType != null and colType != ''">
+                and COL_TYPE = #{colType}
+            </if>
+            <if test="status != null and status != ''">
+                and STATUS = #{status}
+            </if>
+            <if test="remark != null and remark != ''">
+                and REMARK = #{remark}
+            </if>
+            <if test="colSelectKey != null and colSelectKey != ''">
+                and COL_SELECT_KEY = #{colSelectKey}
+            </if>
+        </where>
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.master.bean.dto.TSettingAdSearchDTO" parameterType="com.yy.ppm.master.bean.dto.TSettingAdSearchSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.master.bean.dto.TSettingAdSearchDTO" parameterType="com.yy.ppm.master.bean.dto.TSettingAdSearchSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.master.bean.dto.TSettingAdSearchDTO" parameterType="java.lang.Long">
+        SELECT
+        ID,
+        TABLE_ID,
+        COL_KEY,
+        COL_LABEL,
+        COL_TYPE,
+        STATUS,
+        REMARK,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME,
+        COL_SELECT_KEY
+        FROM
+        T_SETTING_AD_SEARCH
+        <where>
+            id = #{id}
+        </where>
+    </select>
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.master.bean.dto.TSettingAdSearchDTO">
+        INSERT INTO T_SETTING_AD_SEARCH(
+            ID,
+            TABLE_ID,
+            COL_KEY,
+            COL_LABEL,
+            COL_TYPE,
+            STATUS,
+            REMARK,
+            COL_SELECT_KEY,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )VALUES (
+                    #{id, jdbcType=VARCHAR},
+                    #{tableId, jdbcType=VARCHAR},
+                    #{colKey, jdbcType=VARCHAR},
+                    #{colLabel, jdbcType=VARCHAR},
+                    #{colType, jdbcType=VARCHAR},
+                    #{status, jdbcType=VARCHAR},
+                    #{remark, jdbcType=VARCHAR},
+                    #{colSelectKey, jdbcType=VARCHAR},
+                    #{loginUserId, jdbcType=BIGINT},
+                    #{loginUserName, jdbcType=VARCHAR},
+                    #{now}
+                )
+    </insert>
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.master.bean.dto.TSettingAdSearchDTO">
+        UPDATE
+        T_SETTING_AD_SEARCH
+        SET
+        ID = #{id,jdbcType=VARCHAR},
+        TABLE_ID = #{tableId,jdbcType=VARCHAR},
+        COL_KEY = #{colKey,jdbcType=VARCHAR},
+        COL_LABEL = #{colLabel,jdbcType=VARCHAR},
+        COL_TYPE = #{colType,jdbcType=VARCHAR},
+        STATUS = #{status,jdbcType=VARCHAR},
+        REMARK = #{remark,jdbcType=VARCHAR},
+        COL_SELECT_KEY = #{colSelectKey,jdbcType=VARCHAR},
+        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        UPDATE_TIME = #{now}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM
+            T_SETTING_AD_SEARCH
+        WHERE
+            id = #{id}
+    </delete>
+</mapper>
+
