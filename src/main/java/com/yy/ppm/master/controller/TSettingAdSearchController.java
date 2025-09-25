@@ -11,6 +11,7 @@ import com.yy.ppm.master.bean.dto.TSettingAdSearchSearchDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -51,15 +52,14 @@ public class TSettingAdSearchController {
 
     /**
      * 查询单条记录
-     * @param id
+     * @param menuId,tableId
      * @return
      */
     @GetMapping("/getDetail")
-    public Map<String, Object> getDetail(@RequestParam("id") Long id) {
+    public Map<String, Object> getDetail(@RequestParam("menuId") Long menuId,@RequestParam("tableId") String tableId) {
         final String methodName = "TSettingAdSearchController:getDetail";
-		LOGGER.enter(methodName + "[start]", "id:" + id);
 
-        TSettingAdSearchDTO result = tSettingAdSearchService.getDetail(id);
+        TSettingAdSearchDTO result = tSettingAdSearchService.getDetail(menuId,tableId);
 
         LOGGER.exit( methodName + "result:" + result);
 
@@ -68,15 +68,15 @@ public class TSettingAdSearchController {
 
     /**
      * 新建
-     * @param tSettingAdSearchDTO
+     * @param dto
      * @return
      */
     @PostMapping("/add")
-    public Map<String, Object> add(@RequestBody TSettingAdSearchDTO tSettingAdSearchDTO) {
+    public Map<String, Object> add(@RequestBody TSettingAdSearchDTO dto) {
         final String methodName = "TSettingAdSearchController:add";
-		LOGGER.enter(methodName + "[start]", "tSettingAdSearchDTO:" +  tSettingAdSearchDTO);
+		LOGGER.enter(methodName + "[start]", "tSettingAdSearchDTO:" +  dto);
 
-        boolean flag = tSettingAdSearchService.doSave(tSettingAdSearchDTO);
+        boolean flag = tSettingAdSearchService.doSave(dto);
 
         LOGGER.exit(methodName);
 
@@ -99,23 +99,6 @@ public class TSettingAdSearchController {
         LOGGER.exit(methodName);
 
         return Response.SUCCESS.newBuilder().out(flag ? "修改成功" : "修改失败").toResult();
-    }
-
-    /**
-     * 删除
-     * @param id
-     * @return
-     */
-    @DeleteMapping("/delete")
-    public Map<String, Object> deleteById(@RequestParam("id") Long id) {
-        final String methodName = "TSettingAdSearchController:deleteById";
-		LOGGER.enter(methodName + "[start]", "id:" + id);
-
-        boolean flag = tSettingAdSearchService.deleteById(id);
-
-        LOGGER.exit(methodName);
-
-        return Response.SUCCESS.newBuilder().out(flag ? "删除成功" : "删除失败").toResult();
     }
 
 }

@@ -38,6 +38,10 @@ public class TSettingAdSearchPO extends BasePO implements Serializable {
     private String remark;
     /** 当列为下拉框时，对应的接口KEY */
     private String colSelectKey;
+    /**页面id*/
+    private Long menuId;
+    /** 排序号*/
+    private Integer sortNum;
 
 }
 
