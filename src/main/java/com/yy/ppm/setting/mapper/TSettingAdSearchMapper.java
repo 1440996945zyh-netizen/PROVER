@@ -45,26 +45,11 @@ public interface TSettingAdSearchMapper {
 
 
  /**
-  * 修改高級查詢配置表
-  * @param tSettingAdSearchDTO
-  * @return
-  */
- @Edit
- public int update(TSettingAdSearchDTO tSettingAdSearchDTO);
-
-
- /**
-  * 根据id删除高級查詢配置表
-  * @param id 主键
-  * @return
-  */
- public int deleteById(Long id);
-
- /**
   * 新增高級查詢配置表
   * @param
   * @return
   */
+ @Edit
  void insertBatch(List<TSettingAdSearchDTO> tSettingAdSearchDTOList);
 
 
