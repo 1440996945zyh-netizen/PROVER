@@ -724,18 +724,6 @@
                 <profileActive>prd</profileActive>
             </properties>
         </profile>
-        <profile>
-            <id>mysql</id>
-            <properties>
-                <profileActive>mysql</profileActive>
-            </properties>
-        </profile>
-        <profile>
-            <id>oracle</id>
-            <properties>
-                <profileActive>oracle</profileActive>
-            </properties>
-        </profile>
 
     </profiles>
 </project>
