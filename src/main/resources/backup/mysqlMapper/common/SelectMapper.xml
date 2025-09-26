@@ -6,10 +6,10 @@
     <select id="getRemoteSelect" resultType="java.util.Map">
         <if test="'' != search.labelContent and null != search.labelContent" >
             SELECT
-                ${valueName} as "value",
-                ${labelName} as "label"
+            ${valueName} as "value",
+            ${labelName} as "label"
             FROM
-                ${tableName}
+            ${tableName}
             <where>
                 <if test="null != search.labelContent and '' != search.labelContent">
                     and ${labelName} like '%' || #{search.labelContent} || '%'
@@ -24,30 +24,30 @@
         </if>
         <if test="null != search.valueContentList and search.valueContentList.size() > 0">
             SELECT
-                ${valueName} as "value",
-                ${labelName} as "label"
+            ${valueName} as "value",
+            ${labelName} as "label"
             FROM
-                ${tableName}
+            ${tableName}
             where
-                ${valueName}
-                <foreach collection="search.valueContentList" item="item" open="in ( " separator="," close=")">
-                    #{item}
-                </foreach>
+            ${valueName}
+            <foreach collection="search.valueContentList" item="item" open="in ( " separator="," close=")">
+                #{item}
+            </foreach>
         </if>
     </select>
 
     <!-- 获取本地下拉框数据源 -->
     <select id="getLocalSelect" resultType="java.util.Map">
         SELECT
-            ${valueName} as "value",
-            ${labelName} as "label"
+        ${valueName} as "value",
+        ${labelName} as "label"
         FROM
-            ${tableName}
+        ${tableName}
         WHERE
-            1=1
-            <if test="other != null and other !=''">
-                and ${other}
-            </if>
+        1=1
+        <if test="other != null and other !=''">
+            and ${other}
+        </if>
         ORDER BY "label" ASC
     </select>
 
@@ -56,22 +56,22 @@
 
         <if test="'' != search.labelContent and null != search.labelContent" >
             SELECT
-                T1.ID AS "value",
-                T1.SHIP_NAME as "label",
-                T1.TOTAL_WEIGHT as "totalWeight",
-                T1.NET_WEIGHT as "netWeight",
-                T1.SHIP_WIDTH as "shipWidth",
-                T1.DWT as "dwt",
-                T1.FULL_LOAD_WATER as "fullLoadWater",
-                T1.EMPTY_LOAD_WATER	as "emptyLoadWater",
-                T1.SHIP_LENGTH as "shipLength",
-                T1.CAPTAIN_PHONE as "captainPhone",
-                T1.IMO as "imo",
-                T1.CALL_NO as "callNo"
+            T1.ID AS "value",
+            T1.SHIP_NAME as "label",
+            T1.TOTAL_WEIGHT as "totalWeight",
+            T1.NET_WEIGHT as "netWeight",
+            T1.SHIP_WIDTH as "shipWidth",
+            T1.DWT as "dwt",
+            T1.FULL_LOAD_WATER as "fullLoadWater",
+            T1.EMPTY_LOAD_WATER	as "emptyLoadWater",
+            T1.SHIP_LENGTH as "shipLength",
+            T1.CAPTAIN_PHONE as "captainPhone",
+            T1.IMO as "imo",
+            T1.CALL_NO as "callNo"
             FROM
-                M_SHIP T1
+            M_SHIP T1
             WHERE
-                1=1
+            1=1
             <if test="null != search.labelContent and '' != search.labelContent">
                 <bind name="labelContent" value="'%' + search.labelContent + '%'"/>
                 and (FUNC_SHIP_NAME_REPLACE(T1.SHIP_NAME) like #{labelContent} OR T1.SHIP_NAME_EN LIKE #{labelContent} OR T1.SHORTHAND_CODE LIKE #{labelContent} )
@@ -85,22 +85,22 @@
         </if>
         <if test="null != search.valueContentList and search.valueContentList.size() > 0">
             SELECT
-                T1.ID AS "value",
-                T1.SHIP_NAME as "label",
-                T1.TOTAL_WEIGHT as "totalWeight",
-                T1.SHIP_WIDTH as "shipWidth",
-                T1.NET_WEIGHT as "netWeight",
-                T1.DWT as "dwt",
-                T1.FULL_LOAD_WATER as "fullLoadWater",
-                T1.EMPTY_LOAD_WATER	as "emptyLoadWater",
-                T1.SHIP_LENGTH as "shipLength",
-                T1.CAPTAIN_PHONE as "captainPhone",
-                T1.IMO as "imo",
-                T1.CALL_NO as "callNo"
+            T1.ID AS "value",
+            T1.SHIP_NAME as "label",
+            T1.TOTAL_WEIGHT as "totalWeight",
+            T1.SHIP_WIDTH as "shipWidth",
+            T1.NET_WEIGHT as "netWeight",
+            T1.DWT as "dwt",
+            T1.FULL_LOAD_WATER as "fullLoadWater",
+            T1.EMPTY_LOAD_WATER	as "emptyLoadWater",
+            T1.SHIP_LENGTH as "shipLength",
+            T1.CAPTAIN_PHONE as "captainPhone",
+            T1.IMO as "imo",
+            T1.CALL_NO as "callNo"
             FROM
             M_SHIP T1
             where
-                T1.ID
+            T1.ID
             <foreach collection="search.valueContentList" item="item" open="in ( " separator="," close=")">
                 #{item}
             </foreach>
@@ -129,77 +129,77 @@
     <select id="getVoyageList" resultType="java.util.Map">
         <if test="'' != search.labelContent and null != search.labelContent" >
             SELECT
-                T1.ID AS "shipvoyageId",
-                T2.ID AS "value",
-                CONCAT(CONCAT(T1.SHIP_NAME, '_') , T2.VOYAGE) as "label",
-                T2.CARGO_CATEGORY_NAME as "cargoCategoryName",
-                T2.CUSTOMER_NAME as "shipAgentName",
-                T1.START_PORT_NAME as "startPortName",
-                T1.END_PORT_NAME as "endPortName",
-                TO_CHAR(T1.ARRIVAL_TIME_PLAN, 'YYYY-MM-DD') as "arrivalTimePlan",
-                T1.SCN as "scn",
-                T1.SHIP_NAME as "shipName",
-                T2.VOYAGE as "voyage",
-                T2.LOAD_UNLOAD as "loadUnload",
-                T2.CARGO_CATEGORY_CODE as "cargoCategoryCode",
-                T2.CARGO_CATEGORY_NAME as "cargoCategoryName",
-                CARGO_NUM as "cargoNum"
+            T1.ID AS "shipvoyageId",
+            T2.ID AS "value",
+            CONCAT(CONCAT(T1.SHIP_NAME, '_') , T2.VOYAGE) as "label",
+            T2.CARGO_CATEGORY_NAME as "cargoCategoryName",
+            T2.CUSTOMER_NAME as "shipAgentName",
+            T1.START_PORT_NAME as "startPortName",
+            T1.END_PORT_NAME as "endPortName",
+            TO_CHAR(T1.ARRIVAL_TIME_PLAN, 'YYYY-MM-DD') as "arrivalTimePlan",
+            T1.SCN as "scn",
+            T1.SHIP_NAME as "shipName",
+            T2.VOYAGE as "voyage",
+            T2.LOAD_UNLOAD as "loadUnload",
+            T2.CARGO_CATEGORY_CODE as "cargoCategoryCode",
+            T2.CARGO_CATEGORY_NAME as "cargoCategoryName",
+            CARGO_NUM as "cargoNum"
             FROM
-                T_DIS_SHIPVOYAGE T1 JOIN
-                T_DIS_SHIPVOYAGE_ITEM T2 ON T1.ID = T2.SHIPVOYAGE_ID
+            T_DIS_SHIPVOYAGE T1 JOIN
+            T_DIS_SHIPVOYAGE_ITEM T2 ON T1.ID = T2.SHIPVOYAGE_ID
             WHERE
-                1=1
-                <if test="null != search.labelContent and '' != search.labelContent">
-                    <bind name="labelContent" value="'%' + search.labelContent + '%'"/>
-                    and (T1.SHIP_NAME like #{labelContent} OR T2.VOYAGE LIKE #{labelContent} OR CONCAT( CONCAT( T1.SHIP_NAME, '_' ), T2.VOYAGE ) LIKE #{labelContent})
-                </if>
-                <if test="null != search.number and 0 != search.number">
-                    and rownum &lt;= #{search.number}
-                </if>
+            1=1
+            <if test="null != search.labelContent and '' != search.labelContent">
+                <bind name="labelContent" value="'%' + search.labelContent + '%'"/>
+                and (T1.SHIP_NAME like #{labelContent} OR T2.VOYAGE LIKE #{labelContent} OR CONCAT( CONCAT( T1.SHIP_NAME, '_' ), T2.VOYAGE ) LIKE #{labelContent})
+            </if>
+            <if test="null != search.number and 0 != search.number">
+                and rownum &lt;= #{search.number}
+            </if>
         </if>
         <if test="null != search.valueContentList and search.valueContentList.size() > 0 and '' != search.labelContent and null != search.labelContent">
             UNION
         </if>
         <if test="null != search.valueContentList and search.valueContentList.size() > 0">
             SELECT
-                T1.ID AS "shipvoyageId",
-                T2.ID AS "value",
-                CONCAT(CONCAT(T1.SHIP_NAME, '_') , T2.VOYAGE) as "label",
-                T2.CARGO_CATEGORY_NAME as "cargoCategoryName",
-                T2.CUSTOMER_NAME as "shipAgentName",
-                T1.START_PORT_NAME as "startPortName",
-                T1.END_PORT_NAME as "endPortName",
-                TO_CHAR(T1.ARRIVAL_TIME_PLAN, 'YYYY-MM-DD') as "arrivalTimePlan",
-                T1.SCN as "scn",
-                T1.SHIP_NAME as "shipName",
-                T2.VOYAGE as "voyage",
-                T2.LOAD_UNLOAD as "loadUnload",
-                T2.CARGO_CATEGORY_CODE as "cargoCategoryCode",
-                T2.CARGO_CATEGORY_NAME as "cargoCategoryName",
-                CARGO_NUM as "cargoNum"
+            T1.ID AS "shipvoyageId",
+            T2.ID AS "value",
+            CONCAT(CONCAT(T1.SHIP_NAME, '_') , T2.VOYAGE) as "label",
+            T2.CARGO_CATEGORY_NAME as "cargoCategoryName",
+            T2.CUSTOMER_NAME as "shipAgentName",
+            T1.START_PORT_NAME as "startPortName",
+            T1.END_PORT_NAME as "endPortName",
+            TO_CHAR(T1.ARRIVAL_TIME_PLAN, 'YYYY-MM-DD') as "arrivalTimePlan",
+            T1.SCN as "scn",
+            T1.SHIP_NAME as "shipName",
+            T2.VOYAGE as "voyage",
+            T2.LOAD_UNLOAD as "loadUnload",
+            T2.CARGO_CATEGORY_CODE as "cargoCategoryCode",
+            T2.CARGO_CATEGORY_NAME as "cargoCategoryName",
+            CARGO_NUM as "cargoNum"
             FROM
-                T_DIS_SHIPVOYAGE T1 JOIN
-                T_DIS_SHIPVOYAGE_ITEM T2 ON T1.ID = T2.SHIPVOYAGE_ID
+            T_DIS_SHIPVOYAGE T1 JOIN
+            T_DIS_SHIPVOYAGE_ITEM T2 ON T1.ID = T2.SHIPVOYAGE_ID
             where
-                T2.ID
-                <foreach collection="search.valueContentList" item="item" open="in ( " separator="," close=")">
-                    #{item}
-                </foreach>
+            T2.ID
+            <foreach collection="search.valueContentList" item="item" open="in ( " separator="," close=")">
+                #{item}
+            </foreach>
         </if>
     </select>
 
 
     <select id="getCityList" resultType="java.util.HashMap">
         SELECT
-            <if test="parent == null or parent ==''">
-                PROVINCE_CODE as "value",
-            </if>
-            <if test="parent != null and parent !=''">
-                CITY_CODE as "value",
-            </if>
-            NAME as "label"
+        <if test="parent == null or parent ==''">
+            PROVINCE_CODE as "value",
+        </if>
+        <if test="parent != null and parent !=''">
+            CITY_CODE as "value",
+        </if>
+        NAME as "label"
         FROM
-            M_CITY
+        M_CITY
         WHERE
         <if test="parent != null and parent !=''">
             PROVINCE_CODE = #{provinceCode}
@@ -212,19 +212,19 @@
 
     <select id="getMainWorkProcessList" resultType="java.util.Map">
         SELECT
-            PROCESS_CD as "value",
-            PROCESS_NM as "label",
-            SOURCE_CD as "sourceCode",
-            TARGET_CD as "targetCode",
-            PLAN_TYPE_CD as "planTypeCd",
-            PROCESS_TYPE_CD as "processTypeCd"
+        PROCESS_CD as "value",
+        PROCESS_NM as "label",
+        SOURCE_CD as "sourceCode",
+        TARGET_CD as "targetCode",
+        PLAN_TYPE_CD as "planTypeCd",
+        PROCESS_TYPE_CD as "processTypeCd"
         FROM
-            M_WORK_PROCESS
+        M_WORK_PROCESS
         WHERE
-             PARENT_ID = '-1'
-            <if test="planTypeCode != null and planTypeCode !=''">
-                AND PLAN_TYPE_CD = #{planTypeCode}
-            </if>
+        PARENT_ID = '-1'
+        <if test="planTypeCode != null and planTypeCode !=''">
+            AND PLAN_TYPE_CD = #{planTypeCode}
+        </if>
     </select>
 
     <!-- 按角色查询人员 -->
@@ -234,7 +234,7 @@
             S1.USER_NAME as "label"
         from
             SYS_USER S1 JOIN SYS_ROLE_USER S2 ON S1.ID = S2.USER_ID
-            JOIN SYS_ROLE S3 ON S2.ROLE_ID = S3.ID
+                        JOIN SYS_ROLE S3 ON S2.ROLE_ID = S3.ID
         where
             ROLE_CODE = #{role} OR ROLE_NAME = #{role}
         order by S1.SORT_NUM
@@ -271,7 +271,7 @@
             SYS_DEPT S1
         where
             S1.DEPT_LEVEL = #{deptLevel}
-            AND S1.DEPT_NO LIKE CONCAT((SELECT DEPT_NO FROM SYS_DEPT WHERE ID = #{deptId}), '%')
+          AND S1.DEPT_NO LIKE CONCAT((SELECT DEPT_NO FROM SYS_DEPT WHERE ID = #{deptId}), '%')
         order by S1.ORDER_NO
     </select>
 

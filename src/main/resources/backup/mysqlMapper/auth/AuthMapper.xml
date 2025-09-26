@@ -79,7 +79,7 @@
             AND E.ROLE_CODE = #{roleCd}
     </select>
 
-    <!-- 登录：适配Oracle大小写敏感问题，添加UPPER函数保持与MySQL原行为一致 -->
+    <!-- 登录 -->
     <select id="getUserInfoByAccount" resultType="com.yy.ppm.auth.bean.dto.UserInfo">
        select
             a.ID,
@@ -104,7 +104,7 @@
         from
             sys_user a left join sys_dept b on a.dept_id = b.id
         where
-            UPPER(a.USER_ACCOUNT) = UPPER(#{account})
+            a.USER_ACCOUNT = #{account}
     </select>
     <select id="getRoleMenuByRoleId" resultType="java.lang.String">
         SELECT

@@ -70,10 +70,10 @@ spring:
           # 2. 新增：配置Quartz数据源（masterDataSource）的连接信息（与你的master数据源一致）
           dataSource:
             masterDataSource:
-              driver: com.mysql.cj.jdbc.Driver # 与master的driver-class-name一致
-              URL: jdbc:mysql://123.207.147.75:3306/yy_framework?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true # 与master的url一致
-              user: root # 与master的username一致
-              password: rever168 # 与master的password一致
+              driver: oracle.jdbc.OracleDriver # 与master的driver-class-name一致
+              URL: jdbc:oracle:thin:@//42.120.10.45:1521/ORCL # 与master的url一致
+              user: FRAMEWORK   # 与master的username一致
+              password: Rever168  # 与master的password一致
               maxConnections: 30 # 数据源最大连接数（建议与Druid的maxActive匹配，你的Druid是128，这里可设30-50）
           scheduler:
             instanceName: BusinessScheduler
@@ -141,12 +141,12 @@ spring:
             enabled: true  # 启用监听
 #mybatis-plus
 mybatis-plus:
-  mapper-locations: classpath*:mapper/oracleMapper/**/*Mapper.xml  # Oracle 专属 Mapper 路径
-  typeAliasesPackage: com.yy.ppm.**.model  # 实体类别名扫描路径（保持不变）
+  mapper-locations: classpath*:mapper/**/*Mapper.xml
+  typeAliasesPackage: com.yy.ppm.*.bean.* # 实体类别名扫描路径（保持不变）
   configuration:
     mapUnderscoreToCamelCase: true  # 下划线转驼峰（保持不变）
-    call-setters-on-nulls: true
-    jdbc-type-for-null: 'null'
+    call-setters-on-nulls: true  # 空值返回字段（保持不变）
+    jdbc-type-for-null: 'null'  # 空值的 JDBC 类型（保持不变）
 
 #cros
 cros:

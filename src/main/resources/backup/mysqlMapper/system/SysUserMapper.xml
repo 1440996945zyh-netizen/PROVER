@@ -15,7 +15,7 @@
             u.MOBILE,
             u.EMAIL,
             u.STATUS,
-            CASE u.STATUS WHEN 1 THEN '在用' ELSE '停用' END AS STATUS_LABEL,
+            CASE u.STATUS WHEN '1' THEN '在用' ELSE '停用' END AS STATUS_LABEL,
             u.REMARK,
             u.PSD_UPD_DATE,
             u.SORT_NUM,
@@ -25,12 +25,11 @@
             u.POST_NAME,
             u.UNIT_TYPE_CODE,
             u.UNIT_TYPE_NAME,
-            u.IS_LABOR,
             d.DEPT_NAME
         FROM
             SYS_USER u JOIN SYS_DEPT d ON u.DEPT_ID = d.ID
         <where>
-            u.IS_LABOR = #{isLabor,jdbcType=VARCHAR}
+            u.IS_LABOR = #{isLabor}
             <if test="userAccount != null and userAccount != ''">
                 <bind name="userAccount" value="'%' + userAccount + '%'"/>
                 AND (u.USER_ACCOUNT LIKE  #{userAccount,jdbcType=VARCHAR})
@@ -48,6 +47,8 @@
             <if test="isSuperadmin != null and isSuperadmin != ''">
                 AND u.IS_SUPERADMIN = #{isSuperadmin}
             </if>
+--             <!-- 数据范围过滤 -->
+--             ${params.dataScope}
         </where>
         ORDER BY
             u.SORT_NUM
@@ -77,7 +78,7 @@
         FROM
             SYS_USER A
         <where>
-            a.ID = #{id,jdbcType=BIGINT}
+            a.ID = #{id}
         </where>
     </select>
 
@@ -177,7 +178,7 @@
             update_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
             UPDATE_TIME = #{now}
         where
-            ID = #{id,jdbcType=BIGINT}
+            ID = #{id}
     </update>
 
     <!-- 修改 -->

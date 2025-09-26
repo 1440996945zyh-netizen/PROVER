@@ -5,318 +5,347 @@
     <!-- 根据id查询数据 -->
     <select id="getDetailById" resultType="com.yy.ppm.system.bean.dto.SysMenuDTO" parameterType="java.lang.Long">
         SELECT
-        id,
-        menu_name,
-        parent_id,
-        order_num,
-        path,
-        component,
-        query,
-        is_frame,
-        link,
-        is_cache,
-        menu_type,
-        visible,
-        status,
-        perms,
-        icon,
-        create_by,
+        ID,
+        MENU_NAME,
+        PARENT_ID,
+        ORDER_NUM,
+        PATH,
+        COMPONENT,
+        QUERY,
+        IS_FRAME,
+        LINK,
+        IS_CACHE,
+        MENU_TYPE,
+        VISIBLE,
+        STATUS,
+        PERMS,
+        ICON,
+        CREATE_BY,
         create_by_name,
-        create_time,
-        update_by,
-        update_by_name,
-        update_time,
-        remark,
-        menu_icon_color,
-        data_type
+        CREATE_TIME,
+        UPDATE_BY,
+        update_BY_NAME,
+        UPDATE_TIME,
+        REMARK,
+        MENU_ICON_COLOR,
+        DATA_TYPE
         FROM
-        sys_menu
+            SYS_MENU
         <where>
-            id = #{id}
+            ID = #{id}
         </where>
     </select>
 
     <!-- 新增 -->
     <insert id="insert" parameterType="com.yy.ppm.system.bean.dto.SysMenuDTO">
-        INSERT INTO sys_menu (
-            id,
-            menu_name,
-            parent_id,
-            order_num,
-            path,
-            component,
-            query,
-            is_frame,
-            is_cache,
-            menu_type,
-            visible,
-            status,
-            perms,
-            icon,
-            create_by,
+        INSERT INTO sys_menu(
+            ID,
+            MENU_NAME,
+            PARENT_ID,
+            ORDER_NUM,
+            PATH,
+            COMPONENT,
+            QUERY,
+            IS_FRAME,
+            IS_CACHE,
+            MENU_TYPE,
+            VISIBLE,
+            STATUS,
+            PERMS,
+            ICON,
+            CREATE_BY,
             create_by_name,
-            create_time,
-            remark,
-            menu_icon_color,
-            data_type,
-            link
-        ) VALUES (
-                     #{id},
-                     #{menuName, jdbcType=VARCHAR},
-                     #{parentId, jdbcType=BIGINT},
-                     #{orderNum, jdbcType=BIGINT},
-                     #{path, jdbcType=VARCHAR},
-                     #{component, jdbcType=VARCHAR},
-                     #{query, jdbcType=VARCHAR},
-                     #{isFrame, jdbcType=BIGINT},
-                     #{isCache, jdbcType=BIGINT},
-                     #{menuType, jdbcType=VARCHAR},
-                     #{visible, jdbcType=VARCHAR},
-                     #{status, jdbcType=VARCHAR},
-                     #{perms, jdbcType=VARCHAR},
-                     #{icon, jdbcType=VARCHAR},
-                     #{loginUserId},
-                     #{loginUserName},
-                     #{now},
-                     #{remark, jdbcType=VARCHAR},
-                     #{menuIconColor, jdbcType=VARCHAR},
-                     #{dataType, jdbcType=VARCHAR},
-                     #{link, jdbcType=VARCHAR}
-                 )
+            CREATE_TIME,
+            REMARK,
+            MENU_ICON_COLOR,
+            DATA_TYPE,
+            LINK
+        )VALUES (
+            #{id},
+            #{menuName, jdbcType=VARCHAR},
+            #{parentId, jdbcType=BIGINT},
+            #{orderNum, jdbcType=BIGINT},
+            #{path, jdbcType=VARCHAR},
+            #{component, jdbcType=VARCHAR},
+            #{query, jdbcType=VARCHAR},
+            #{isFrame, jdbcType=BIGINT},
+            #{isCache, jdbcType=BIGINT},
+            #{menuType, jdbcType=VARCHAR},
+            #{visible, jdbcType=VARCHAR},
+            #{status, jdbcType=VARCHAR},
+            #{perms, jdbcType=VARCHAR},
+            #{icon, jdbcType=VARCHAR},
+            #{loginUserId},
+            #{loginUserName},
+            #{now},
+            #{remark, jdbcType=VARCHAR},
+            #{menuIconColor, jdbcType=VARCHAR},
+            #{dataType, jdbcType=VARCHAR},
+            #{link, jdbcType=VARCHAR}
+        )
     </insert>
-
     <!-- 修改 -->
     <update id="update" parameterType="com.yy.ppm.system.bean.dto.SysMenuDTO">
         UPDATE
-        sys_menu
+            SYS_MENU
         SET
-        menu_name = #{menuName, jdbcType=VARCHAR},
-        parent_id = #{parentId, jdbcType=BIGINT},
-        order_num = #{orderNum, jdbcType=BIGINT},
-        path = #{path, jdbcType=VARCHAR},
-        component = #{component, jdbcType=VARCHAR},
-        query = #{query, jdbcType=VARCHAR},
-        is_frame = #{isFrame, jdbcType=BIGINT},
-        is_cache = #{isCache, jdbcType=BIGINT},
-        menu_type = #{menuType, jdbcType=VARCHAR},
-        visible = #{visible, jdbcType=VARCHAR},
-        status = #{status, jdbcType=VARCHAR},
-        perms = #{perms, jdbcType=VARCHAR},
-        icon = #{icon, jdbcType=VARCHAR},
-        update_by = #{loginUserId},
-        update_by_name = #{loginUserName},
-        update_time = #{now},
-        remark = #{remark, jdbcType=VARCHAR},
-        menu_icon_color = #{menuIconColor, jdbcType=VARCHAR},
-        data_type = #{dataType, jdbcType=VARCHAR},
-        link = #{link, jdbcType=VARCHAR}
+            MENU_NAME = #{menuName, jdbcType=VARCHAR},
+            PARENT_ID = #{parentId, jdbcType=BIGINT},
+            ORDER_NUM = #{orderNum, jdbcType=BIGINT},
+            PATH = #{path, jdbcType=VARCHAR},
+            COMPONENT = #{component, jdbcType=VARCHAR},
+            QUERY = #{query, jdbcType=VARCHAR},
+            IS_FRAME = #{isFrame, jdbcType=BIGINT},
+            IS_CACHE = #{isCache, jdbcType=BIGINT},
+            MENU_TYPE = #{menuType, jdbcType=VARCHAR},
+            VISIBLE = #{visible, jdbcType=VARCHAR},
+            STATUS = #{status, jdbcType=VARCHAR},
+            PERMS = #{perms, jdbcType=VARCHAR},
+            ICON = #{icon, jdbcType=VARCHAR},
+            UPDATE_BY = #{loginUserId},
+            update_BY_NAME = #{loginUserName},
+            UPDATE_TIME = #{now},
+            REMARK = #{remark, jdbcType=VARCHAR},
+            MENU_ICON_COLOR = #{menuIconColor, jdbcType=VARCHAR},
+            DATA_TYPE = #{dataType, jdbcType=VARCHAR},
+            LINK = #{link, jdbcType=VARCHAR}
         <where>
-            id = #{id}
+            ID = #{id}
         </where>
     </update>
 
-    <!-- 查询菜单列表（支持管理员与非管理员） -->
     <select id="selectMenuList" resultType="com.yy.ppm.system.bean.dto.SysMenuDTO">
+
         SELECT
-        a.id AS menu_id,
-        a.id,
-        a.menu_name,
-        a.parent_id,
-        a.order_num,
-        a.path,
-        a.component,
-        a.query,
-        a.is_frame,
-        a.is_cache,
-        a.menu_type,
-        a.visible,
-        a.status,
-        a.data_type,
-        a.menu_icon_color AS menuIconColor,
-        CASE a.status WHEN '1' THEN '正常' ELSE '停用' END AS statusLabel,
-        IFNULL(a.perms, '') AS perms,
-        a.icon,
-        a.create_time,
+        A.id as menu_id,
+        A.id,
+        A.menu_name,
+        A.parent_id,
+        A.order_num,
+        A.path,
+        A.component,
+        A.query,
+        A.is_frame,
+        A.is_cache,
+        A.menu_type,
+        A.visible,
+        A.status,
+        A.data_type,
+        A.MENU_ICON_COLOR as menuIconColor,
+        DECODE( A.status, '1', '正常', '停用') as statusLabel,
+        nvl(perms,'') as perms,
+        A.icon,
+        A.create_time,
         CASE
-        WHEN (SELECT COUNT(b.id) FROM sys_menu b WHERE b.parent_id = a.id) > 0 THEN '1'
+        WHEN (
+        SELECT
+        COUNT(B.ID)
+        FROM
+        SYS_MENU B
+        WHERE
+        B.PARENT_ID = A.ID) > 0 THEN '1'
         ELSE '0'
         END AS has_children,
-        a.link
+        A.LINK
         <if test="isAdmin == 1">
-            FROM sys_menu a
+            FROM
+            SYS_MENU A
             WHERE 1 = 1
         </if>
         <if test="isAdmin != 1">
-            FROM sys_menu a
-            INNER JOIN sys_role_menu b ON b.menu_id = a.id
-            INNER JOIN sys_role_user c ON c.role_id = b.role_id
-            WHERE c.user_id = #{userId}
+            FROM
+            SYS_MENU A,
+            SYS_ROLE_MENU B,
+            SYS_ROLE_USER C
+            where
+            C.USER_ID = #{userId}
+            AND C.ROLE_ID = B.ROLE_ID
+            AND B.MENU_ID = A.ID
         </if>
-        <if test="menuName != null and menuName != ''">
+        <if test='menuName != null and menuName !=""'>
             <bind name="menuNameLike" value="'%' + menuName + '%'"/>
-            AND a.menu_name LIKE #{menuNameLike, jdbcType=VARCHAR}
+            AND A.menu_name LIKE #{menuNameLike,jdbcType=VARCHAR}
         </if>
-        <if test="menuName == null">
-            AND a.parent_id = 0
+        <if test='menuName == null'>
+            AND A.PARENT_ID = 0
         </if>
-        <if test="status != null and status != ''">
-            AND a.status = #{status}
+        <if test='status != null and status !=""'>
+            AND A.status = #{status}
         </if>
-        ORDER BY a.parent_id, a.order_num
+        order by parent_id, order_num
     </select>
 
-    <!-- 查询APP类型菜单 -->
+
     <select id="listApp" resultType="com.yy.ppm.system.bean.dto.SysMenuDTO">
         SELECT
-            a.id AS menu_id,
-            a.menu_name,
-            a.parent_id,
-            a.order_num,
-            a.path,
-            a.component,
-            a.query,
-            a.is_frame,
-            a.is_cache,
-            a.menu_type,
-            a.visible,
-            a.status,
-            a.data_type,
-            a.icon_app,
-            CASE a.status WHEN '1' THEN '正常' ELSE '停用' END AS statusLabel,
-            IFNULL(a.perms, '') AS perms,
-            a.icon,
-            a.create_time,
-            a.link
-        FROM sys_menu a
-                 INNER JOIN sys_role_menu b ON b.menu_id = a.id
-                 INNER JOIN sys_role_user c ON c.role_id = b.role_id
-        WHERE c.user_id = #{userId}
-          AND a.data_type = 'APP'
-          AND a.status = '0'
-        ORDER BY a.parent_id, a.order_num
+        A.id as menu_id,
+        A.menu_name,
+        A.parent_id,
+        A.order_num,
+        A.path,
+        A.component,
+        A.query,
+        A.is_frame,
+        A.is_cache,
+        A.menu_type,
+        A.visible,
+        A.status,
+        A.data_type,
+        A.icon_app,
+        DECODE( A.status, '1', '正常', '停用') as statusLabel,
+        nvl(perms,'') as perms,
+        A.icon,
+        A.create_time,
+        A.LINK
+        FROM
+        SYS_MENU A,
+        SYS_ROLE_MENU B,
+        SYS_ROLE_USER C
+        where
+        C.USER_ID = #{userId}
+        AND C.ROLE_ID = B.ROLE_ID
+        AND B.MENU_ID = A.ID
+        AND A.DATA_TYPE = 'APP'
+        AND A.status =  0
+        order by parent_id, order_num
     </select>
 
-    <!-- 查询小程序类型菜单 -->
     <select id="listApplet" resultType="com.yy.ppm.system.bean.dto.SysMenuDTO">
         SELECT
-            a.id AS menu_id,
-            a.menu_name,
-            a.parent_id,
-            a.order_num,
-            a.path,
-            a.component,
-            a.query,
-            a.is_frame,
-            a.is_cache,
-            a.menu_type,
-            a.visible,
-            a.status,
-            a.data_type,
-            a.icon_app,
-            CASE a.status WHEN '1' THEN '正常' ELSE '停用' END AS statusLabel,
-            IFNULL(a.perms, '') AS perms,
-            a.icon,
-            a.create_time
-        FROM sys_menu a
-                 INNER JOIN sys_role_menu b ON b.menu_id = a.id
-                 INNER JOIN sys_role_user c ON c.role_id = b.role_id
-        WHERE c.user_id = #{userId}
-          AND a.data_type = 'APPLET'
-          AND a.status = '0'
-        ORDER BY a.parent_id, a.order_num
+        A.id as menu_id,
+        A.menu_name,
+        A.parent_id,
+        A.order_num,
+        A.path,
+        A.component,
+        A.query,
+        A.is_frame,
+        A.is_cache,
+        A.menu_type,
+        A.visible,
+        A.status,
+        A.data_type,
+        A.icon_app,
+        DECODE( A.status, '1', '正常', '停用') as statusLabel,
+        nvl(perms,'') as perms,
+        A.icon,
+        A.create_time
+        FROM
+        SYS_MENU A,
+        SYS_ROLE_MENU B,
+        SYS_ROLE_USER C
+        where
+        C.USER_ID = #{userId}
+        AND C.ROLE_ID = B.ROLE_ID
+        AND B.MENU_ID = A.ID
+        AND A.DATA_TYPE = 'APPLET'
+        AND A.status =  0
+        order by parent_id, order_num
     </select>
 
-    <!-- 获取树形选择数据 -->
     <select id="getTreeSelect" resultType="com.yy.ppm.system.bean.dto.TreeSelectDTO">
-        SELECT
-            a.id,
-            a.menu_name AS label,
-            CASE
-                WHEN (SELECT COUNT(b1.id) FROM sys_menu b1 WHERE b1.parent_id = a.id) > 0 THEN 1
-                ELSE 0
-                END AS isAlwaysShow
-        FROM sys_menu a
-        WHERE a.parent_id = #{parentId}
+        select
+                A.ID,
+               A.MENU_NAME as label,
+               CASE
+                   WHEN (SELECT COUNT(B1.ID) FROM SYS_MENU B1 WHERE B1.PARENT_ID = A.ID) > 0 THEN
+                       1
+                   ELSE
+                       0
+                   END AS isAlwaysShow
+        from SYS_MENU A
+        WHERE PARENT_ID = #{parentId}
+
     </select>
 
-    <!-- 根据父ID获取菜单信息 -->
+<!--    根据父ID获取菜单信息-->
     <select id="getByParentId" resultType="com.yy.ppm.system.bean.dto.SysMenuDTO">
         SELECT
-        a.id,
-        a.id AS menuId,
-        a.menu_name,
-        a.parent_id,
-        a.order_num,
-        a.path,
-        a.component,
-        a.query,
-        a.is_frame,
-        a.link,
-        a.is_cache,
-        a.menu_type,
-        a.visible,
-        a.status,
-        a.perms,
-        a.icon,
-        a.create_by,
-        a.create_by_name,
-        a.create_time,
-        a.update_by,
-        a.update_by_name,
-        a.update_time,
-        a.remark,
-        a.menu_icon_color,
-        a.data_type,
-        CASE a.status WHEN '1' THEN '在用' ELSE '停用' END AS status_label,
-        CASE a.menu_type WHEN 'C' THEN '菜单' WHEN 'M' THEN '目录' ELSE '按钮' END AS menu_type_label,
+        A.ID,
+        A.ID as menuId,
+        A.MENU_NAME,
+        A.PARENT_ID,
+        A.ORDER_NUM,
+        A.PATH,
+        A.COMPONENT,
+        A.QUERY,
+        A.IS_FRAME,
+        A.LINK,
+        A.IS_CACHE,
+        A.MENU_TYPE,
+        A.VISIBLE,
+        A.STATUS,
+        A.PERMS,
+        A.ICON,
+        A.CREATE_BY,
+        A.create_by_name,
+        A.CREATE_TIME,
+        A.UPDATE_BY,
+        A.update_BY_NAME,
+        A.UPDATE_TIME,
+        A.REMARK,
+        A.MENU_ICON_COLOR,
+        A.DATA_TYPE,
         CASE
-        WHEN (SELECT COUNT(b.id) FROM sys_menu b WHERE b.parent_id = a.id) > 0 THEN '1'
+        WHEN (
+        SELECT
+        COUNT(B.ID)
+        FROM
+        SYS_MENU B
+        WHERE
+        B.PARENT_ID = A.ID) > 0 THEN '1'
         ELSE '0'
-        END AS has_children
+        END AS has_children,
+        DECODE(A.STATUS, '1', '在用', '停用') STATUS_LABEL,
+        DECODE(A.MENU_TYPE, 'C', '菜单', 'M', '目录', '按钮') MENU_TYPE_LABEL
         <if test="isAdmin == 1">
-            FROM sys_menu a
-            WHERE a.parent_id = #{parentGid}
+            FROM
+            SYS_MENU A
+            WHERE PARENT_ID = #{parentGid}
         </if>
         <if test="isAdmin != 1">
-            FROM sys_menu a
-            INNER JOIN sys_role_menu b ON b.menu_id = a.id
-            INNER JOIN sys_role_user c ON c.role_id = b.role_id
-            WHERE a.parent_id = #{parentGid}
-            AND c.user_id = #{userId}
+            FROM
+            SYS_MENU A,
+            SYS_ROLE_MENU B,
+            SYS_ROLE_USER C
+            where
+            AND PARENT_ID = #{parentGid}
+            C.USER_ID = #{userId}
+            AND C.ROLE_ID = B.ROLE_ID
+            AND B.MENU_ID = A.ID
         </if>
-        ORDER BY a.order_num
+        ORDER BY
+        A.ORDER_NUM
     </select>
-
-    <!-- 获取内容类菜单（C:菜单, M:目录） -->
     <select id="getContentsMenu" resultType="com.yy.ppm.system.bean.dto.SysMenuDTO">
-        SELECT
-            a.id,
-            a.id AS menuId,
-            a.menu_name,
-            a.parent_id,
-            a.order_num,
-            a.path,
-            a.component,
-            a.query,
-            a.is_frame,
-            a.link,
-            a.is_cache,
-            a.menu_type,
-            a.visible,
-            a.status,
-            a.perms,
-            a.icon,
-            a.create_by,
-            a.create_by_name,
-            a.create_time,
-            a.update_by,
-            a.update_by_name,
-            a.update_time,
-            a.remark,
-            a.menu_icon_color,
-            a.data_type
-        FROM sys_menu a
-        WHERE a.menu_type IN ('C', 'M')
+        select
+        A.ID,
+        A.ID as menuId,
+        A.MENU_NAME,
+        A.PARENT_ID,
+        A.ORDER_NUM,
+        A.PATH,
+        A.COMPONENT,
+        A.QUERY,
+        A.IS_FRAME,
+        A.LINK,
+        A.IS_CACHE,
+        A.MENU_TYPE,
+        A.VISIBLE,
+        A.STATUS,
+        A.PERMS,
+        A.ICON,
+        A.CREATE_BY,
+        A.create_by_name,
+        A.CREATE_TIME,
+        A.UPDATE_BY,
+        A.update_BY_NAME,
+        A.UPDATE_TIME,
+        A.REMARK,
+        A.MENU_ICON_COLOR,
+        A.DATA_TYPE
+        from SYS_MENU A
+        where A.MENU_TYPE in ('C','M')
     </select>
 
 </mapper>

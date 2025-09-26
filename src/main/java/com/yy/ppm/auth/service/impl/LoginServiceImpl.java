@@ -1,7 +1,6 @@
 package com.yy.ppm.auth.service.impl;
 
 import cn.hutool.core.lang.Snowflake;
-import cn.hutool.http.useragent.Browser;
 import cn.hutool.http.useragent.UserAgent;
 import cn.hutool.http.useragent.UserAgentUtil;
 import com.yy.common.enums.CommonEnum;
@@ -21,7 +20,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import jakarta.servlet.http.HttpServletRequest;
-import java.security.spec.MGF1ParameterSpec;
 import java.util.Date;
 
 /**

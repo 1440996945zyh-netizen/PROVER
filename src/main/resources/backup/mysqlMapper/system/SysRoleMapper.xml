@@ -32,14 +32,14 @@
         <where>
             <if test="roleName != null and roleName != ''">
                 <bind name="roleNm" value="'%' + roleName + '%'"/>
-                and A.ROLE_NAME LIKE #{roleNm,jdbcType=VARCHAR}
+                and A.ROLE_NAME LIKE #{roleNm}
             </if>
             <if test="roleCode != null and roleCode != ''">
                 <bind name="roleCd" value="'%' + roleCode + '%'"/>
-                and A.ROLE_CODE LIKE #{roleCd,jdbcType=VARCHAR}
+                and A.ROLE_CODE LIKE #{roleCd}
             </if>
             <if test="status != null and status !=''">
-                and A.STATUS = #{status,jdbcType=VARCHAR}
+                and A.STATUS = #{status}
             </if>
         </where>
         order by A.ROLE_SORT
@@ -73,14 +73,14 @@
         <where>
             <if test="roleName != null and roleName != ''">
                 <bind name="roleNm" value="'%' + roleName + '%'"/>
-                and A.ROLE_NAME LIKE #{roleNm,jdbcType=VARCHAR}
+                and A.ROLE_NAME LIKE #{roleNm}
             </if>
             <if test="roleCode != null and roleCode != ''">
                 <bind name="roleCd" value="'%' + roleCode + '%'"/>
-                and A.ROLE_CODE LIKE #{roleCd,jdbcType=VARCHAR}
+                and A.ROLE_CODE LIKE #{roleCd}
             </if>
             <if test="status != null and status != ''">
-                and A.STATUS = #{status,jdbcType=VARCHAR}
+                and A.STATUS = #{status}
             </if>
         </where>
         order by A.ROLE_SORT
@@ -113,7 +113,7 @@
         FROM
             sys_role
         <where>
-            ID = #{ID,jdbcType=BIGINT}
+            ID = #{ID}
         </where>
     </select>
     <select id="getMenuIdByRole" resultType="java.lang.Long">
@@ -122,7 +122,7 @@
         FROM
             SYS_ROLE_MENU
         WHERE
-            ROLE_ID = #{id,jdbcType=BIGINT}
+            ROLE_ID = #{id}
     </select>
     <select id="getDept" resultType="com.yy.ppm.system.bean.dto.TreeSelectDTO">
         select
@@ -135,7 +135,7 @@
                     0
                 END AS isAlwaysShow
         from SYS_DEPT A
-        WHERE PARENT_ID = #{parentId,jdbcType=BIGINT}
+        WHERE PARENT_ID = #{parentId}
 
     </select>
     <select id="getDeptIdByRole" resultType="java.lang.Long">
@@ -144,7 +144,7 @@
         FROM
             SYS_ROLE_DEPT
         WHERE
-            ROLE_ID = #{id,jdbcType=BIGINT}
+            ROLE_ID = #{id}
     </select>
     <select id="allocatedOrUnallocatedList" resultType="com.yy.ppm.system.bean.dto.SysUserDTO">
         SELECT
@@ -156,13 +156,13 @@
             LEFT JOIN  SYS_ROLE_USER B ON A.ID = B.USER_ID
         WHERE
             <if test="'allocated' == flag">
-                B.ROLE_ID = #{roleId,jdbcType=BIGINT}
+                B.ROLE_ID = #{roleId}
             </if>
             <if test="'unallocated' == flag">
-                B.ROLE_ID != #{roleId,jdbcType=BIGINT} or B.ROLE_ID is null
+                B.ROLE_ID != #{roleId} or B.ROLE_ID is null
             </if>
             <if test="null != nameOrAccount and '' != nameOrAccount">
-                AND ((A.USER_ACCOUNT like '%' || #{nameOrAccount,jdbcType=VARCHAR} || '%') OR (A.USER_NAME like '%' || #{nameOrAccount,jdbcType=VARCHAR} || '%'))
+                AND ((A.USER_ACCOUNT like '%' || #{nameOrAccount} || '%') OR (A.USER_NAME like '%' || #{nameOrAccount} || '%'))
             </if>
     </select>
     <select id="getListByRoleClass" resultType="com.yy.ppm.system.bean.dto.SysRoleDTO">

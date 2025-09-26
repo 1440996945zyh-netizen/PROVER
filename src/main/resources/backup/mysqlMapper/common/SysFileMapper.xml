@@ -42,7 +42,7 @@
             SF.UPDATE_TIME
         FROM
             SYS_FILE SF
-            JOIN SYS_FILE_BUSINESS SFB ON SF.ID = SFB.FILE_ID  <!-- Oracle 支持 JOIN 语法 -->
+            JOIN SYS_FILE_BUSINESS SFB ON SF.ID = SFB.FILE_ID
         WHERE
             SFB.BUSINESS_ID = #{businessId} AND SF.BUSINESS_TYPE = #{businessType}
     </select>
@@ -95,7 +95,7 @@
             create_by_name,
             CREATE_TIME
         )values (
-            #{id,jdbcType=BIGINT},  <!-- Oracle 中 BIGINT 映射为 NUMBER 类型，MyBatis 自动兼容 -->
+            #{id,jdbcType=BIGINT},
             #{businessType,jdbcType=VARCHAR},
             #{fileBucket,jdbcType=VARCHAR},
             #{filePath,jdbcType=VARCHAR},
@@ -109,7 +109,7 @@
         )
     </insert>
 
-    <!--批量新增数据【核心调整】：删除 open="(" close=")"，每个 item 用括号包裹 -->
+    <!--批量新增数据-->
     <insert id="insertFiles">
         INSERT INTO SYS_FILE(
             ID,
@@ -123,8 +123,8 @@
             create_by_name,
             CREATE_TIME
         )values
-            <foreach collection="list" item="file" separator=",">  <!-- 移除 open/close， separator 为逗号 -->
-                (#{file.id},  <!-- 每个文件记录用括号包裹 -->
+            <foreach collection="list" open="(" close=")" item="file" separator=",">
+                #{file.id},
                 #{file.businessType},
                 #{file.fileBucket},
                 #{file.filePath},
@@ -133,9 +133,10 @@
                 #{file.fileIcon},
                 #{file.loginUserId},
                 #{file.loginUserName},
-                #{file.now})
+                #{file.now}
             </foreach>
     </insert>
+
 
     <!--删除文件信息-->
     <delete id="deleteById">

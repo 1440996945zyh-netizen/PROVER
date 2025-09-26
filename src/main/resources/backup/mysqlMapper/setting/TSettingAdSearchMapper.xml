@@ -82,39 +82,40 @@
         </where>
     </select>
     <insert id="insertBatch" parameterType="com.yy.ppm.setting.bean.dto.TSettingAdSearchDTO">
-        INSERT ALL
-        <foreach collection="list" item="item" index="index">
-            INTO T_SETTING_AD_SEARCH(
-                ID,
-                TABLE_ID,
-                COL_KEY,
-                COL_LABEL,
-                COL_TYPE,
-                STATUS,
-                REMARK,
-                COL_SELECT_KEY,
-                MENU_ID,
-                SORT_NUM,
-                CREATE_BY,
-                CREATE_BY_NAME,
-                CREATE_TIME
-            )VALUES (
-                        #{item.id, jdbcType=VARCHAR},
-                        #{item.tableId, jdbcType=VARCHAR},
-                        #{item.colKey, jdbcType=VARCHAR},
-                        #{item.colLabel, jdbcType=VARCHAR},
-                        #{item.colType, jdbcType=VARCHAR},
-                        #{item.status, jdbcType=VARCHAR},
-                        #{item.remark, jdbcType=VARCHAR},
-                        #{item.colSelectKey, jdbcType=VARCHAR},
-                        #{item.menuId, jdbcType=BIGINT},
-                        #{item.sortNum, jdbcType=INTEGER},
-                        #{item.loginUserId, jdbcType=BIGINT},
-                        #{item.loginUserName, jdbcType=VARCHAR},
-                        #{item.now}
-                    )
+        INSERT INTO
+        T_SETTING_AD_SEARCH(
+            ID,
+            TABLE_ID,
+            COL_KEY,
+            COL_LABEL,
+            COL_TYPE,
+            STATUS,
+            REMARK,
+            COL_SELECT_KEY,
+            MENU_ID,
+            SORT_NUM,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+                #{item.id, jdbcType=VARCHAR},
+                #{item.tableId, jdbcType=VARCHAR},
+                #{item.colKey, jdbcType=VARCHAR},
+                #{item.colLabel, jdbcType=VARCHAR},
+                #{item.colType, jdbcType=VARCHAR},
+                #{item.status, jdbcType=VARCHAR},
+                #{item.remark, jdbcType=VARCHAR},
+                #{item.colSelectKey, jdbcType=VARCHAR},
+                #{item.menuId, jdbcType=BIGINT},
+                #{item.sortNum, jdbcType=INTEGER},
+                #{item.loginUserId, jdbcType=BIGINT},
+                #{item.loginUserName, jdbcType=VARCHAR},
+                #{item.now}
+            )
         </foreach>
-        SELECT 1 FROM DUAL
     </insert>
 
     <delete id="deleteByMenuIdAndTableId">
@@ -122,7 +123,7 @@
             T_SETTING_AD_SEARCH
         WHERE
             MENU_ID = #{menuId}
-            and TABLE_ID = #{tableId}
+          and TABLE_ID = #{tableId}
     </delete>
 </mapper>
 

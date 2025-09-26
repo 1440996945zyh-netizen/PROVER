@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yy.ppm.master.mapper.MDictMapper">
-    <!-- 新增字典类型：Oracle 适配 - 时间函数、JDBC类型调整 -->
     <insert id="insertDictType" parameterType="com.yy.ppm.master.bean.dto.MDictTypeDTO">
         INSERT INTO M_DICT_TYPE(
             ID,
@@ -28,7 +27,6 @@
                 )
     </insert>
 
-    <!-- 新增字典数据：同上述Oracle适配逻辑 -->
     <insert id="insertDict" parameterType="com.yy.ppm.master.bean.dto.MDictDataDTO">
         INSERT INTO M_DICT_DATA(
             ID,
@@ -49,13 +47,12 @@
                    #{sortNum,jdbcType=BIGINT},
                    #{status,jdbcType=VARCHAR},
                    #{remark,jdbcType=VARCHAR},
-                   #{loginUserId},
-                   #{loginUserName,},
+                   #{loginUserId, jdbcType=BIGINT},
+                   #{loginUserName, jdbcType=VARCHAR},
                    #{now}
                )
     </insert>
 
-    <!-- 修改字典类型：Oracle适配 - 时间函数、JDBC类型 -->
     <update id="updateDictType" parameterType="com.yy.ppm.master.bean.dto.MDictTypeDTO">
         UPDATE
             M_DICT_TYPE
@@ -65,15 +62,14 @@
             IS_OPEN = #{isOpen,jdbcType=VARCHAR},
             STATUS = #{status,jdbcType=VARCHAR},
             REMARK = #{remark,jdbcType=VARCHAR},
-            UPDATE_BY = #{loginUserId},
-            update_BY_NAME = #{loginUserName},
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            update_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
             UPDATE_TIME = #{now},
             SORT_NUM = #{sortNum,jdbcType=BIGINT}
         WHERE
-            ID = #{id,jdbcType=BIGINT}
+            ID = #{id}
     </update>
 
-    <!-- 修改字典数据：同上述Oracle适配逻辑 -->
     <update id="updateDict" parameterType="com.yy.ppm.master.bean.dto.MDictDataDTO">
         UPDATE
             M_DICT_DATA
@@ -83,31 +79,28 @@
             DICT_LABEL = #{dictLabel,jdbcType=VARCHAR},
             STATUS = #{status,jdbcType=VARCHAR},
             REMARK = #{remark,jdbcType=VARCHAR},
-            UPDATE_BY = #{loginUserId},
-            update_BY_NAME = #{loginUserName},
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            update_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
             UPDATE_TIME = #{now},
             SORT_NUM = #{sortNum,jdbcType=BIGINT}
         WHERE
-            ID = #{id,jdbcType=BIGINT}
+            ID = #{id}
     </update>
 
-    <!-- 删除字典类型：Oracle适配 - 补充ID的NUMBER类型 -->
     <delete id="deleteDictTypeById">
         DELETE FROM
             M_DICT_TYPE
         WHERE
-            ID = #{id,jdbcType=BIGINT}
+            ID = #{id}
     </delete>
 
-    <!-- 删除字典数据：同上述适配逻辑 -->
     <delete id="deleteDictById">
         DELETE FROM
             M_DICT_DATA
         WHERE
-            ID = #{id,jdbcType=BIGINT}
+            ID = #{id}
     </delete>
 
-    <!-- 查询字典类型列表：Oracle适配 - 模糊查询逻辑不变，仅修正参数类型 -->
     <select id="getDictTypeList" resultType="com.yy.ppm.master.bean.dto.MDictTypeDTO"
             parameterType="com.yy.ppm.master.bean.dto.MDictTypeSearchDTO">
         SELECT
@@ -128,24 +121,22 @@
             update_BY_NAME,
             UPDATE_TIME,
             SORT_NUM
-        FROM M_DICT_TYPE
-        <where>
+        FROM M_DICT_TYPE<where>
             <if test="dictName != null and dictName != ''">
                 <bind name="dictName" value="'%' + dictName + '%'"/>
-                AND DICT_NAME LIKE #{dictName,jdbcType=VARCHAR}
+                AND (DICT_NAME LIKE  #{dictName,jdbcType=VARCHAR})
             </if>
             <if test="dictType != null and dictType != ''">
                 <bind name="dictType" value="'%' + dictType + '%'"/>
-                AND DICT_TYPE LIKE #{dictType,jdbcType=VARCHAR}
+                AND (DICT_TYPE LIKE  #{dictType,jdbcType=VARCHAR})
             </if>
             <if test="status != null and status != ''">
                 <bind name="status" value="'%' + status + '%'"/>
-                AND STATUS LIKE #{status,jdbcType=VARCHAR}
+                AND (STATUS LIKE  #{status,jdbcType=VARCHAR})
             </if>
         </where>
     </select>
 
-    <!-- 查询字典类型详情：Oracle适配 - JDBC类型调整 -->
     <select id="getDictTypeById" resultType="com.yy.ppm.master.bean.dto.MDictTypeDTO">
         SELECT
             ID,
@@ -165,8 +156,7 @@
         WHERE ID = #{id,jdbcType=BIGINT}
     </select>
 
-    <!-- 按类型查询字典数据：Oracle适配 - 移除重复字段、调整参数类型 -->
-    <select id="getDictListByType" resultType="com.yy.ppm.master.bean.dto.MDictDataDTO">
+    <select id="getDictListByType" resultType="com.yy.ppm.master.bean.dto.MDictDataDTO" >
         SELECT
             A.ID,
             A.DICT_VALUE,
@@ -176,14 +166,14 @@
             A.REMARK,
             A.CREATE_BY,
             A.create_by_name,
-            A.CREATE_TIME
+            A.CREATE_TIME,
+            A.SORT_NUM
         FROM
             M_DICT_DATA A
         WHERE
-            A.DICT_TYPE = #{dictType,jdbcType=VARCHAR}
+            A.DICT_TYPE = #{dictType}
     </select>
 
-    <!-- 统计字典数据数量：Oracle适配 - 调整关联条件参数类型 -->
     <select id="getCountDictByType" resultType="java.lang.Integer">
         SELECT
             COUNT(*)
@@ -192,10 +182,9 @@
         LEFT JOIN
             M_DICT_TYPE T ON A.DICT_TYPE = T.DICT_TYPE
         WHERE
-            T.ID = #{id,jdbcType=BIGINT}
+            T.ID = #{id}
     </select>
 
-    <!-- 查询字典数据详情：Oracle适配 - 移除重复字段、调整参数类型 -->
     <select id="getDictById" resultType="com.yy.ppm.master.bean.dto.MDictDataDTO">
         SELECT
             ID,
@@ -204,16 +193,16 @@
             DICT_TYPE,
             SORT_NUM,
             STATUS,
+            SORT_NUM,
             REMARK,
             CREATE_BY,
             create_by_name,
             CREATE_TIME
         FROM
             M_DICT_DATA
-        WHERE ID = #{id,jdbcType=BIGINT}
+        WHERE ID = #{id}
     </select>
 
-    <!-- 多条件查询字典数据：Oracle适配 - 修正参数类型 -->
     <select id="getDictList" resultType="com.yy.ppm.master.bean.dto.MDictDataDTO">
         SELECT
             ID,
@@ -235,21 +224,19 @@
         <where>
             <if test="dictLabel != null and dictLabel != ''">
                 <bind name="dictLabel" value="'%' + dictLabel + '%'"/>
-                AND DICT_LABEL LIKE #{dictLabel,jdbcType=VARCHAR}
+                AND (DICT_LABEL LIKE  #{dictLabel,jdbcType=VARCHAR})
             </if>
             <if test="dictValue != null and dictValue != ''">
-                <bind name="dictValue" value="'%' + dictValue + '%'"/>
-                AND DICT_VALUE LIKE #{dictValue,jdbcType=VARCHAR}
+            <bind name="dictValue" value="'%' + dictValue + '%'"/>
+                AND (DICT_VALUE LIKE  #{dictValue,jdbcType=VARCHAR})
             </if>
             <if test="status != null and status != ''">
                 <bind name="status" value="'%' + status + '%'"/>
-                AND STATUS LIKE #{status,jdbcType=VARCHAR}
+                AND (STATUS LIKE  #{status,jdbcType=VARCHAR})
             </if>
-            AND DICT_TYPE = #{dictType,jdbcType=VARCHAR}
+            AND (DICT_TYPE =  #{dictType,jdbcType=VARCHAR})
         </where>
     </select>
-
-    <!-- 按类型查询字典数据（冗余方法）：同getDictListByType适配逻辑 -->
     <select id="getDictsByType" resultType="com.yy.ppm.master.bean.dto.MDictDataDTO">
         SELECT
             A.ID,
@@ -260,10 +247,11 @@
             A.REMARK,
             A.CREATE_BY,
             A.create_by_name,
-            A.CREATE_TIME
+            A.CREATE_TIME,
+            A.SORT_NUM
         FROM
             M_DICT_DATA A
         WHERE
-            A.DICT_TYPE = #{dictType,jdbcType=VARCHAR}
+            A.DICT_TYPE = #{dictType}
     </select>
 </mapper>

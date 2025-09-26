@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.system.mapper.SysLoginLogMapper">
+
+    <sql id="commonList">
+        SELECT
+            ID,
+            USER_ID,
+            ACC_NO,
+            USER_NAME,
+            POST,
+            DEPT,
+            COMPANY_NAME,
+            LOGIN_TIME,
+            LOGIN_IP,
+            CHANNEL_TYPE,
+            UQ_MARK,
+            OS,
+            BROWSER,
+            LOCATION,
+            STATUS,
+            ERROR_MSG
+        FROM
+            SYS_LOGIN_LOG
+        <where>
+            <if test="accNo != null and accNo != ''">
+                and ACC_NO = #{accNo}
+            </if>
+            <if test="beginTimes != null and beginTimes != ''">
+                AND TO_CHAR(LOGIN_TIME, 'YYYY-MM-DD') &gt;= #{beginTimes}
+            </if>
+            <if test="endTimes != null and endTimes != ''">
+                AND TO_CHAR(LOGIN_TIME, 'YYYY-MM-DD') &lt;= #{endTimes}
+            </if>
+            <if test="userName != null and userName != ''">
+                and USER_NAME = #{userName}
+            </if>
+            <if test="post != null and post != ''">
+                and POST = #{post}
+            </if>
+            <if test="dept != null and dept != ''">
+                and DEPT = #{dept}
+            </if>
+            <if test="companyName != null and companyName != ''">
+                and COMPANY_NAME = #{companyName}
+            </if>
+            <if test="status != null and status != ''">
+                and STATUS = #{status}
+            </if>
+        </where>
+    </sql>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getList" resultType="com.yy.ppm.system.bean.dto.SysLoginLogDTO" parameterType="com.yy.ppm.system.bean.dto.SysLoginLogSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.system.bean.dto.SysLoginLogDTO" parameterType="com.yy.ppm.system.bean.dto.SysLoginLogSearchDTO">
+        <include refid="commonList"></include>
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.system.bean.dto.SysLoginLogDTO" parameterType="java.lang.Long">
+        SELECT
+            ID,
+            USER_ID,
+            ACC_NO,
+            USER_NAME,
+            POST,
+            DEPT,
+            COMPANY_NAME,
+            LOGIN_TIME,
+            LOGIN_IP,
+            CHANNEL_TYPE,
+            UQ_MARK,
+            OS,
+            BROWSER,
+            LOCATION,
+            STATUS,
+            ERROR_MSG
+        FROM
+            SYS_LOGIN_LOG
+        <where>
+            id = #{id}
+        </where>
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.system.bean.dto.SysLoginLogDTO">
+        INSERT INTO SYS_LOGIN_LOG(
+            ID,
+            USER_ID,
+            ACC_NO,
+            USER_NAME,
+            POST,
+            DEPT,
+            COMPANY_NAME,
+            LOGIN_TIME,
+            LOGIN_IP,
+            CHANNEL_TYPE,
+            UQ_MARK,
+            OS,
+            BROWSER,
+            LOCATION,
+            STATUS,
+            ERROR_MSG
+        )VALUES (
+            #{id, jdbcType=VARCHAR},
+            #{userId, jdbcType=VARCHAR},
+            #{accNo, jdbcType=VARCHAR},
+            #{userName, jdbcType=VARCHAR},
+            #{post, jdbcType=VARCHAR},
+            #{dept, jdbcType=VARCHAR},
+            #{companyName, jdbcType=VARCHAR},
+            #{loginTime, jdbcType=VARCHAR},
+            #{loginIp, jdbcType=VARCHAR},
+            #{channelType, jdbcType=VARCHAR},
+            #{uqMark, jdbcType=VARCHAR},
+            #{os, jdbcType=VARCHAR},
+            #{browser, jdbcType=VARCHAR},
+            #{location, jdbcType=VARCHAR},
+            #{status, jdbcType=VARCHAR},
+            #{errorMsg, jdbcType=VARCHAR}
+        )
+    </insert>
+
+   <!-- 删除 -->
+   <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM
+            SYS_LOGIN_LOG
+        WHERE
+            id = #{id}
+    </delete>
+</mapper>
+

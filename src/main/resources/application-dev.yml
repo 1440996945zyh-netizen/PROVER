@@ -6,30 +6,25 @@ server:
 
 #druid
 spring:
+  # 数据源配置（dynamic-datasource 多数据源）
   datasource:
     dynamic:
-      # 是否开启 P6Spy 性能分析（开发环境可开启）
       p6spy: false
-      # 默认数据源
       primary: master
-      # 严格模式：找不到数据源时抛出异常
       strict: true
-
       datasource:
-        # 主数据源 - MySQL
+        # 主数据源 - Oracle
         master:
-          driver-class-name: com.mysql.cj.jdbc.Driver
-          username: root
-          password: rever168
-          url: jdbc:mysql://123.207.147.75:3306/yy_framework?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-
-        # 第二个数据源（可选）
+          driver-class-name: oracle.jdbc.OracleDriver  # Oracle 驱动
+          username: FRAMEWORK  # 替换为实际用户名
+          password: Rever168  # 替换为实际密码
+          url: jdbc:oracle:thin:@//42.120.10.45:1521/ORCL  # 替换为实际连接串（格式：@主机:端口:SID）
+        # 第二个数据源（若需要，保持 Oracle 配置）
         bhtnewdb:
-          driver-class-name: com.mysql.cj.jdbc.Driver
-          username: root
-          password: rever168
-          url: jdbc:mysql://123.207.147.75:3306/yy_framework?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-
+          driver-class-name: oracle.jdbc.OracleDriver
+          username: FRAMEWORK
+          password: Rever168
+          url: jdbc:oracle:thin:@//42.120.10.45:1521/ORCL
       # Druid 连接池配置
       druid:
         initialSize: 32
@@ -40,11 +35,15 @@ spring:
         minEvictableIdleTimeMillis: 300000
         maxEvictableIdleTimeMillis: 900000
         filters: stat
-        # MySQL 健康检查语句
-        validation-query: SELECT 1
+        validation-query: SELECT 1 FROM DUAL  # Oracle 健康检查语句（必须查 DUAL 表）
         test-while-idle: true
         test-on-borrow: false
         test-on-return: false
+  # 数据库初始化配置
+  sql:
+    init:
+      mode: never
+      schema-locations: classpath:schema/schema-oracle.sql  # Oracle 建表脚本路径
 
   servlet:
     multipart:
@@ -71,10 +70,10 @@ spring:
           # 2. 新增：配置Quartz数据源（masterDataSource）的连接信息（与你的master数据源一致）
           dataSource:
             masterDataSource:
-              driver: com.mysql.cj.jdbc.Driver # 与master的driver-class-name一致
-              URL: jdbc:mysql://123.207.147.75:3306/yy_framework?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true # 与master的url一致
-              user: root # 与master的username一致
-              password: rever168 # 与master的password一致
+              driver: oracle.jdbc.OracleDriver # 与master的driver-class-name一致
+              URL: jdbc:oracle:thin:@//42.120.10.45:1521/ORCL # 与master的url一致
+              user: FRAMEWORK   # 与master的username一致
+              password: Rever168  # 与master的password一致
               maxConnections: 30 # 数据源最大连接数（建议与Druid的maxActive匹配，你的Druid是128，这里可设30-50）
           scheduler:
             instanceName: BusinessScheduler
@@ -142,8 +141,8 @@ spring:
             enabled: true  # 启用监听
 #mybatis-plus
 mybatis-plus:
-  mapper-locations: classpath*:mapper/**/*Mapper.xml  # MySQL 专属 Mapper 路径
-  typeAliasesPackage: com.yy.ppm.**.model  # 实体类别名扫描路径（保持不变）
+  mapper-locations: classpath*:mapper/**/*Mapper.xml
+  typeAliasesPackage: com.yy.ppm.*.bean.* # 实体类别名扫描路径（保持不变）
   configuration:
     mapUnderscoreToCamelCase: true  # 下划线转驼峰（保持不变）
     call-setters-on-nulls: true  # 空值返回字段（保持不变）
@@ -254,7 +253,3 @@ pagehelper:
   auto-dialect: true
   #默认值为 false。设置为 true 时，允许在运行时根据多数据源自动识别对应方言的分页
   auto-runtime-dialect: true
-
-# 吨包理货接口
-dblh:
-  url: https://000.00.00.000:8000

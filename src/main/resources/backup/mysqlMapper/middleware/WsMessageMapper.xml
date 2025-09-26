@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.middleware.mapper.WsMessageMapper">
+
+    <insert id="add" parameterType="com.yy.ppm.middleware.bean.po.WsOfflineMessagePO">
+        INSERT INTO WS_OFFLINE_MESSAGE (
+            ID,
+            SENDER_ACCOUNT,
+            RECEIVER_ACCOUNT,
+            CONTENT,
+            MES_TYPE,
+            IS_SENT,
+            CONTENT_TYPE,
+            MES_SHOW_TYPE,
+            CREATE_TIME
+        ) VALUES (
+                     #{id,jdbcType=BIGINT},
+                     #{senderAccount,jdbcType=VARCHAR},
+                     #{receiverAccount,jdbcType=VARCHAR},
+                     #{content,jdbcType=VARCHAR},
+                     #{mesType,jdbcType=VARCHAR},
+                     #{isSent,jdbcType=VARCHAR},
+                     #{contentType,jdbcType=VARCHAR},
+                     #{mesShowType,jdbcType=VARCHAR},
+                     #{createTime,jdbcType=TIMESTAMP}
+                 )
+    </insert>
+    <update id="updateIsSent">
+        UPDATE WS_OFFLINE_MESSAGE
+        SET IS_SENT = '1'
+        WHERE ID = #{id,jdbcType=BIGINT}
+    </update>
+    <select id="getMessageByReceiver" resultType="com.yy.ppm.middleware.bean.po.WsOfflineMessagePO">
+        SELECT
+            ID,
+            SENDER_ACCOUNT,
+            RECEIVER_ACCOUNT,
+            CONTENT,
+            MES_TYPE,
+            IS_SENT,
+            CONTENT_TYPE,
+            CREATE_TIME,
+            MES_SHOW_TYPE
+        FROM WS_OFFLINE_MESSAGE
+        WHERE RECEIVER_ACCOUNT = #{receiverAccount,jdbcType=BIGINT}
+          AND IS_SENT = '0'
+    </select>
+
+    <select id="getUserAccounts" resultType="java.lang.String">
+        select
+            USER_ACCOUNT
+        from
+            sys_user
+        where
+            DEPT_ID = #{deptId}
+          and POST_CODE = #{postCode}
+    </select>
+
+
+
+</mapper>
