@@ -2,6 +2,7 @@ package com.yy.framework.quartz.job;
 import cn.hutool.core.lang.Snowflake;
 import com.yy.common.enums.Constants;
 import com.yy.common.util.HttpClientUtil;
+import com.yy.ppm.common.enums.ScheduleTaskEnum;
 import com.yy.ppm.middleware.bean.po.HttpJobLogsPO;
 import com.yy.ppm.middleware.mapper.QuartzJobMapper;
 import jakarta.annotation.Resource;
@@ -9,6 +10,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.quartz.*;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 @DisallowConcurrentExecution
@@ -30,9 +33,16 @@ public class HttpGetJob implements Job {
 
         Map<String, Object> jobParamsMap = jobDetail.getJobDataMap();
 
+
         String requestType = (String) jobParamsMap.get(Constants.REQUEST_TYPE);
         String url = (String) jobParamsMap.get(Constants.URL);
         Map<String, Object> paramMap = (Map) jobParamsMap.get(Constants.PARAMS);
+
+        //加定时任务验证（防止恶意调用）
+        if(paramMap==null){
+            paramMap = new HashMap<>();
+        }
+        paramMap.put(ScheduleTaskEnum.SCHEDULE_TASK_KEY.getKey(), ScheduleTaskEnum.SCHEDULE_TASK_KEY.getValue());
 
         HttpJobLogsPO httpJobLogs = new HttpJobLogsPO();
         httpJobLogs.setId(snowflake.nextId());
@@ -40,6 +50,7 @@ public class HttpGetJob implements Job {
         httpJobLogs.setJobGroup(jobGroup);
         httpJobLogs.setRequestType(requestType);
         httpJobLogs.setHttpUrl(url);
+        httpJobLogs.setFireTime(new Date());
         if (null != paramMap && paramMap.size() > 0) {
             httpJobLogs.setHttpParams(paramMap.toString());
         }

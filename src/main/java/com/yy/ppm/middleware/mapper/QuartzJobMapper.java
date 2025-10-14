@@ -2,6 +2,7 @@ package com.yy.ppm.middleware.mapper;
 
 
 import com.github.pagehelper.Page;
+import com.yy.framework.annotation.Edit;
 import com.yy.ppm.middleware.bean.dto.HttpJobDetailDTO;
 import com.yy.ppm.middleware.bean.dto.HttpJobDetailSearchDTO;
 import com.yy.ppm.middleware.bean.dto.HttpJobLogsDTO;
@@ -31,6 +32,7 @@ public interface QuartzJobMapper {
      * @param quartzJobPO
      * @return
      */
+    @Edit
     int insertJobDetail(HttpJobDetailDTO quartzJobPO);
 
     /**

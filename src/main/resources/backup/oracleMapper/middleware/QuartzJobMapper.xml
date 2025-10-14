@@ -82,7 +82,7 @@
         WHERE
         1=1
         <if test="jobName != null and jobName != ''">
-            AND ( t.JOB_NAME LIKE concat('%',#{jobName},'%') OR t.JOB_GROUP LIKE concat('%',#{jobName},'%') )
+            AND ( t.JOB_NAME LIKE '%' || #{jobName} || '%' OR t.JOB_GROUP LIKE '%' || #{jobName} || '%' )
         </if>
         ORDER BY hd.ID DESC
     </select>
@@ -104,7 +104,7 @@
         WHERE
         (qt.JOB_NAME IS NULL AND qt.JOB_GROUP IS NULL)
         <if test="jobName != null and jobName != ''">
-            AND ( hd.JOB_NAME LIKE concat('%',#{jobName},'%') OR hd.JOB_GROUP LIKE concat('%',#{jobName},'%') )
+            AND ( hd.JOB_NAME LIKE '%' || #{jobName} || '%' OR hd.JOB_GROUP LIKE '%' || #{jobName} || '%' )
         </if>
         ORDER BY hd.ID DESC
     </select>

@@ -7,6 +7,7 @@ import com.yy.common.page.Pages;
 import com.yy.common.util.JobUtil;
 import com.yy.common.util.JsonValidUtil;
 import com.yy.common.util.PageHelperUtils;
+import com.yy.framework.exception.BusinessRuntimeException;
 import com.yy.framework.quartz.job.HttpGetJob;
 import com.yy.framework.quartz.job.HttpPostFormDataJob;
 import com.yy.framework.quartz.job.HttpPostJsonJob;
@@ -49,7 +50,7 @@ public class QuartzJobServiceImpl implements QuartzJobService {
         // 校验重复
         if (quartzJobMapper.selectByJobNameAndJobGroup(quartzJobDTO.getJobName(), quartzJobDTO.getJobGroup()) != null) {
             //通过jobName和jobGroup确保任务的唯一性
-            throw new RuntimeException("任务名称重复!");
+            throw new BusinessRuntimeException("任务名称重复!");
         }
 
         HttpJobDetailDTO httpJobDetails = new HttpJobDetailDTO();
@@ -60,7 +61,7 @@ public class QuartzJobServiceImpl implements QuartzJobService {
         httpJobDetails.setRequestType(quartzJobDTO.getRequestType());
         httpJobDetails.setHttpUrl(quartzJobDTO.getHttpUrl());
         if (!JsonValidUtil.isJson(quartzJobDTO.getHttpParams())) {
-            throw new RuntimeException("请将请求参数转为合法的json字符串!");
+            throw new BusinessRuntimeException("请将请求参数转为合法的json字符串!");
         }
 
         Map<String, Object> jobParamsMap = new HashMap<>();
@@ -128,7 +129,7 @@ public class QuartzJobServiceImpl implements QuartzJobService {
         try {
             scheduleBuilder = CronScheduleBuilder.cronSchedule(quartzJobDTO.getCronExpression());
         } catch (Exception e) {
-            throw new RuntimeException("Illegal CronExpression!");
+            throw new BusinessRuntimeException("Cron表达式不合法!");
         }
 
         TriggerKey triggerKey = jobUtil.getTriggerKeyByJob(quartzJobDTO.getJobName(), quartzJobDTO.getJobGroup());

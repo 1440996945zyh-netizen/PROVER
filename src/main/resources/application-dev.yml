@@ -89,6 +89,7 @@ spring:
             tablePrefix: qrtz_
             isClustered: true
             clusterCheckinInterval: 20000
+            #配置任务触发时的misfire策略（超过60s不再执行）
             misfireThreshold: 60000
             # 3. 保留：指定JobStore使用的数据源名称（必须与上方dataSource的key一致：masterDataSource）
             dataSource: masterDataSource
@@ -209,6 +210,8 @@ yy:
       - /api/internal/sysVersion/downloadApp
       - /api/internal/sysVersion/downloadMacApp
       - /api/internal/sysVersion/downloadRunPileApp
+      # 测试定时任务接口
+      - /api/v1/internal/tSettingAdSearch/test
 #minio
 minio:
   url: 127.0.0.1

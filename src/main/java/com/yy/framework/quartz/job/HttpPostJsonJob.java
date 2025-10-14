@@ -8,6 +8,8 @@ import jakarta.annotation.Resource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.quartz.*;
+
+import java.util.Date;
 import java.util.Map;
 
 @DisallowConcurrentExecution
@@ -40,6 +42,8 @@ public class HttpPostJsonJob implements Job {
         httpJobLogs.setRequestType(requestType);
         httpJobLogs.setHttpUrl(url);
         httpJobLogs.setHttpParams(jsonParam);
+        httpJobLogs.setFireTime(new Date());
+
 
         String result = HttpClientUtil.postJson(url, jsonParam);
         httpJobLogs.setResult(result);

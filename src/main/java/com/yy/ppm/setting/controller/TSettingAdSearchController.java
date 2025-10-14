@@ -4,6 +4,7 @@ import com.yy.common.page.Pages;
 import com.yy.common.enums.Response;
 import com.yy.common.log.MicroLogger;
 
+import com.yy.ppm.common.enums.ScheduleTaskEnum;
 import com.yy.ppm.setting.bean.dto.TSettingAdSearchDTO;
 import com.yy.ppm.setting.bean.dto.TSettingAdSearchSearchDTO;
 import com.yy.ppm.setting.service.TSettingAdSearchService;
@@ -31,6 +32,18 @@ public class TSettingAdSearchController {
     @Autowired
     private TSettingAdSearchService tSettingAdSearchService;
 
+    /**测试定时任务*/
+     @GetMapping("/test")
+    public Map<String, Object> test(@RequestParam Map<String, Object> params) {
+        final String methodName = "TSettingAdSearchController:test";
+		boolean flag = false;
+        if(params.get(ScheduleTaskEnum.SCHEDULE_TASK_KEY.getKey()).equals(ScheduleTaskEnum.SCHEDULE_TASK_KEY.getValue())){
+
+            System.out.println("执行定时任务");
+        }
+
+        return Response.SUCCESS.newBuilder().out(flag ? "测试成功" : "测试失败").toResult();
+    }
     /**
      * 获取列表（翻页）
      * @param searchDTO
