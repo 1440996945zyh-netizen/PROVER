@@ -82,7 +82,13 @@
         WHERE
         1=1
         <if test="jobName != null and jobName != ''">
-            AND ( t.JOB_NAME LIKE '%' || #{jobName} || '%' OR t.JOB_GROUP LIKE '%' || #{jobName} || '%' )
+            AND t.JOB_NAME LIKE '%' || #{jobName} || '%'
+        </if>
+        <if test="jobGroup != null and jobGroup != ''">
+            AND hd.JOB_GROUP LIKE '%' || #{jobGroup} || '%'
+        </if>
+        <if test="triggerState != null and triggerState != ''">
+            AND t.TRIGGER_STATE = #{triggerState}
         </if>
         ORDER BY hd.ID DESC
     </select>
@@ -104,7 +110,13 @@
         WHERE
         (qt.JOB_NAME IS NULL AND qt.JOB_GROUP IS NULL)
         <if test="jobName != null and jobName != ''">
-            AND ( hd.JOB_NAME LIKE '%' || #{jobName} || '%' OR hd.JOB_GROUP LIKE '%' || #{jobName} || '%' )
+            AND  hd.JOB_NAME LIKE '%' || #{jobName} || '%'
+        </if>
+        <if test="jobGroup != null and jobGroup != ''">
+            AND hd.JOB_GROUP LIKE '%' || #{jobGroup} || '%'
+        </if>
+        <if test="triggerState != null and triggerState != ''">
+            AND qt.TRIGGER_STATE = #{triggerState}
         </if>
         ORDER BY hd.ID DESC
     </select>
@@ -125,7 +137,7 @@
             AND t.JOB_GROUP = #{jobGroup}
         </if>
         <if test="searchParam != null and searchParam != ''">
-            AND ( t.JOB_NAME LIKE concat('%',#{searchParam},'%') OR t.JOB_GROUP LIKE concat('%',#{searchParam},'%') )
+            AND ( t.JOB_NAME LIKE '%' || #{searchParam} || '%' OR t.JOB_GROUP LIKE '%' || #{searchParam} || '%' )
         </if>
         ORDER BY t.ID DESC
     </select>
