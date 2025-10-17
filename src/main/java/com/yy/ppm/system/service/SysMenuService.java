@@ -57,5 +57,10 @@ public interface SysMenuService {
     List<TreeSelectDTO> getTreeSelect();
 
 
+    /**
+     * 查询所有的目录、菜单
+     * @return
+     */
+    List<SysMenuDTO> getContentsMenu();
 
 }

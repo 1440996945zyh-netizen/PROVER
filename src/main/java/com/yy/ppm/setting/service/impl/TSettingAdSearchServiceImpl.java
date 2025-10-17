@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import cn.hutool.core.lang.Snowflake;
 
+import java.util.List;
+
 
 /**
  * @ClassName 高級查詢配置表(TSettingAdSearch)ServiceImpl
@@ -57,8 +59,8 @@ public class TSettingAdSearchServiceImpl implements TSettingAdSearchService {
       * @return 实体
       */
      @Override
-     public TSettingAdSearchDTO getDetail(Long menuId,String tableId) {
-         return tSettingAdSearchMapper.getByMenuIdAndTableId(menuId,tableId);
+     public List<TSettingAdSearchDTO> getDetail(Long menuId, String tableId) {
+         return tSettingAdSearchMapper.getByMenuIdAndTableId(menuId, tableId);
      }
 
     /**
@@ -74,13 +76,13 @@ public class TSettingAdSearchServiceImpl implements TSettingAdSearchService {
         // 新增(此处无法验重，无法控制menuId和tableId的重复)
         //先删后插
         tSettingAdSearchMapper.deleteByMenuIdAndTableId(dto.getMenuId(), dto.getTableId());
-        for (TSettingAdSearchDTO tSettingAdSearchDTO : dto.getTSettingAdSearchDTOList()) {
+        for (TSettingAdSearchDTO tSettingAdSearchDTO : dto.getSettingAdSearchList()) {
             tSettingAdSearchDTO.setId(snowflake.nextId());
             tSettingAdSearchDTO.setMenuId(dto.getMenuId());
             tSettingAdSearchDTO.setTableId(dto.getTableId());
             tSettingAdSearchDTO.setSortNum(count++);
         }
-        tSettingAdSearchMapper.insertBatch(dto.getTSettingAdSearchDTOList());
+        tSettingAdSearchMapper.insertBatch(dto.getSettingAdSearchList());
 
         return count > 1 ;
     }

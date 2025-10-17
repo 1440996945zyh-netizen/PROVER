@@ -6,6 +6,7 @@
     <select id="getDetailById" resultType="com.yy.ppm.system.bean.dto.SysMenuDTO" parameterType="java.lang.Long">
         SELECT
         ID,
+        ID AS menuId,
         MENU_NAME,
         PARENT_ID,
         ORDER_NUM,

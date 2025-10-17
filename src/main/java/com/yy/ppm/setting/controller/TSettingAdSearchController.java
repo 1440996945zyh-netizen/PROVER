@@ -11,6 +11,7 @@ import com.yy.ppm.setting.service.TSettingAdSearchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -70,7 +71,7 @@ public class TSettingAdSearchController {
     public Map<String, Object> getDetail(@RequestParam("menuId") Long menuId,@RequestParam("tableId") String tableId) {
         final String methodName = "TSettingAdSearchController:getDetail";
 
-        TSettingAdSearchDTO result = tSettingAdSearchService.getDetail(menuId,tableId);
+        List<TSettingAdSearchDTO> result = tSettingAdSearchService.getDetail(menuId,tableId);
 
         LOGGER.exit( methodName + "result:" + result);
 

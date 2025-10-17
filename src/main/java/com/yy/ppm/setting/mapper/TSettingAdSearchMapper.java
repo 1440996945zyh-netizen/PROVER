@@ -40,7 +40,7 @@ public interface TSettingAdSearchMapper {
   * @param tableId 前端table的ID
   * @return
   */
- public TSettingAdSearchDTO getByMenuIdAndTableId(@Param("menuId") Long menuId, @Param("tableId") String tableId);
+ List<TSettingAdSearchDTO> getByMenuIdAndTableId(@Param("menuId") Long menuId, @Param("tableId") String tableId);
 
 
 

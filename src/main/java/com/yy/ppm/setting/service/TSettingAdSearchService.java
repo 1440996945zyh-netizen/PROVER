@@ -6,6 +6,8 @@ import com.yy.common.page.Pages;
 import com.yy.ppm.setting.bean.dto.TSettingAdSearchDTO;
 import com.yy.ppm.setting.bean.dto.TSettingAdSearchSearchDTO;
 
+import java.util.List;
+
 /**
  * @ClassName 高級查詢配置表(TSettingAdSearch)Service
  * @author zws
@@ -29,7 +31,8 @@ public interface TSettingAdSearchService {
       * @param menuId,tableId
       * @return 实体
       */
-     public TSettingAdSearchDTO getDetail(Long menuId,String tableId);
+
+     List<TSettingAdSearchDTO> getDetail(Long menuId, String tableId);
 
     /**
      * 保存

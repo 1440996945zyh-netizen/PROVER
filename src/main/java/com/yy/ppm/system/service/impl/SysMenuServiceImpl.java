@@ -183,7 +183,14 @@ public class SysMenuServiceImpl implements SysMenuService {
     public List<TreeSelectDTO> getTreeSelect() {
         return this.getTreeSelect(0L);
     }
-
+    /**
+     * 查询所有的目录、菜单
+     * @return
+     */
+    @Override
+    public List<SysMenuDTO> getContentsMenu() {
+        return sysMenuMapper.getContentsMenu();
+    }
     /**
      * 菜单树
      * @param menuParentId

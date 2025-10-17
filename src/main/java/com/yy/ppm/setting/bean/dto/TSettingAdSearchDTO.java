@@ -18,5 +18,6 @@ public class TSettingAdSearchDTO extends TSettingAdSearchPO {
 
     private static final long serialVersionUID = -77088986383147893L;
 
-    List<TSettingAdSearchDTO> tSettingAdSearchDTOList;
+    List<TSettingAdSearchDTO> settingAdSearchList;
+
 }

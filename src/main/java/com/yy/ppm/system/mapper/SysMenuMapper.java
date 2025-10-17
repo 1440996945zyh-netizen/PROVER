@@ -60,5 +60,11 @@ public interface SysMenuMapper {
     List<SysMenuDTO> listApplet(SysMenuSearchDTO menu);
 
     List<TreeSelectDTO> getTreeSelect(Long parentId);
+
+    /**
+     * 查询所有的目录、菜单
+     * @return
+     */
+    List<SysMenuDTO> getContentsMenu();
 }
 

@@ -149,5 +149,12 @@ public class SysMenuController {
         List<TreeSelectDTO> list = sysMenuService.getTreeSelect();
         return Response.SUCCESS.newBuilder().out("查询成功").toResult(list);
     }
-
+    /**
+     * 查询所有的目录、菜单
+     * */
+    @GetMapping("/getContentsMenu")
+    public Map<String, Object> getContentsMenu(){
+        List<SysMenuDTO> list = sysMenuService.getContentsMenu();
+        return Response.SUCCESS.newBuilder().out("查询成功").toResult(list);
+    }
 }

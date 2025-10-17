@@ -35,6 +35,7 @@ public enum ConstantsTypeEnum {
     LOAD_FLAG,
     CUSTOMER_STATUS,
     PRO_COST_TYPE,
+    AD_SEARCH_CALCULATE,
     AD_SEARCH_COL_TYPE;
 
     public static String match(String code) {
