@@ -36,7 +36,11 @@ public enum ConstantsTypeEnum {
     CUSTOMER_STATUS,
     PRO_COST_TYPE,
     AD_SEARCH_CALCULATE,
-    AD_SEARCH_COL_TYPE;
+    AD_SEARCH_COL_TYPE,
+    AD_SEARCH_COL_SOURCE,
+    AD_SEARCH_COL_DATE_FORMAT;
+
+
 
     public static String match(String code) {
         return Arrays.stream(ConstantsTypeEnum.values()).map(Enum::name).filter(v1 -> v1.equals(code)).findFirst().orElse(StringUtils.EMPTY);

@@ -43,5 +43,11 @@ public class TSettingAdSearchPO extends BasePO implements Serializable {
     /** 排序号*/
     private Integer sortNum;
 
+    /** 下拉框数据源 */
+    private String colSelectSource;
+
+    /** 日期类型所对应的格式 */
+    private String dateFormat;
+
 }
 
