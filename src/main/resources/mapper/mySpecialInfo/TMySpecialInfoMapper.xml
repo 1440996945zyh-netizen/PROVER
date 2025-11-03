@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.mySpecialInfo.mapper.TMySpecialInfoMapper">
+
+    <!-- 根据gid查询数据 -->
+    <select id="getDetail" resultType="com.yy.ppm.mySpecialInfo.bean.dto.TMySpecialInfoDTO">
+        SELECT
+        user_id,
+        business_id,
+        type,
+        page_num
+        FROM
+        t_my_special_info
+        <where>
+            user_id = #{userId} and type = #{type}
+        </where>
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.mySpecialInfo.bean.dto.TMySpecialInfoDTO">
+        INSERT INTO t_my_special_info(
+            user_id,
+            business_id,
+            type,
+            page_num
+        )VALUES (
+                    #{userId, jdbcType=VARCHAR},
+                    #{projectId, jdbcType=VARCHAR},
+                    #{type, jdbcType=VARCHAR},
+                    #{pageNum, jdbcType=VARCHAR}
+                )
+    </insert>
+
+<!--    <insert id="batchInsert" parameterType="java.util.List">-->
+
+<!--        INSERT INTO t_my_special_info(-->
+<!--        USER_ID,-->
+<!--        BUSINESS_ID,-->
+<!--        TYPE-->
+<!--        )-->
+<!--        VALUES-->
+<!--        <foreach collection="list" item="item" index="index" separator=",">-->
+<!--            (-->
+<!--            #{item.userId, jdbcType=VARCHAR},-->
+<!--            #{item.projectId, jdbcType=VARCHAR},-->
+<!--            #{item.type, jdbcType=VARCHAR}-->
+<!--            )-->
+<!--        </foreach>-->
+<!--    </insert>-->
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM
+            t_my_special_info
+        WHERE
+            user_id = #{id}
+    </delete>
+    <delete id="noCareDelete">
+        DELETE FROM
+            t_my_special_info
+        WHERE
+            user_id = #{userId} and business_id =#{projectId} and type =#{type}
+    </delete>
+    <delete id="deletePageNum">
+        DELETE FROM
+            t_my_special_info
+        WHERE
+            user_id = #{userId} and  type =#{type}
+    </delete>
+</mapper>
+
