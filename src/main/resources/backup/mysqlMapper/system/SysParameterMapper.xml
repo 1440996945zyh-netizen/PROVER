@@ -90,6 +90,7 @@
             sys_parameter
         WHERE
             PARAM_CD = #{key}
+
     </select>
     <select id="getUserList" resultType="com.yy.ppm.system.bean.dto.SysParameterDTO" parameterType="com.yy.ppm.system.bean.dto.SysParameterDTO">
         SELECT
