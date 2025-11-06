@@ -30,6 +30,7 @@
         FROM
             SYS_ROLE A
         <where>
+        1=1
             <if test="roleName != null and roleName != ''">
                 <bind name="roleNm" value="'%' + roleName + '%'"/>
                 and A.ROLE_NAME LIKE #{roleNm,jdbcType=VARCHAR}
@@ -41,6 +42,7 @@
             <if test="status != null and status !=''">
                 and A.STATUS = #{status,jdbcType=VARCHAR}
             </if>
+            <include refid="com.yy.ppm.common.mapper.ConditionFragmentMapper.advancedConditionSimple"/>
         </where>
         order by A.ROLE_SORT
     </select>

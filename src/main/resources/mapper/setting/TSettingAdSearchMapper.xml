@@ -58,12 +58,16 @@
                 <bind name="menuName" value="'%' + menuName + '%'"/>
                 and m.MENU_NAME LIKE #{menuName,jdbcType=VARCHAR}
             </if>
+            <include refid="com.yy.ppm.common.mapper.ConditionFragmentMapper.advancedConditionSimple">
+                <property name="hasBaseCondition" value="true"/>
+            </include>
         </where>
     </sql>
 
     <!--通过实体作为筛选条件查询-->
     <select id="getList" resultType="com.yy.ppm.setting.bean.dto.TSettingAdSearchDTO" parameterType="com.yy.ppm.setting.bean.dto.TSettingAdSearchSearchDTO">
         <include refid="commonList"></include>
+
     </select>
 
     <!--通过实体作为筛选条件查询-->

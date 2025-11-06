@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.common.mapper.ConditionFragmentMapper">
+    <sql id="advancedConditionSimple">
+        <if test="processedConditions != null and processedConditions.size() > 0">
+            <trim prefixOverrides="AND |OR ">
+                <foreach collection="processedConditions" item="condition" index="index">
+                    <choose>
+                        <when test="condition.type == 'GROUP_START'">
+                            ${condition.connectType}
+                            (
+                        </when>
+                        <when test="condition.type == 'GROUP_END'">
+                            )
+                        </when>
+                        <otherwise>
+                            <!-- 普通条件：添加连接符逻辑 -->
+                            <if test="index != 0">
+                                <choose>
+                                    <when test="processedConditions[index-1].type == 'GROUP_START'">
+                                        <!-- 组内第一个条件，不添加连接符 -->
+                                    </when>
+                                    <when test="processedConditions[index-1].type != 'GROUP_END'">
+                                        ${condition.filterType}
+                                    </when>
+                                    <otherwise>
+                                        ${condition.connectType}
+                                    </otherwise>
+                                </choose>
+                            </if>
+
+                            <!-- 特殊处理多值查询 -->
+                            <choose>
+                                <!-- 多值包含所有查询 - 精确匹配 -->
+                                <when test="condition.operator == 'containAll' ">
+                                    <choose>
+                                        <when test="@com.yy.common.util.AdvancedQuery@getDatabaseType() == 'mysql'">
+                                            (
+                                            <foreach collection="condition.value.split(',')" item="item" separator=" AND ">
+                                                FIND_IN_SET(#{item}, ${condition.columnName}) > 0
+                                            </foreach>
+                                            )
+                                        </when>
+                                        <otherwise>
+                                            (
+                                            <foreach collection="condition.value.split(',')" item="item" separator=" AND ">
+                                                INSTR(',' || ${condition.columnName} || ',', ',' || #{item} || ',') > 0
+                                            </foreach>
+                                            )
+                                        </otherwise>
+                                    </choose>
+                                </when>
+
+                                <!-- 多值包含任意查询 - 精确匹配 -->
+                                <when test="condition.operator == 'containAny'">
+                                    <choose>
+                                        <when test="@com.yy.common.util.AdvancedQuery@getDatabaseType() == 'mysql'">
+                                            (
+                                            <foreach collection="condition.value.split(',')" item="item" separator=" OR ">
+                                                FIND_IN_SET(#{item}, ${condition.columnName}) > 0
+                                            </foreach>
+                                            )
+                                        </when>
+                                        <otherwise>
+                                            (
+                                            <foreach collection="condition.value.split(',')" item="item" separator=" OR ">
+                                                INSTR(',' || ${condition.columnName} || ',', ',' || #{item} || ',') > 0
+                                            </foreach>
+                                            )
+                                        </otherwise>
+                                    </choose>
+                                </when>
+
+                                <otherwise>
+                                    ${condition.sqlSnippet}
+                                </otherwise>
+                            </choose>
+                        </otherwise>
+                    </choose>
+                </foreach>
+            </trim>
+        </if>
+    </sql>
+</mapper>

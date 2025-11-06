@@ -2,6 +2,9 @@ package com.yy.common.page;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.yy.common.enums.CommonConstants;
+import com.yy.common.util.AdvancedQuery;
+import com.yy.ppm.common.bean.po.AdvancedQueryPO;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -9,11 +12,13 @@ import lombok.ToString;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * 分页参数
  **/
+
 public class PageParameter implements Serializable {
 
     private static final long serialVersionUID = -7696440725170038746L;
@@ -47,6 +52,22 @@ public class PageParameter implements Serializable {
      */
     private String order;
 
+
+//    private List<AdvancedQueryPO> advancedQuery;
+    private List<AdvancedQueryPO> conditions;
+    private String advancedQuery;
+
+    /**
+     * 获取处理后的条件 - MyBatis 会调用此方法
+     */
+    private List<Map<String, Object>> processedConditions;
+
+    public List<Map<String, Object>> getProcessedConditions() {
+        if (processedConditions == null) {
+            processedConditions = AdvancedQuery.processConditions(this.advancedQuery);
+        }
+        return processedConditions;
+    }
     /** 请求参数 */
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private Map<String, Object> params;
@@ -93,6 +114,13 @@ public class PageParameter implements Serializable {
     public void setSortName(String sortName) {
         this.sortName = sortName;
     }
+    public String getAdvancedQuery() {
+        return advancedQuery;
+    }
+
+    public void setAdvancedQuery(String advancedQuery) {
+        this.advancedQuery = advancedQuery;
+    }
 
     public boolean isSymbol() {
         return symbol;
@@ -109,4 +137,6 @@ public class PageParameter implements Serializable {
     public void setOrder(String order) {
         this.order = order;
     }
+
+
 }

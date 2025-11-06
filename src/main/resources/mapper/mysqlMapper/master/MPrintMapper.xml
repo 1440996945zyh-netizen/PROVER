@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.master.mapper.MPrintMapper">
+
+    <insert id="insert" parameterType="com.yy.ppm.master.bean.dto.MPrintDTO">
+        INSERT INTO M_PRINT_MODEL(
+            ID,
+            MODEL_TYPE_CODE,
+            MODEL_TYPE_NAME,
+            MODEL_NAME,
+            MODEL_CONTENT,
+            CREATE_BY,
+            create_by_name,
+            CREATE_TIME
+        )VALUES(
+                   #{id,jdbcType=BIGINT},
+                   #{modelTypeCode,jdbcType=VARCHAR},
+                   #{modelTypeName,jdbcType=VARCHAR},
+                   #{modelName,jdbcType=VARCHAR},
+                   #{modelContent,jdbcType=VARCHAR},
+                   #{loginUserId},
+                   #{loginUserName},
+                   #{now}
+               )
+    </insert>
+    <select id="getList" resultType="com.yy.ppm.master.bean.dto.MPrintDTO"  parameterType="com.yy.ppm.master.bean.dto.MPrintSearchDTO">
+
+    </select>
+</mapper>
