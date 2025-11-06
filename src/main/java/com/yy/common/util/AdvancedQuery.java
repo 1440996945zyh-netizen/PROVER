@@ -29,6 +29,7 @@ public class AdvancedQuery  {
             databaseType = dbType.toLowerCase();
         }
     }
+
     public static String getDatabaseType() {
         return databaseType;
     }
@@ -48,7 +49,7 @@ public class AdvancedQuery  {
                     new TypeReference<List<AdvancedQueryPO>>() {}
             );
 
-            // 原逻辑保持不变
+
             if (conditionGroups == null || conditionGroups.isEmpty()) {
                 return new ArrayList<>();
             }
@@ -71,7 +72,7 @@ public class AdvancedQuery  {
     }
 
     private static List<Map<String, Object>> processConditionGroup(AdvancedQueryPO advancedQueryPO, int groupIndex, int startGlobalIndex) {
-        // 原有逻辑保持不变
+
         List<Map<String, Object>> result = new ArrayList<>();
         int currentGlobalIndex = startGlobalIndex;
 
@@ -156,7 +157,7 @@ public class AdvancedQuery  {
         // 非时间字段的原有逻辑
         switch (operator) {
             case "equals":
-                // 特殊处理：当 isBusinessMultiSelect 等于 0 时，将值按逗号分割并分别筛选
+                // 特殊处理：当 isBusinessMultiSelect 等于 0 且colType为6时
                 if (condition.getIsBusinessMultiSelect() != null && "0".equals(condition.getIsBusinessMultiSelect()) && "6".equals(condition.getColType())) {
                     if (DATABASE_MYSQL.equals(databaseType)) {
                         return String.format("FIND_IN_SET(%s, #{%s.value}) = 0", columnName, paramPrefix);
@@ -167,7 +168,7 @@ public class AdvancedQuery  {
                 return String.format("%s = #{%s.value}", columnName, paramPrefix);
 
             case "notEquals":
-                // 特殊处理：当 isBusinessMultiSelect 等于 0 时，将值按逗号分割并分别筛选
+                //特殊处理：当 isBusinessMultiSelect 等于 0 且colType为6时
                 if (condition.getIsBusinessMultiSelect() != null && "0".equals(condition.getIsBusinessMultiSelect()) && "6".equals(condition.getColType())) {
                     return generateMultiValueNotEqualsSql(columnName, paramPrefix, condition);
                 }
@@ -186,7 +187,6 @@ public class AdvancedQuery  {
                 return String.format("%s <= #{%s.value}", columnName, paramPrefix);
 
             case "empty":
-                // MySQL和Oracle的空值判断
                 if (DATABASE_MYSQL.equals(databaseType)) {
                     return String.format("(%s IS NULL OR %s = '')", columnName, columnName);
                 } else {
@@ -194,7 +194,6 @@ public class AdvancedQuery  {
                 }
 
             case "notEmpty":
-                // MySQL和Oracle的非空判断
                 if (DATABASE_MYSQL.equals(databaseType)) {
                     return String.format("(%s IS NOT NULL AND %s != '')", columnName, columnName);
                 } else {
@@ -202,7 +201,6 @@ public class AdvancedQuery  {
                 }
 
             case "contain":
-                // MySQL和Oracle的LIKE查询
                 if (DATABASE_MYSQL.equals(databaseType)) {
                     return String.format("%s LIKE CONCAT('%%', #{%s.value}, '%%')", columnName, paramPrefix);
                 } else {
@@ -210,39 +208,20 @@ public class AdvancedQuery  {
                 }
 
             case "notContain":
-                // MySQL和Oracle的NOT LIKE查询
                 if (DATABASE_MYSQL.equals(databaseType)) {
                     return String.format("%s NOT LIKE CONCAT('%%', #{%s.value}, '%%')", columnName, paramPrefix);
                 } else {
                     return String.format("%s NOT LIKE '%%' || #{%s.value} || '%%'", columnName, paramPrefix);
                 }
 
-//            case "containAll":
-//                // MySQL和Oracle的LIKE查询
-//                if (DATABASE_MYSQL.equals(databaseType)) {
-//                    return String.format("%s LIKE CONCAT('%%', #{%s.value}, '%%')", columnName, paramPrefix);
-//                } else {
-//                    return String.format("%s LIKE '%%' || #{%s.value} || '%%'", columnName, paramPrefix);
-//                }
-//
-//            case "containAny":
-//                // MySQL和Oracle的LIKE查询
-//                if (DATABASE_MYSQL.equals(databaseType)) {
-//                    return String.format("%s LIKE CONCAT('%%', #{%s.value}, '%%')", columnName, paramPrefix);
-//                } else {
-//                    return String.format("%s LIKE '%%' || #{%s.value} || '%%'", columnName, paramPrefix);
-//                }
-
             case "interval":
                 return String.format("%s BETWEEN #{%s.startValue} AND #{%s.endValue}",
                         columnName, paramPrefix, paramPrefix);
 
             case "equalsAny":
-                // IN 查询，MySQL和Oracle语法相同
                 return String.format("%s IN (#{%s.value})", columnName, paramPrefix);
 
             case "notEqualsAny":
-                // NOT IN 查询，MySQL和Oracle语法相同
                 return String.format("%s NOT IN (#{%s.value})", columnName, paramPrefix);
 
             default:
@@ -254,52 +233,17 @@ public class AdvancedQuery  {
 
     /**
      * 生成多值不等于查询的 SQL 片段
-     * 当 isBusinessMultiSelect 等于 0 时，将逗号分隔的值拆分成多个条件
+     * 当 isBusinessMultiSelect 等于 0 且 colType 为 6 时
      */
     private static String generateMultiValueNotEqualsSql(String columnName, String paramPrefix, AdvancedConditionsPO condition) {
         // 根据数据库类型生成不同的 SQL
         if (DATABASE_MYSQL.equals(databaseType)) {
-            return generateMySQLMultiValueNotEqualsSql(columnName, paramPrefix, condition);
+            return String.format("FIND_IN_SET(%s, #{%s.value}) = 0", columnName, paramPrefix);
         } else {
-            return generateOracleMultiValueNotEqualsSql(columnName, paramPrefix, condition);
+            return String.format("INSTR(',' || #{%s.value} || ',', ',' || %s || ',') = 0", paramPrefix, columnName);
         }
     }
 
-    /**
-     * 生成 MySQL 多值等于查询的 SQL 片段
-     */
-    private static String generateMySQLMultiValueEqualsSql(String columnName, String paramPrefix, AdvancedConditionsPO condition) {
-        // MySQL 使用 FIND_IN_SET 函数来处理逗号分隔的值
-        // 生成: FIND_IN_SET(column_name, 'value1,value2,value3') > 0
-        return String.format("FIND_IN_SET(%s, #{%s.value}) > 0", columnName, paramPrefix);
-    }
-
-    /**
-     * 生成 MySQL 多值不等于查询的 SQL 片段
-     */
-    private static String generateMySQLMultiValueNotEqualsSql(String columnName, String paramPrefix, AdvancedConditionsPO condition) {
-        // MySQL 使用 FIND_IN_SET 函数来处理逗号分隔的值，取反
-        // 生成: FIND_IN_SET(column_name, #{%s.value}) = 0
-        return String.format("FIND_IN_SET(%s, #{%s.value}) = 0", columnName, paramPrefix);
-    }
-
-    /**
-     * 生成 Oracle 多值等于查询的 SQL 片段
-     */
-    private static String generateOracleMultiValueEqualsSql(String columnName, String paramPrefix, AdvancedConditionsPO condition) {
-        // Oracle 使用 INSTR 函数来模拟 FIND_IN_SET
-        // 生成: INSTR(',' || #{%s.value} || ',', ',' || column_name || ',') > 0
-        return String.format("INSTR(',' || #{%s.value} || ',', ',' || %s || ',') > 0", paramPrefix, columnName);
-    }
-
-    /**
-     * 生成 Oracle 多值不等于查询的 SQL 片段
-     */
-    private static String generateOracleMultiValueNotEqualsSql(String columnName, String paramPrefix, AdvancedConditionsPO condition) {
-        // Oracle 使用 INSTR 函数来模拟 FIND_IN_SET，取反
-        // 生成: INSTR(',' || #{%s.value} || ',', ',' || column_name || ',') = 0
-        return String.format("INSTR(',' || #{%s.value} || ',', ',' || %s || ',') = 0", paramPrefix, columnName);
-    }
 
     /**
      * 生成时间字段的 SQL 片段

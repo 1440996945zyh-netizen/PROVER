@@ -31,7 +31,7 @@
 
                             <!-- 特殊处理多值查询 -->
                             <choose>
-                                <!-- 多值包含所有查询 - 精确匹配 -->
+                                <!-- 多值包含所有查询 -->
                                 <when test="condition.operator == 'containAll' ">
                                     <choose>
                                         <when test="@com.yy.common.util.AdvancedQuery@getDatabaseType() == 'mysql'">
@@ -51,7 +51,7 @@
                                     </choose>
                                 </when>
 
-                                <!-- 多值包含任意查询 - 精确匹配 -->
+                                <!-- 多值包含任意查询  -->
                                 <when test="condition.operator == 'containAny'">
                                     <choose>
                                         <when test="@com.yy.common.util.AdvancedQuery@getDatabaseType() == 'mysql'">

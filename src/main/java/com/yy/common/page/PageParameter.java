@@ -52,13 +52,10 @@ public class PageParameter implements Serializable {
      */
     private String order;
 
-
-//    private List<AdvancedQueryPO> advancedQuery;
-    private List<AdvancedQueryPO> conditions;
     private String advancedQuery;
 
     /**
-     * 获取处理后的条件 - MyBatis 会调用此方法
+     * 高级查询获取处理后的条件
      */
     private List<Map<String, Object>> processedConditions;
 
