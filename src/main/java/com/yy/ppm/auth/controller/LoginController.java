@@ -123,6 +123,7 @@ public class LoginController {
 		UserInfo sysAcc = loginService.login(account);
 
 		LOGGER.info("登录用户信息--->" + sysAcc);
+
 		// 在线人数集合，account:时间戳
 		redisTemplate.opsForZSet().add(applicationName + ":" + RedisEnum.ONLINE_ACCOUNTS_PC.getCode(), account.getUserAccount(), currentTime);
 		// YYY_UQ_ACCOUNT_PC_xxx:时间戳，用于防止一个账户多次登录

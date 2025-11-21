@@ -40,7 +40,7 @@
         <caffeine.version>3.1.8</caffeine.version>
         <lombok.version>1.18.32</lombok.version>
         <org.springframework.version>6.1.6</org.springframework.version>
-        <commons.lang3.version>3.9</commons.lang3.version>
+        <commons.lang3.version>3.12.0</commons.lang3.version>
         <commons.collections3.version>3.2</commons.collections3.version>
         <commons-io.version>2.4</commons-io.version>
         <joda.time.version>2.12.7</joda.time.version>
@@ -56,6 +56,7 @@
         <oracle.version>12.1.0.2</oracle.version>
         <httpclient.version>4.5.3</httpclient.version>
         <fastjson.version>2.0.51</fastjson.version>
+        <flowable.version>7.1.0</flowable.version>
     </properties>
 
     <pluginRepositories>
@@ -109,6 +110,12 @@
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-jsqlparser</artifactId>
+            <version>3.5.12</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-extension</artifactId>
             <version>3.5.12</version>
         </dependency>
 
@@ -549,6 +556,45 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5.6</version>
+        </dependency>
+
+
+        <!-- Flowable 依赖更新 -->
+        <dependency>
+            <groupId>org.flowable</groupId>
+            <artifactId>flowable-engine</artifactId>
+            <version>${flowable.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.mybatis</groupId>
+                    <artifactId>mybatis</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.flowable</groupId>
+            <artifactId>flowable-spring-boot-starter</artifactId>
+            <version>${flowable.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-lang3</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- 表达式解析工具 -->
+        <dependency>
+            <groupId>org.eweb4j</groupId>
+            <artifactId>fel</artifactId>
+            <version>0.8</version>
+        </dependency>
+
+        <!-- XML 解析包 -->
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.12.2</version>
         </dependency>
 
     </dependencies>
