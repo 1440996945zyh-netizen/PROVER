@@ -86,6 +86,16 @@ public class TSettingAdSearchServiceImpl implements TSettingAdSearchService {
 
         return count > 1 ;
     }
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean delete(Long menuId, String tableId) {
+        if (menuId == null || tableId == null) {
+            throw new IllegalArgumentException("menuId和tableId不能为空");
+        }
+
+        int count = tSettingAdSearchMapper.deleteByMenuIdAndTableId(menuId, tableId);
+        return count > 0;
+    }
 
 
 

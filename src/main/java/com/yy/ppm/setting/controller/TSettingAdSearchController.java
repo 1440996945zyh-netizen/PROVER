@@ -4,6 +4,7 @@ import com.yy.common.page.Pages;
 import com.yy.common.enums.Response;
 import com.yy.common.log.MicroLogger;
 
+import com.yy.framework.exception.BusinessRuntimeException;
 import com.yy.ppm.common.enums.ScheduleTaskEnum;
 import com.yy.ppm.setting.bean.dto.TSettingAdSearchDTO;
 import com.yy.ppm.setting.bean.dto.TSettingAdSearchSearchDTO;
@@ -112,6 +113,26 @@ public class TSettingAdSearchController {
 
         return Response.SUCCESS.newBuilder().out(flag ? "修改成功" : "修改失败").toResult();
     }
+    /**
+     * 删除
+     * @param menuId 页面ID
+     * @param tableId 表格ID
+     * @return 删除结果
+     */
+    @DeleteMapping("/delete")
+    public Map<String, Object> delete(@RequestParam("menuId") Long menuId,
+                                      @RequestParam("tableId") String tableId) {
+        final String methodName = "TSettingAdSearchController:delete";
+        LOGGER.enter(methodName + "[start]", "menuId:" + menuId + ",tableId:" + tableId);
 
+        if (menuId == null || tableId == null || tableId.trim().isEmpty()) {
+            throw new BusinessRuntimeException("参数不能为空~");
+        }
+
+        boolean flag = tSettingAdSearchService.delete(menuId, tableId);
+
+        LOGGER.exit(methodName);
+        return Response.SUCCESS.newBuilder().out(flag ? "删除成功" : "删除失败").toResult();
+    }
 }
 

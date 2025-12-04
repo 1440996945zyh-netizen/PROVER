@@ -233,6 +233,11 @@ public class SelectServiceImpl implements SelectService {
                 }
                 res = selectMapper.listContract(params);
                 break;
+            case "BUSINESS":
+                // 业务类型：根据 types 参数判断具体业务逻辑
+                String businessType = StringUtil.getString(params.get("types"));
+                res = handleBusinessType(businessType, params);
+                break;
             default:
                 break;
         }
@@ -263,5 +268,34 @@ public class SelectServiceImpl implements SelectService {
         return map;
     }
 
+    /**
+     * 处理业务类型逻辑
+     * @param businessType 业务类型标识
+     * @param params 参数集合
+     * @return 业务数据列表
+     */
+    private List<Map<String, Object>> handleBusinessType(String businessType, Map<String, Object> params) {
+        if (StringUtil.isEmpty(businessType)) {
+            return new ArrayList<>();
+        }
+        // 类型
+        String type = StringUtil.getString(params.get("types"));
+
+        List<Map<String, Object>> res = new ArrayList<>();
+        switch (type.toUpperCase()) {
+            // 业务类型1：用户相关
+            case "USER":
+                res = selectMapper.getLocalSelect(
+                        SelectEnum.USER.getTableName(),
+                        SelectEnum.USER.getValueName(),
+                        SelectEnum.USER.getLabelName(),
+                        null);
+                break;
+            // 默认情况
+            default:
+               break;
+        }
+        return res;
+    }
 
 }

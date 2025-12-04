@@ -42,6 +42,11 @@ public interface TSettingAdSearchService {
      */
     public boolean doSave(TSettingAdSearchDTO tSettingAdSearchDTO);
 
-
+    /**
+     * 删除
+     * @param menuId,tableId
+     * @return 是否成功
+     */
+    public boolean delete(Long menuId, String tableId);
  }
 

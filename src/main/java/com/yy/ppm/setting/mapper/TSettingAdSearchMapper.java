@@ -53,6 +53,14 @@ public interface TSettingAdSearchMapper {
  void insertBatch(List<TSettingAdSearchDTO> tSettingAdSearchDTOList);
 
 
- void deleteByMenuIdAndTableId(@Param("menuId") Long menuId, @Param("tableId") String tableId);
+
+
+ /**
+  * 删除高級查詢配置表
+  * @param menuId 页面id
+  * @param tableId 前端table的ID
+  * @return 影响行数
+  */
+ int deleteByMenuIdAndTableId(@Param("menuId") Long menuId, @Param("tableId") String tableId);
 }
 
