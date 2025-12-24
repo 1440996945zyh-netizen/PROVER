@@ -1,12 +1,15 @@
 package com.yy.ppm.system.service;
 
 
+import com.yy.common.flowable.utils.CollectionUtils;
 import com.yy.common.page.Pages;
 import com.yy.ppm.system.bean.dto.ProfileDTO;
 import com.yy.ppm.system.bean.dto.SysUserDTO;
 import com.yy.ppm.system.bean.dto.SysUserSearchDTO;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 用户表 系统用户表(UserModule)表服务接口
@@ -79,5 +82,22 @@ public interface SysUserService {
     public int updatePassword(SysUserDTO sysUserDTO);
 
     public ProfileDTO profile();
+
+    /**
+     * 根据用户ids批量查询用户信息
+     */
+    public List<SysUserDTO> getUserList(Collection<Long> ids);
+
+    /**
+     * 获得用户 Map
+     *
+     * @param ids 用户编号数组
+     * @return 用户 Map
+     */
+    default Map<Long, SysUserDTO> getUserMap(Collection<Long> ids) {
+        List<SysUserDTO> users = getUserList(ids);
+        return CollectionUtils.convertMap(users, SysUserDTO::getId);
+    }
+
 
 }

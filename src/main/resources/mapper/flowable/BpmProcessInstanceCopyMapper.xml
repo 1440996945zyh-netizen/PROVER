@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.flowable.mapper.BpmProcessInstanceCopyMapper">
+
+    <insert id="insertBatch">
+        INSERT INTO bpm_process_instance_copy (
+        id,
+        user_id,
+        start_user_id,
+        process_instance_id,
+        process_instance_name,
+        process_definition_id,
+        category,
+        activity_id,
+        activity_name,
+        task_id,
+        reason,
+        create_by,
+        create_by_name,
+        create_time
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.id, jdbcType=BIGINT},
+            #{item.userId, jdbcType=BIGINT},
+            #{item.startUserId, jdbcType=BIGINT},
+            #{item.processInstanceId, jdbcType=VARCHAR},
+            #{item.processInstanceName, jdbcType=VARCHAR},
+            #{item.processDefinitionId, jdbcType=VARCHAR},
+            #{item.category, jdbcType=VARCHAR},
+            #{item.activityId, jdbcType=VARCHAR},
+            #{item.activityName, jdbcType=VARCHAR},
+            #{item.taskId, jdbcType=VARCHAR},
+            #{item.reason, jdbcType=VARCHAR},
+            #{loginUserId},
+            #{loginUserName},
+            #{now}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteByProcessInstanceId">
+        delete from bpm_process_instance_copy where process_instance_id = #{processInstanceId}
+    </delete>
+    <select id="selectPage" resultType="com.yy.ppm.flowable.bean.po.BpmProcessInstanceCopyPO" parameterType="com.yy.ppm.flowable.bean.dto.BpmProcessInstanceCopySearchDTO">
+        select
+            id,
+            user_id,
+            start_user_id,
+            process_instance_id,
+            process_instance_name,
+            process_definition_id,
+            category,
+            activity_id,
+            activity_name,
+            task_id,
+            reason,
+            create_by,
+            create_by_name,
+            create_time,
+            update_by,
+            update_by_name,
+            update_time
+        from
+            bpm_process_instance_copy
+        where 2>1
+        <if test="userId != null and userId != ''">
+            and user_id = #{userId}
+        </if>
+        <if test="processInstanceName != null and processInstanceName != ''">
+            and process_instance_name = #{processInstanceName}
+        </if>
+        <if test="createTime[0] != null and createTime[0] != ''">
+            and create_time >= #{createTime[0]}
+        </if>
+        <if test="createTime[1] != null and createTime[1] != ''">
+            and create_time &lt;= #{createTime[1]}
+        </if>
+        order by id desc
+    </select>
+</mapper>

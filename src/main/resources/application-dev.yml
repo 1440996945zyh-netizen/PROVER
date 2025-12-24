@@ -98,8 +98,8 @@ spring:
     redis:
       client-name: bdss-redis
       database: 4
-      host: 123.207.147.75
-      password: yyRever168.com!#@
+      host: localhost
+      password: admin123
       port: 6379
       timeout: 3000ms
       lettuce:
@@ -140,6 +140,16 @@ spring:
             routing-key: exchange_cs
             exchange: rabbitmq测试  # 关联的交换机名称
             enabled: true  # 启用监听
+
+# 工作流 Flowable 配置
+flowable:
+#  数据库模式更新策略（开发环境为true；生产环境为了安全，通常建议设为 false）
+  database-schema-update: true
+#  检查流程定义
+  check-process-definitions: false
+#  历史数据保存级别(none: 不保存历史，性能最高;activity: 只保存流程实例和节点活动实例。;audit (你的配置): 在 activity 基础上，保存表单属性和任务级详情。这是兼顾性能与审计需求的最佳平衡点。;full: 记录所有细节，包括变量的所有变更轨迹。数据量增长极快，非特殊需求不建议开启。)
+  history-level: audit
+
 #mybatis-plus
 mybatis-plus:
   mapper-locations: classpath*:mapper/**/*Mapper.xml

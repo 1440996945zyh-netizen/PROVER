@@ -3,8 +3,10 @@ package com.yy.ppm.system.mapper;
 import com.yy.common.util.str.StringUtil;
 import com.yy.framework.annotation.Edit;
 import com.yy.ppm.system.bean.dto.SysDeptDTO;
+import com.yy.ppm.system.bean.dto.SysUserDTO;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -101,5 +103,11 @@ public interface SysDeptMapper {
      */
     public List<SysDeptDTO> getByDeptNos(@Param("deptNos") List<String> deptNos);
 
-
+    /**
+     * 获得部门信息数组
+     *
+     * @param ids 部门编号数组
+     * @return 部门信息数组
+     */
+    List<SysDeptDTO> getDeptList(@Param("list") Collection<Long> ids);
 }

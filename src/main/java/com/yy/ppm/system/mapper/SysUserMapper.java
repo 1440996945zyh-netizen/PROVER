@@ -7,6 +7,7 @@ import com.yy.ppm.system.bean.dto.SysUserDTO;
 import com.yy.ppm.system.bean.dto.SysUserSearchDTO;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -75,4 +76,9 @@ public interface SysUserMapper {
 	 * @return
 	 */
 	List<Long> getRoleListByUserId(Long id);
+
+	/**
+	 * 根据用户ids批量查询用户信息
+	 */
+    List<SysUserDTO> getUserList(@Param("list") Collection<Long> ids);
 }

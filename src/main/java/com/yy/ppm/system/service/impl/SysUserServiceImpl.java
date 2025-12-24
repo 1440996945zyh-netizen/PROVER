@@ -1,5 +1,6 @@
 package com.yy.ppm.system.service.impl;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -277,5 +278,13 @@ public class SysUserServiceImpl implements SysUserService {
 		// 获取角色信息
 		//profileDTO.setRoles(sysUserMapper.getRoleListByUserId(securityUtils.getLoginUserId()));
 		return profileDTO;
+	}
+
+	/**
+	 * 根据用户ids批量查询用户信息
+	 */
+	@Override
+	public List<SysUserDTO> getUserList(Collection<Long> ids) {
+		return sysUserMapper.getUserList(ids);
 	}
 }

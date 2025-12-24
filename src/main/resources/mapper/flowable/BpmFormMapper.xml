@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.flowable.mapper.BpmFormMapper">
+
+    <insert id="insert">
+        INSERT INTO bpm_form (id, name, status, conf, fields,
+                              remark,create_by,create_by_name,create_time
+        ) VALUES (
+                     #{id, jdbcType=BIGINT},
+                     #{name, jdbcType=VARCHAR},
+                     #{status, jdbcType=BIGINT},
+                     #{conf, jdbcType=CLOB},
+                     #{fields, jdbcType=CLOB},
+                     #{remark, jdbcType=VARCHAR},
+                     #{loginUserId},
+                     #{loginUserName},
+                     #{now}
+                 )
+    </insert>
+
+    <update id="updateById">
+        UPDATE bpm_form
+        SET
+            name = #{name, jdbcType=VARCHAR},
+            status = #{status, jdbcType=BIGINT},
+            conf =  #{conf, jdbcType=CLOB},
+            fields =  #{fields, jdbcType=CLOB},
+            remark = #{remark, jdbcType=VARCHAR},
+            update_by = #{loginuserid},
+            update_by_name = #{loginusername},
+            update_time = #{now}
+        WHERE id = #{id, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        delete from bpm_form where id = #{id}
+    </delete>
+
+    <select id="selectById" resultType="com.yy.ppm.flowable.bean.po.BpmFormPO">
+        select id,
+               name,
+               status,
+               conf,
+               fields,
+               remark,
+               create_by,
+               create_by_name,
+               create_time,
+               update_by,
+               update_by_name,
+               update_time
+        from bpm_form
+        where id = #{id}
+    </select>
+
+    <select id="getList" resultType="com.yy.ppm.flowable.bean.po.BpmFormPO" parameterType="bpmFormSearchDTO">
+        select id,
+        name,
+        status,
+        conf,
+        fields,
+        remark,
+        create_by,
+        create_by_name,
+        create_time,
+        update_by,
+        update_by_name,
+        update_time
+        from bpm_form
+        where 2 > 1
+        <if test="name != null and name != ''">
+            and name = #{name}
+        </if>
+        <if test="status != null and status != ''">
+            and status = #{status}
+        </if>
+    </select>
+
+    <select id="selectByIds" resultType="com.yy.ppm.flowable.bean.po.BpmFormPO">
+        select id,
+        name,
+        status,
+        conf,
+        fields,
+        remark,
+        create_by,
+        create_by_name,
+        create_time,
+        update_by,
+        update_by_name,
+        update_time
+        from bpm_form
+        where
+        id in
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

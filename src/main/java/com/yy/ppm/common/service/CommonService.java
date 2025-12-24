@@ -83,5 +83,4 @@ public interface CommonService {
      * @return
      */
     public String getAutoNum(AutoNumEnum.BusinessAutoEnum businessType, String parentCodeVal);
-
 }

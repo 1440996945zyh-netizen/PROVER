@@ -238,6 +238,20 @@ public class SelectServiceImpl implements SelectService {
                 String businessType = StringUtil.getString(params.get("types"));
                 res = handleBusinessType(businessType, params);
                 break;
+            case "BPM_FORM":
+                res = selectMapper.getLocalSelect(
+                        SelectEnum.BPM_FORM.getTableName(),
+                        SelectEnum.BPM_FORM.getValueName(),
+                        SelectEnum.BPM_FORM.getLabelName(),
+                        "");
+                break;
+            case "BPM_CATEGORY":
+                res = selectMapper.getLocalSelect(
+                        SelectEnum.BPM_CATEGORY.getTableName(),
+                        SelectEnum.BPM_CATEGORY.getValueName(),
+                        SelectEnum.BPM_CATEGORY.getLabelName(),
+                        "STATUS = 0");
+                break;
             default:
                 break;
         }

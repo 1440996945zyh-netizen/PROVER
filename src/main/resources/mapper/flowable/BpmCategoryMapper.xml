@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.flowable.mapper.BpmCategoryMapper">
+
+    <insert id="insert">
+        INSERT INTO bpm_category (id, name, code, description, status,
+                                  sort, create_by,create_by_name,create_time)
+        VALUES (#{id, jdbcType=BIGINT},
+                #{name, jdbcType=VARCHAR},
+                #{code, jdbcType=VARCHAR},
+                #{description, jdbcType=VARCHAR},
+                #{status, jdbcType=BIGINT},
+                #{sort, jdbcType=BIGINT},
+                #{loginUserId},
+                #{loginUserName},
+                #{now}
+    </insert>
+
+    <update id="updateById">
+        UPDATE bpm_category
+        SET
+            name = #{name, jdbcType=VARCHAR},
+            code = #{code, jdbcType=VARCHAR},
+            description = #{description, jdbcType=VARCHAR},
+            status = #{status, jdbcType=BIGINT},
+            sort = #{sort, jdbcType=BIGINT},
+            update_by = #{loginuserid},
+            update_by_name = #{loginusername},
+            update_time = #{now}
+        WHERE id = #{id, jdbcType=BIGINT}
+    </update>
+    <delete id="deleteById">
+        delete from bpm_category where id = #{id}
+    </delete>
+
+    <select id="selectBy" resultType="com.yy.ppm.flowable.bean.po.BpmCategoryPO">
+        select
+            id,
+            name,
+            code,
+            description,
+            status,
+            sort,
+            create_by,
+            create_by_name,
+            create_time,
+            update_by,
+            update_by_name,
+            update_time
+
+        from
+            bpm_category
+        where
+            name = #{value} or code = #{value}
+    </select>
+    <select id="selectListByCode" resultType="com.yy.ppm.flowable.bean.po.BpmCategoryPO">
+        SELECT
+        id,
+        name,
+        code,
+        description,
+        status,
+        sort,
+        create_by,
+        create_by_name,
+        create_time,
+        update_by,
+        update_by_name,
+        update_time
+        FROM
+        bpm_category
+        WHERE
+        code IN
+        <foreach collection="codes" item="code" open="(" separator="," close=")">
+            #{code}
+        </foreach>
+    </select>
+
+    <select id="selectById" resultType="com.yy.ppm.flowable.bean.po.BpmCategoryPO">
+        select
+            id,
+            name,
+            code,
+            description,
+            status,
+            sort,
+            create_by,
+            create_by_name,
+            create_time,
+            update_by,
+            update_by_name,
+            update_time
+        from
+            bpm_category
+        where
+            id = #{id}
+    </select>
+
+    <select id="getList" resultType="com.yy.ppm.flowable.bean.po.BpmCategoryPO">
+        select
+        id,
+        name,
+        code,
+        description,
+        status,
+        sort,
+        create_by,
+        create_by_name,
+        create_time,
+        update_by,
+        update_by_name,
+        update_time
+        from
+        bpm_category
+        where
+        2>1
+        <if test="name != null and name != ''">
+            and name = #{name}
+        </if>
+        <if test="status != null and status !=''">
+            and status = #{status}
+        </if>
+    </select>
+</mapper>

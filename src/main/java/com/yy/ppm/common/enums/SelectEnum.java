@@ -17,8 +17,10 @@ public enum SelectEnum {
     CITY("CITY","M_CITY","CITY_CODE", "NAME","市"),
     // 字典
     DICT("DICT","M_DICT_DATA","DICT_VALUE", "DICT_LABEL","字典"),
-
-
+    /** 表单*/
+    BPM_FORM("BPM_FORM","BPM_FORM","ID","NAME","表单信息"),
+    /**流程分类*/
+    BPM_CATEGORY("BPM_CATEGORY","BPM_CATEGORY","CODE","NAME","流程分类"),
     /** 常量 */
     CONSTANT("CONSTANT","M_CONSTANTS","CD", "NM","常量信息"),
 

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.flowable.mapper.BpmProcessDefinitionInfoMapper">
+
+
+    <insert id="insert">
+        INSERT INTO bpm_process_definition_info (id, process_definition_id, model_id, model_type, category,
+                                                 icon, description, form_type, form_id, form_conf,
+                                                 form_fields, form_custom_create_path, form_custom_view_path,
+                                                 simple_model, sort, visible, start_user_ids, start_dept_ids,
+                                                 manager_user_ids, allow_cancel_running_process, allow_withdraw_task,
+                                                 process_id_rule, auto_approval_type, title_setting, summary_setting,
+                                                 process_before_trigger_setting, process_after_trigger_setting,
+                                                 task_before_trigger_setting, task_after_trigger_setting,
+                                                 print_template_setting, create_by,create_by_name,create_time)
+        VALUES (#{id, jdbcType=BIGINT},
+                #{processDefinitionId, jdbcType=VARCHAR},
+                #{modelId, jdbcType=VARCHAR},
+                #{modelType, jdbcType=BIGINT},
+                #{category, jdbcType=VARCHAR},
+                #{icon, jdbcType=VARCHAR},
+                #{description, jdbcType=VARCHAR},
+                #{formType, jdbcType=BIGINT},
+                #{formId, jdbcType=BIGINT},
+                #{formConf, jdbcType=CLOB},
+                #{formFields, jdbcType=CLOB},
+                #{formCustomCreatePath, jdbcType=VARCHAR},
+                #{formCustomViewPath, jdbcType=VARCHAR},
+                #{simpleModel, jdbcType=CLOB},
+                #{sort, jdbcType=BIGINT},
+                #{visible, jdbcType=BIGINT},
+                #{startUserIds, jdbcType=VARCHAR},
+                #{startDeptIds, jdbcType=VARCHAR},
+                #{managerUserIds, jdbcType=VARCHAR},
+                #{allowCancelRunningProcess, jdbcType=BIGINT},
+                #{allowWithdrawTask, jdbcType=BIGINT},
+                #{processIdRule, jdbcType=VARCHAR},
+                #{autoApprovalType, jdbcType=BIGINT},
+                #{titleSetting, jdbcType=VARCHAR},
+                #{summarySetting, jdbcType=VARCHAR},
+                #{processBeforeTriggerSetting, jdbcType=VARCHAR},
+                #{processAfterTriggerSetting, jdbcType=VARCHAR},
+                #{taskBeforeTriggerSetting, jdbcType=VARCHAR},
+                #{taskAfterTriggerSetting, jdbcType=VARCHAR},
+                #{printTemplateSetting, jdbcType=VARCHAR},
+                #{loginUserId},
+                #{loginUserName},
+                #{now})
+    </insert>
+    <select id="selectListByProcessDefinitionIds"
+            resultType="com.yy.ppm.flowable.bean.po.BpmProcessDefinitionInfoPO">
+        select id,
+               process_definition_id,
+               model_id,
+               model_type,
+               category,
+               icon,
+               description,
+               form_type,
+               form_id,
+               form_conf,
+               form_fields,
+               form_custom_create_path,
+               form_custom_view_path,
+               simple_model,
+               sort,
+               visible,
+               start_user_ids,
+               start_dept_ids,
+               manager_user_ids,
+               allow_cancel_running_process,
+               allow_withdraw_task,
+               process_id_rule,
+               auto_approval_type,
+               title_setting,
+               summary_setting,
+               process_before_trigger_setting,
+               process_after_trigger_setting,
+               task_before_trigger_setting,
+               task_after_trigger_setting,
+               print_template_setting,
+               create_by,
+               create_by_name,
+               create_time,
+               update_by,
+               update_by_name,
+               update_time
+        from
+            bpm_process_definition_info
+        where
+            process_definition_id in
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

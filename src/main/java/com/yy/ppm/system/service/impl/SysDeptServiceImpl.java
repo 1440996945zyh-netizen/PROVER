@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -207,6 +208,18 @@ public class SysDeptServiceImpl implements SysDeptService {
         }
 
         return deptMapper.deleteDeptById(deptId);
+    }
+
+
+    /**
+     * 获得部门信息数组
+     *
+     * @param ids 部门编号数组
+     * @return 部门信息数组
+     */
+    @Override
+    public List<SysDeptDTO> getDeptList(Collection<Long> ids) {
+        return deptMapper.getDeptList(ids);
     }
 
 }

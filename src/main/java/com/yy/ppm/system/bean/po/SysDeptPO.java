@@ -65,4 +65,9 @@ public class SysDeptPO extends BasePO implements Serializable {
     private String isTallyCompany;
     /** 1:一级签票  2:二级签票 */
     private String ticketLevel;
+
+    /**
+     * 部门负责人（流程引擎后续使用）
+     */
+    private Long leaderUserId;
 }

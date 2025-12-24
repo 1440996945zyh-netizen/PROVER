@@ -1,9 +1,12 @@
 package com.yy.ppm.system.service;
 
 
+import com.yy.common.flowable.utils.CollectionUtils;
 import com.yy.ppm.system.bean.dto.SysDeptDTO;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 部门表服务接口
@@ -50,5 +53,25 @@ public interface SysDeptService {
      * @return 结果
      */
     public int deleteDeptById(Long deptId);
+
+
+    /**
+     * 获得部门信息数组
+     *
+     * @param ids 部门编号数组
+     * @return 部门信息数组
+     */
+    List<SysDeptDTO> getDeptList(Collection<Long> ids);
+
+    /**
+     * 获得指定编号的部门 Map
+     *
+     * @param ids 部门编号数组
+     * @return 部门 Map
+     */
+    default Map<Long, SysDeptDTO> getDeptMap(Collection<Long> ids) {
+        List<SysDeptDTO> list = getDeptList(ids);
+        return CollectionUtils.convertMap(list, SysDeptDTO::getId);
+    }
 
 }

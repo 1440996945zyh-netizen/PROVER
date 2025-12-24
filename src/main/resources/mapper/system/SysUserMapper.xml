@@ -209,5 +209,35 @@
         WHERE
             USER_ID = #{id}
     </select>
+    <select id="getUserList" resultType="com.yy.ppm.system.bean.dto.SysUserDTO">
+        select
+            ID,
+            USER_ACCOUNT,
+            PASSWD,
+            USER_NAME,
+            DEPT_ID,
+            IS_SUPERADMIN,
+            MOBILE,
+            EMAIL,
+            STATUS,
+            SORT_NUM,
+            SEX,
+            REMARK,
+            IS_LABOR,
+            POST_CODE,
+            POST_NAME,
+            UNIT_TYPE_CODE,
+            UNIT_TYPE_NAME,
+            CREATE_BY,
+            create_by_name,
+            CREATE_TIME
+        from
+            SYS_USER
+        where
+            id in
+        <foreach collection="list" item="item" open="(" separator="," close=")" >
+            #{item}
+        </foreach>
+    </select>
 
 </mapper>

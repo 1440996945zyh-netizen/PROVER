@@ -180,6 +180,40 @@
             AND STATUS = #{status}
         </if>
     </select>
+    <select id="getDeptList" resultType="com.yy.ppm.system.bean.dto.SysDeptDTO">
+        select
+            ID,
+            PARENT_ID,
+            DEPT_CODE,
+            DEPT_NAME,
+            ORDER_NO,
+            REMARK,
+            PARENT_IDS,
+            CHIEF,
+            STATUS,
+            DESCR,
+            DEPT_LEVEL,
+            DEPT_TYPE,
+            DEPT_NO,
+            PARENT_DEPT_CODE,
+            IS_LABOR,
+            IS_MACHINE,
+            IS_PROJECT,
+            IN_OUT_TYPE,
+            IS_WORK_COMPANY,
+            IS_TALLY_COMPANY,
+            TICKET_LEVEL,
+            CREATE_BY,
+            create_by_name,
+            CREATE_TIME
+        from
+            sys_dept
+        where
+            id in
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
 
     <insert id="insertDept" parameterType="com.yy.ppm.system.bean.dto.SysDeptDTO">
         insert into sys_dept(
