@@ -10,7 +10,7 @@
 
         <!-- 关键：为 fields 字段指定 TypeHandler -->
         <result column="fields" property="fields" jdbcType="CLOB"
-                typeHandler="com.yy.ppm.flowable.handler.ListToJsonTypeHandler"/>
+                typeHandler="com.yy.framework.flowable.handler.ListToJsonTypeHandler"/>
 
         <result column="remark" property="remark" jdbcType="VARCHAR"/>
         <result column="create_by" property="createBy" jdbcType="BIGINT"/>
@@ -38,7 +38,7 @@
                      #{name, jdbcType=VARCHAR},
                      #{status, jdbcType=BIGINT},
                      #{conf, jdbcType=CLOB},
-                     #{fields, jdbcType=CLOB, typeHandler=com.yy.ppm.flowable.handler.ListToJsonTypeHandler},
+                     #{fields, jdbcType=CLOB, typeHandler=com.yy.framework.flowable.handler.ListToJsonTypeHandler},
                      #{remark, jdbcType=VARCHAR},
                      #{loginUserId, jdbcType=BIGINT},
                      #{loginUserName, jdbcType=VARCHAR},
@@ -53,7 +53,7 @@
             name = #{name, jdbcType=VARCHAR},
             status = #{status, jdbcType=BIGINT},
             conf = #{conf, jdbcType=CLOB},
-            fields = #{fields, jdbcType=CLOB, typeHandler=com.yy.ppm.flowable.handler.ListToJsonTypeHandler},
+            fields = #{fields, jdbcType=CLOB, typeHandler=com.yy.framework.flowable.handler.ListToJsonTypeHandler},
             remark = #{remark, jdbcType=VARCHAR},
             update_by = #{loginUserId, jdbcType=BIGINT},
             update_by_name = #{loginUserName, jdbcType=VARCHAR},
