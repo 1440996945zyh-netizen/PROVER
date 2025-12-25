@@ -1,60 +1,96 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yy.ppm.flowable.mapper.BpmFormMapper">
+    <!--  定义 ResultMap，为 fields 字段指定 TypeHandler -->
+    <resultMap id="BpmFormResultMap" type="com.yy.ppm.flowable.bean.po.BpmFormPO">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="BIGINT"/>
+        <result column="conf" property="conf" jdbcType="CLOB"/>
 
-    <insert id="insert">
-        INSERT INTO bpm_form (id, name, status, conf, fields,
-                              remark,create_by,create_by_name,create_time
+        <!-- 关键：为 fields 字段指定 TypeHandler -->
+        <result column="fields" property="fields" jdbcType="CLOB"
+                typeHandler="com.yy.ppm.flowable.handler.ListToJsonTypeHandler"/>
+
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="create_by" property="createBy" jdbcType="BIGINT"/>
+        <result column="create_by_name" property="createByName" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_by" property="updateBy" jdbcType="BIGINT"/>
+        <result column="update_by_name" property="updateByName" jdbcType="VARCHAR"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 插入动态表单 -->
+    <insert id="insert" parameterType="com.yy.ppm.flowable.bean.po.BpmFormPO">
+        INSERT INTO bpm_form (
+            id,
+            name,
+            status,
+            conf,
+            fields,
+            remark,
+            create_by,
+            create_by_name,
+            create_time
         ) VALUES (
                      #{id, jdbcType=BIGINT},
                      #{name, jdbcType=VARCHAR},
                      #{status, jdbcType=BIGINT},
                      #{conf, jdbcType=CLOB},
-                     #{fields, jdbcType=CLOB},
+                     #{fields, jdbcType=CLOB, typeHandler=com.yy.ppm.flowable.handler.ListToJsonTypeHandler},
                      #{remark, jdbcType=VARCHAR},
-                     #{loginUserId},
-                     #{loginUserName},
-                     #{now}
+                     #{loginUserId, jdbcType=BIGINT},
+                     #{loginUserName, jdbcType=VARCHAR},
+                     #{now, jdbcType=TIMESTAMP}
                  )
     </insert>
 
-    <update id="updateById">
+    <!-- 更新动态表单 -->
+    <update id="updateById" parameterType="com.yy.ppm.flowable.bean.po.BpmFormPO">
         UPDATE bpm_form
         SET
             name = #{name, jdbcType=VARCHAR},
             status = #{status, jdbcType=BIGINT},
-            conf =  #{conf, jdbcType=CLOB},
-            fields =  #{fields, jdbcType=CLOB},
+            conf = #{conf, jdbcType=CLOB},
+            fields = #{fields, jdbcType=CLOB, typeHandler=com.yy.ppm.flowable.handler.ListToJsonTypeHandler},
             remark = #{remark, jdbcType=VARCHAR},
-            update_by = #{loginuserid},
-            update_by_name = #{loginusername},
-            update_time = #{now}
+            update_by = #{loginUserId, jdbcType=BIGINT},
+            update_by_name = #{loginUserName, jdbcType=VARCHAR},
+            update_time = #{now, jdbcType=TIMESTAMP}
         WHERE id = #{id, jdbcType=BIGINT}
     </update>
 
-    <delete id="deleteById">
-        delete from bpm_form where id = #{id}
+    <!-- 删除动态表单 -->
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM bpm_form
+        WHERE id = #{id, jdbcType=BIGINT}
     </delete>
 
-    <select id="selectById" resultType="com.yy.ppm.flowable.bean.po.BpmFormPO">
-        select id,
-               name,
-               status,
-               conf,
-               fields,
-               remark,
-               create_by,
-               create_by_name,
-               create_time,
-               update_by,
-               update_by_name,
-               update_time
-        from bpm_form
-        where id = #{id}
+    <!-- 根据ID查询 -->
+    <select id="selectById" resultMap="BpmFormResultMap" parameterType="long">
+        SELECT
+            id,
+            name,
+            status,
+            conf,
+            fields,
+            remark,
+            create_by,
+            create_by_name,
+            create_time,
+            update_by,
+            update_by_name,
+            update_time
+        FROM bpm_form
+        WHERE id = #{id, jdbcType=BIGINT}
     </select>
 
-    <select id="getList" resultType="com.yy.ppm.flowable.bean.po.BpmFormPO" parameterType="bpmFormSearchDTO">
-        select id,
+    <!-- 分页查询 -->
+    <select id="getList"  resultMap="BpmFormResultMap"
+            parameterType="com.yy.ppm.flowable.bean.dto.BpmFormSearchDTO">
+        SELECT
+        id,
         name,
         status,
         conf,
@@ -66,18 +102,22 @@
         update_by,
         update_by_name,
         update_time
-        from bpm_form
-        where 2 > 1
+        FROM bpm_form
+        WHERE 1 = 1
         <if test="name != null and name != ''">
-            and name = #{name}
+            <!-- 将CONCAT函数改为||连接符 -->
+            AND name LIKE '%' || #{name, jdbcType=VARCHAR} || '%'
         </if>
-        <if test="status != null and status != ''">
-            and status = #{status}
+        <if test="status != null">
+            AND status = #{status, jdbcType=BIGINT}
         </if>
+        ORDER BY create_time DESC
     </select>
 
-    <select id="selectByIds" resultType="com.yy.ppm.flowable.bean.po.BpmFormPO">
-        select id,
+    <!-- 批量查询 -->
+    <select id="selectByIds" resultMap="BpmFormResultMap">
+        SELECT
+        id,
         name,
         status,
         conf,
@@ -89,11 +129,11 @@
         update_by,
         update_by_name,
         update_time
-        from bpm_form
-        where
-        id in
+        FROM bpm_form
+        WHERE id IN
         <foreach collection="list" item="item" open="(" separator="," close=")">
-            #{item}
+            #{item, jdbcType=BIGINT}
         </foreach>
     </select>
+
 </mapper>

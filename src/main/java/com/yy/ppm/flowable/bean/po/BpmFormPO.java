@@ -36,6 +36,7 @@ public class BpmFormPO extends BasePO implements Serializable {
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
     private List<String> fields;
+
     /**
      * 备注
      */

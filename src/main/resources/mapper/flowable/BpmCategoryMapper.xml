@@ -1,22 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yy.ppm.flowable.mapper.BpmCategoryMapper">
-
-    <insert id="insert">
+<!--    新增流程分类    -->
+    <insert id="insert" parameterType="com.yy.ppm.flowable.bean.po.BpmCategoryPO">
         INSERT INTO bpm_category (id, name, code, description, status,
-                                  sort, create_by,create_by_name,create_time)
-        VALUES (#{id, jdbcType=BIGINT},
-                #{name, jdbcType=VARCHAR},
-                #{code, jdbcType=VARCHAR},
-                #{description, jdbcType=VARCHAR},
-                #{status, jdbcType=BIGINT},
-                #{sort, jdbcType=BIGINT},
-                #{loginUserId},
-                #{loginUserName},
-                #{now}
+                                  sort, create_by, create_by_name, create_time)
+        VALUES (#{id}, #{name}, #{code}, #{description}, #{status},
+                #{sort}, #{loginUserId}, #{loginUserName}, #{now})
     </insert>
-
-    <update id="updateById">
+<!--    更新流程分类    -->
+    <update id="updateById" >
         UPDATE bpm_category
         SET
             name = #{name, jdbcType=VARCHAR},
@@ -24,15 +17,16 @@
             description = #{description, jdbcType=VARCHAR},
             status = #{status, jdbcType=BIGINT},
             sort = #{sort, jdbcType=BIGINT},
-            update_by = #{loginuserid},
-            update_by_name = #{loginusername},
+            update_by = #{loginUserId},
+            update_by_name = #{loginUserName},
             update_time = #{now}
         WHERE id = #{id, jdbcType=BIGINT}
     </update>
+<!--    删除流程分类    -->
     <delete id="deleteById">
         delete from bpm_category where id = #{id}
     </delete>
-
+<!--    查询流程分类    -->
     <select id="selectBy" resultType="com.yy.ppm.flowable.bean.po.BpmCategoryPO">
         select
             id,
@@ -53,6 +47,7 @@
         where
             name = #{value} or code = #{value}
     </select>
+        <!--    查询流程分类列表    -->
     <select id="selectListByCode" resultType="com.yy.ppm.flowable.bean.po.BpmCategoryPO">
         SELECT
         id,
@@ -75,7 +70,7 @@
             #{code}
         </foreach>
     </select>
-
+<!--    查询流程分类详情    -->
     <select id="selectById" resultType="com.yy.ppm.flowable.bean.po.BpmCategoryPO">
         select
             id,
@@ -95,7 +90,7 @@
         where
             id = #{id}
     </select>
-
+<!--    查询流程分类列表    -->
     <select id="getList" resultType="com.yy.ppm.flowable.bean.po.BpmCategoryPO">
         select
         id,
@@ -113,12 +108,19 @@
         from
         bpm_category
         where
-        2>1
+        1=1
+
         <if test="name != null and name != ''">
-            and name = #{name}
+            <!-- 将CONCAT函数改为||连接符 -->
+            AND name LIKE '%' || #{name, jdbcType=VARCHAR} || '%'
+        </if>
+        <if test="code != null and code != ''">
+            <!-- 将CONCAT函数改为||连接符 -->
+            AND code LIKE '%' || #{code, jdbcType=VARCHAR} || '%'
         </if>
         <if test="status != null and status !=''">
             and status = #{status}
         </if>
+
     </select>
 </mapper>

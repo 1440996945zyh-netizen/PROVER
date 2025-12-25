@@ -61,7 +61,7 @@ public class BpmModelController {
      * @return
      */
     @GetMapping("/list")
-    public Map<String, Object> getModelList(@RequestParam(value = "name") String name) {
+    public Map<String, Object> getModelList(@RequestParam(value = "name", required = false) String name) {
         List<Model> list = modelService.getModelList(name);
         if (CollUtil.isEmpty(list)) {
             return Response.SUCCESS.newBuilder().toResult(list);
@@ -89,12 +89,13 @@ public class BpmModelController {
             BpmModelMetaInfoDTO metaInfo = BpmModelConvert.INSTANCE.parseMetaInfo(model);
             return metaInfo != null ? metaInfo.getStartUserIds().stream() : Stream.empty();
         });
-        Map<Long, SysUserDTO> userMap = sysUserService.getUserMap(userIds);
+        Map<Long, SysUserDTO> userMap = CollUtil.isEmpty(userIds) ? Map.of() : sysUserService.getUserMap(userIds);
+
         Set<Long> deptIds = convertSetByFlatMap(list, model -> {
             BpmModelMetaInfoDTO metaInfo = BpmModelConvert.INSTANCE.parseMetaInfo(model);
             return metaInfo != null && metaInfo.getStartDeptIds() != null ? metaInfo.getStartDeptIds().stream() : Stream.empty();
         });
-        Map<Long, SysDeptDTO> deptMap = sysDeptService.getDeptMap(deptIds);
+        Map<Long, SysDeptDTO> deptMap = CollUtil.isEmpty(deptIds) ? Map.of() : sysDeptService.getDeptMap(deptIds);
 
         List<BpmModelDTO> bpmModelDTOS = BpmModelConvert.INSTANCE.buildModelList(list,
                 formMap, categoryMap, deploymentMap, processDefinitionMap,userMap,deptMap);
@@ -176,7 +177,7 @@ public class BpmModelController {
     /**
      *删除模型
      */
-    @DeleteMapping("/delete")
+    @DeleteMapping("/delete/{id}")
     public Map<String, Object> deleteModel(@PathVariable("id") String id) {
         modelService.deleteModel(getLoginUserId(), id);
         return Response.SUCCESS.newBuilder().out("删除成功").toResult();

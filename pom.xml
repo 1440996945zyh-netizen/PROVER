@@ -578,13 +578,25 @@
         </dependency>
 
 
-
+        <!-- MapStruct 核心依赖 -->
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
-            <version>1.6.3</version>
+            <version>1.5.5.Final</version>
         </dependency>
+        <!-- MapStruct 注解处理器（编译时必需，scope设为provided） -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
+            <version>1.5.5.Final</version>
+            <scope>provided</scope> <!-- 仅编译时使用，不打包到运行环境 -->
+        </dependency>
+<!--        支持 LocalDateTime 序列化 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
 
+        </dependency>
         <!-- 表达式解析工具 -->
         <dependency>
             <groupId>org.eweb4j</groupId>

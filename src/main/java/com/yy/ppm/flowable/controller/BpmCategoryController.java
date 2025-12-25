@@ -68,7 +68,7 @@ public class BpmCategoryController {
      * @param id
      * @return
      */
-    @DeleteMapping("/delete")
+    @DeleteMapping("/delete/{id}")
     public Map<String, Object> deleteCategory(@PathVariable("id") Long id) {
         int count = categoryService.deleteCategory(id);
         return Response.SUCCESS.newBuilder().out(count>0?"删除成功":"删除失败").toResult();

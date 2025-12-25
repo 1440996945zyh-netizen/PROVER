@@ -64,7 +64,7 @@ public class BpmFormController {
      * @param id
      * @return
      */
-    @DeleteMapping("/delete")
+    @DeleteMapping("/delete/{id}")
     public Map<String, Object> deleteForm(@PathVariable("id") Long id) {
         int count = formService.deleteForm(id);
         return Response.SUCCESS.newBuilder().out(count>0?"删除成功":"删除失败").toResult();

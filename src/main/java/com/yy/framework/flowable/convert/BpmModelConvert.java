@@ -10,12 +10,14 @@ import com.yy.ppm.flowable.bean.po.BpmCategoryPO;
 import com.yy.ppm.flowable.bean.po.BpmFormPO;
 import com.yy.ppm.system.bean.dto.SysDeptDTO;
 import com.yy.ppm.system.bean.dto.SysUserDTO;
-import org.apache.ibatis.annotations.Mapper;
 import org.flowable.common.engine.impl.db.SuspensionState;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.Model;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.spring.security.UserDto;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
 import java.util.Collections;

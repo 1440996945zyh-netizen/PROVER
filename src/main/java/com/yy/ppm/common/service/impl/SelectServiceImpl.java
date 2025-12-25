@@ -214,6 +214,7 @@ public class SelectServiceImpl implements SelectService {
                         SelectEnum.DICT.getLabelName(),
                         " DICT_TYPE = '" + DictTypeEnum.match(dictType) + "' AND STATUS = '1' ");
                 break;
+//
             case "CONSTANT" :
                 String constantType = StringUtil.getString(params.get("types"));
                 res = selectMapper.getLocalSelect(
@@ -222,6 +223,7 @@ public class SelectServiceImpl implements SelectService {
                         SelectEnum.CONSTANT.getLabelName(),
                         " TYPE_CD = '" + ConstantsTypeEnum.match(constantType) + "'");
                 break;
+//
             case "CONTRACT":
                 Object customerIdsObj;
                 if ((customerIdsObj = params.get("customerIds")) != null) {
@@ -233,11 +235,13 @@ public class SelectServiceImpl implements SelectService {
                 }
                 res = selectMapper.listContract(params);
                 break;
+//                高级查询业务枚举
             case "BUSINESS":
                 // 业务类型：根据 types 参数判断具体业务逻辑
                 String businessType = StringUtil.getString(params.get("types"));
                 res = handleBusinessType(businessType, params);
                 break;
+                // 流程表单
             case "BPM_FORM":
                 res = selectMapper.getLocalSelect(
                         SelectEnum.BPM_FORM.getTableName(),
@@ -245,12 +249,20 @@ public class SelectServiceImpl implements SelectService {
                         SelectEnum.BPM_FORM.getLabelName(),
                         "");
                 break;
+                // 流程分类
             case "BPM_CATEGORY":
                 res = selectMapper.getLocalSelect(
                         SelectEnum.BPM_CATEGORY.getTableName(),
                         SelectEnum.BPM_CATEGORY.getValueName(),
                         SelectEnum.BPM_CATEGORY.getLabelName(),
                         "STATUS = 0");
+                break;
+            case "ROLE":
+                res = selectMapper.getLocalSelect(
+                        SelectEnum.ROLE.getTableName(),
+                        SelectEnum.ROLE.getValueName(),
+                        SelectEnum.ROLE.getLabelName(),
+                        "status = 1");
                 break;
             default:
                 break;

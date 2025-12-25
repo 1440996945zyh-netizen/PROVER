@@ -23,8 +23,10 @@ public enum SelectEnum {
     BPM_CATEGORY("BPM_CATEGORY","BPM_CATEGORY","CODE","NAME","流程分类"),
     /** 常量 */
     CONSTANT("CONSTANT","M_CONSTANTS","CD", "NM","常量信息"),
+    ROLE("ROLE","SYS_ROLE","ID", "ROLE_NAME","角色信息")
 
     ;
+
 
     private String code;
     private String tableName;
