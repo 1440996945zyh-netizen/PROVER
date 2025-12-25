@@ -80,7 +80,7 @@ public interface BpmModelConvert {
                                     Deployment deployment, ProcessDefinition processDefinition, List<SysUserDTO> startUsers, List<SysDeptDTO> startDepts) {
         BpmModelDTO modelRespVO = new BpmModelDTO().setId(model.getId()).setName(model.getName())
                 .setKey(model.getKey()).setCategory(model.getCategory())
-                .setCreateTime(DateUtils.of(model.getCreateTime()));
+                .setCreateTime(model.getCreateTime());
         // Form
         BeanUtils.copyProperties(metaInfo, modelRespVO);
         if (form != null) {

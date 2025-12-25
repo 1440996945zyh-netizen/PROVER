@@ -1,4 +1,4 @@
-package com.yy.framework.flowable.handler;
+package com.yy.common.flowable.handler;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

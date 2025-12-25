@@ -2,9 +2,10 @@ package com.yy.ppm.flowable.bean.dto;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.joda.time.LocalDateTime;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -48,7 +49,7 @@ public class BpmModelDTO extends BpmModelMetaInfoDTO implements Serializable {
     /**
      * 创建时间
      */
-    private LocalDateTime createTime;
+    private Date createTime;
 
     /**
      * 可发起的用户数组
