@@ -88,4 +88,8 @@ public interface ErrorCodeConstants {
     // ========== BPM 流程表达式 1-009-014-000 ==========
     ErrorCode PROCESS_EXPRESSION_NOT_EXISTS = new ErrorCode(1_009_014_000, "流程表达式不存在");
 
+    ErrorCode ROLE_NOT_EXISTS = new ErrorCode(1_002_002_000, "角色不存在");
+
+    ErrorCode ROLE_IS_DISABLE = new ErrorCode(1_002_002_004, "名字为【{}】的角色已被禁用");
+
 }

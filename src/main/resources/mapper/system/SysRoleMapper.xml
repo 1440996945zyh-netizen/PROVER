@@ -173,6 +173,47 @@
             ROLE_CLASS = #{roleClass,jdbcType=VARCHAR}
         </where>
     </select>
+    <select id="selectByIds" resultType="com.yy.ppm.system.bean.dto.SysRoleDTO">
+        SELECT
+        ID,
+        DEPT_ID,
+        ROLE_NAME,
+        STATUS,
+        DELETED,
+        CREATE_BY,
+        create_by_name,
+        CREATE_TIME,
+        ROLE_CODE,
+        ROLE_SORT,
+        MENU_CHECK_STRICTLY,
+        DEPT_CHECK_STRICTLY,
+        DATA_SCOPE,
+        REMARK,
+        ROLE_CLASS,
+        DEPT_NAME,
+        CREATE_BY,
+        create_by_name,
+        CREATE_TIME,
+        UPDATE_BY,
+        update_BY_NAME,
+        UPDATE_TIME
+        FROM
+        sys_role
+        where ID in
+        <foreach collection="list" item="item" open="(" separator="," close=")" >
+            #{item}
+        </foreach>
+    </select>
+    <select id="getUserRoleIdListByRoleId" resultType="java.lang.Long">
+        SELECT USER_ID
+        FROM SYS_ROLE_USER
+        WHERE ROLE_ID IN
+        <foreach collection="list" item="roleId" open="(" separator="," close=")">
+            #{roleId}
+        </foreach>
+        GROUP BY USER_ID
+        HAVING COUNT(DISTINCT ROLE_ID) > 1
+    </select>
 
     <!-- 新增 -->
     <insert id="insert" parameterType="com.yy.ppm.system.bean.dto.SysRoleDTO">

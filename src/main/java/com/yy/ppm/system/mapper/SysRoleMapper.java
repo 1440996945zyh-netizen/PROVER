@@ -9,6 +9,7 @@ import com.yy.ppm.system.bean.dto.TreeSelectDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 角色(SysRole)Dao
@@ -78,5 +79,21 @@ public interface SysRoleMapper {
     int authUserCancel(@Param("userIds") List<Long> userIds, @Param("roleId") Long roleId);
 
     int insertRoleUser(@Param("userIds") List<Long> userIds, @Param("roleId") Long roleId);
+
+    /**
+     * 校验角色们是否有效。如下情况，视为无效：
+     * 1. 角色编号不存在
+     * 2. 角色被禁用
+     *
+     * @param ids 角色编号数组
+     */
+    List<SysRoleDTO> selectByIds(@Param("list") Set<Long> ids);
+
+    /**
+     * 获得拥有多个角色的用户编号集合
+     * @param roleIds
+     * @return
+     */
+    Set<Long> getUserRoleIdListByRoleId(@Param("list") Set<Long> roleIds);
 }
 

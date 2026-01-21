@@ -73,7 +73,7 @@ public interface BpmProcessDefinitionConvert {
         respVO.setSuspensionState(definition.isSuspended() ? SuspensionState.SUSPENDED.getStateCode() : SuspensionState.ACTIVE.getStateCode());
         // Deployment
         if (deployment != null) {
-            respVO.setDeploymentTime(LocalDateTimeUtil.of(deployment.getDeploymentTime()));
+            respVO.setDeploymentTime(deployment.getDeploymentTime());
         }
         // BpmProcessDefinitionInfoPO
         if (processDefinitionInfo != null) {

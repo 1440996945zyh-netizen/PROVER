@@ -3,7 +3,11 @@ package com.yy.ppm.system.service.impl;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
+import cn.hutool.core.collection.CollUtil;
+import com.yy.common.flowable.enums.CommonStatusEnum;
+import com.yy.common.flowable.utils.CollectionUtils;
 import jakarta.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +36,10 @@ import com.yy.ppm.system.mapper.SysUserMapper;
 import com.yy.ppm.system.service.SysUserService;
 
 import cn.hutool.core.lang.Snowflake;
+
+import static com.yy.common.flowable.constants.GlobalErrorCodeConstants.USER_IS_DISABLE;
+import static com.yy.common.flowable.constants.GlobalErrorCodeConstants.USER_NOT_EXISTS;
+import static com.yy.common.flowable.utils.ServiceExceptionUtil.exception;
 
 /**
  * 用户服务实现
@@ -286,5 +294,32 @@ public class SysUserServiceImpl implements SysUserService {
 	@Override
 	public List<SysUserDTO> getUserList(Collection<Long> ids) {
 		return sysUserMapper.getUserList(ids);
+	}
+
+	/**
+	 * 校验用户们是否有效。如下情况，视为无效：
+	 * 1. 用户编号不存在
+	 * 2. 用户被禁用
+	 *
+	 * @param ids 用户编号数组
+	 */
+	@Override
+	public void validateUserList(Collection<Long> ids) {
+		if (CollUtil.isEmpty(ids)) {
+			return;
+		}
+		// 获得岗位信息
+		List<SysUserDTO> users = sysUserMapper.getUserList(ids);
+		Map<Long, SysUserDTO> userMap = CollectionUtils.convertMap(users, SysUserDTO::getId);
+		// 校验
+		ids.forEach(id -> {
+			SysUserDTO user = userMap.get(id);
+			if (user == null) {
+				throw exception(USER_NOT_EXISTS);
+			}
+			if (!CommonStatusEnum.ENABLE.getStatus().equals(user.getStatus().intValue())) {
+				throw exception(USER_IS_DISABLE, user.getUserName());
+			}
+		});
 	}
 }

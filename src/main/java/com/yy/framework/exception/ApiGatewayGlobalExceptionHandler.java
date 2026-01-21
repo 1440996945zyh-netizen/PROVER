@@ -2,6 +2,7 @@ package com.yy.framework.exception;
 
 import com.yy.common.enums.Response;
 import com.yy.common.enums.Response.GateWayCode;
+import com.yy.common.flowable.common.ServiceException;
 import com.yy.common.log.MicroLogger;
 import com.yy.common.util.SecurityUtils;
 import com.yy.common.util.str.StringUtil;
@@ -160,6 +161,27 @@ public class ApiGatewayGlobalExceptionHandler {
 		LOGGER.error(methodName,
 				"账号: " +  loginAccount()  + ", 未知异常message: " + StringUtil.getErrorText(exception));
 		return Response.FAIL.newBuilder().addGateWayCode(GateWayCode.E9999).out("数据异常，请联系管理员！").toResult();
+	}
+
+	/**
+	 * 专门处理 ServiceException (带有格式化参数的异常)
+	 **/
+	@ExceptionHandler(value = { ServiceException.class })
+	public Map<String, Object> serviceException(ServiceException exception) {
+		final String methodName = "serviceException";
+
+		// 1. 记录日志
+		LOGGER.error(methodName,
+				"账号: " + loginAccount() + ", 格式化业务异常message: " + exception.getMessage());
+
+		// 2. 构造返回结果
+		String msg = StringUtils.defaultIfBlank(exception.getMessage(), "数据异常，请联系管理员！");
+
+		// 注意：这里需要根据 ServiceException 的 getCode() 返回对应的枚举或数值
+		return Response.FAIL.newBuilder()
+				.addGateWayCode(GateWayCode.E9996)
+				.out(msg)
+				.toResult();
 	}
 
 	private String loginAccount() {

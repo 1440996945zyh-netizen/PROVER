@@ -34,7 +34,12 @@ public class BpmTaskCandidateInvoker {
 
     private final SysUserService sysUserService;
 
-    public BpmTaskCandidateInvoker(SysUserService sysUserService) {
+    public BpmTaskCandidateInvoker(List<BpmTaskCandidateStrategy> strategyList,
+                                   SysUserService sysUserService) {
+        strategyList.forEach(strategy -> {
+            BpmTaskCandidateStrategy oldStrategy = strategyMap.put(strategy.getStrategy(), strategy);
+            Assert.isNull(oldStrategy, "策略(%s) 重复", strategy.getStrategy());
+        });
         this.sysUserService = sysUserService;
     }
 
@@ -64,6 +69,7 @@ public class BpmTaskCandidateInvoker {
             if (strategy == null) {
                 throw exception(MODEL_DEPLOY_FAIL_TASK_CANDIDATE_NOT_CONFIG, userTask.getName());
             }
+            // 判断策略是否存在
             BpmTaskCandidateStrategy candidateStrategy = getCandidateStrategy(strategy);
             if (candidateStrategy.isParamRequired() && StrUtil.isBlank(param)) {
                 throw exception(MODEL_DEPLOY_FAIL_TASK_CANDIDATE_NOT_CONFIG, userTask.getName());

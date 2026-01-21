@@ -1,6 +1,7 @@
 package com.yy.ppm.flowable.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.db.PageResult;
 import com.yy.common.flowable.constants.BpmnModelConstants;
@@ -25,6 +26,7 @@ import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.Model;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.repository.ProcessDefinitionQuery;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import java.util.*;
@@ -55,6 +57,9 @@ public class BpmProcessDefinitionServiceImpl implements BpmProcessDefinitionServ
 
     @Resource
     private SysUserService sysUserService;
+
+    @Autowired
+    private Snowflake snowflake;
 
     /**
      * 获得流程定义编号对应的 ProcessDefinition
@@ -183,6 +188,7 @@ public class BpmProcessDefinitionServiceImpl implements BpmProcessDefinitionServ
         if (form != null) {
             definitionDO.setFormFields(form.getFields()).setFormConf(form.getConf());
         }
+        definitionDO.setId(snowflake.nextId());
         processDefinitionMapper.insert(definitionDO);
         return definition.getId();
     }

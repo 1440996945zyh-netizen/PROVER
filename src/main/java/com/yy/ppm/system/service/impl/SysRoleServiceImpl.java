@@ -1,8 +1,11 @@
 package com.yy.ppm.system.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Snowflake;
 import com.google.api.client.util.Lists;
 import com.google.common.collect.Maps;
+import com.yy.common.flowable.constants.ErrorCodeConstants;
+import com.yy.common.flowable.enums.CommonStatusEnum;
 import com.yy.common.log.MicroLogger;
 import com.yy.common.page.Pages;
 import com.yy.common.util.PageHelperUtils;
@@ -24,11 +27,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.yy.common.flowable.constants.ErrorCodeConstants.ROLE_IS_DISABLE;
+import static com.yy.common.flowable.constants.ErrorCodeConstants.ROLE_NOT_EXISTS;
+import static com.yy.common.flowable.utils.CollectionUtils.convertMap;
+import static com.yy.common.flowable.utils.ServiceExceptionUtil.exception;
 
 
 /**
@@ -325,6 +331,43 @@ public class SysRoleServiceImpl implements SysRoleService {
             result.add(map);
         });
         return result;
+    }
+
+    /**
+     * 校验角色们是否有效。如下情况，视为无效：
+     * 1. 角色编号不存在
+     * 2. 角色被禁用
+     *
+     * @param ids 角色编号数组
+     */
+    @Override
+    public void validRoleList(Set<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return;
+        }
+        // 获得角色信息
+        List<SysRoleDTO> roles = sysRoleMapper.selectByIds(ids);
+        Map<Long, SysRoleDTO> roleMap = convertMap(roles, SysRoleDTO::getId);
+        // 校验
+        ids.forEach(id -> {
+            SysRoleDTO role = roleMap.get(id);
+            if (role == null) {
+                throw exception(ROLE_NOT_EXISTS);
+            }
+            if (!CommonStatusEnum.ENABLE.getStatus().equals(Integer.valueOf(role.getStatus()))) {
+                throw exception(ROLE_IS_DISABLE, role.getRoleName());
+            }
+        });
+    }
+
+    /**
+     * 获得拥有多个角色的用户编号集合
+     * @param roleIds
+     * @return
+     */
+    @Override
+    public Set<Long> getUserRoleIdListByRoleIds(Set<Long> roleIds) {
+        return sysRoleMapper.getUserRoleIdListByRoleId(roleIds);
     }
 
 }

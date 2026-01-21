@@ -10,14 +10,14 @@ import java.util.Arrays;
 /**
  * 通用状态枚举
  *
- * @author 芋道源码
+ * @author
  */
 @Getter
 @AllArgsConstructor
 public enum CommonStatusEnum implements ArrayValuable<Integer> {
 
-    ENABLE(0, "开启"),
-    DISABLE(1, "关闭");
+    ENABLE(1, "开启"),
+    DISABLE(0, "关闭");
 
     public static final Integer[] ARRAYS = Arrays.stream(values()).map(CommonStatusEnum::getStatus).toArray(Integer[]::new);
 

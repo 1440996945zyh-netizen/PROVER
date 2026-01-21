@@ -5,6 +5,7 @@ import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 /**
  * 管理后台 - 流程定义 Response VO
@@ -75,7 +76,7 @@ public class BpmProcessDefinitionDTO extends BpmModelMetaInfoDTO implements Seri
     /**
      * 部署时间，非必须返回，从对应的Deployment中读取
      */
-    private LocalDateTime deploymentTime;
+    private Date deploymentTime;
 
     /**
      * BPMN XML内容，非必须返回，从对应的BpmnModel中读取

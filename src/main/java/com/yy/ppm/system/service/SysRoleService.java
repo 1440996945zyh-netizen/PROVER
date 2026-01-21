@@ -7,6 +7,7 @@ import com.yy.ppm.system.bean.dto.SysUserDTO;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 角色(SysRole)表服务接口
@@ -83,4 +84,20 @@ public interface SysRoleService {
      * @return
      */
     List<Map<String,Object>> getListByRoleClass(String sysRoleSearchDTO);
+
+    /**
+     * 校验角色们是否有效。如下情况，视为无效：
+     * 1. 角色编号不存在
+     * 2. 角色被禁用
+     *
+     * @param roleIds 角色编号数组
+     */
+    void validRoleList(Set<Long> roleIds);
+
+    /**
+     * 获得拥有多个角色的用户编号集合
+     * @param roleIds
+     * @return
+     */
+    Set<Long> getUserRoleIdListByRoleIds(Set<Long> roleIds);
 }

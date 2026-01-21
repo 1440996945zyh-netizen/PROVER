@@ -1,16 +1,12 @@
 package com.yy.ppm.flowable.bean.po;
 
-import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
+import com.yy.common.flowable.handler.LongListTypeHandler;
 import com.yy.ppm.common.bean.po.BasePO;
 import com.yy.ppm.flowable.bean.dto.BpmModelMetaInfoDTO;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.flowable.engine.repository.Model;
 import org.flowable.engine.repository.ProcessDefinition;
@@ -24,6 +20,7 @@ import java.util.List;
  */
 @Data
 @Accessors(chain = true)
+@TableName(value = "bpm_process_definition_info", autoResultMap = true)
 public class BpmProcessDefinitionInfoPO extends BasePO implements Serializable {
     /**
      * 编号
@@ -74,15 +71,12 @@ public class BpmProcessDefinitionInfoPO extends BasePO implements Serializable {
     /**
      * 动态表单编号
      *
-     * 在表单类型为 {@link BpmModelFormTypeEnum#NORMAL} 时
-     *
      * 关联 {@link BpmFormPO#getId()}
      */
     private Long formId;
     /**
      * 表单的配置
      *
-     * 在表单类型为 {@link BpmModelFormTypeEnum#NORMAL} 时
      *
      * 冗余 {@link BpmFormPO#getConf()}
      */
@@ -90,7 +84,6 @@ public class BpmProcessDefinitionInfoPO extends BasePO implements Serializable {
     /**
      * 表单项的数组
      *
-     * 在表单类型为 {@link BpmModelFormTypeEnum#NORMAL} 时
      *
      * 冗余 {@link BpmFormPO#getFields()}
      */
@@ -99,13 +92,11 @@ public class BpmProcessDefinitionInfoPO extends BasePO implements Serializable {
     /**
      * 自定义表单的提交路径，使用 Vue 的路由地址
      *
-     * 在表单类型为 {@link BpmModelFormTypeEnum#CUSTOM} 时
      */
     private String formCustomCreatePath;
     /**
      * 自定义表单的查看路径，使用 Vue 的路由地址
      *
-     * 在表单类型为 {@link BpmModelFormTypeEnum#CUSTOM} 时
      */
     private String formCustomViewPath;
 
@@ -137,6 +128,7 @@ public class BpmProcessDefinitionInfoPO extends BasePO implements Serializable {
      * 1. {@link #visible} 只是决定是否可见。即使不可见，还是可以发起
      * 2. startUserIds 决定某个用户是否可以发起。如果该用户不可发起，则他也是不可见的
      */
+    @TableField(typeHandler = LongListTypeHandler.class)
     private List<Long> startUserIds;
 
     /**
@@ -144,6 +136,7 @@ public class BpmProcessDefinitionInfoPO extends BasePO implements Serializable {
      *
      * 关联 {@link com.yy.ppm.system.bean.dto.SysDeptDTO} 字段的数组
      */
+    @TableField(typeHandler = LongListTypeHandler.class)
     private List<Long> startDeptIds;
 
     /**
@@ -151,6 +144,7 @@ public class BpmProcessDefinitionInfoPO extends BasePO implements Serializable {
      *
      * 关联 {} 字段的数组
      */
+    @TableField(typeHandler = LongListTypeHandler.class)
     private List<Long> managerUserIds;
 
     /**

@@ -96,7 +96,7 @@ public interface BpmModelConvert {
             modelRespVO.getProcessDefinition().setSuspensionState(processDefinition.isSuspended() ?
                     SuspensionState.SUSPENDED.getStateCode() : SuspensionState.ACTIVE.getStateCode());
             if (deployment != null) {
-                modelRespVO.getProcessDefinition().setDeploymentTime(DateUtils.of(deployment.getDeploymentTime()));
+                modelRespVO.getProcessDefinition().setDeploymentTime(deployment.getDeploymentTime());
             }
         }
         // User、Dept

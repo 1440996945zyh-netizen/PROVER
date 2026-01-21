@@ -99,5 +99,14 @@ public interface SysUserService {
         return CollectionUtils.convertMap(users, SysUserDTO::getId);
     }
 
+    /**
+     * 校验用户们是否有效。如下情况，视为无效：
+     * 1. 用户编号不存在
+     * 2. 用户被禁用
+     *
+     * @param ids 用户编号数组
+     */
+    void validateUserList(Collection<Long> ids);
+
 
 }

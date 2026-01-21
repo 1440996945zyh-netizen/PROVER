@@ -81,4 +81,6 @@ public interface SysUserMapper {
 	 * 根据用户ids批量查询用户信息
 	 */
     List<SysUserDTO> getUserList(@Param("list") Collection<Long> ids);
+
+
 }
