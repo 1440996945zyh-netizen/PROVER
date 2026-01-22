@@ -257,6 +257,7 @@ public class SelectServiceImpl implements SelectService {
                         SelectEnum.BPM_CATEGORY.getLabelName(),
                         "STATUS = 0");
                 break;
+                // 角色
             case "ROLE":
                 res = selectMapper.getLocalSelect(
                         SelectEnum.ROLE.getTableName(),
@@ -264,6 +265,12 @@ public class SelectServiceImpl implements SelectService {
                         SelectEnum.ROLE.getLabelName(),
                         "status = 1");
                 break;
+            case "BPM_MODEL":
+                res = selectMapper.getLocalSelect(
+                        SelectEnum.BPM_MODEL.getTableName(),
+                        SelectEnum.BPM_MODEL.getValueName(),
+                        SelectEnum.BPM_MODEL.getLabelName(),
+                        "");
             default:
                 break;
         }

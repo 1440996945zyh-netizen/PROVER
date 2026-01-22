@@ -183,18 +183,24 @@ public class BpmModelServiceImpl implements BpmModelService {
         return model;
     }
 
+    /**
+     * 将流程模型，部署成一个流程定义
+     *
+     * @param userId 用户编号
+     * @param id 编号
+     */
     @Override
     @Transactional(rollbackFor = Exception.class) // 因为进行多个操作，所以开启事务
     public void deployModel(Long userId, String id) {
         // 1.1 校验流程模型存在
         Model model = validateModelManager(id, userId);
         BpmModelMetaInfoDTO metaInfo = BpmModelConvert.INSTANCE.parseMetaInfo(model);
-        // 1.2 校验流程图
+        // 1.2 校验流程图（流程图规则）
         byte[] bpmnBytes = getModelBpmnXML(model.getId());
         validateBpmnXml(bpmnBytes, metaInfo.getType());
         // 1.3 校验表单已配
         BpmFormPO form = validateFormConfig(metaInfo);
-        // 1.4 校验任务分配规则已配置
+        // 1.4 校验任务分配规则已配置(后续自动分配任务给对应负责人校验)
         taskCandidateInvoker.validateBpmnConfig(bpmnBytes);
         // 1.5 获取仿钉钉流程设计器模型数据
 //        String simpleJson = getModelSimpleJson(model.getId());

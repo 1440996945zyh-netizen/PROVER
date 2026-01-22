@@ -109,7 +109,6 @@
         bpm_category
         where
         1=1
-
         <if test="name != null and name != ''">
             <!-- 将CONCAT函数改为||连接符 -->
             AND name LIKE '%' || #{name, jdbcType=VARCHAR} || '%'
