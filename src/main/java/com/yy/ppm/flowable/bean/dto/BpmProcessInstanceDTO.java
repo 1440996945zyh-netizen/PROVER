@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -35,10 +35,10 @@ public class BpmProcessInstanceDTO implements Serializable {
     private Integer status; // 参见 BpmProcessInstanceStatusEnum 枚举
 
     /** 发起时间 */
-    private LocalDateTime startTime;
+    private Date startTime;
 
     /** 结束时间 */
-    private LocalDateTime endTime;
+    private Date endTime;
 
     /** 持续时间 */
     private Long durationInMillis;

@@ -289,8 +289,8 @@ public interface BpmProcessInstanceConvert {
         BpmProcessInstanceDTO processInstance = new BpmProcessInstanceDTO()
                 .setId(historicProcessInstance.getId()).setName(historicProcessInstance.getName())
                 .setBusinessKey(historicProcessInstance.getBusinessKey())
-                .setStartTime(DateUtils.of(historicProcessInstance.getStartTime()))
-                .setEndTime(DateUtils.of(historicProcessInstance.getEndTime()))
+                .setStartTime(historicProcessInstance.getStartTime())
+                .setEndTime(historicProcessInstance.getEndTime())
                 .setStartUser(startUser).setStatus(FlowableUtils.getProcessInstanceStatus(historicProcessInstance))
                 .setFormVariables(historicProcessInstance.getProcessVariables())
                 .setProcessDefinition(BeanUtils.toBean(processDefinitionInfo, BpmProcessDefinitionDTO.class));

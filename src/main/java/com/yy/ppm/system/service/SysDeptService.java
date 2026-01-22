@@ -5,6 +5,7 @@ import com.yy.common.flowable.utils.CollectionUtils;
 import com.yy.ppm.system.bean.dto.SysDeptDTO;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -70,6 +71,9 @@ public interface SysDeptService {
      * @return 部门 Map
      */
     default Map<Long, SysDeptDTO> getDeptMap(Collection<Long> ids) {
+        if (org.springframework.util.CollectionUtils.isEmpty(ids)) {
+            return new HashMap<>();
+        }
         List<SysDeptDTO> list = getDeptList(ids);
         return CollectionUtils.convertMap(list, SysDeptDTO::getId);
     }

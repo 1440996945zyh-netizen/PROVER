@@ -8,6 +8,7 @@ import com.yy.ppm.system.bean.dto.SysUserDTO;
 import com.yy.ppm.system.bean.dto.SysUserSearchDTO;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -95,6 +96,9 @@ public interface SysUserService {
      * @return 用户 Map
      */
     default Map<Long, SysUserDTO> getUserMap(Collection<Long> ids) {
+        if (org.springframework.util.CollectionUtils.isEmpty(ids)) {
+            return new HashMap<>();
+        }
         List<SysUserDTO> users = getUserList(ids);
         return CollectionUtils.convertMap(users, SysUserDTO::getId);
     }

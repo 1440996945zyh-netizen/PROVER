@@ -47,8 +47,63 @@
                 #{loginUserName},
                 #{now})
     </insert>
+
+    <resultMap id="BpmProcessDefinitionInfoResultMap" type="com.yy.ppm.flowable.bean.po.BpmProcessDefinitionInfoPO">
+        <id property="id" column="id" />
+        <result property="processDefinitionId" column="process_definition_id" />
+        <result property="modelId" column="model_id" />
+        <result property="modelType" column="model_type" />
+        <result property="category" column="category" />
+        <result property="icon" column="icon" />
+        <result property="description" column="description" />
+        <result property="formType" column="form_type" />
+        <result property="formId" column="form_id" />
+        <result property="formConf" column="form_conf" />
+        <result property="formCustomCreatePath" column="form_custom_create_path" />
+        <result property="formCustomViewPath" column="form_custom_view_path" />
+        <result property="simpleModel" column="simple_model" />
+        <result property="sort" column="sort" />
+        <result property="visible" column="visible" />
+        <result property="allowCancelRunningProcess" column="allow_cancel_running_process" />
+        <result property="allowWithdrawTask" column="allow_withdraw_task" />
+        <result property="autoApprovalType" column="auto_approval_type" />
+
+        <result property="startUserIds" column="start_user_ids"
+                typeHandler="com.yy.common.flowable.handler.LongListTypeHandler" />
+        <result property="startDeptIds" column="start_dept_ids"
+                typeHandler="com.yy.common.flowable.handler.LongListTypeHandler" />
+        <result property="managerUserIds" column="manager_user_ids"
+                typeHandler="com.yy.common.flowable.handler.LongListTypeHandler" />
+
+        <result property="formFields" column="form_fields"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" />
+        <result property="processIdRule" column="process_id_rule"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" />
+        <result property="titleSetting" column="title_setting"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" />
+        <result property="summarySetting" column="summary_setting"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" />
+        <result property="processBeforeTriggerSetting" column="process_before_trigger_setting"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" />
+        <result property="processAfterTriggerSetting" column="process_after_trigger_setting"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" />
+        <result property="taskBeforeTriggerSetting" column="task_before_trigger_setting"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" />
+        <result property="taskAfterTriggerSetting" column="task_after_trigger_setting"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" />
+        <result property="printTemplateSetting" column="print_template_setting"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler" />
+
+        <result property="createBy" column="create_by" />
+        <result property="createByName" column="create_by_name" />
+        <result property="createTime" column="create_time" />
+        <result property="updateBy" column="update_by" />
+        <result property="updateByName" column="update_by_name" />
+        <result property="updateTime" column="update_time" />
+    </resultMap>
+
     <select id="selectListByProcessDefinitionIds"
-            resultType="com.yy.ppm.flowable.bean.po.BpmProcessDefinitionInfoPO">
+            resultMap="BpmProcessDefinitionInfoResultMap">
         select id,
                process_definition_id,
                model_id,
