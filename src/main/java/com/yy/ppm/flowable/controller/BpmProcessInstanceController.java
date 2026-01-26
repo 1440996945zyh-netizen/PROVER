@@ -192,6 +192,9 @@ public class BpmProcessInstanceController {
      * 获得审批详情
      * @param reqVO
      * @return
+     * 审批前（预测） 通过 getSimulateApproveNodeList  预判流程如果发起，将会经过哪些节点、由谁审批
+     * 审批中（追踪） 已完成的节点、进行中的节点、未来待进行的节点
+     * 审批后（回溯） 要展示历史审批记录
      */
     @GetMapping("/getApprovalDetail")
     public Map<String,Object> getApprovalDetail(BpmApprovalDetailSearchDTO reqVO) {

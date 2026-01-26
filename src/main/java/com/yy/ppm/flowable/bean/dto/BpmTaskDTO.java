@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -23,10 +24,10 @@ public class BpmTaskDTO {
     private String name;
 
     /** 创建时间 */
-    private LocalDateTime createTime;
+    private Date createTime;
 
     /** 结束时间 */
-    private LocalDateTime endTime;
+    private Date endTime;
 
     /** 持续时间 */
     private Long durationInMillis;

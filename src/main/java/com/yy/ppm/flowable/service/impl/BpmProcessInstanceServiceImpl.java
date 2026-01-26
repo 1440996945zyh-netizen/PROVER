@@ -32,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.flowable.bpmn.constants.BpmnXMLConstants;
 import org.flowable.bpmn.model.*;
 import org.flowable.engine.HistoryService;
+import org.flowable.engine.IdentityService;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.history.HistoricActivityInstance;
 import org.flowable.engine.history.HistoricProcessInstance;
@@ -42,6 +43,8 @@ import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.engine.runtime.ProcessInstanceBuilder;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.history.HistoricTaskInstance;
+import org.flowable.variable.api.history.HistoricVariableInstance;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -102,6 +105,9 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
     @Resource
     private SysDeptService sysDeptService;
 
+    @Autowired
+    private IdentityService identityService;
+
     // ========== Query 查询相关方法 ==========
 
     @Override
@@ -152,6 +158,9 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
      * @param loginUserId  登录人的用户编号
      * @param reqVO 请求信息
      * @return 流程实例的进度
+     * 审批前（预测） 通过 getSimulateApproveNodeList  预判流程如果发起，将会经过哪些节点、由谁审批
+     * 审批中（追踪） 已完成的节点、进行中的节点、未来待进行的节点
+     * 审批后（回溯） 要展示历史审批记录
      */
     @Override
     public BpmApprovalDetailDTO getApprovalDetail(Long loginUserId, BpmApprovalDetailSearchDTO reqVO) {
@@ -213,11 +222,31 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         BpmTaskDTO todoTask = taskService.getTodoTask(loginUserId, reqVO.getTaskId(), reqVO.getProcessInstanceId());
 
         // 3.2 获取由于退回操作，需要预测的节点。从流程变量中获取，回退操作会设置这些变量
+//        Set<String> needSimulateTaskDefKeysByReturn = new HashSet<>();
+//        if (StrUtil.isNotEmpty(reqVO.getProcessInstanceId())) {
+//            Object needSimulateTaskIds = runtimeService.getVariable(reqVO.getProcessInstanceId(), BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_NEED_SIMULATE_TASK_IDS);
+//            needSimulateTaskDefKeysByReturn.addAll(Convert.toSet(String.class, needSimulateTaskIds));
+//        }
+
+        // 3.2 从 processVariables 中获取，如果 Map 里没有，再尝试从历史服务获取
         Set<String> needSimulateTaskDefKeysByReturn = new HashSet<>();
-        if (StrUtil.isNotEmpty(reqVO.getProcessInstanceId())) {
-            Object needSimulateTaskIds = runtimeService.getVariable(reqVO.getProcessInstanceId(), BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_NEED_SIMULATE_TASK_IDS);
+        Object needSimulateTaskIds = processVariables.get(BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_NEED_SIMULATE_TASK_IDS);
+
+        if (needSimulateTaskIds == null && reqVO.getProcessInstanceId() != null) {
+            // 兜底：如果 Map 里没有，尝试查历史变量表（HistoryService 既查运行中也查已结束，不会报错）
+            HistoricVariableInstance varInstance = historyService.createHistoricVariableInstanceQuery()
+                    .processInstanceId(reqVO.getProcessInstanceId())
+                    .variableName(BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_NEED_SIMULATE_TASK_IDS)
+                    .singleResult();
+            if (varInstance != null) {
+                needSimulateTaskIds = varInstance.getValue();
+            }
+        }
+        if (needSimulateTaskIds != null) {
             needSimulateTaskDefKeysByReturn.addAll(Convert.toSet(String.class, needSimulateTaskIds));
         }
+
+
         // 移除运行中的节点，运行中的节点无需预测
         if (CollUtil.isNotEmpty(runActivityNodes)) {
             runActivityNodes.forEach( activityNode -> needSimulateTaskDefKeysByReturn.remove(activityNode.getId()));
@@ -400,7 +429,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
                             BpmSimpleModelNodeTypeEnum.APPROVE_NODE.getType()))
                     .setStatus(getEndActivityNodeStatus(task))
                     .setCandidateStrategy(BpmnModelUtils.parseCandidateStrategy(flowNode))
-                    .setStartTime(DateUtils.of(task.getCreateTime())).setEndTime(DateUtils.of(task.getEndTime()))
+                    .setStartTime(task.getCreateTime()).setEndTime(task.getEndTime())
                     .setTasks(singletonList(BpmProcessInstanceConvert.INSTANCE.buildApprovalTaskInfo(task)));
             // 如果是取消状态，则跳过
             if (BpmTaskStatusEnum.isCancelStatus(activityNode.getStatus())) {
@@ -424,8 +453,8 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
                         .setName(BpmSimpleModelNodeTypeEnum.START_USER_NODE.getName())
                         .setNodeType(BpmSimpleModelNodeTypeEnum.START_USER_NODE.getType())
                         .setStatus(startTask.getStatus()).setTasks(ListUtil.of(startTask))
-                        .setStartTime(DateUtils.of(activity.getStartTime()))
-                        .setEndTime(DateUtils.of(activity.getEndTime()));
+                        .setStartTime(activity.getStartTime())
+                        .setEndTime(activity.getEndTime());
                 approvalNodes.add(0, startNode);
                 return;
             }
@@ -438,8 +467,8 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
                 BpmApprovalDetailDTO.ActivityNode endNode = new BpmApprovalDetailDTO.ActivityNode().setId(activity.getId())
                         .setName(BpmSimpleModelNodeTypeEnum.END_NODE.getName())
                         .setNodeType(BpmSimpleModelNodeTypeEnum.END_NODE.getType()).setStatus(processInstanceStatus)
-                        .setStartTime(DateUtils.of(activity.getStartTime()))
-                        .setEndTime(DateUtils.of(activity.getEndTime()));
+                        .setStartTime(activity.getStartTime())
+                        .setEndTime(activity.getEndTime());
                 String reason = FlowableUtils.getProcessInstanceReason(historicProcessInstance);
                 if (StrUtil.isNotEmpty(reason)) {
                     endNode.setTasks(singletonList(new BpmApprovalDetailDTO.ActivityNodeTask().setId(endNode.getId())
@@ -452,8 +481,8 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
                 BpmApprovalDetailDTO.ActivityNode callActivity = new BpmApprovalDetailDTO.ActivityNode().setId(activity.getId())
                         .setName(BpmSimpleModelNodeTypeEnum.CHILD_PROCESS.getName())
                         .setNodeType(BpmSimpleModelNodeTypeEnum.CHILD_PROCESS.getType()).setStatus(processInstanceStatus)
-                        .setStartTime(DateUtils.of(activity.getStartTime()))
-                        .setEndTime(DateUtils.of(activity.getEndTime()))
+                        .setStartTime(activity.getStartTime())
+                        .setEndTime(activity.getEndTime())
                         .setProcessInstanceId(activity.getCalledProcessInstanceId());
                 approvalNodes.add(callActivity);
             }
@@ -505,7 +534,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
                             BpmSimpleModelNodeTypeEnum.APPROVE_NODE.getType()))
                     .setStatus(BpmTaskStatusEnum.RUNNING.getStatus())
                     .setCandidateStrategy(BpmnModelUtils.parseCandidateStrategy(flowNode))
-                    .setStartTime(DateUtils.of(CollUtil.getFirst(taskActivities).getStartTime()))
+                    .setStartTime(CollUtil.getFirst(taskActivities).getStartTime())
                     .setTasks(new ArrayList<>());
             // 处理每个任务的 tasks 属性
             for (HistoricActivityInstance activity : taskActivities) {
@@ -737,6 +766,13 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
 
     // ========== Update 写入相关方法 ==========
 
+    /**
+     * 创建流程实例（提供给前端）
+     *
+     * @param userId      用户编号
+     * @param createReqVO 创建信息
+     * @return 实例的编号
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public String createProcessInstance(Long userId, BpmProcessInstanceDTO createReqVO) {
@@ -805,22 +841,29 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
             variables.put(BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_START_USER_SELECT_ASSIGNEES,
                     startUserSelectAssignees);
         }
-
-        // 3. 创建流程
-        ProcessInstanceBuilder processInstanceBuilder = runtimeService.createProcessInstanceBuilder()
-                .processDefinitionId(definition.getId())
-                .businessKey(businessKey)
-                .variables(variables);
-        // 3.1 创建流程 ID
-        BpmModelMetaInfoDTO.ProcessIdRule processIdRule = processDefinitionInfo.getProcessIdRule();
-        if (processIdRule != null && Boolean.TRUE.equals(processIdRule.getEnable())) {
-            processInstanceBuilder.predefineProcessInstanceId(processIdRedisDAO.generate(processIdRule));
+        // 显式设置引擎的认证用户
+        String currentUserId = String.valueOf(userId);
+        identityService.setAuthenticatedUserId(currentUserId);
+        try {
+            // 3. 创建流程
+            ProcessInstanceBuilder processInstanceBuilder = runtimeService.createProcessInstanceBuilder()
+                    .processDefinitionId(definition.getId())
+                    .businessKey(businessKey)
+                    .variables(variables);
+            // 3.1 创建流程 ID
+            BpmModelMetaInfoDTO.ProcessIdRule processIdRule = processDefinitionInfo.getProcessIdRule();
+            if (processIdRule != null && Boolean.TRUE.equals(processIdRule.getEnable())) {
+                processInstanceBuilder.predefineProcessInstanceId(processIdRedisDAO.generate(processIdRule));
+            }
+            // 3.2 流程名称
+            processInstanceBuilder.name(generateProcessInstanceName(userId, definition, processDefinitionInfo, variables));
+            // 3.3 发起流程实例
+            ProcessInstance instance = processInstanceBuilder.start();
+            return instance.getId();
+        }finally {
+            // 清理现场，防止影响后续操作
+            identityService.setAuthenticatedUserId(null);
         }
-        // 3.2 流程名称
-        processInstanceBuilder.name(generateProcessInstanceName(userId, definition, processDefinitionInfo, variables));
-        // 3.3 发起流程实例
-        ProcessInstance instance = processInstanceBuilder.start();
-        return instance.getId();
     }
 
     // 校验发起人自选审批人

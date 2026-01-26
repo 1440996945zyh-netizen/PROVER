@@ -194,6 +194,12 @@ public class BpmTaskCandidateInvoker {
         BpmTaskCandidateStrategyEnum strategyEnum = BpmTaskCandidateStrategyEnum.valueOf(strategy);
         Assert.notNull(strategyEnum, "策略(%s) 不存在", strategy);
         BpmTaskCandidateStrategy strategyObj = strategyMap.get(strategyEnum);
+        if (strategy == null) {
+            String message = String.format("【迁移提示】策略类型(%s) 不存在！", strategy);
+            String currentStrategies = "当前已加载策略: " + strategyMap.keySet();
+            log.error(message + " " + currentStrategies);
+            throw new IllegalArgumentException(message + " 请检查对应的 BpmTaskCandidateStrategy 实现类 ");
+        }
         Assert.notNull(strategyObj, "策略(%s) 不存在", strategy);
         return strategyObj;
     }

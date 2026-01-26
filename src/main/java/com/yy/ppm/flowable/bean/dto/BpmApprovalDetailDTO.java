@@ -6,6 +6,7 @@ import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -76,12 +77,12 @@ public class BpmApprovalDetailDTO implements Serializable {
         /**
          * 节点的开始时间
          */
-        private LocalDateTime startTime;
+        private Date startTime;
 
         /**
          * 节点的结束时间
          */
-        private LocalDateTime endTime;
+        private Date endTime;
 
         /**
          * 审批节点的任务信息
