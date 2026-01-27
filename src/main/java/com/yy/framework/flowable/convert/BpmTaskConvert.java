@@ -49,7 +49,7 @@ public interface BpmTaskConvert {
             taskVO.setProcessInstance(BeanUtils.toBean(processInstance, BpmTaskDTO.ProcessInstance.class));
             SysUserDTO startUser = userMap.get(NumberUtils.parseLong(processInstance.getStartUserId()));
             taskVO.getProcessInstance().setStartUser(BeanUtils.toBean(startUser, UserSimpleBaseDTO.class));
-            taskVO.getProcessInstance().setCreateTime(DateUtils.of(processInstance.getStartTime()));
+            taskVO.getProcessInstance().setCreateTime(processInstance.getStartTime());
 
             List<KeyValue<String, String>> summary = FlowableUtils.getSummary(processDefinitionInfoMap.get(processInstance.getProcessDefinitionId()),
                     processInstance.getProcessVariables());
