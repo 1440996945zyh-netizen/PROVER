@@ -5,7 +5,6 @@ import com.yy.common.flowable.common.KeyValue;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -98,7 +97,7 @@ public class BpmTaskDTO {
         private String name;
 
         /** 提交时间 */
-        private LocalDateTime createTime;
+        private Date createTime;
 
         /** 流程定义的编号 */
         private String processDefinitionId;
