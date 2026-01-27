@@ -4,17 +4,22 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import com.google.api.client.repackaged.com.google.common.annotations.VisibleForTesting;
 import com.yy.common.flowable.enums.BpmTaskCandidateStrategyEnum;
 import com.yy.common.flowable.enums.BpmUserTaskApproveTypeEnum;
 import com.yy.common.flowable.enums.BpmUserTaskAssignStartUserHandlerTypeEnum;
 import com.yy.common.flowable.enums.CommonStatusEnum;
 import com.yy.common.flowable.utils.BpmnModelUtils;
+import com.yy.common.flowable.utils.FlowableUtils;
 import com.yy.common.flowable.utils.ObjectUtils;
+import com.yy.ppm.flowable.service.BpmProcessInstanceService;
 import com.yy.ppm.system.bean.dto.SysUserDTO;
 import com.yy.ppm.system.service.SysUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.bpmn.model.*;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.runtime.ProcessInstance;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -79,48 +84,43 @@ public class BpmTaskCandidateInvoker {
         });
     }
 
-//    /**
-//     * 计算任务的候选人
-//     *
-//     * @param execution 执行任务
-//     * @return 用户编号集合
-//     */
-//    @DataPermission(enable = false) // 忽略数据权限，避免因为过滤，导致找不到候选人
-//    public Set<Long> calculateUsersByTask(DelegateExecution execution) {
-//        // 注意：解决极端情况下，Flowable 异步调用，导致租户 id 丢失的情况
-//        // 例如说，SIMPLE 延迟器在 trigger 的时候！！！
-//        return FlowableUtils.execute(execution.getTenantId(), () -> {
-//            // 审批类型非人工审核时，不进行计算候选人。原因是：后续会自动通过、不通过
-//            FlowElement flowElement = execution.getCurrentFlowElement();
-//            Integer approveType = BpmnModelUtils.parseApproveType(flowElement);
-//            if (ObjectUtils.equalsAny(approveType,
-//                    BpmUserTaskApproveTypeEnum.AUTO_APPROVE.getType(),
-//                    BpmUserTaskApproveTypeEnum.AUTO_REJECT.getType())) {
-//                return new HashSet<>();
-//            }
-//
-//            // 1.1 计算任务的候选人
-//            Integer strategy = BpmnModelUtils.parseCandidateStrategy(flowElement);
-//            String param = BpmnModelUtils.parseCandidateParam(flowElement);
-//            Set<Long> userIds = getCandidateStrategy(strategy).calculateUsersByTask(execution, param);
-//            // 1.2 移除被禁用的用户
-//            removeDisableUsers(userIds);
-//
-//            // 2. 候选人为空时，根据“审批人为空”的配置补充
-//            if (CollUtil.isEmpty(userIds)) {
-//                userIds = getCandidateStrategy(BpmTaskCandidateStrategyEnum.ASSIGN_EMPTY.getStrategy())
-//                        .calculateUsersByTask(execution, param);
-//                // ASSIGN_EMPTY 策略，不需要移除被禁用的用户。原因是，再移除，可能会出现更没审批人了！！！
-//            }
-//
-//            // 3. 移除发起人的用户
-//            ProcessInstance processInstance = SpringUtil.getBean(BpmProcessInstanceService.class)
-//                    .getProcessInstance(execution.getProcessInstanceId());
-//            Assert.notNull(processInstance, "流程实例({}) 不存在", execution.getProcessInstanceId());
-//            removeStartUserIfSkip(userIds, flowElement, Long.valueOf(processInstance.getStartUserId()));
-//            return userIds;
-//        });
-//    }
+    /**
+     * 计算任务的候选人
+     *
+     * @param execution 执行任务
+     * @return 用户编号集合
+     */
+    public Set<Long> calculateUsersByTask(DelegateExecution execution) {
+        // 审批类型非人工审核时，不进行计算候选人。原因是：后续会自动通过、不通过
+        FlowElement flowElement = execution.getCurrentFlowElement();
+        Integer approveType = BpmnModelUtils.parseApproveType(flowElement);
+        if (ObjectUtils.equalsAny(approveType,
+                BpmUserTaskApproveTypeEnum.AUTO_APPROVE.getType(),
+                BpmUserTaskApproveTypeEnum.AUTO_REJECT.getType())) {
+            return new HashSet<>();
+        }
+
+        // 1.1 计算任务的候选人
+        Integer strategy = BpmnModelUtils.parseCandidateStrategy(flowElement);
+        String param = BpmnModelUtils.parseCandidateParam(flowElement);
+        Set<Long> userIds = getCandidateStrategy(strategy).calculateUsersByTask(execution, param);
+        // 1.2 移除被禁用的用户
+        removeDisableUsers(userIds);
+
+        // 2. 候选人为空时，根据“审批人为空”的配置补充
+        if (CollUtil.isEmpty(userIds)) {
+            userIds = getCandidateStrategy(BpmTaskCandidateStrategyEnum.ASSIGN_EMPTY.getStrategy())
+                    .calculateUsersByTask(execution, param);
+            // ASSIGN_EMPTY 策略，不需要移除被禁用的用户。原因是，再移除，可能会出现更没审批人了！！！
+        }
+
+        // 3. 移除发起人的用户
+        ProcessInstance processInstance = SpringUtil.getBean(BpmProcessInstanceService.class)
+                .getProcessInstance(execution.getProcessInstanceId());
+        Assert.notNull(processInstance, "流程实例({}) 不存在", execution.getProcessInstanceId());
+        removeStartUserIfSkip(userIds, flowElement, Long.valueOf(processInstance.getStartUserId()));
+        return userIds;
+    }
 
     public Set<Long> calculateUsersByActivity(BpmnModel bpmnModel, String activityId,
                                               Long startUserId, String processDefinitionId, Map<String, Object> processVariables) {
