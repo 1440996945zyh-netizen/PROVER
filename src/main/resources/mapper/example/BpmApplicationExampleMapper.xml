@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.example.mapper.BpmApplicationExampleMapper">
+
+    <resultMap id="BaseResultMap" type="com.yy.ppm.example.bean.dto.BpmApplicationExampleDTO">
+        <id column="ID" property="id" jdbcType="NUMERIC"/>
+        <result column="PAYMENT_TITLE" property="paymentTitle" jdbcType="VARCHAR"/>
+        <result column="PAYMENT_AMOUNT" property="paymentAmount" jdbcType="NUMERIC"/>
+        <result column="PAYEE_NAME" property="payeeName" jdbcType="VARCHAR"/>
+        <result column="APPLICANT_ID" property="applicantId" jdbcType="NUMERIC"/>
+        <result column="APPLICANT_NAME" property="applicantName" jdbcType="VARCHAR"/>
+        <result column="APPROVAL_STATUS" property="approvalStatus" jdbcType="VARCHAR"/>
+        <result column="APPLY_TIME" property="applyTime" jdbcType="TIMESTAMP"/>
+        <result column="EXPECTED_PAYMENT_TIME" property="expectedPaymentTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="commonList">
+        ID,
+        PAYMENT_TITLE,
+        PAYMENT_AMOUNT,
+        PAYEE_NAME,
+        APPLICANT_ID,
+        APPLICANT_NAME,
+        APPROVAL_STATUS,
+        APPLY_TIME,
+        EXPECTED_PAYMENT_TIME
+    </sql>
+
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.example.bean.dto.BpmApplicationExampleDTO">
+        INSERT INTO BPM_APPLICATION_EXAMPLE (
+        <include refid="commonList" />
+        ) VALUES (
+        #{id, jdbcType=NUMERIC},
+        #{paymentTitle, jdbcType=VARCHAR},
+        #{paymentAmount, jdbcType=NUMERIC},
+        #{payeeName, jdbcType=VARCHAR},
+        #{applicantId, jdbcType=NUMERIC},
+        #{applicantName, jdbcType=VARCHAR},
+        #{approvalStatus, jdbcType=VARCHAR},
+        #{applyTime, jdbcType=TIMESTAMP},
+        #{expectedPaymentTime, jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.example.bean.dto.BpmApplicationExampleDTO">
+        UPDATE BPM_APPLICATION_EXAMPLE
+        SET
+            PAYMENT_TITLE = #{paymentTitle, jdbcType=VARCHAR},
+            PAYMENT_AMOUNT = #{paymentAmount, jdbcType=NUMERIC},
+            PAYEE_NAME = #{payeeName, jdbcType=VARCHAR},
+            APPLICANT_ID = #{applicantId, jdbcType=NUMERIC},
+            APPLICANT_NAME = #{applicantName, jdbcType=VARCHAR},
+            APPROVAL_STATUS = #{approvalStatus, jdbcType=VARCHAR},
+            APPLY_TIME = #{applyTime, jdbcType=TIMESTAMP},
+            EXPECTED_PAYMENT_TIME = #{expectedPaymentTime, jdbcType=TIMESTAMP},
+            UPDATE_BY = #{loginUserId, jdbcType=NUMERIC},
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now, jdbcType=TIMESTAMP}
+        WHERE ID = #{id, jdbcType=NUMERIC}
+    </update>
+
+    <!-- 根据ID删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM BPM_APPLICATION_EXAMPLE WHERE ID = #{id, jdbcType=NUMERIC}
+    </delete>
+
+    <!-- 根据ID查询详情 -->
+    <select id="getDetail" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT
+        <include refid="commonList" />
+        FROM BPM_APPLICATION_EXAMPLE
+        WHERE ID = #{id, jdbcType=NUMERIC}
+    </select>
+
+    <!-- 分页查询列表 -->
+    <select id="getList" parameterType="com.yy.ppm.example.bean.dto.BpmApplicationExampleSearchDTO" resultMap="BaseResultMap">
+        SELECT
+        <include refid="commonList" />
+        FROM BPM_APPLICATION_EXAMPLE
+        <where>
+            <if test="paymentTitle != null and paymentTitle != ''">
+                AND PAYMENT_TITLE LIKE '%' || #{paymentTitle, jdbcType=VARCHAR} || '%'
+            </if>
+            <if test="payeeName != null and payeeName != ''">
+                AND PAYEE_NAME LIKE '%' || #{payeeName, jdbcType=VARCHAR} || '%'
+            </if>
+            <if test="applicantId != null">
+                AND APPLICANT_ID = #{applicantId, jdbcType=NUMERIC}
+            </if>
+            <if test="applicantName != null and applicantName != ''">
+                AND APPLICANT_NAME LIKE '%' || #{applicantName, jdbcType=VARCHAR} || '%'
+            </if>
+            <if test="approvalStatus != null and approvalStatus != ''">
+                AND APPROVAL_STATUS = #{approvalStatus, jdbcType=VARCHAR}
+            </if>
+
+        </where>
+        ORDER BY APPLY_TIME DESC
+    </select>
+
+    <!-- 查询所有数据 -->
+    <select id="getAllList" resultMap="BaseResultMap">
+        SELECT
+        <include refid="commonList" />
+        FROM BPM_APPLICATION_EXAMPLE
+        ORDER BY APPLY_TIME DESC
+    </select>
+
+</mapper>
