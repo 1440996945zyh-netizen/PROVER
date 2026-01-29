@@ -46,5 +46,4 @@ public interface PublicMapper {
 
 
     List<MDictDataPO> listDictData();
-
 }

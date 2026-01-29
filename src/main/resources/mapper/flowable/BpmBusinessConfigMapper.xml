@@ -10,7 +10,7 @@
         <result column="BUSINESS_TYPE_NAME" property="businessTypeName" jdbcType="VARCHAR"/>
         <result column="PROC_MODEL_ID" property="procModelId" jdbcType="VARCHAR"/>
         <result column="PROC_MODEL_NAME" property="procModelName" jdbcType="VARCHAR"/>
-        <result column="PROC_DEF_KEY" property="procDefKey" jdbcType="VARCHAR"/>
+        <result column="PROC_DEF_ID" property="procDefId" jdbcType="VARCHAR"/>
         <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
         <result column="STATUS" property="status" jdbcType="VARCHAR"/>
         <result column="CREATE_BY" property="createBy" jdbcType="NUMERIC"/>
@@ -23,7 +23,7 @@
 
     <sql id="commonList">
         ID, BUSINESS_ID, BUSINESS_NAME, BUSINESS_TYPE_CODE, BUSINESS_TYPE_NAME,
-        PROC_MODEL_ID, PROC_MODEL_NAME, PROC_DEF_KEY, REMARK, STATUS,
+        PROC_MODEL_ID, PROC_MODEL_NAME, PROC_DEF_ID, REMARK, STATUS,
         CREATE_BY, CREATE_BY_NAME, CREATE_TIME,
         UPDATE_BY, UPDATE_BY_NAME, UPDATE_TIME
     </sql>
@@ -40,7 +40,7 @@
         #{businessTypeName, jdbcType=VARCHAR},
         #{procModelId, jdbcType=VARCHAR},
         #{procModelName, jdbcType=VARCHAR},
-        #{procDefKey, jdbcType=VARCHAR},
+        #{procDefId, jdbcType=VARCHAR},
         #{remark, jdbcType=VARCHAR},
         #{status, jdbcType=VARCHAR},
         #{loginUserId, jdbcType=NUMERIC},
@@ -57,9 +57,6 @@
         UPDATE
         BPM_BUSINESS_CONFIG
         SET
-        <if test="businessId != null">
-            BUSINESS_ID = #{businessId, jdbcType=NUMERIC},
-        </if>
         <if test="businessName != null and businessName != ''">
             BUSINESS_NAME = #{businessName, jdbcType=VARCHAR},
         </if>
@@ -75,8 +72,8 @@
         <if test="procModelName != null and procModelName != ''">
             PROC_MODEL_NAME = #{procModelName, jdbcType=VARCHAR},
         </if>
-        <if test="procDefKey != null and procDefKey != ''">
-            PROC_DEF_KEY = #{procDefKey, jdbcType=VARCHAR},
+        <if test="procDefId != null and procDefId != ''">
+            PROC_DEF_ID = #{procDefId, jdbcType=VARCHAR},
         </if>
         <if test="remark != null">
             REMARK = #{remark, jdbcType=VARCHAR},
@@ -111,8 +108,6 @@
     </select>
 
 
-
-
     <!-- 分页查询列表 -->
     <select id="getList" parameterType="com.yy.ppm.flowable.bean.dto.BpmBusinessConfigSearchDTO" resultMap="BaseResultMap">
         SELECT
@@ -138,8 +133,8 @@
             <if test="procModelName != null and procModelName != ''">
                 AND PROC_MODEL_NAME LIKE '%' || #{procModelName, jdbcType=VARCHAR} || '%'
             </if>
-            <if test="procDefKey != null and procDefKey != ''">
-                AND PROC_DEF_KEY = #{procDefKey, jdbcType=VARCHAR}
+            <if test="procDefId != null and procDefId != ''">
+                AND PROC_DEF_ID = #{procDefId, jdbcType=VARCHAR}
             </if>
             <if test="status != null and status != ''">
                 AND STATUS = #{status, jdbcType=VARCHAR}
@@ -148,13 +143,19 @@
         ORDER BY
         CREATE_TIME DESC
     </select>
-    <select id="getProcDefKey" resultType="java.lang.String">
-      SELECT
-        FROM
-        BPM_BUSINESS_CONFIG
-        WHERE
-        PROC_DEF_KEY = #{procDefKey, jdbcType=VARCHAR}
-        AND STATUS = '1'
+
+    <select id="getprocDefId" resultType="java.lang.String">
+        SELECT ID_ FROM ACT_RE_PROCDEF
+        WHERE KEY_ = (
+            SELECT KEY_
+            FROM ACT_RE_MODEL
+            WHERE ID_ = #{procModelId}
+        )
+          AND VERSION_ = (
+            SELECT MAX(VERSION_)
+            FROM ACT_RE_PROCDEF
+            WHERE KEY_ = (SELECT KEY_ FROM ACT_RE_MODEL WHERE ID_ = #{procModelId})
+        );
     </select>
 
 

@@ -109,7 +109,4 @@ public class PublicServiceImpl implements PublicService {
     public List<SysDeptDTO> getDeptList(SysDeptDTO deptDTO) {
         return publicMapper.getDeptList(deptDTO);
     }
-
-
-
 }

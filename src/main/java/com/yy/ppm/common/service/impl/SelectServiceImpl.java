@@ -208,11 +208,12 @@ public class SelectServiceImpl implements SelectService {
             // 字典
             case "DICT" :
                 String dictType = StringUtil.getString(params.get("dictType"));
+                String remark = StringUtil.getString(params.get("remark"));
                 res = selectMapper.getLocalSelect(
                         SelectEnum.DICT.getTableName(),
                         SelectEnum.DICT.getValueName(),
                         SelectEnum.DICT.getLabelName(),
-                        " DICT_TYPE = '" + DictTypeEnum.match(dictType) + "' AND STATUS = '1' ");
+                        " DICT_TYPE = '" + DictTypeEnum.match(dictType) + "' AND STATUS = '1' AND REMARK = '"+remark+"'");
                 break;
 //
             case "CONSTANT" :

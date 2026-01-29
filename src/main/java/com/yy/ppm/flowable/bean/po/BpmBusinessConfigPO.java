@@ -56,7 +56,7 @@ public class BpmBusinessConfigPO extends BasePO implements Serializable {
     /**
      * 流程定义KEY
      */
-    private String procDefKey;
+    private String procDefId;
 
     /**
      * 备注

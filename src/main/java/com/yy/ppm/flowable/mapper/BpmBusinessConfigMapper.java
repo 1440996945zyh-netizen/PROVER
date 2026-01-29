@@ -16,6 +16,11 @@ import java.util.List;
 public interface BpmBusinessConfigMapper {
 
     /**
+     * 分页查询列表
+     */
+    Page<BpmBusinessConfigDTO> getList(BpmBusinessConfigSearchDTO searchDTO);
+
+    /**
      * 新增
      */
     @Edit
@@ -40,12 +45,10 @@ public interface BpmBusinessConfigMapper {
     BpmBusinessConfigDTO getDetail(Long id);
 
 
-
     /**
-     * 分页查询列表
+     * 查询最新的流程定义ID
+     * @param procModelId
+     * @return
      */
-    Page<BpmBusinessConfigDTO> getList(BpmBusinessConfigSearchDTO searchDTO);
-
-
-    String getProcDefKey(BpmBusinessConfigDTO dto);
+    String getprocDefId(String procModelId);
 }

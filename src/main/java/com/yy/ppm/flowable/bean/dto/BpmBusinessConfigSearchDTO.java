@@ -39,7 +39,7 @@ public class BpmBusinessConfigSearchDTO extends PageParameter implements Seriali
     /**
      * 流程定义KEY
      */
-    private String procDefKey;
+    private String procDefId;
 
     /**
      * 状态

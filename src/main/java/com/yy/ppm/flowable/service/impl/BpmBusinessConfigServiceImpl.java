@@ -33,6 +33,24 @@ public class BpmBusinessConfigServiceImpl implements BpmBusinessConfigService {
     @Resource
     private BpmBusinessConfigMapper bpmBusinessConfigMapper;
 
+    /**
+     * 分页查询列表
+     */
+    @Override
+    public Pages<BpmBusinessConfigDTO> getList(BpmBusinessConfigSearchDTO searchDTO) {
+        final String methodName = "BpmBusinessConfigServiceImpl:getList";
+        LOGGER.enter(methodName, "分页查询业务配置列表");
+
+        Pages<BpmBusinessConfigDTO> pages = PageHelperUtils.limit(searchDTO,
+                () -> bpmBusinessConfigMapper.getList(searchDTO));
+
+        LOGGER.exit(methodName, StringUtils.EMPTY);
+        return pages;
+    }
+
+    /**
+     * 新增
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void insert(BpmBusinessConfigDTO dto) {
@@ -41,7 +59,7 @@ public class BpmBusinessConfigServiceImpl implements BpmBusinessConfigService {
 
         // 设置ID
         dto.setId(snowflake.nextId());
-        dto.setProcDefKey(bpmBusinessConfigMapper.getProcDefKey(dto));
+        dto.setProcDefId(bpmBusinessConfigMapper.getprocDefId(dto.getProcModelId()));
 
         // 设置默认状态
         if (StringUtils.isBlank(dto.getStatus())) {
@@ -53,6 +71,9 @@ public class BpmBusinessConfigServiceImpl implements BpmBusinessConfigService {
         LOGGER.exit(methodName, StringUtils.EMPTY);
     }
 
+    /**
+     * 修改
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void update(BpmBusinessConfigDTO dto) {
@@ -62,13 +83,16 @@ public class BpmBusinessConfigServiceImpl implements BpmBusinessConfigService {
         if (dto.getId() == null) {
             throw new BusinessRuntimeException("ID不能为空");
         }
-
+        dto.setProcDefId(bpmBusinessConfigMapper.getprocDefId(dto.getProcModelId()));
 
         bpmBusinessConfigMapper.update(dto);
 
         LOGGER.exit(methodName, StringUtils.EMPTY);
     }
 
+    /**
+     * 根据ID删除
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteById(Long id) {
@@ -87,7 +111,9 @@ public class BpmBusinessConfigServiceImpl implements BpmBusinessConfigService {
         LOGGER.exit(methodName, StringUtils.EMPTY);
     }
 
-
+    /**
+     * 根据ID查询详情
+     */
     @Override
     public BpmBusinessConfigDTO getDetail(Long id) {
         final String methodName = "BpmBusinessConfigServiceImpl:getDetail";
@@ -105,26 +131,4 @@ public class BpmBusinessConfigServiceImpl implements BpmBusinessConfigService {
         LOGGER.exit(methodName, StringUtils.EMPTY);
         return dto;
     }
-
-
-
-    @Override
-    public Pages<BpmBusinessConfigDTO> getList(BpmBusinessConfigSearchDTO searchDTO) {
-        final String methodName = "BpmBusinessConfigServiceImpl:getList";
-        LOGGER.enter(methodName, "分页查询业务配置列表");
-
-        Pages<BpmBusinessConfigDTO> pages = PageHelperUtils.limit(searchDTO,
-                () -> bpmBusinessConfigMapper.getList(searchDTO));
-
-        LOGGER.exit(methodName, StringUtils.EMPTY);
-        return pages;
-    }
-
-
-
-
-
-
-
-
 }

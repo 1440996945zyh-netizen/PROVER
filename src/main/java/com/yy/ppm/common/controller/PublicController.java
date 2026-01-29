@@ -58,7 +58,6 @@ public class PublicController {
         if (dictTypeList.size() > 0) {
             dataMap = publicService.getDictList(dictTypeList);
         }
-
         LOGGER.exit(methodName, "根据字典类型列表获取字典值[end], result: " + dataMap);
         return Response.SUCCESS.newBuilder().toResult(dataMap);
     }

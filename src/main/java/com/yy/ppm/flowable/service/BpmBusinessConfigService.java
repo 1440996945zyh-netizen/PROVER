@@ -11,6 +11,10 @@ import java.util.List;
  * @Description BPM业务配置Service接口
  */
 public interface BpmBusinessConfigService {
+    /**
+     * 分页查询列表
+     */
+    Pages<BpmBusinessConfigDTO> getList(BpmBusinessConfigSearchDTO searchDTO);
 
     /**
      * 新增
@@ -33,15 +37,5 @@ public interface BpmBusinessConfigService {
      * 根据ID查询详情
      */
     BpmBusinessConfigDTO getDetail(Long id);
-
-
-
-    /**
-     * 分页查询列表
-     */
-    Pages<BpmBusinessConfigDTO> getList(BpmBusinessConfigSearchDTO searchDTO);
-
-
-
 
 }

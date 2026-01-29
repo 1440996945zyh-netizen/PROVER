@@ -127,8 +127,5 @@
           AND STATUS = '1'
         ORDER BY SORT_NUM
     </select>
-
-
-
 </mapper>
 

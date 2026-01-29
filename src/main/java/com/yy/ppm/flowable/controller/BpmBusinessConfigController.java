@@ -32,6 +32,22 @@ public class BpmBusinessConfigController {
 
     @Resource
     private BpmBusinessConfigService bpmBusinessConfigService;
+    /**
+     * 分页查询列表
+     */
+    @GetMapping("/getList")
+    @PreAuthorize("hasAuthority('bpm:businessConfig:query')")
+    @Log(OperateTypeEnum.QUERY)
+    @Operation(summary = "分页查询BPM业务配置列表")
+    public Map<String, Object> getList(@Validated BpmBusinessConfigSearchDTO searchDTO) {
+        final String methodName = "BpmBusinessConfigController:getList";
+        LOGGER.enter(methodName, "分页查询BPM业务配置列表");
+
+        Pages<BpmBusinessConfigDTO> pages = bpmBusinessConfigService.getList(searchDTO);
+
+        LOGGER.exit(methodName, "查询BPM业务配置列表完成");
+        return Response.SUCCESS.newBuilder().toResult(pages);
+    }
 
     /**
      * 新增
@@ -102,24 +118,4 @@ public class BpmBusinessConfigController {
         LOGGER.exit(methodName, "查询BPM业务配置详情完成");
         return Response.SUCCESS.newBuilder().toResult(dto);
     }
-
-
-    /**
-     * 分页查询列表
-     */
-    @GetMapping("/getList")
-    @PreAuthorize("hasAuthority('bpm:businessConfig:query')")
-    @Log(OperateTypeEnum.QUERY)
-    @Operation(summary = "分页查询BPM业务配置列表")
-    public Map<String, Object> getList(@Validated BpmBusinessConfigSearchDTO searchDTO) {
-        final String methodName = "BpmBusinessConfigController:getList";
-        LOGGER.enter(methodName, "分页查询BPM业务配置列表");
-
-        Pages<BpmBusinessConfigDTO> pages = bpmBusinessConfigService.getList(searchDTO);
-
-        LOGGER.exit(methodName, "查询BPM业务配置列表完成");
-        return Response.SUCCESS.newBuilder().toResult(pages);
-    }
-
-
 }

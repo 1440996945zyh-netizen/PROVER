@@ -43,5 +43,4 @@ public interface PublicService {
      * @return
      */
     List<SysDeptDTO> getDeptList(SysDeptDTO deptDTO);
-
 }
