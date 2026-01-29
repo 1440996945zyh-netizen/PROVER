@@ -119,6 +119,7 @@ public enum DictTypeEnum {
     HANDOVERLIST_TYPE("HANDOVERLIST_TYPE", "结算单类型"),
     ODD_WORK_TYPE("ODD_WORK_TYPE", "零工作业分类"),
     STANDARDIZED_CARGO("STANDARDIZED_CARGO", "标准化货物"),
+    BPM_BUSINESS_TYPE("BPM_BUSINESS_TYPE", "流程业务类型"),
     MODEL_TYPE("MODEL_TYPE", "模板类型");
 
 
