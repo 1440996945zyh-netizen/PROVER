@@ -59,7 +59,9 @@ public class BpmBusinessConfigServiceImpl implements BpmBusinessConfigService {
 
         // 设置ID
         dto.setId(snowflake.nextId());
-        dto.setProcDefId(bpmBusinessConfigMapper.getprocDefId(dto.getProcModelId()));
+        // 获取流程模型对应的最新流程定义ID
+        String procDefId = bpmBusinessConfigMapper.getprocDefId(dto.getProcModelId());
+        dto.setProcDefId(procDefId);
 
         // 设置默认状态
         if (StringUtils.isBlank(dto.getStatus())) {
@@ -83,6 +85,7 @@ public class BpmBusinessConfigServiceImpl implements BpmBusinessConfigService {
         if (dto.getId() == null) {
             throw new BusinessRuntimeException("ID不能为空");
         }
+        // 获取流程模型对应的最新流程定义ID
         dto.setProcDefId(bpmBusinessConfigMapper.getprocDefId(dto.getProcModelId()));
 
         bpmBusinessConfigMapper.update(dto);
@@ -130,5 +133,17 @@ public class BpmBusinessConfigServiceImpl implements BpmBusinessConfigService {
 
         LOGGER.exit(methodName, StringUtils.EMPTY);
         return dto;
+    }
+
+    /**
+     * 根据菜单和流程业务类型获取流程定义
+     */
+    @Override
+    public String getProcDefId(Long businessId, String businessTypeCode) {
+        String procDefId = bpmBusinessConfigMapper.getProcDefId(businessId, businessTypeCode);
+        if (StringUtils.isEmpty(procDefId)) {
+            throw new BusinessRuntimeException("未查询到有效流程定义");
+        }
+        return procDefId;
     }
 }

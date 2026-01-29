@@ -38,4 +38,8 @@ public interface BpmBusinessConfigService {
      */
     BpmBusinessConfigDTO getDetail(Long id);
 
+    /**
+     * 根据菜单和流程业务类型获取流程定义
+     */
+    String getProcDefId(Long businessId, String businessTypeCode);
 }

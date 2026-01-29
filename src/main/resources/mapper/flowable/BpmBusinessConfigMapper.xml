@@ -3,8 +3,8 @@
 <mapper namespace="com.yy.ppm.flowable.mapper.BpmBusinessConfigMapper">
 
     <resultMap id="BaseResultMap" type="com.yy.ppm.flowable.bean.dto.BpmBusinessConfigDTO">
-        <id column="ID" property="id" jdbcType="NUMERIC"/>
-        <result column="BUSINESS_ID" property="businessId" jdbcType="NUMERIC"/>
+        <id column="ID" property="id" jdbcType="BIGINT"/>
+        <result column="BUSINESS_ID" property="businessId" jdbcType="BIGINT"/>
         <result column="BUSINESS_NAME" property="businessName" jdbcType="VARCHAR"/>
         <result column="BUSINESS_TYPE_CODE" property="businessTypeCode" jdbcType="VARCHAR"/>
         <result column="BUSINESS_TYPE_NAME" property="businessTypeName" jdbcType="VARCHAR"/>
@@ -13,10 +13,10 @@
         <result column="PROC_DEF_ID" property="procDefId" jdbcType="VARCHAR"/>
         <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
         <result column="STATUS" property="status" jdbcType="VARCHAR"/>
-        <result column="CREATE_BY" property="createBy" jdbcType="NUMERIC"/>
+        <result column="CREATE_BY" property="createBy" jdbcType="BIGINT"/>
         <result column="CREATE_BY_NAME" property="createByName" jdbcType="VARCHAR"/>
         <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
-        <result column="UPDATE_BY" property="updateBy" jdbcType="NUMERIC"/>
+        <result column="UPDATE_BY" property="updateBy" jdbcType="BIGINT"/>
         <result column="UPDATE_BY_NAME" property="updateByName" jdbcType="VARCHAR"/>
         <result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP"/>
     </resultMap>
@@ -33,8 +33,8 @@
         INSERT INTO BPM_BUSINESS_CONFIG (
         <include refid="commonList" />
         ) VALUES (
-        #{id, jdbcType=NUMERIC},
-        #{businessId, jdbcType=NUMERIC},
+        #{id, jdbcType=BIGINT},
+        #{businessId, jdbcType=BIGINT},
         #{businessName, jdbcType=VARCHAR},
         #{businessTypeCode, jdbcType=VARCHAR},
         #{businessTypeName, jdbcType=VARCHAR},
@@ -43,10 +43,10 @@
         #{procDefId, jdbcType=VARCHAR},
         #{remark, jdbcType=VARCHAR},
         #{status, jdbcType=VARCHAR},
-        #{loginUserId, jdbcType=NUMERIC},
+        #{loginUserId, jdbcType=BIGINT},
         #{loginUserName, jdbcType=VARCHAR},
         #{now, jdbcType=TIMESTAMP},
-        #{loginUserId, jdbcType=NUMERIC},
+        #{loginUserId, jdbcType=BIGINT},
         #{loginUserName, jdbcType=VARCHAR},
         #{now, jdbcType=TIMESTAMP}
         )
@@ -81,11 +81,11 @@
         <if test="status != null and status != ''">
             STATUS = #{status, jdbcType=VARCHAR},
         </if>
-        UPDATE_BY = #{loginUserId, jdbcType=NUMERIC},
+        UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
         UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
         UPDATE_TIME = #{now, jdbcType=TIMESTAMP}
         WHERE
-        ID = #{id, jdbcType=NUMERIC}
+        ID = #{id, jdbcType=BIGINT}
     </update>
 
     <!-- 根据ID删除 -->
@@ -93,7 +93,7 @@
         DELETE FROM
             BPM_BUSINESS_CONFIG
         WHERE
-            ID = #{id, jdbcType=NUMERIC}
+            ID = #{id, jdbcType=BIGINT}
     </delete>
 
 
@@ -104,7 +104,7 @@
         FROM
         BPM_BUSINESS_CONFIG
         WHERE
-        ID = #{id, jdbcType=NUMERIC}
+        ID = #{id, jdbcType=BIGINT}
     </select>
 
 
@@ -116,7 +116,7 @@
         BPM_BUSINESS_CONFIG
         <where>
             <if test="businessId != null">
-                AND BUSINESS_ID = #{businessId, jdbcType=NUMERIC}
+                AND BUSINESS_ID = #{businessId, jdbcType=BIGINT}
             </if>
             <if test="businessName != null and businessName != ''">
                 AND BUSINESS_NAME LIKE '%' || #{businessName, jdbcType=VARCHAR} || '%'
@@ -149,13 +149,22 @@
         WHERE KEY_ = (
             SELECT KEY_
             FROM ACT_RE_MODEL
-            WHERE ID_ = #{procModelId}
+            WHERE ID_ = #{procModelId,jdbcType=VARCHAR}
         )
           AND VERSION_ = (
             SELECT MAX(VERSION_)
             FROM ACT_RE_PROCDEF
-            WHERE KEY_ = (SELECT KEY_ FROM ACT_RE_MODEL WHERE ID_ = #{procModelId})
-        );
+            WHERE KEY_ = (SELECT KEY_ FROM ACT_RE_MODEL WHERE ID_ = #{procModelId,jdbcType=VARCHAR})
+        )
+    </select>
+    <select id="getProcDefId" resultType="java.lang.String">
+        select
+            PROC_DEF_ID
+        from
+            BPM_BUSINESS_CONFIG
+        where
+            BUSINESS_ID = #{businessId}
+        and BUSINESS_TYPE_CODE = #{businessTypeCode}
     </select>
 
 

@@ -6,6 +6,7 @@ import com.yy.framework.annotation.Edit;
 import com.yy.ppm.flowable.bean.dto.BpmBusinessConfigDTO;
 import com.yy.ppm.flowable.bean.dto.BpmBusinessConfigSearchDTO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -50,5 +51,10 @@ public interface BpmBusinessConfigMapper {
      * @param procModelId
      * @return
      */
-    String getprocDefId(String procModelId);
+    String getprocDefId(@Param("procModelId") String procModelId);
+
+    /**
+     * 根据菜单和流程业务类型获取流程定义
+     */
+    String getProcDefId(@Param("businessId") Long businessId, @Param("businessTypeCode")String businessTypeCode);
 }
