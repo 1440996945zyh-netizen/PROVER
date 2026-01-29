@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.flowable.mapper.BpmBusinessConfigMapper">
+
+    <resultMap id="BaseResultMap" type="com.yy.ppm.flowable.bean.dto.BpmBusinessConfigDTO">
+        <id column="ID" property="id" jdbcType="NUMERIC"/>
+        <result column="BUSINESS_ID" property="businessId" jdbcType="NUMERIC"/>
+        <result column="BUSINESS_NAME" property="businessName" jdbcType="VARCHAR"/>
+        <result column="BUSINESS_TYPE_CODE" property="businessTypeCode" jdbcType="VARCHAR"/>
+        <result column="BUSINESS_TYPE_NAME" property="businessTypeName" jdbcType="VARCHAR"/>
+        <result column="PROC_MODEL_ID" property="procModelId" jdbcType="VARCHAR"/>
+        <result column="PROC_MODEL_NAME" property="procModelName" jdbcType="VARCHAR"/>
+        <result column="PROC_DEF_KEY" property="procDefKey" jdbcType="VARCHAR"/>
+        <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+        <result column="STATUS" property="status" jdbcType="VARCHAR"/>
+        <result column="CREATE_BY" property="createBy" jdbcType="NUMERIC"/>
+        <result column="CREATE_BY_NAME" property="createByName" jdbcType="VARCHAR"/>
+        <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="UPDATE_BY" property="updateBy" jdbcType="NUMERIC"/>
+        <result column="UPDATE_BY_NAME" property="updateByName" jdbcType="VARCHAR"/>
+        <result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="commonList">
+        ID, BUSINESS_ID, BUSINESS_NAME, BUSINESS_TYPE_CODE, BUSINESS_TYPE_NAME,
+        PROC_MODEL_ID, PROC_MODEL_NAME, PROC_DEF_KEY, REMARK, STATUS,
+        CREATE_BY, CREATE_BY_NAME, CREATE_TIME,
+        UPDATE_BY, UPDATE_BY_NAME, UPDATE_TIME
+    </sql>
+
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.flowable.bean.dto.BpmBusinessConfigDTO">
+        INSERT INTO BPM_BUSINESS_CONFIG (
+        <include refid="commonList" />
+        ) VALUES (
+        #{id, jdbcType=NUMERIC},
+        #{businessId, jdbcType=NUMERIC},
+        #{businessName, jdbcType=VARCHAR},
+        #{businessTypeCode, jdbcType=VARCHAR},
+        #{businessTypeName, jdbcType=VARCHAR},
+        #{procModelId, jdbcType=VARCHAR},
+        #{procModelName, jdbcType=VARCHAR},
+        #{procDefKey, jdbcType=VARCHAR},
+        #{remark, jdbcType=VARCHAR},
+        #{status, jdbcType=VARCHAR},
+        #{loginUserId, jdbcType=NUMERIC},
+        #{loginUserName, jdbcType=VARCHAR},
+        #{now, jdbcType=TIMESTAMP},
+        #{loginUserId, jdbcType=NUMERIC},
+        #{loginUserName, jdbcType=VARCHAR},
+        #{now, jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.flowable.bean.dto.BpmBusinessConfigDTO">
+        UPDATE
+        BPM_BUSINESS_CONFIG
+        SET
+        <if test="businessId != null">
+            BUSINESS_ID = #{businessId, jdbcType=NUMERIC},
+        </if>
+        <if test="businessName != null and businessName != ''">
+            BUSINESS_NAME = #{businessName, jdbcType=VARCHAR},
+        </if>
+        <if test="businessTypeCode != null and businessTypeCode != ''">
+            BUSINESS_TYPE_CODE = #{businessTypeCode, jdbcType=VARCHAR},
+        </if>
+        <if test="businessTypeName != null and businessTypeName != ''">
+            BUSINESS_TYPE_NAME = #{businessTypeName, jdbcType=VARCHAR},
+        </if>
+        <if test="procModelId != null and procModelId != ''">
+            PROC_MODEL_ID = #{procModelId, jdbcType=VARCHAR},
+        </if>
+        <if test="procModelName != null and procModelName != ''">
+            PROC_MODEL_NAME = #{procModelName, jdbcType=VARCHAR},
+        </if>
+        <if test="procDefKey != null and procDefKey != ''">
+            PROC_DEF_KEY = #{procDefKey, jdbcType=VARCHAR},
+        </if>
+        <if test="remark != null">
+            REMARK = #{remark, jdbcType=VARCHAR},
+        </if>
+        <if test="status != null and status != ''">
+            STATUS = #{status, jdbcType=VARCHAR},
+        </if>
+        UPDATE_BY = #{loginUserId, jdbcType=NUMERIC},
+        UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+        UPDATE_TIME = #{now, jdbcType=TIMESTAMP}
+        WHERE
+        ID = #{id, jdbcType=NUMERIC}
+    </update>
+
+    <!-- 根据ID删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM
+            BPM_BUSINESS_CONFIG
+        WHERE
+            ID = #{id, jdbcType=NUMERIC}
+    </delete>
+
+
+    <!-- 根据ID查询详情 -->
+    <select id="getDetail" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT
+        <include refid="commonList" />
+        FROM
+        BPM_BUSINESS_CONFIG
+        WHERE
+        ID = #{id, jdbcType=NUMERIC}
+    </select>
+
+
+
+
+    <!-- 分页查询列表 -->
+    <select id="getList" parameterType="com.yy.ppm.flowable.bean.dto.BpmBusinessConfigSearchDTO" resultMap="BaseResultMap">
+        SELECT
+        <include refid="commonList" />
+        FROM
+        BPM_BUSINESS_CONFIG
+        <where>
+            <if test="businessId != null">
+                AND BUSINESS_ID = #{businessId, jdbcType=NUMERIC}
+            </if>
+            <if test="businessName != null and businessName != ''">
+                AND BUSINESS_NAME LIKE '%' || #{businessName, jdbcType=VARCHAR} || '%'
+            </if>
+            <if test="businessTypeCode != null and businessTypeCode != ''">
+                AND BUSINESS_TYPE_CODE = #{businessTypeCode, jdbcType=VARCHAR}
+            </if>
+            <if test="businessTypeName != null and businessTypeName != ''">
+                AND BUSINESS_TYPE_NAME LIKE '%' || #{businessTypeName, jdbcType=VARCHAR} || '%'
+            </if>
+            <if test="procModelId != null and procModelId != ''">
+                AND PROC_MODEL_ID = #{procModelId, jdbcType=VARCHAR}
+            </if>
+            <if test="procModelName != null and procModelName != ''">
+                AND PROC_MODEL_NAME LIKE '%' || #{procModelName, jdbcType=VARCHAR} || '%'
+            </if>
+            <if test="procDefKey != null and procDefKey != ''">
+                AND PROC_DEF_KEY = #{procDefKey, jdbcType=VARCHAR}
+            </if>
+            <if test="status != null and status != ''">
+                AND STATUS = #{status, jdbcType=VARCHAR}
+            </if>
+        </where>
+        ORDER BY
+        CREATE_TIME DESC
+    </select>
+    <select id="getProcDefKey" resultType="java.lang.String">
+      SELECT
+        FROM
+        BPM_BUSINESS_CONFIG
+        WHERE
+        PROC_DEF_KEY = #{procDefKey, jdbcType=VARCHAR}
+        AND STATUS = '1'
+    </select>
+
+
+</mapper>

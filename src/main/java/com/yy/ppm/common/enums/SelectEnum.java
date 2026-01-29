@@ -21,7 +21,7 @@ public enum SelectEnum {
     BPM_FORM("BPM_FORM","BPM_FORM","ID","NAME","表单信息"),
     /**流程分类*/
     BPM_CATEGORY("BPM_CATEGORY","BPM_CATEGORY","CODE","NAME","流程分类"),
-    BPM_MODEL("BPM_MODEL","ACT_RE_MODEL","KEY_","NAME_","流程模型"),
+    BPM_MODEL("BPM_MODEL","ACT_RE_MODEL","ID_","NAME_","流程模型"),
     /** 常量 */
     CONSTANT("CONSTANT","M_CONSTANTS","CD", "NM","常量信息"),
     ROLE("ROLE","SYS_ROLE","ID", "ROLE_NAME","角色信息")
