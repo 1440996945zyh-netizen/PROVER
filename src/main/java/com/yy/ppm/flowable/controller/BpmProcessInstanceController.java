@@ -27,6 +27,7 @@ import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.repository.ProcessDefinition;
+import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.history.HistoricTaskInstance;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -137,7 +138,7 @@ public class BpmProcessInstanceController {
     @Operation(summary = "")
     @PreAuthorize("@ss.hasPermission('bpm:process-instance:query')")
     public Map<String,Object> createProcessInstance(@RequestBody BpmProcessInstanceDTO createReqVO) {
-        String processInstance = processInstanceService.createProcessInstance(getLoginUserId(), createReqVO);
+        ProcessInstance processInstance = processInstanceService.createProcessInstance(getLoginUserId(), createReqVO);
         return Response.SUCCESS.newBuilder().out(StringUtil.isEmpty(processInstance)? "新建失败":"新建成功").toResult();
     }
 

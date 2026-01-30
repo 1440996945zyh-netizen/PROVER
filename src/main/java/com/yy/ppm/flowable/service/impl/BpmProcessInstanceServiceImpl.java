@@ -775,7 +775,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String createProcessInstance(Long userId, BpmProcessInstanceDTO createReqVO) {
+    public ProcessInstance createProcessInstance(Long userId, BpmProcessInstanceDTO createReqVO) {
         // 获得流程定义
         ProcessDefinition definition = processDefinitionService
                 .getProcessDefinition(createReqVO.getProcessDefinitionId());
@@ -805,7 +805,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
 //    }
 
     // 发起流程
-    private String createProcessInstance0(Long userId, ProcessDefinition definition,
+    private ProcessInstance createProcessInstance0(Long userId, ProcessDefinition definition,
                                           Map<String, Object> variables, String businessKey,
                                           Map<String, List<Long>> startUserSelectAssignees) {
         // 1.1 校验流程定义
@@ -859,7 +859,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
             processInstanceBuilder.name(generateProcessInstanceName(userId, definition, processDefinitionInfo, variables));
             // 3.3 发起流程实例
             ProcessInstance instance = processInstanceBuilder.start();
-            return instance.getId();
+            return instance;
         }finally {
             // 清理现场，防止影响后续操作
             identityService.setAuthenticatedUserId(null);

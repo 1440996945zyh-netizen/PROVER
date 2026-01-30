@@ -29,8 +29,10 @@ import java.util.Set;
 
 /**
  * 监听 {@link Task} 的开始与完成
- *
- * @author jason
+ * 专门监控**任务（Task）**层面的细节。
+ * TASK_CREATED：产生了一个新任务（比如流转到了“财务审批”节点）。
+ * TASK_ASSIGNED：任务分配给了具体某个人。
+ * TASK_COMPLETED：某个审批节点完成了。
  */
 @Component
 @Slf4j

@@ -8,6 +8,7 @@ import com.yy.framework.annotation.Log;
 import com.yy.ppm.example.bean.dto.BpmApplicationExampleDTO;
 import com.yy.ppm.example.bean.dto.BpmApplicationExampleSearchDTO;
 import com.yy.ppm.example.service.BpmApplicationExampleService;
+import com.yy.ppm.flowable.bean.dto.BpmBusinessConfigDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -136,4 +137,21 @@ public class BpmApplicationExampleController {
         LOGGER.exit(methodName, "查询所有BPM应用示例数据[end]");
         return Response.SUCCESS.newBuilder().toResult(list);
     }
+
+    /**
+     * 提交
+     */
+    @PostMapping("/submit")
+    @PreAuthorize("hasAuthority('bpm:application:example:submit')")
+    @Log(OperateTypeEnum.INSERT)
+    public Map<String, Object> submit(@RequestBody BpmApplicationExampleDTO dto) {
+        final String methodName = "BpmBusinessConfigController:insert";
+        LOGGER.enter(methodName, "提交业务数据");
+
+        bpmApplicationExampleService.submit(dto);
+
+        LOGGER.exit(methodName, "新增BPM业务配置完成");
+        return Response.SUCCESS.newBuilder().out("新增成功").toResult();
+    }
+
 }

@@ -9,12 +9,18 @@ import com.yy.ppm.example.bean.dto.BpmApplicationExampleDTO;
 import com.yy.ppm.example.bean.dto.BpmApplicationExampleSearchDTO;
 import com.yy.ppm.example.mapper.BpmApplicationExampleMapper;
 import com.yy.ppm.example.service.BpmApplicationExampleService;
+import com.yy.ppm.flowable.bean.dto.BpmBusinessInstanceDTO;
+import com.yy.ppm.flowable.service.BpmProcessInstanceService;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
+import org.flowable.engine.runtime.ProcessInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
+
+import static com.yy.common.util.SecurityUtils.getLoginUserId;
 
 /**
  * @Description BPM应用示例Service实现类
@@ -26,6 +32,9 @@ public class BpmApplicationExampleServiceImpl implements BpmApplicationExampleSe
      * 日志组件
      */
     private static final MicroLogger LOGGER = new MicroLogger(BpmApplicationExampleServiceImpl.class);
+
+    @Resource
+    BpmProcessInstanceService bpmProcessInstanceService;
 
     /**
      * 雪花算法
@@ -124,5 +133,28 @@ public class BpmApplicationExampleServiceImpl implements BpmApplicationExampleSe
 
         LOGGER.exit(methodName, StringUtils.EMPTY);
         return list;
+    }
+
+    /**
+     * 提交
+     */
+    @Override
+    public void submit(BpmApplicationExampleDTO dto) {
+        // 流程发起，获取流程实例
+        ProcessInstance processInstance = bpmProcessInstanceService.createProcessInstance(getLoginUserId(), dto.getBpmProcessInstanceDTO());
+        // 业务与流程实例信息
+        BpmBusinessInstanceDTO bpmBusinessInstanceDTO = new BpmBusinessInstanceDTO();
+        bpmBusinessInstanceDTO.setId(snowflake.nextId());
+        bpmBusinessInstanceDTO.setBusinessDataId(dto.getId());
+        bpmBusinessInstanceDTO.setBusinessId(dto.getBusinessId());
+        bpmBusinessInstanceDTO.setProcInstId(processInstance.getId());
+        bpmBusinessInstanceDTO.setProcDefId(processInstance.getProcessDefinitionId());
+        bpmBusinessInstanceDTO.setCurrentNodeName("");
+        bpmBusinessInstanceDTO.setApproverNames("");
+        bpmBusinessInstanceDTO.setInstanceStatus("1");
+        bpmBusinessInstanceDTO.setStartTime(new Date());
+
+
+
     }
 }

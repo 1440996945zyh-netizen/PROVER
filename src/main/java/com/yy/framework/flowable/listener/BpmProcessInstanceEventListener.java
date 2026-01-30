@@ -16,6 +16,10 @@ import java.util.Set;
 /**
  * 监听 {@link ProcessInstance} 的状态变更，更新其对应的 status 状态
  *
+ * 专门监控**流程实例（ProcessInstance）**层面的生命周期。
+ * PROCESS_CREATED：流程刚创建时触发。
+ * PROCESS_COMPLETED：整个流程正常跑完时触发。
+ * PROCESS_CANCELLED：流程被人工强行终止或取消时触发。
  * @author jason
  */
 @Component

@@ -40,4 +40,9 @@ public interface BpmApplicationExampleService {
      * 查询所有数据
      */
     List<BpmApplicationExampleDTO> getAllList();
+
+    /**
+     * 提交
+     */
+    void submit(BpmApplicationExampleDTO dto);
 }

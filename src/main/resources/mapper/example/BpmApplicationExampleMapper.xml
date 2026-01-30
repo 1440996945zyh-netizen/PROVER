@@ -77,23 +77,39 @@
     <!-- 分页查询列表 -->
     <select id="getList" parameterType="com.yy.ppm.example.bean.dto.BpmApplicationExampleSearchDTO" resultMap="BaseResultMap">
         SELECT
-        <include refid="commonList" />
-        FROM BPM_APPLICATION_EXAMPLE
+        a.ID,
+        a.PAYMENT_TITLE,
+        a.PAYMENT_AMOUNT,
+        a.PAYEE_NAME,
+        a.APPLICANT_ID,
+        a.APPLICANT_NAME,
+        b.INSTANCE_STATUS as APPROVAL_STATUS,
+        case b.INSTANCE_STATUS
+        when '1' then '审批中'
+        when '2' then '审批通过'
+        when '3' then '审批驳回'
+        when '4' then '已撤回/作废'
+        else '未发起'
+        end as APPROVAL_STATUS_LABEL,
+
+        a.APPLY_TIME,
+        a.EXPECTED_PAYMENT_TIME
+        FROM BPM_APPLICATION_EXAMPLE a left join BPM_BUSINESS_INSTANCE b on a.id = b.BUSINESS_DATA_ID
         <where>
             <if test="paymentTitle != null and paymentTitle != ''">
-                AND PAYMENT_TITLE LIKE '%' || #{paymentTitle, jdbcType=VARCHAR} || '%'
+                AND a.PAYMENT_TITLE LIKE '%' || #{paymentTitle, jdbcType=VARCHAR} || '%'
             </if>
             <if test="payeeName != null and payeeName != ''">
-                AND PAYEE_NAME LIKE '%' || #{payeeName, jdbcType=VARCHAR} || '%'
+                AND a.PAYEE_NAME LIKE '%' || #{payeeName, jdbcType=VARCHAR} || '%'
             </if>
             <if test="applicantId != null">
-                AND APPLICANT_ID = #{applicantId, jdbcType=NUMERIC}
+                AND a.APPLICANT_ID = #{applicantId, jdbcType=NUMERIC}
             </if>
             <if test="applicantName != null and applicantName != ''">
-                AND APPLICANT_NAME LIKE '%' || #{applicantName, jdbcType=VARCHAR} || '%'
+                AND a.APPLICANT_NAME LIKE '%' || #{applicantName, jdbcType=VARCHAR} || '%'
             </if>
             <if test="approvalStatus != null and approvalStatus != ''">
-                AND APPROVAL_STATUS = #{approvalStatus, jdbcType=VARCHAR}
+                AND b.INSTANCE_STATUS = #{approvalStatus, jdbcType=VARCHAR}
             </if>
 
         </where>
