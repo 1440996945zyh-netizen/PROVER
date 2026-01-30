@@ -225,7 +225,7 @@ public class BpmModelServiceImpl implements BpmModelService {
 
         // 查询是否关联业务，若关联业务则将业务对应的流程定义更新为最新
         List<BpmBusinessConfigDTO> businessConfigCount = bpmBusinessConfigMapper.getBusinessConfigCount(id.toString());
-        if (CollectionUtil.isEmpty(businessConfigCount)) {
+        if (!CollectionUtil.isEmpty(businessConfigCount)) {
             for (BpmBusinessConfigDTO bpmBusinessConfigDTO : businessConfigCount) {
                 bpmBusinessConfigDTO.setProcDefId(definitionId);
                 bpmBusinessConfigMapper.update(bpmBusinessConfigDTO);
