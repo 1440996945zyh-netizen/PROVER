@@ -57,4 +57,10 @@ public interface BpmBusinessConfigMapper {
      * 根据菜单和流程业务类型获取流程定义
      */
     String getProcDefId(@Param("businessId") Long businessId, @Param("businessTypeCode")String businessTypeCode);
+
+    /**
+     * 根据流程模型id查询是否存在业务关联数据
+     */
+    List<BpmBusinessConfigDTO> getBusinessConfigCount(@Param("bpmModelId") String bpmModelId);
+
 }

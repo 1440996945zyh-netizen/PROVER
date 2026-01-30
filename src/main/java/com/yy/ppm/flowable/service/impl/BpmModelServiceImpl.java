@@ -2,19 +2,23 @@ package com.yy.ppm.flowable.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.yy.common.flowable.enums.BpmModelFormTypeEnum;
 import com.yy.common.flowable.enums.BpmModelTypeEnum;
 import com.yy.common.flowable.enums.BpmReasonEnum;
 import com.yy.common.flowable.enums.BpmTaskCandidateStrategyEnum;
 import com.yy.common.flowable.utils.BpmnModelUtils;
+import com.yy.common.flowable.utils.CollectionUtils;
 import com.yy.common.flowable.utils.ValidationUtils;
 import com.yy.common.util.str.StringUtil;
 import com.yy.framework.flowable.convert.BpmModelConvert;
 import com.yy.framework.flowable.strategy.BpmTaskCandidateInvoker;
+import com.yy.ppm.flowable.bean.dto.BpmBusinessConfigDTO;
 import com.yy.ppm.flowable.bean.dto.BpmModelMetaInfoDTO;
 import com.yy.ppm.flowable.bean.dto.BpmModelDTO;
 import com.yy.ppm.flowable.bean.po.BpmFormPO;
+import com.yy.ppm.flowable.mapper.BpmBusinessConfigMapper;
 import com.yy.ppm.flowable.service.BpmFormService;
 import com.yy.ppm.flowable.service.BpmModelService;
 import com.yy.ppm.flowable.service.BpmProcessDefinitionService;
@@ -76,6 +80,8 @@ public class BpmModelServiceImpl implements BpmModelService {
     private TaskService taskService;
     @Resource
     private BpmProcessInstanceCopyService processInstanceCopyService;
+    @Resource
+    private BpmBusinessConfigMapper bpmBusinessConfigMapper;
 
     /**
      * 列表查询
@@ -216,6 +222,15 @@ public class BpmModelServiceImpl implements BpmModelService {
         ProcessDefinition definition = processDefinitionService.getProcessDefinition(definitionId);
         model.setDeploymentId(definition.getDeploymentId());
         repositoryService.saveModel(model);
+
+        // 查询是否关联业务，若关联业务则将业务对应的流程定义更新为最新
+        List<BpmBusinessConfigDTO> businessConfigCount = bpmBusinessConfigMapper.getBusinessConfigCount(id.toString());
+        if (CollectionUtil.isEmpty(businessConfigCount)) {
+            for (BpmBusinessConfigDTO bpmBusinessConfigDTO : businessConfigCount) {
+                bpmBusinessConfigDTO.setProcDefId(definitionId);
+                bpmBusinessConfigMapper.update(bpmBusinessConfigDTO);
+            }
+        }
     }
 
     private void validateBpmnXml(byte[] bpmnBytes, Integer type) {

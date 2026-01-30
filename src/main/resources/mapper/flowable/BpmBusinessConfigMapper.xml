@@ -166,6 +166,11 @@
             BUSINESS_ID = #{businessId}
         and BUSINESS_TYPE_CODE = #{businessTypeCode}
     </select>
-
+    <select id="getBusinessConfigCount" resultType="com.yy.ppm.flowable.bean.dto.BpmBusinessConfigDTO">
+        select
+        <include refid="commonList" />
+        from BPM_BUSINESS_CONFIG
+        where PROC_MODEL_ID = #{bpmModelId}
+    </select>
 
 </mapper>
