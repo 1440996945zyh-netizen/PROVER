@@ -2,6 +2,7 @@ package com.yy.ppm.flowable.service.impl;
 
 
 import cn.hutool.core.lang.Snowflake;
+import com.yy.common.enums.Response;
 import com.yy.common.log.MicroLogger;
 import com.yy.common.page.Pages;
 import com.yy.common.util.PageHelperUtils;
@@ -57,6 +58,16 @@ public class BpmBusinessConfigServiceImpl implements BpmBusinessConfigService {
         final String methodName = "BpmBusinessConfigServiceImpl:insert";
         LOGGER.enter(methodName, "新增业务配置");
 
+        // 校验业务按钮是否绑定了其他流程模型
+        int count = bpmBusinessConfigMapper.checkUniqueConfig(
+                dto.getBusinessId(),
+                dto.getBusinessTypeCode()
+        );
+        if (count > 0) {
+            // 抛出自定义异常或业务异常，让前端捕获错误信息
+            throw new BusinessRuntimeException("该业务按钮已关联流程，如需修改请进行编辑！");
+        }
+
         // 设置ID
         dto.setId(snowflake.nextId());
         // 获取流程模型对应的最新流程定义ID
@@ -86,8 +97,20 @@ public class BpmBusinessConfigServiceImpl implements BpmBusinessConfigService {
         if (dto.getId() == null) {
             throw new BusinessRuntimeException("ID不能为空");
         }
+        // 1. 唯一性校验：判断该业务模块下的该按钮是否已经配置过流程（排除当前记录ID）
+        int count = bpmBusinessConfigMapper.checkUniqueConfigForUpdate(
+                dto.getBusinessId(),
+                dto.getBusinessTypeCode(),
+                dto.getId()
+        );
+
+        if (count > 0) {
+            throw new BusinessRuntimeException("该业务按钮已关联其他流程配置，请检查！");
+        }
         // 获取流程模型对应的最新流程定义ID
-        dto.setProcDefId(bpmBusinessConfigMapper.getprocDefId(dto.getProcModelId()));
+        String procDefId = bpmBusinessConfigMapper.getprocDefId(dto.getProcModelId());
+        dto.setProcDefId(procDefId);
+        
 
         bpmBusinessConfigMapper.update(dto);
 

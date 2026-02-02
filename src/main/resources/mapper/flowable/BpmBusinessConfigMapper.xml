@@ -169,4 +169,20 @@
         where PROC_MODEL_ID = #{bpmModelId}
     </select>
 
+    <!-- 检查唯一性 -->
+    <select id="checkUniqueConfig" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM BPM_BUSINESS_CONFIG
+        WHERE business_id = #{businessId}
+        AND business_type_code = #{businessTypeCode}
+    </select>
+
+    <!-- 修改时检查唯一性 -->
+    <select id="checkUniqueConfigForUpdate" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM BPM_BUSINESS_CONFIG
+        WHERE business_id = #{businessId}
+        AND business_type_code = #{businessTypeCode}
+        AND id != #{id}
+    </select>
 </mapper>

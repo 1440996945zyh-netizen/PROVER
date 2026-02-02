@@ -63,4 +63,19 @@ public interface BpmBusinessConfigMapper {
      */
     List<BpmBusinessConfigDTO> getBusinessConfigCount(@Param("bpmModelId") String bpmModelId);
 
+    /**
+     * 检查业务配置唯一性
+     * @param businessId 业务模块ID
+     * @param businessTypeCode 业务类型(按钮)编码
+     * @return 存在数量
+     */
+    int checkUniqueConfig(@Param("businessId") Long businessId, @Param("businessTypeCode") String businessTypeCode);
+    /**
+     * 修改时检查业务配置唯一性（排除自身）
+     */
+    int checkUniqueConfigForUpdate(
+            @Param("businessId") Long businessId,
+            @Param("businessTypeCode") String businessTypeCode,
+            @Param("id") Long id
+    );
 }
