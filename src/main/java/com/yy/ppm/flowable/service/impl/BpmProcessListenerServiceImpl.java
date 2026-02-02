@@ -52,6 +52,8 @@ public class BpmProcessListenerServiceImpl implements BpmProcessListenerService 
         LOGGER.enter(methodName, "新增监听器");
         dto.setId(snowflake.nextId());
         dto.setCreateTime(new Date());
+        // todo 校验逻辑
+
         bpmProcessListenerMapper.insert(dto);
         LOGGER.exit(methodName, StringUtils.EMPTY);
     }
@@ -67,6 +69,8 @@ public class BpmProcessListenerServiceImpl implements BpmProcessListenerService 
         if (dto.getId() == null) {
             throw new BusinessRuntimeException("ID不能为空");
         }
+        // todo 校验逻辑
+        
         bpmProcessListenerMapper.update(dto);
         LOGGER.exit(methodName, StringUtils.EMPTY);
     }
