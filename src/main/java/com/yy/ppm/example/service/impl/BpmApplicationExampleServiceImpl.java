@@ -156,7 +156,7 @@ public class BpmApplicationExampleServiceImpl implements BpmApplicationExampleSe
         bpmBusinessInstanceDTO.setCurrentNodeName("");
         bpmBusinessInstanceDTO.setApproverNames("");
         bpmBusinessInstanceDTO.setInstanceStatus("1");
-//        bpmBusinessInstanceDTO.setStartTime(new Date());
+        bpmBusinessInstanceDTO.setStartTime(new Date());
 
 
 
