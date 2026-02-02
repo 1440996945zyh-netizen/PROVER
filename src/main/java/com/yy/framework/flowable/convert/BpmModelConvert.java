@@ -33,7 +33,6 @@ import static com.yy.common.flowable.utils.CollectionUtils.convertList;
  * 数据转换器（Converter），主要用于在 Flowable 流程模型对象和你的业务DTO之间进行转换
  * 流程模型涉及的内容较多，挑选重要key展示在DTO中。
  *
- * @author yunlongn
  */
 @Mapper
 public interface BpmModelConvert {

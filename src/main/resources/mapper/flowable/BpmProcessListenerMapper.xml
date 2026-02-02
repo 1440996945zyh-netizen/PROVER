@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.flowable.mapper.BpmProcessListenerMapper">
+
+    <resultMap id="BaseResultMap" type="com.yy.ppm.flowable.bean.dto.BpmProcessListenerDTO">
+        <id column="ID" property="id" jdbcType="BIGINT"/>
+        <result column="LISTENER_NAME" property="listenerName" jdbcType="VARCHAR"/>
+        <result column="LISTENER_STATUS" property="listenerStatus" jdbcType="DECIMAL"/>
+        <result column="LISTENER_TYPE_CODE" property="listenerTypeCode" jdbcType="VARCHAR"/>
+        <result column="LISTENER_TYPE_NAME" property="listenerTypeName" jdbcType="VARCHAR"/>
+        <result column="LISTENER_EVENT_CODE" property="listenerEventCode" jdbcType="VARCHAR"/>
+        <result column="LISTENER_EVENT_NAME" property="listenerEventName" jdbcType="VARCHAR"/>
+        <result column="LISTENER_VALUE_TYPE_CODE" property="listenerValueTypeCode" jdbcType="VARCHAR"/>
+        <result column="LISTENER_VALUE_TYPE_NAME" property="listenerValueTypeName" jdbcType="VARCHAR"/>
+        <result column="LISTENER_VALUE" property="listenerValue" jdbcType="VARCHAR"/>
+        <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="CREATE_BY" property="createBy" jdbcType="BIGINT"/>
+        <result column="CREATE_BY_NAME" property="createByName" jdbcType="VARCHAR"/>
+        <result column="UPDATE_BY" property="updateBy" jdbcType="BIGINT"/>
+        <result column="UPDATE_BY_NAME" property="updateByName" jdbcType="VARCHAR"/>
+        <result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        ID, LISTENER_NAME, LISTENER_STATUS, LISTENER_TYPE_CODE, LISTENER_TYPE_NAME,
+        LISTENER_EVENT_CODE, LISTENER_EVENT_NAME, LISTENER_VALUE_TYPE_CODE,
+        LISTENER_VALUE_TYPE_NAME, LISTENER_VALUE, CREATE_TIME, CREATE_BY,
+        CREATE_BY_NAME, UPDATE_BY, UPDATE_BY_NAME, UPDATE_TIME
+    </sql>
+
+    <select id="getList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM BPM_PROCESS_LISTENER
+        <where>
+            <if test="listenerName != null and listenerName != ''">
+                AND LISTENER_NAME LIKE '%' || #{listenerName, jdbcType=VARCHAR} || '%'
+            </if>
+            <if test="listenerTypeCode != null and listenerTypeCode != ''">
+                AND LISTENER_TYPE_CODE = #{listenerTypeCode, jdbcType=VARCHAR}
+            </if>
+            <if test="listenerStatus != null">
+                AND LISTENER_STATUS = #{listenerStatus, jdbcType=DECIMAL}
+            </if>
+        </where>
+        ORDER BY CREATE_TIME DESC
+    </select>
+
+    <insert id="insert">
+        INSERT INTO BPM_PROCESS_LISTENER (ID, LISTENER_NAME, LISTENER_STATUS, LISTENER_TYPE_CODE, LISTENER_TYPE_NAME,
+                                          LISTENER_EVENT_CODE, LISTENER_EVENT_NAME, LISTENER_VALUE_TYPE_CODE,
+                                          LISTENER_VALUE_TYPE_NAME, LISTENER_VALUE, CREATE_TIME, CREATE_BY,
+                                          CREATE_BY_NAME)
+        VALUES (#{id, jdbcType=BIGINT}, #{listenerName, jdbcType=VARCHAR}, #{listenerStatus, jdbcType=DECIMAL},
+                #{listenerTypeCode, jdbcType=VARCHAR}, #{listenerTypeName, jdbcType=VARCHAR},
+                #{listenerEventCode, jdbcType=VARCHAR}, #{listenerEventName, jdbcType=VARCHAR},
+                #{listenerValueTypeCode, jdbcType=VARCHAR}, #{listenerValueTypeName, jdbcType=VARCHAR},
+                #{listenerValue, jdbcType=VARCHAR}, #{now, jdbcType=TIMESTAMP},
+                #{loginUserId, jdbcType=BIGINT},
+                #{loginUserName, jdbcType=VARCHAR})
+    </insert>
+
+    <update id="update">
+        UPDATE BPM_PROCESS_LISTENER
+        SET LISTENER_NAME = #{listenerName, jdbcType=VARCHAR},
+            LISTENER_STATUS = #{listenerStatus, jdbcType=DECIMAL},
+            LISTENER_TYPE_CODE = #{listenerTypeCode, jdbcType=VARCHAR},
+            LISTENER_TYPE_NAME = #{listenerTypeName, jdbcType=VARCHAR},
+            LISTENER_EVENT_CODE = #{listenerEventCode, jdbcType=VARCHAR},
+            LISTENER_EVENT_NAME = #{listenerEventName, jdbcType=VARCHAR},
+            LISTENER_VALUE_TYPE_CODE = #{listenerValueTypeCode, jdbcType=VARCHAR},
+            LISTENER_VALUE_TYPE_NAME = #{listenerValueTypeName, jdbcType=VARCHAR},
+            LISTENER_VALUE = #{listenerValue, jdbcType=VARCHAR},
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now, jdbcType=TIMESTAMP}
+        WHERE ID = #{id, jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM BPM_PROCESS_LISTENER WHERE ID = #{id, jdbcType=BIGINT}
+    </delete>
+
+    <select id="getDetail" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM BPM_PROCESS_LISTENER
+        WHERE ID = #{id, jdbcType=BIGINT}
+    </select>
+
+</mapper>

@@ -24,8 +24,7 @@
     <sql id="commonList">
         ID, BUSINESS_ID, BUSINESS_NAME, BUSINESS_TYPE_CODE, BUSINESS_TYPE_NAME,
         PROC_MODEL_ID, PROC_MODEL_NAME, PROC_DEF_ID, REMARK, STATUS,
-        CREATE_BY, CREATE_BY_NAME, CREATE_TIME,
-        UPDATE_BY, UPDATE_BY_NAME, UPDATE_TIME
+        CREATE_BY, CREATE_BY_NAME, CREATE_TIME
     </sql>
 
     <!-- 新增 -->
@@ -43,9 +42,6 @@
         #{procDefId, jdbcType=VARCHAR},
         #{remark, jdbcType=VARCHAR},
         #{status, jdbcType=VARCHAR},
-        #{loginUserId, jdbcType=BIGINT},
-        #{loginUserName, jdbcType=VARCHAR},
-        #{now, jdbcType=TIMESTAMP},
         #{loginUserId, jdbcType=BIGINT},
         #{loginUserName, jdbcType=VARCHAR},
         #{now, jdbcType=TIMESTAMP}
