@@ -140,8 +140,12 @@ public class BpmApplicationExampleServiceImpl implements BpmApplicationExampleSe
      */
     @Override
     public void submit(BpmApplicationExampleDTO dto) {
+
+
         // 流程发起，获取流程实例
         ProcessInstance processInstance = bpmProcessInstanceService.createProcessInstance(getLoginUserId(), dto.getBpmProcessInstanceDTO());
+
+
         // 业务与流程实例信息
         BpmBusinessInstanceDTO bpmBusinessInstanceDTO = new BpmBusinessInstanceDTO();
         bpmBusinessInstanceDTO.setId(snowflake.nextId());
@@ -152,7 +156,7 @@ public class BpmApplicationExampleServiceImpl implements BpmApplicationExampleSe
         bpmBusinessInstanceDTO.setCurrentNodeName("");
         bpmBusinessInstanceDTO.setApproverNames("");
         bpmBusinessInstanceDTO.setInstanceStatus("1");
-        bpmBusinessInstanceDTO.setStartTime(new Date());
+//        bpmBusinessInstanceDTO.setStartTime(new Date());
 
 
 
