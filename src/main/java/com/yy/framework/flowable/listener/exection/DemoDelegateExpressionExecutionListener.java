@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
  * 类型为 delegateExpression 的 ExecutionListener 监听器示例
  * 执行监听器具体例子
  */
-@Component
+@Component("DemoDelegateExpressionExecutionListener")
 @Slf4j
 public class DemoDelegateExpressionExecutionListener implements JavaDelegate {
     /**

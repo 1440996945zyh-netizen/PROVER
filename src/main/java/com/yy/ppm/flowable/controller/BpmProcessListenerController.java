@@ -28,11 +28,11 @@ public class BpmProcessListenerController {
     @Resource
     private BpmProcessListenerService bpmProcessListenerService;
 
-    @PostMapping("/getList")
+    @GetMapping("/getList")
     @PreAuthorize("hasAuthority('bpm:processListener:query')")
     @Log(OperateTypeEnum.QUERY)
     @Operation(summary = "分页查询流程监听器列表")
-    public Map<String, Object> getList(@RequestBody BpmProcessListenerSearchDTO searchDTO) {
+    public Map<String, Object> getList(@Validated BpmProcessListenerSearchDTO searchDTO) {
         final String methodName = "BpmProcessListenerController:getList";
         LOGGER.enter(methodName, "查询流程监听器列表");
         Pages<BpmProcessListenerDTO> pages = bpmProcessListenerService.getList(searchDTO);
