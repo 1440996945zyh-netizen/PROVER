@@ -41,6 +41,7 @@
             <if test="listenerStatus != null">
                 AND LISTENER_STATUS = #{listenerStatus, jdbcType=DECIMAL}
             </if>
+
         </where>
         ORDER BY CREATE_TIME DESC
     </select>

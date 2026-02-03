@@ -209,11 +209,17 @@ public class SelectServiceImpl implements SelectService {
             case "DICT" :
                 String dictType = StringUtil.getString(params.get("dictType"));
                 String remark = StringUtil.getString(params.get("remark"));
+                // 基础过滤条件
+                String condition = " DICT_TYPE = '" + DictTypeEnum.match(dictType) + "' AND STATUS = '1'";
+                // 动态拼接 remark 条件：只有当 remark 不为空时才加入 SQL
+                if (StringUtil.isNotEmpty(remark)) {
+                    condition += " AND REMARK = '" + remark + "'";
+                }
                 res = selectMapper.getLocalSelect(
                         SelectEnum.DICT.getTableName(),
                         SelectEnum.DICT.getValueName(),
                         SelectEnum.DICT.getLabelName(),
-                        " DICT_TYPE = '" + DictTypeEnum.match(dictType) + "' AND STATUS = '1' AND REMARK = '"+remark+"'");
+                        condition);
                 break;
 //
             case "CONSTANT" :

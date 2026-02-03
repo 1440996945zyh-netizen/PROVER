@@ -118,7 +118,7 @@ public class BpmBusinessConfigController {
     }
 
     /**
-     * 根据菜单和流程业务类型获取流程定义
+     * 根据菜单和按钮获取流程定义
      */
     @GetMapping("/getProcDefId")
     @PreAuthorize("hasAuthority('bpm:businessConfig:getProcDefId')")
