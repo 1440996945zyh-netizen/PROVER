@@ -4,7 +4,9 @@ import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.util.ObjectUtil;
 import com.yy.common.flowable.constants.ErrorCodeConstants;
 import com.yy.common.page.Pages;
+import com.yy.common.util.PageHelperUtils;
 import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceCopySearchDTO;
+import com.yy.ppm.flowable.bean.po.BpmFormPO;
 import com.yy.ppm.flowable.bean.po.BpmProcessInstanceCopyPO;
 import com.yy.ppm.flowable.mapper.BpmProcessInstanceCopyMapper;
 import com.yy.ppm.flowable.service.BpmProcessDefinitionService;
@@ -116,7 +118,10 @@ public class BpmProcessInstanceCopyServiceImpl implements BpmProcessInstanceCopy
      */
     @Override
     public Pages<BpmProcessInstanceCopyPO> getProcessInstanceCopyPage(BpmProcessInstanceCopySearchDTO pageReqVO) {
-        return processInstanceCopyMapper.selectPage(pageReqVO);
+        Pages<BpmProcessInstanceCopyPO> pages = PageHelperUtils.limit(pageReqVO, () -> {
+            return processInstanceCopyMapper.selectPage(pageReqVO);
+        });
+        return pages;
     }
 
     /**
