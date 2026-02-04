@@ -276,6 +276,9 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         if (StrUtil.isNotBlank(pageVO.getName())) {
             taskQuery.taskNameLike("%" + pageVO.getName() + "%");
         }
+        if (StrUtil.isNotBlank(pageVO.getProcessDefinitionName())) {
+            taskQuery.processDefinitionNameLike("%" + pageVO.getProcessDefinitionName() + "%");
+        }
         if (StrUtil.isNotEmpty(pageVO.getCategory())) {
             taskQuery.taskCategory(pageVO.getCategory());
         }

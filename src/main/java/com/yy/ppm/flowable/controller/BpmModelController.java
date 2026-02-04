@@ -2,6 +2,7 @@ package com.yy.ppm.flowable.controller;
 
 import cn.hutool.core.collection.CollUtil;
 import com.yy.common.enums.Response;
+import com.yy.common.util.str.StringUtil;
 import com.yy.framework.flowable.convert.BpmModelConvert;
 import com.yy.ppm.flowable.bean.dto.BpmModelMetaInfoDTO;
 import com.yy.ppm.flowable.bean.dto.BpmModelDTO;
@@ -23,9 +24,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static com.yy.common.flowable.utils.CollectionUtils.*;
@@ -57,11 +56,12 @@ public class BpmModelController {
 
     /**
      * 获取流程模型
-     * @param name
+     * @param map
      * @return
      */
     @GetMapping("/list")
-    public Map<String, Object> getModelList(@RequestParam(value = "name", required = false) String name) {
+//    public Map<String, Object> getModelList(HashMap<String,String> map) {
+        public Map<String, Object> getModelList(@RequestParam(value = "name", required = false) String name,@RequestParam(value = "status", required = false) String status) {
         List<Model> list = modelService.getModelList(name);
         if (CollUtil.isEmpty(list)) {
             return Response.SUCCESS.newBuilder().toResult(list);
@@ -99,6 +99,18 @@ public class BpmModelController {
 
         List<BpmModelDTO> bpmModelDTOS = BpmModelConvert.INSTANCE.buildModelList(list,
                 formMap, categoryMap, deploymentMap, processDefinitionMap,userMap,deptMap);
+
+        //状态查询条件
+        List<BpmModelDTO> result = new ArrayList<>();
+        if(!StringUtil.isEmpty(status)){
+            for (BpmModelDTO bpmModelDTO : bpmModelDTOS) {
+                if(!StringUtil.isEmpty(bpmModelDTO.getProcessDefinition())
+                        && bpmModelDTO.getProcessDefinition().getSuspensionState().equals(Integer.parseInt(status))){
+                    result.add(bpmModelDTO);
+                }
+            }
+            return Response.SUCCESS.newBuilder().toResult(result);
+        }
 
         return Response.SUCCESS.newBuilder().toResult(bpmModelDTOS);
     }

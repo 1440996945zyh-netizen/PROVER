@@ -1,4 +1,5 @@
 package com.yy.ppm.flowable.bean.dto;
+import com.yy.common.flowable.utils.DateUtils;
 import com.yy.common.page.PageParameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -30,6 +31,7 @@ public class BpmProcessInstanceSearchDTO extends PageParameter implements Serial
     /**
      *创建时间
      */
+    @DateTimeFormat(pattern = DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] createTime;
     /**
      *结束时间

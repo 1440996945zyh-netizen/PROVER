@@ -33,4 +33,6 @@ public class BpmTaskSearchDTO extends PageParameter implements Serializable {
     @DateTimeFormat(pattern = DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] createTime;
 
+    /**流程任务名称*/
+    private String processDefinitionName;
 }
