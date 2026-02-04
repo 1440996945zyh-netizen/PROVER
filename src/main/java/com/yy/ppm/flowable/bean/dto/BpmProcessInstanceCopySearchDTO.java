@@ -33,8 +33,8 @@ public class BpmProcessInstanceCopySearchDTO extends PageParameter implements Se
      */
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     @JsonFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND, timezone = "GMT+8")
-//    private LocalDateTime[] createTime;
-    private Date createTime;
+    private LocalDateTime[] createTime;
+//    private Date createTime;
 
     /**
      * 登陆人

@@ -107,14 +107,16 @@
             and user_id = #{userId}
         </if>
         <if test="processInstanceName != null and processInstanceName != ''">
-            and process_instance_name = #{processInstanceName}
+            and process_instance_name like '%' || #{processInstanceName} || '%'
         </if>
-<!--        <if test="createTime[0] != null and createTime[0] != ''">-->
-<!--            and create_time >= #{createTime[0]}-->
-<!--        </if>-->
-<!--        <if test="createTime[1] != null and createTime[1] != ''">-->
-<!--            and create_time &lt;= #{createTime[1]}-->
-<!--        </if>-->
+        <if test="createTime != null">
+            <if test="createTime[0] != null">
+                and create_time >= #{createTime[0],javaType=java.time.LocalDateTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="createTime[1] != null">
+                and create_time &lt;= #{createTime[1],javaType=java.time.LocalDateTime,jdbcType=TIMESTAMP}
+            </if>
+        </if>
         order by id desc
     </select>
 </mapper>
