@@ -46,4 +46,6 @@ public class BpmProcessInstanceSearchDTO extends PageParameter implements Serial
      */
     private String formFieldsParams; // SpringMVC 在 get 请求下，无法方便的定义 Map 类型的参数，所以通过 String 接收后，逻辑里面转换
 
+    /**流程名称*/
+    private String processDefinitionName;
 }
