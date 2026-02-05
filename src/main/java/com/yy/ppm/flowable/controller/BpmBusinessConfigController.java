@@ -121,11 +121,11 @@ public class BpmBusinessConfigController {
     /**
      * 根据菜单和按钮获取流程定义ID以及表单字段信息
      */
-    @GetMapping("/getProcDefId")
-    @PreAuthorize("hasAuthority('bpm:businessConfig:getProcDefId')")
+    @GetMapping("/getProcDefInfo")
+    @PreAuthorize("hasAuthority('bpm:businessConfig:getProcDefInfo')")
     @Log(OperateTypeEnum.QUERY)
-    @Operation(summary = "根据ID查询BPM业务配置详情")
-    public Map<String, Object> getDetail(@RequestParam("businessId") Long businessId,@RequestParam("businessTypeCode") String businessTypeCode) {
+    @Operation(summary = "获取流程定义ID以及表单字段")
+    public Map<String, Object> getProcDefInfo(@RequestParam("businessId") Long businessId,@RequestParam("businessTypeCode") String businessTypeCode) {
         final String methodName = "BpmBusinessConfigController:getProcDefId";
         LOGGER.enter(methodName, "根据菜单和流程业务类型获取流程定义");
 
