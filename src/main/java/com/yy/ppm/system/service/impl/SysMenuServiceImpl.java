@@ -97,7 +97,7 @@ public class SysMenuServiceImpl implements SysMenuService {
             //id
             sysMenuDTO.setId(snowflake.nextId());
             // 如果是目录，设置样式为Layout
-            if("M".equals(sysMenuDTO.getMenuType())){
+            if("M".equals(sysMenuDTO.getMenuType()) && "0".equals(sysMenuDTO.getParentId())){
                 sysMenuDTO.setComponent("Layout");
             }
             sysMenuMapper.insert(sysMenuDTO);

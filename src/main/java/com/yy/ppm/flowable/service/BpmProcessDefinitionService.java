@@ -39,7 +39,7 @@ public interface BpmProcessDefinitionService {
      * @param suspensionState 中断状态
      * @return 流程定义列表
      */
-    List<ProcessDefinition> getProcessDefinitionListBySuspensionState(Integer suspensionState);
+    List<ProcessDefinition> getProcessDefinitionListBySuspensionState(Integer suspensionState,String name);
 
     /**
      * 基于流程模型，创建流程定义

@@ -1,4 +1,5 @@
 package com.yy.ppm.flowable.bean.dto;
+import com.yy.common.flowable.utils.DateUtils;
 import com.yy.common.page.PageParameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -30,6 +31,7 @@ public class BpmProcessInstanceSearchDTO extends PageParameter implements Serial
     /**
      *创建时间
      */
+    @DateTimeFormat(pattern = DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] createTime;
     /**
      *结束时间
@@ -44,4 +46,6 @@ public class BpmProcessInstanceSearchDTO extends PageParameter implements Serial
      */
     private String formFieldsParams; // SpringMVC 在 get 请求下，无法方便的定义 Map 类型的参数，所以通过 String 接收后，逻辑里面转换
 
+    /**流程名称*/
+    private String processDefinitionName;
 }

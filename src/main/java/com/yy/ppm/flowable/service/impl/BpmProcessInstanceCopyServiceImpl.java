@@ -1,9 +1,12 @@
 package com.yy.ppm.flowable.service.impl;
 
+import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.util.ObjectUtil;
 import com.yy.common.flowable.constants.ErrorCodeConstants;
 import com.yy.common.page.Pages;
+import com.yy.common.util.PageHelperUtils;
 import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceCopySearchDTO;
+import com.yy.ppm.flowable.bean.po.BpmFormPO;
 import com.yy.ppm.flowable.bean.po.BpmProcessInstanceCopyPO;
 import com.yy.ppm.flowable.mapper.BpmProcessInstanceCopyMapper;
 import com.yy.ppm.flowable.service.BpmProcessDefinitionService;
@@ -16,6 +19,7 @@ import org.flowable.bpmn.model.FlowNode;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.Task;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -48,6 +52,8 @@ public class BpmProcessInstanceCopyServiceImpl implements BpmProcessInstanceCopy
     @Resource
     @Lazy // 延迟加载，避免循环依赖
     private BpmProcessDefinitionService processDefinitionService;
+    @Autowired
+    private Snowflake snowflake;
 
     /**
      * 【管理员】流程实例的抄送
@@ -95,6 +101,7 @@ public class BpmProcessInstanceCopyServiceImpl implements BpmProcessInstanceCopy
 
         // 2. 创建抄送流程
         List<BpmProcessInstanceCopyPO> copyList = convertList(userIds, userId -> new BpmProcessInstanceCopyPO()
+                .setId(snowflake.nextId())
                 .setUserId(userId).setReason(reason).setStartUserId(Long.valueOf(processInstance.getStartUserId()))
                 .setProcessInstanceId(processInstanceId).setProcessInstanceName(processInstance.getName())
                 .setCategory(processDefinition.getCategory()).setTaskId(taskId)
@@ -111,7 +118,10 @@ public class BpmProcessInstanceCopyServiceImpl implements BpmProcessInstanceCopy
      */
     @Override
     public Pages<BpmProcessInstanceCopyPO> getProcessInstanceCopyPage(BpmProcessInstanceCopySearchDTO pageReqVO) {
-        return processInstanceCopyMapper.selectPage(pageReqVO);
+        Pages<BpmProcessInstanceCopyPO> pages = PageHelperUtils.limit(pageReqVO, () -> {
+            return processInstanceCopyMapper.selectPage(pageReqVO);
+        });
+        return pages;
     }
 
     /**

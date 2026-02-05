@@ -24,8 +24,7 @@
     <sql id="commonList">
         ID, BUSINESS_ID, BUSINESS_NAME, BUSINESS_TYPE_CODE, BUSINESS_TYPE_NAME,
         PROC_MODEL_ID, PROC_MODEL_NAME, PROC_DEF_ID, REMARK, STATUS,
-        CREATE_BY, CREATE_BY_NAME, CREATE_TIME,
-        UPDATE_BY, UPDATE_BY_NAME, UPDATE_TIME
+        CREATE_BY, CREATE_BY_NAME, CREATE_TIME
     </sql>
 
     <!-- 新增 -->
@@ -43,9 +42,6 @@
         #{procDefId, jdbcType=VARCHAR},
         #{remark, jdbcType=VARCHAR},
         #{status, jdbcType=VARCHAR},
-        #{loginUserId, jdbcType=BIGINT},
-        #{loginUserName, jdbcType=VARCHAR},
-        #{now, jdbcType=TIMESTAMP},
         #{loginUserId, jdbcType=BIGINT},
         #{loginUserName, jdbcType=VARCHAR},
         #{now, jdbcType=TIMESTAMP}
@@ -173,4 +169,20 @@
         where PROC_MODEL_ID = #{bpmModelId}
     </select>
 
+    <!-- 检查唯一性 -->
+    <select id="checkUniqueConfig" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM BPM_BUSINESS_CONFIG
+        WHERE business_id = #{businessId}
+        AND business_type_code = #{businessTypeCode}
+    </select>
+
+    <!-- 修改时检查唯一性 -->
+    <select id="checkUniqueConfigForUpdate" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM BPM_BUSINESS_CONFIG
+        WHERE business_id = #{businessId}
+        AND business_type_code = #{businessTypeCode}
+        AND id != #{id}
+    </select>
 </mapper>

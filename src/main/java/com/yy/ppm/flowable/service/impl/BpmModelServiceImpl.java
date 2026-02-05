@@ -313,6 +313,13 @@ public class BpmModelServiceImpl implements BpmModelService {
         tasks.forEach(task -> taskService.deleteTask(task.getId(),BpmReasonEnum.CANCEL_BY_PROCESS_CLEAN.getReason()));
     }
 
+    /**
+     * 修改模型的状态，实际更新的部署的流程定义的状态
+     *
+     * @param userId 用户编号
+     * @param id    编号
+     * @param state 状态
+     */
     @Override
     public void updateModelState(Long userId, String id, Integer state) {
         // 1.1 校验流程模型存在

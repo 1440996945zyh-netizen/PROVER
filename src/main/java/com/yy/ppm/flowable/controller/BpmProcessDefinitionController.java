@@ -82,9 +82,9 @@ public class BpmProcessDefinitionController {
      * @return
      */
     @GetMapping ("/list")
-    public Map<String, Object> getProcessDefinitionList(@RequestParam("suspensionState") Integer suspensionState) {
+    public Map<String, Object> getProcessDefinitionList(@RequestParam(value = "name", required = false) String name,@RequestParam("suspensionState") Integer suspensionState) {
         // 1.1 获得开启的流程定义
-        List<ProcessDefinition> list = processDefinitionService.getProcessDefinitionListBySuspensionState(suspensionState);
+        List<ProcessDefinition> list = processDefinitionService.getProcessDefinitionListBySuspensionState(suspensionState,name);
         if (CollUtil.isEmpty(list)) {
             return Response.SUCCESS.newBuilder().toResult(list);
         }
@@ -111,7 +111,7 @@ public class BpmProcessDefinitionController {
     public Map<String,Object> getSimpleProcessDefinitionList() {
         // 只查询未挂起的流程
         List<ProcessDefinition> list = processDefinitionService.getProcessDefinitionListBySuspensionState(
-                SuspensionState.ACTIVE.getStateCode());
+                SuspensionState.ACTIVE.getStateCode(),null);
         // 拼接 VO 返回，只返回 id、name、key
         List<BpmProcessDefinitionDTO> bpmProcessDefinitionDTOS = convertList(list, definition -> new BpmProcessDefinitionDTO()
                 .setId(definition.getId()).setName(definition.getName()).setKey(definition.getKey()));

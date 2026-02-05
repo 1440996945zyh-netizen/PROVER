@@ -276,9 +276,12 @@ public class BpmProcessDefinitionServiceImpl implements BpmProcessDefinitionServ
     }
 
     @Override
-    public List<ProcessDefinition> getProcessDefinitionListBySuspensionState(Integer suspensionState) {
+    public List<ProcessDefinition> getProcessDefinitionListBySuspensionState(Integer suspensionState,String name) {
         // 拼接查询条件
         ProcessDefinitionQuery query = repositoryService.createProcessDefinitionQuery();
+        if (StrUtil.isNotEmpty(name)) {
+            query.processDefinitionNameLike("%" + name + "%");
+        }
         if (Objects.equals(SuspensionState.SUSPENDED.getStateCode(), suspensionState)) {
             query.suspended();
         } else if (Objects.equals(SuspensionState.ACTIVE.getStateCode(), suspensionState)) {

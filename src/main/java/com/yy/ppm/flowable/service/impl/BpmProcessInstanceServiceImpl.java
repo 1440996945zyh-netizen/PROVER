@@ -330,6 +330,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
                 .includeProcessVariables()
 //                .processInstanceTenantId(FlowableUtils.getTenantId())
                 .orderByProcessInstanceStartTime().desc();
+
         if (userId != null) { // 【我的流程】菜单时，需要传递该字段
             processInstanceQuery.startedBy(String.valueOf(userId));
         } else if (pageReqVO.getStartUserId() != null) { // 【管理流程】菜单时，才会传递该字段
@@ -337,6 +338,9 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         }
         if (StrUtil.isNotEmpty(pageReqVO.getName())) {
             processInstanceQuery.processInstanceNameLike("%" + pageReqVO.getName() + "%");
+        }
+        if (StrUtil.isNotBlank(pageReqVO.getProcessDefinitionName())) {
+            processInstanceQuery.processDefinitionNameLike("%" + pageReqVO.getProcessDefinitionName() + "%");
         }
         if (StrUtil.isNotEmpty(pageReqVO.getProcessDefinitionKey())) {
             processInstanceQuery.processDefinitionKey(pageReqVO.getProcessDefinitionKey());

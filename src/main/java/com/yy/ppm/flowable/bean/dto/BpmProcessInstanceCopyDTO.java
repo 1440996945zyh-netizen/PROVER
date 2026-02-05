@@ -1,11 +1,16 @@
 package com.yy.ppm.flowable.bean.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.yy.common.flowable.common.KeyValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
+
+import static com.yy.common.flowable.utils.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
 
 /**
  * 流程实例抄送
@@ -31,7 +36,10 @@ public class BpmProcessInstanceCopyDTO {
     /**
      * 流程实例的发起时间
      */
-    private LocalDateTime processInstanceStartTime;
+//    private LocalDateTime processInstanceStartTime;
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    @JsonFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND, timezone = "GMT+8")
+    private Date processInstanceStartTime;
     /**
      * 流程活动的编号
      */
@@ -55,7 +63,10 @@ public class BpmProcessInstanceCopyDTO {
     /**
      * 抄送时间
      */
-    private LocalDateTime createTime;
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    @JsonFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND, timezone = "GMT+8")
+//    private LocalDateTime createTime;
+    private Date createTime;
     /**
      * 流程摘要
      */

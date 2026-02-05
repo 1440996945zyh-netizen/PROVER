@@ -1,5 +1,7 @@
 package com.yy.ppm.flowable.mapper;
+import com.github.pagehelper.Page;
 import com.yy.common.page.Pages;
+import com.yy.framework.annotation.Edit;
 import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceCopySearchDTO;
 import com.yy.ppm.flowable.bean.po.BpmProcessInstanceCopyPO;
 import org.apache.ibatis.annotations.Mapper;
@@ -12,7 +14,7 @@ public interface BpmProcessInstanceCopyMapper {
     /**
      * 列表查询
      */
-    Pages<BpmProcessInstanceCopyPO> selectPage(BpmProcessInstanceCopySearchDTO reqVO);
+    Page<BpmProcessInstanceCopyPO> selectPage(BpmProcessInstanceCopySearchDTO reqVO);
 
 
     /**
@@ -25,5 +27,6 @@ public interface BpmProcessInstanceCopyMapper {
      * 新增
      * @param copyList
      */
+    @Edit
     void insertBatch(List<BpmProcessInstanceCopyPO> copyList);
 }
