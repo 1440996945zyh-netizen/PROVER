@@ -158,7 +158,5 @@ public class BpmApplicationExampleServiceImpl implements BpmApplicationExampleSe
         bpmBusinessInstanceDTO.setInstanceStatus("1");
         bpmBusinessInstanceDTO.setStartTime(new Date());
 
-
-
     }
 }

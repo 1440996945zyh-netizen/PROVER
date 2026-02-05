@@ -821,6 +821,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         }
         BpmProcessDefinitionInfoPO processDefinitionInfo = processDefinitionService
                 .getProcessDefinitionInfo(definition.getId());
+        processDefinitionInfo.setFieldList(processDefinitionInfo.getFieldKeys());
         if (processDefinitionInfo == null) {
             throw exception(PROCESS_DEFINITION_NOT_EXISTS);
         }

@@ -10,11 +10,6 @@ import java.io.Serializable;
 @Data
 public class BpmApplicationExampleDTO extends BpmApplicationExamplePO implements Serializable {
     /**
-     * 流程发起的数据
-     */
-    private BpmProcessInstanceDTO bpmProcessInstanceDTO;
-
-    /**
      * 业务菜单ID
      */
     private Long businessId;
