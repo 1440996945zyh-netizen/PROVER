@@ -5,6 +5,7 @@ import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Assert;
+import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.util.*;
 import com.yy.common.flowable.constants.BpmnModelConstants;
 import com.yy.common.flowable.constants.BpmnVariableConstants;
@@ -113,6 +114,10 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
 
     @Resource
     private BpmBusinessInstanceMapper bpmBusinessInstanceMapper;
+
+
+    @Autowired
+    private Snowflake snowflake;
 
     // ========== Query 查询相关方法 ==========
 
@@ -914,6 +919,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
 
                 // 6. 保存业务与流程实例关联表 (BPM_BUSINESS_INSTANCE)
                 BpmBusinessInstanceDTO instanceDO = new BpmBusinessInstanceDTO();
+                instanceDO.setId(snowflake.nextId());
                 instanceDO.setBusinessDataId(createReqVO.getBusinessDataId());
                 instanceDO.setBusinessId(createReqVO.getBusinessId());
                 instanceDO.setProcInstId(instance.getId());
