@@ -1,5 +1,6 @@
 package com.yy.ppm.system.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Snowflake;
 import com.yy.common.log.MicroLogger;
 import com.yy.common.util.SecurityUtils;
@@ -100,6 +101,17 @@ public class SysMenuServiceImpl implements SysMenuService {
             if("M".equals(sysMenuDTO.getMenuType()) && "0".equals(sysMenuDTO.getParentId())){
                 sysMenuDTO.setComponent("Layout");
             }
+            // 如果是按钮 判断当前菜单下的按钮权限标识不能重复
+            if("F".equals(sysMenuDTO.getMenuType())) {
+                List<SysMenuDTO> sysMenuDTOList =  sysMenuMapper.getButtonPermsListByParentId(sysMenuDTO.getParentId());
+                if(CollectionUtil.isNotEmpty(sysMenuDTOList)) {
+                    boolean anyMatch = sysMenuDTOList.stream().anyMatch(dto -> sysMenuDTO.getPerms().equals(dto.getPerms()));
+                    if(anyMatch) {
+                        throw new BusinessRuntimeException("当前菜单下已有相同权限标识，请重新填写");
+                    }
+                }
+            }
+
             sysMenuMapper.insert(sysMenuDTO);
 
             // 修改的场合
