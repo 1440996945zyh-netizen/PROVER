@@ -43,7 +43,7 @@
             <if test="instanceStatus != null and instanceStatus != ''">
                 INSTANCE_STATUS = #{instanceStatus,jdbcType=VARCHAR},
             </if>
-            <if test="endTime != null and endTime != ''">
+            <if test="endTime != null">
                 END_TIME = #{endTime,jdbcType=DATE},
             </if>
         </set>

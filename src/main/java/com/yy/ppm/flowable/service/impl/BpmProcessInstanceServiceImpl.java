@@ -1146,7 +1146,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         bpmBusinessInstanceDTO.setInstanceStatus(bizStatus);
         bpmBusinessInstanceDTO.setEndTime(new Date()); // 记录结束时间
         bpmBusinessInstanceDTO.setCurrentNodeName("已结束"); // 流程结束，当前节点可置空或标记为结束
-        bpmBusinessInstanceDTO.setApproverNames("");
+        bpmBusinessInstanceDTO.setApproverNames("无");
 
         // 3. 执行更新
         bpmBusinessInstanceMapper.updateByProcInstId(bpmBusinessInstanceDTO);

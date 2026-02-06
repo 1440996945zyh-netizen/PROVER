@@ -1562,8 +1562,19 @@ public class BpmTaskServiceImpl implements BpmTaskService {
             }
 
         });
-        // 更新业务数据
-        this.updateBusinessInstanceCurrentInfo(task.getProcessInstanceId());
+
+        // 更新业务中间表（事务提交后执行）（事务同步器TransactionSynchronization）
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    updateBusinessInstanceCurrentInfo(task.getProcessInstanceId());
+                }
+            });
+        } else {
+            // 如果没有事务（理论上不可能），则直接执行
+            updateBusinessInstanceCurrentInfo(task.getProcessInstanceId());
+        }
     }
 
     /**
@@ -1572,18 +1583,18 @@ public class BpmTaskServiceImpl implements BpmTaskService {
      */
     private void updateBusinessInstanceCurrentInfo(String processInstanceId) {
         // 1. 查询该流程实例下所有“活跃”的任务 (包括当前刚刚创建的这个)
-        List<Task> activeTasks = taskService.createTaskQuery()
+        List<Task> tasks = taskService.createTaskQuery()
                 .processInstanceId(processInstanceId)
-                .active() // 只查未完成的
+                .active()
                 .list();
 
-        // 2. 如果没有活跃任务，说明流程可能结束了（会由 ProcessInstanceListener 处理），直接返回
-        if (CollUtil.isEmpty(activeTasks)) {
+        // 2.. 如果没有活跃任务，说明流程可能结束了（会由 ProcessInstanceListener 处理），直接返回
+        if (CollUtil.isEmpty(tasks)) {
             return;
         }
 
         // 3. 拼接节点名称 (去重)
-        String currentNodeNames = activeTasks.stream()
+        String currentNodeNames = tasks.stream()
                 .map(Task::getName)
                 .filter(StrUtil::isNotBlank)
                 .distinct()
@@ -1591,7 +1602,7 @@ public class BpmTaskServiceImpl implements BpmTaskService {
 
         // 4. 拼接处理人 (将 ID 转为 昵称)
         String approverNames = "";
-        Set<Long> assigneeIds = activeTasks.stream()
+        Set<Long> assigneeIds = tasks.stream()
                 .map(Task::getAssignee)
                 .filter(StrUtil::isNotBlank)
                 .map(NumberUtils::parseLong)
