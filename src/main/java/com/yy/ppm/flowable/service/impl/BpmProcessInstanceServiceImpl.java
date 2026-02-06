@@ -19,6 +19,7 @@ import com.yy.framework.flowable.redis.BpmProcessIdRedisDAO;
 import com.yy.framework.flowable.strategy.BpmTaskCandidateInvoker;
 import com.yy.ppm.flowable.bean.dto.*;
 import com.yy.ppm.flowable.bean.po.BpmProcessDefinitionInfoPO;
+import com.yy.ppm.flowable.mapper.BpmBusinessInstanceMapper;
 import com.yy.ppm.flowable.service.BpmProcessDefinitionService;
 import com.yy.ppm.flowable.service.BpmProcessInstanceService;
 import com.yy.ppm.flowable.service.BpmTaskService;
@@ -29,6 +30,7 @@ import com.yy.ppm.system.service.SysUserService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.flowable.bpmn.constants.BpmnXMLConstants;
 import org.flowable.bpmn.model.*;
 import org.flowable.engine.HistoryService;
@@ -52,6 +54,7 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.validation.annotation.Validated;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.yy.common.flowable.constants.BpmnModelConstants.START_USER_NODE_ID;
 import static com.yy.common.flowable.constants.ErrorCodeConstants.*;
@@ -107,6 +110,9 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
 
     @Autowired
     private IdentityService identityService;
+
+    @Resource
+    private BpmBusinessInstanceMapper bpmBusinessInstanceMapper;
 
     // ========== Query 查询相关方法 ==========
 
@@ -784,8 +790,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         ProcessDefinition definition = processDefinitionService
                 .getProcessDefinition(createReqVO.getProcessDefinitionId());
         // 发起流程
-        return createProcessInstance0(userId, definition, createReqVO.getVariables(), null,
-                createReqVO.getStartUserSelectAssignees());
+        return createProcessInstance0(userId, definition, createReqVO);
     }
 
 //    /**
@@ -809,9 +814,12 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
 //    }
 
     // 发起流程
-    private ProcessInstance createProcessInstance0(Long userId, ProcessDefinition definition,
-                                          Map<String, Object> variables, String businessKey,
-                                          Map<String, List<Long>> startUserSelectAssignees) {
+    private ProcessInstance createProcessInstance0(Long userId, ProcessDefinition definition,BpmProcessInstanceDTO createReqVO) {
+
+        Map<String, Object> variables = createReqVO.getVariables();
+        String businessKey = createReqVO.getBusinessId().toString();
+        Map<String, List<Long>> startUserSelectAssignees = createReqVO.getStartUserSelectAssignees();
+
         // 1.1 校验流程定义
         if (definition == null) {
             throw exception(PROCESS_DEFINITION_NOT_EXISTS);
@@ -864,6 +872,59 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
             processInstanceBuilder.name(generateProcessInstanceName(userId, definition, processDefinitionInfo, variables));
             // 3.3 发起流程实例
             ProcessInstance instance = processInstanceBuilder.start();
+
+            // 新增业务与实例关联数据
+            if (!StringUtils.isEmpty(createReqVO.getBusinessId().toString()) && !StringUtils.isEmpty(createReqVO.getBusinessDataId().toString())) {
+                // 4. 获取当前活跃的任务节点
+                List<Task> activeTasks = taskService.getRunningTaskListByProcessInstanceId(instance.getId(), null, null);
+                // 5. 解析当前节点名称和审批人名称
+                String currentNodeName = "";
+                String approverNames = "";
+
+                if (CollUtil.isNotEmpty(activeTasks)) {
+                    // 5.1 拼接节点名称
+                    currentNodeName = activeTasks.stream()
+                            .map(Task::getName)
+                            .filter(StrUtil::isNotBlank)
+                            .distinct()
+                            .collect(Collectors.joining(","));
+
+                    // 5.2 解析审批人并将ID转为昵称)
+                    Set<Long> assigneeIds = activeTasks.stream()
+                            .map(Task::getAssignee)
+                            .filter(StrUtil::isNotBlank) // 过滤掉未分配的任务（例如候选组模式且未签收）
+                            .map(NumberUtils::parseLong)
+                            .collect(Collectors.toSet());
+
+                    if (CollUtil.isNotEmpty(assigneeIds)) {
+                        List<SysUserDTO> users = sysUserService.getUserList(assigneeIds);
+                        if (CollUtil.isNotEmpty(users)) {
+                            approverNames = users.stream()
+                                    .map(SysUserDTO::getUserName) // 假设 SysUserDTO 中是 getNickname 或 getUserName
+                                    .filter(StrUtil::isNotBlank)
+                                    .collect(Collectors.joining(","));
+                        }
+                    }
+
+                    // 如果没有 Assignee，可能是候选人模式，暂时显示"待认领"
+                    if (StrUtil.isBlank(approverNames) && CollUtil.isNotEmpty(activeTasks)) {
+                        approverNames = "待认领/候选人";
+                    }
+                }
+
+                // 6. 保存业务与流程实例关联表 (BPM_BUSINESS_INSTANCE)
+                BpmBusinessInstanceDTO instanceDO = new BpmBusinessInstanceDTO();
+                instanceDO.setBusinessDataId(createReqVO.getBusinessDataId());
+                instanceDO.setBusinessId(createReqVO.getBusinessId());
+                instanceDO.setProcInstId(instance.getId());
+                instanceDO.setProcDefId(instance.getProcessDefinitionId());
+                instanceDO.setInstanceStatus("1");
+                instanceDO.setStartTime(new Date());
+                instanceDO.setCurrentNodeName(currentNodeName);
+                instanceDO.setApproverNames(approverNames);
+
+                bpmBusinessInstanceMapper.insert(instanceDO);
+            }
             return instance;
         }finally {
             // 清理现场，防止影响后续操作
@@ -1062,6 +1123,29 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
 //            messageService.sendMessageWhenProcessInstanceReject(
 //                    BpmProcessInstanceConvert.INSTANCE.buildProcessInstanceRejectMessage(instance, reason));
 //        }
+
+
+        // 处理业务数据与实例关联表
+        // 业务表状态定义：2=通过, 3=驳回, 4=取消
+        String bizStatus = "2"; // 默认为通过
+        if (Objects.equals(status, BpmProcessInstanceStatusEnum.REJECT.getStatus())) {
+            bizStatus = "3";
+        } else if (Objects.equals(status, BpmProcessInstanceStatusEnum.CANCEL.getStatus())) {
+            bizStatus = "4";
+        }
+
+        // 2. 构建更新对象
+        BpmBusinessInstanceDTO bpmBusinessInstanceDTO = new BpmBusinessInstanceDTO();
+        bpmBusinessInstanceDTO.setProcInstId(instance.getId());
+        bpmBusinessInstanceDTO.setInstanceStatus(bizStatus);
+        bpmBusinessInstanceDTO.setEndTime(new Date()); // 记录结束时间
+        bpmBusinessInstanceDTO.setCurrentNodeName("已结束"); // 流程结束，当前节点可置空或标记为结束
+        bpmBusinessInstanceDTO.setApproverNames("");
+
+        // 3. 执行更新
+        bpmBusinessInstanceMapper.updateByProcInstId(bpmBusinessInstanceDTO);
+
+
 
         // 3. 发送流程实例的状态事件
         processInstanceEventPublisher.sendProcessInstanceResultEvent(

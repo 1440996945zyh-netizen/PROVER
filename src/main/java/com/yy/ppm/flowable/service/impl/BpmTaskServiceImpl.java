@@ -15,6 +15,7 @@ import com.yy.framework.flowable.convert.BpmTaskConvert;
 import com.yy.ppm.flowable.bean.dto.*;
 import com.yy.ppm.flowable.bean.po.BpmFormPO;
 import com.yy.ppm.flowable.bean.po.BpmProcessDefinitionInfoPO;
+import com.yy.ppm.flowable.mapper.BpmBusinessInstanceMapper;
 import com.yy.ppm.flowable.service.*;
 import com.yy.ppm.system.bean.dto.SysDeptDTO;
 import com.yy.ppm.system.bean.dto.SysUserDTO;
@@ -45,6 +46,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.yy.common.flowable.constants.BpmnModelConstants.START_USER_NODE_ID;
@@ -90,6 +92,9 @@ public class BpmTaskServiceImpl implements BpmTaskService {
 
     @Resource
     private SysDeptService sysDeptService;
+
+    @Resource
+    private BpmBusinessInstanceMapper bpmBusinessInstanceMapper;
 
 
     // ========== Query 查询相关方法 ==========
@@ -1557,6 +1562,61 @@ public class BpmTaskServiceImpl implements BpmTaskService {
             }
 
         });
+        // 更新业务数据
+        this.updateBusinessInstanceCurrentInfo(task.getProcessInstanceId());
+    }
+
+    /**
+     * 计算并更新关联表的当前节点信息
+     *
+     */
+    private void updateBusinessInstanceCurrentInfo(String processInstanceId) {
+        // 1. 查询该流程实例下所有“活跃”的任务 (包括当前刚刚创建的这个)
+        List<Task> activeTasks = taskService.createTaskQuery()
+                .processInstanceId(processInstanceId)
+                .active() // 只查未完成的
+                .list();
+
+        // 2. 如果没有活跃任务，说明流程可能结束了（会由 ProcessInstanceListener 处理），直接返回
+        if (CollUtil.isEmpty(activeTasks)) {
+            return;
+        }
+
+        // 3. 拼接节点名称 (去重)
+        String currentNodeNames = activeTasks.stream()
+                .map(Task::getName)
+                .filter(StrUtil::isNotBlank)
+                .distinct()
+                .collect(Collectors.joining(","));
+
+        // 4. 拼接处理人 (将 ID 转为 昵称)
+        String approverNames = "";
+        Set<Long> assigneeIds = activeTasks.stream()
+                .map(Task::getAssignee)
+                .filter(StrUtil::isNotBlank)
+                .map(NumberUtils::parseLong)
+                .collect(Collectors.toSet());
+
+        if (CollUtil.isNotEmpty(assigneeIds)) {
+            List<SysUserDTO> users = sysUserService.getUserList(assigneeIds);
+            if (CollUtil.isNotEmpty(users)) {
+                approverNames = users.stream()
+                        .map(SysUserDTO::getUserName) // 请确认 SysUserDTO 获取昵称的方法
+                        .filter(StrUtil::isNotBlank)
+                        .collect(Collectors.joining(","));
+            }
+        }
+        // 如果是候选组/候选人模式，assignee为空，给予提示
+        if (StrUtil.isBlank(approverNames)) {
+            approverNames = "待认领/候选人";
+        }
+
+        // 5. 执行更新 SQL
+        BpmBusinessInstanceDTO bpmBusinessInstanceDTO = new BpmBusinessInstanceDTO();
+        bpmBusinessInstanceDTO.setProcInstId(processInstanceId);
+        bpmBusinessInstanceDTO.setCurrentNodeName(currentNodeNames);
+        bpmBusinessInstanceDTO.setApproverNames(approverNames);
+        bpmBusinessInstanceMapper.updateByProcInstId(bpmBusinessInstanceDTO);
     }
 
     /**

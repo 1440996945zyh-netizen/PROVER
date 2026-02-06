@@ -9,6 +9,7 @@ import com.yy.ppm.example.bean.dto.BpmApplicationExampleDTO;
 import com.yy.ppm.example.bean.dto.BpmApplicationExampleSearchDTO;
 import com.yy.ppm.example.service.BpmApplicationExampleService;
 import com.yy.ppm.flowable.bean.dto.BpmBusinessConfigDTO;
+import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -139,12 +140,28 @@ public class BpmApplicationExampleController {
     }
 
     /**
-     * 提交
+     * 提交耗材审批
      */
-    @PostMapping("/submit")
-    @PreAuthorize("hasAuthority('bpm:application:example:submit')")
+    @PostMapping("/submitConsumablesPayment")
+    @PreAuthorize("hasAuthority('bpm:application:example:consumablespayment')")
     @Log(OperateTypeEnum.INSERT)
-    public Map<String, Object> submit(@RequestBody BpmApplicationExampleDTO dto) {
+    public Map<String, Object> submitCommercial(@RequestBody BpmProcessInstanceDTO dto) {
+        final String methodName = "BpmBusinessConfigController:insert";
+        LOGGER.enter(methodName, "提交业务数据");
+
+        bpmApplicationExampleService.submit(dto);
+
+        LOGGER.exit(methodName, "新增BPM业务配置完成");
+        return Response.SUCCESS.newBuilder().out("新增成功").toResult();
+    }
+
+    /**
+     * 提交商用审批
+     */
+    @PostMapping("/submitCommercialPayment")
+    @PreAuthorize("hasAuthority('bpm:application:example:commercialpayment')")
+    @Log(OperateTypeEnum.INSERT)
+    public Map<String, Object> submitConsumables(@RequestBody BpmProcessInstanceDTO dto) {
         final String methodName = "BpmBusinessConfigController:insert";
         LOGGER.enter(methodName, "提交业务数据");
 

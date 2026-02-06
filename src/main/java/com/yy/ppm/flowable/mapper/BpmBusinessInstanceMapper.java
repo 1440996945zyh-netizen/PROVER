@@ -22,4 +22,10 @@ public interface BpmBusinessInstanceMapper {
      */
     @Edit
     void insert(BpmBusinessInstanceDTO dto);
+
+    /**
+     * 更新节点名称以及审批人信息
+     * @param bpmBusinessInstanceDTO
+     */
+    void updateByProcInstId(BpmBusinessInstanceDTO bpmBusinessInstanceDTO);
 }

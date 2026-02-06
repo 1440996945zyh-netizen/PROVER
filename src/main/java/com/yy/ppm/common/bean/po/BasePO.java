@@ -82,11 +82,4 @@ public class BasePO implements Serializable {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonIgnore
     private Date now;
-
-
-    /**
-     * 流程发起的数据
-     */
-    private BpmProcessInstanceDTO bpmProcessInstanceDTO;
-
 }

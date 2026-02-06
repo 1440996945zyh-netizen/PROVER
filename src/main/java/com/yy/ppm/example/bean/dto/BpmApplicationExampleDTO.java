@@ -15,6 +15,11 @@ public class BpmApplicationExampleDTO extends BpmApplicationExamplePO implements
     private Long businessId;
 
     /**
+     * 流程发起的数据
+     */
+    private BpmProcessInstanceDTO bpmProcessInstanceDTO;
+
+    /**
      * 状态label
      */
     private String approvalStatusLabel;

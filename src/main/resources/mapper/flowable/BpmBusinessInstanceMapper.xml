@@ -4,34 +4,49 @@
 
 
     <insert id="insert">
-        INSERT INTO BPM_BUSINESS_INSTANCE (
-            ID,
-            BUSINESS_DATA_ID,
-            BUSINESS_ID,
-            PROC_INST_ID,
-            PROC_DEF_ID,
-            CURRENT_NODE_NAME,
-            APPROVER_NAMES,
-            INSTANCE_STATUS,
-            START_TIME,
-            END_TIME,
-            CREATE_BY,
-            CREATE_BY_NAME,
-            CREATE_TIME
-        ) VALUES (
-                     #{id,jdbcType=BIGINT},
-                     #{businessDataId,jdbcType=BIGINT},
-                     #{businessId,jdbcType=BIGINT},
-                     #{procInstId,jdbcType=VARCHAR},
-                     #{procDefId,jdbcType=VARCHAR},
-                     #{currentNodeName,jdbcType=VARCHAR},
-                     #{approverNames,jdbcType=VARCHAR},
-                     #{instanceStatus,jdbcType=VARCHAR},
-                     #{startTime,jdbcType=TIMESTAMP},
-                     #{endTime,jdbcType=TIMESTAMP},
-                     #{loginUserId, jdbcType=BIGINT},
-                     #{loginUserName, jdbcType=VARCHAR},
-                     #{now, jdbcType=TIMESTAMP}
-                 )
+        INSERT INTO BPM_BUSINESS_INSTANCE (ID,
+                                           BUSINESS_DATA_ID,
+                                           BUSINESS_ID,
+                                           PROC_INST_ID,
+                                           PROC_DEF_ID,
+                                           CURRENT_NODE_NAME,
+                                           APPROVER_NAMES,
+                                           INSTANCE_STATUS,
+                                           START_TIME,
+                                           END_TIME,
+                                           CREATE_BY,
+                                           CREATE_BY_NAME,
+                                           CREATE_TIME)
+        VALUES (#{id,jdbcType=BIGINT},
+                #{businessDataId,jdbcType=BIGINT},
+                #{businessId,jdbcType=BIGINT},
+                #{procInstId,jdbcType=VARCHAR},
+                #{procDefId,jdbcType=VARCHAR},
+                #{currentNodeName,jdbcType=VARCHAR},
+                #{approverNames,jdbcType=VARCHAR},
+                #{instanceStatus,jdbcType=VARCHAR},
+                #{startTime,jdbcType=TIMESTAMP},
+                #{endTime,jdbcType=TIMESTAMP},
+                #{loginUserId, jdbcType=BIGINT},
+                #{loginUserName, jdbcType=VARCHAR},
+                #{now, jdbcType=TIMESTAMP})
     </insert>
+    <update id="updateByProcInstId" parameterType="com.yy.ppm.flowable.bean.dto.BpmBusinessInstanceDTO">
+        UPDATE BPM_BUSINESS_INSTANCE
+        <set>
+            <if test="currentNodeName != null and currentNodeName !=''">
+                CURRENT_NODE_NAME = #{currentNodeName,jdbcType=VARCHAR},
+            </if>
+            <if test="approverNames != null and approverNames != ''">
+                APPROVER_NAMES = #{approverNames,jdbcType=VARCHAR},
+            </if>
+            <if test="instanceStatus != null and instanceStatus != ''">
+                INSTANCE_STATUS = #{instanceStatus,jdbcType=VARCHAR},
+            </if>
+            <if test="endTime != null and endTime != ''">
+                END_TIME = #{endTime,jdbcType=DATE},
+            </if>
+        </set>
+        WHERE PROC_INST_ID = #{procInstId}
+    </update>
 </mapper>
