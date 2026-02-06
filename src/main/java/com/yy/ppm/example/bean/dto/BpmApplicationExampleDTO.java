@@ -23,4 +23,14 @@ public class BpmApplicationExampleDTO extends BpmApplicationExamplePO implements
      * 状态label
      */
     private String approvalStatusLabel;
+
+    /**
+     * 当前正在审批的节点名称
+     */
+    private String currentNodeName;
+
+    /**
+     * 当前节点的可处理人姓名（多人时用逗号分隔）
+     */
+    private String approverNames;
 }

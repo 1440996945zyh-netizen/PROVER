@@ -10,6 +10,9 @@
         <result column="APPLICANT_ID" property="applicantId" jdbcType="NUMERIC"/>
         <result column="APPLICANT_NAME" property="applicantName" jdbcType="VARCHAR"/>
         <result column="APPROVAL_STATUS" property="approvalStatus" jdbcType="VARCHAR"/>
+        <result column="APPROVAL_STATUS_LABEL" property="approvalStatusLabel" jdbcType="VARCHAR"/>
+        <result column="CURRENT_NODE_NAME" property="currentNodeName" jdbcType="VARCHAR"/>
+        <result column="APPROVER_NAMES" property="approverNames" jdbcType="VARCHAR"/>
         <result column="APPLY_TIME" property="applyTime" jdbcType="TIMESTAMP"/>
         <result column="EXPECTED_PAYMENT_TIME" property="expectedPaymentTime" jdbcType="TIMESTAMP"/>
     </resultMap>
@@ -25,6 +28,49 @@
         APPLY_TIME,
         EXPECTED_PAYMENT_TIME
     </sql>
+
+    <!-- 分页查询列表 -->
+    <select id="getList" parameterType="com.yy.ppm.example.bean.dto.BpmApplicationExampleSearchDTO" resultMap="BaseResultMap">
+        SELECT
+        a.ID,
+        a.PAYMENT_TITLE,
+        a.PAYMENT_AMOUNT,
+        a.PAYEE_NAME,
+        a.APPLICANT_ID,
+        a.APPLICANT_NAME,
+        b.INSTANCE_STATUS as APPROVAL_STATUS,
+        case b.INSTANCE_STATUS
+        when '1' then '审批中'
+        when '2' then '审批通过'
+        when '3' then '审批驳回'
+        when '4' then '已撤回/作废'
+        else '未发起'
+        end as APPROVAL_STATUS_LABEL,
+        b.CURRENT_NODE_NAME,
+        b.APPROVER_NAMES,
+        a.APPLY_TIME,
+        a.EXPECTED_PAYMENT_TIME
+        FROM BPM_APPLICATION_EXAMPLE a left join BPM_BUSINESS_INSTANCE b on a.id = b.BUSINESS_DATA_ID
+        <where>
+            <if test="paymentTitle != null and paymentTitle != ''">
+                AND a.PAYMENT_TITLE LIKE '%' || #{paymentTitle, jdbcType=VARCHAR} || '%'
+            </if>
+            <if test="payeeName != null and payeeName != ''">
+                AND a.PAYEE_NAME LIKE '%' || #{payeeName, jdbcType=VARCHAR} || '%'
+            </if>
+            <if test="applicantId != null">
+                AND a.APPLICANT_ID = #{applicantId, jdbcType=NUMERIC}
+            </if>
+            <if test="applicantName != null and applicantName != ''">
+                AND a.APPLICANT_NAME LIKE '%' || #{applicantName, jdbcType=VARCHAR} || '%'
+            </if>
+            <if test="approvalStatus != null and approvalStatus != ''">
+                AND b.INSTANCE_STATUS = #{approvalStatus, jdbcType=VARCHAR}
+            </if>
+
+        </where>
+        ORDER BY APPLY_TIME DESC
+    </select>
 
     <!-- 新增 -->
     <insert id="insert" parameterType="com.yy.ppm.example.bean.dto.BpmApplicationExampleDTO">
@@ -74,47 +120,7 @@
         WHERE ID = #{id, jdbcType=NUMERIC}
     </select>
 
-    <!-- 分页查询列表 -->
-    <select id="getList" parameterType="com.yy.ppm.example.bean.dto.BpmApplicationExampleSearchDTO" resultMap="BaseResultMap">
-        SELECT
-        a.ID,
-        a.PAYMENT_TITLE,
-        a.PAYMENT_AMOUNT,
-        a.PAYEE_NAME,
-        a.APPLICANT_ID,
-        a.APPLICANT_NAME,
-        b.INSTANCE_STATUS as APPROVAL_STATUS,
-        case b.INSTANCE_STATUS
-        when '1' then '审批中'
-        when '2' then '审批通过'
-        when '3' then '审批驳回'
-        when '4' then '已撤回/作废'
-        else '未发起'
-        end as APPROVAL_STATUS_LABEL,
 
-        a.APPLY_TIME,
-        a.EXPECTED_PAYMENT_TIME
-        FROM BPM_APPLICATION_EXAMPLE a left join BPM_BUSINESS_INSTANCE b on a.id = b.BUSINESS_DATA_ID
-        <where>
-            <if test="paymentTitle != null and paymentTitle != ''">
-                AND a.PAYMENT_TITLE LIKE '%' || #{paymentTitle, jdbcType=VARCHAR} || '%'
-            </if>
-            <if test="payeeName != null and payeeName != ''">
-                AND a.PAYEE_NAME LIKE '%' || #{payeeName, jdbcType=VARCHAR} || '%'
-            </if>
-            <if test="applicantId != null">
-                AND a.APPLICANT_ID = #{applicantId, jdbcType=NUMERIC}
-            </if>
-            <if test="applicantName != null and applicantName != ''">
-                AND a.APPLICANT_NAME LIKE '%' || #{applicantName, jdbcType=VARCHAR} || '%'
-            </if>
-            <if test="approvalStatus != null and approvalStatus != ''">
-                AND b.INSTANCE_STATUS = #{approvalStatus, jdbcType=VARCHAR}
-            </if>
-
-        </where>
-        ORDER BY APPLY_TIME DESC
-    </select>
 
     <!-- 查询所有数据 -->
     <select id="getAllList" resultMap="BaseResultMap">
