@@ -26,7 +26,8 @@
         APPLICANT_NAME,
         APPROVAL_STATUS,
         APPLY_TIME,
-        EXPECTED_PAYMENT_TIME
+        EXPECTED_PAYMENT_TIME,
+        PAYMENT_TYPE
     </sql>
 
     <!-- 分页查询列表 -->
@@ -38,6 +39,7 @@
         a.PAYEE_NAME,
         a.APPLICANT_ID,
         a.APPLICANT_NAME,
+        a.PAYMENT_TYPE,
         b.INSTANCE_STATUS as APPROVAL_STATUS,
         case b.INSTANCE_STATUS
         when '1' then '审批中'
@@ -67,7 +69,9 @@
             <if test="approvalStatus != null and approvalStatus != ''">
                 AND b.INSTANCE_STATUS = #{approvalStatus, jdbcType=VARCHAR}
             </if>
-
+            <if test="paymentType != null and paymentType != ''">
+                AND a.PAYMENT_TYPE = #{paymentType, jdbcType=VARCHAR}
+            </if>
         </where>
         ORDER BY APPLY_TIME DESC
     </select>
@@ -85,7 +89,8 @@
         #{applicantName, jdbcType=VARCHAR},
         #{approvalStatus, jdbcType=VARCHAR},
         #{applyTime, jdbcType=TIMESTAMP},
-        #{expectedPaymentTime, jdbcType=TIMESTAMP}
+        #{expectedPaymentTime, jdbcType=TIMESTAMP},
+        #{paymentType, jdbcType=VARCHAR}
         )
     </insert>
 
@@ -103,7 +108,8 @@
             EXPECTED_PAYMENT_TIME = #{expectedPaymentTime, jdbcType=TIMESTAMP},
             UPDATE_BY = #{loginUserId, jdbcType=NUMERIC},
             UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
-            UPDATE_TIME = #{now, jdbcType=TIMESTAMP}
+            UPDATE_TIME = #{now, jdbcType=TIMESTAMP},
+            PAYMENT_TYPE = #{paymentType, jdbcType=VARCHAR}
         WHERE ID = #{id, jdbcType=NUMERIC}
     </update>
 

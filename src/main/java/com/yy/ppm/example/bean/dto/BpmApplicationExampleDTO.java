@@ -33,4 +33,9 @@ public class BpmApplicationExampleDTO extends BpmApplicationExamplePO implements
      * 当前节点的可处理人姓名（多人时用逗号分隔）
      */
     private String approverNames;
+
+    /**
+     * 付款类型 耗材付款 / 商用付款
+     */
+    private String paymentType;
 }
