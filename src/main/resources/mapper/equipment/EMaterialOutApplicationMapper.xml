@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMaterialOutApplicationMapper">
+
+    <!-- 查询物资出库申请列表 -->
+    <select id="selectList" resultType="com.yy.ppm.equipment.bean.dto.EMaterialOutApplicationDTO">
+        SELECT
+            ID,
+            WAREHOUSE_OUT_NO,
+            WAREHOUSE_OUT_TITLE,
+            WAREHOUSE_ID,
+            WAREHOUSE_NAME,
+            STATUS,
+            REMARKS,
+            AUDIT_REMARK,
+            ACCEPTANCE_PERSON_ID,
+            ACCEPTANCE_PERSON_NAME,
+            ACCEPTANCE_TIME,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME
+        FROM
+            E_MAT_WAREHOUSE_OUT_APP
+        <where>
+            DEL_FLAG = 0
+            <if test="warehouseOutNo != null and warehouseOutNo != ''">
+                <bind name="warehouseOutNoPattern" value="'%' + warehouseOutNo + '%'"/>
+                AND WAREHOUSE_OUT_NO LIKE #{warehouseOutNoPattern}
+            </if>
+            <if test="warehouseOutTitle != null and warehouseOutTitle != ''">
+                <bind name="warehouseOutTitlePattern" value="'%' + warehouseOutTitle + '%'"/>
+                AND WAREHOUSE_OUT_TITLE LIKE #{warehouseOutTitlePattern}
+            </if>
+            <if test="warehouseId != null">
+                AND WAREHOUSE_ID = #{warehouseId}
+            </if>
+            <if test="status != null and status != ''">
+                AND STATUS = #{status}
+            </if>
+        </where>
+        ORDER BY CREATE_TIME DESC
+    </select>
+
+    <!-- 根据ID查询物资出库申请 -->
+    <select id="selectById" resultType="com.yy.ppm.equipment.bean.dto.EMaterialOutApplicationDTO">
+        SELECT
+            ID,
+            WAREHOUSE_OUT_NO,
+            WAREHOUSE_OUT_TITLE,
+            WAREHOUSE_ID,
+            WAREHOUSE_NAME,
+            STATUS,
+            REMARKS,
+            AUDIT_REMARK,
+            ACCEPTANCE_PERSON_ID,
+            ACCEPTANCE_PERSON_NAME,
+            ACCEPTANCE_TIME,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME
+        FROM
+            E_MAT_WAREHOUSE_OUT_APP
+        WHERE
+            ID = #{id}
+            AND DEL_FLAG = 0
+    </select>
+
+    <!-- 新增物资出库申请 -->
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.EMaterialOutApplicationPO">
+        INSERT INTO E_MAT_WAREHOUSE_OUT_APP
+        (
+            ID,
+            WAREHOUSE_OUT_NO,
+            WAREHOUSE_OUT_TITLE,
+            WAREHOUSE_ID,
+            WAREHOUSE_NAME,
+            STATUS,
+            REMARKS,
+            AUDIT_REMARK,
+            ACCEPTANCE_PERSON_ID,
+            ACCEPTANCE_PERSON_NAME,
+            ACCEPTANCE_TIME,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )
+        VALUES
+        (
+            #{id,jdbcType=NUMERIC},
+            #{warehouseOutNo,jdbcType=VARCHAR},
+            #{warehouseOutTitle,jdbcType=VARCHAR},
+            #{warehouseId,jdbcType=NUMERIC},
+            #{warehouseName,jdbcType=VARCHAR},
+            #{status,jdbcType=VARCHAR},
+            #{remarks,jdbcType=VARCHAR},
+            #{auditRemark,jdbcType=VARCHAR},
+            #{acceptancePersonId,jdbcType=NUMERIC},
+            #{acceptancePersonName,jdbcType=VARCHAR},
+            #{acceptanceTime,jdbcType=TIMESTAMP},
+            #{loginUserId,jdbcType=NUMERIC},
+            #{loginUserName,jdbcType=VARCHAR},
+            #{now,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <!-- 修改物资出库申请 -->
+    <update id="update" parameterType="com.yy.ppm.equipment.bean.po.EMaterialOutApplicationPO">
+        UPDATE E_MAT_WAREHOUSE_OUT_APP
+        <set>
+            <if test="warehouseOutNo != null and warehouseOutNo != ''">
+                WAREHOUSE_OUT_NO = #{warehouseOutNo,jdbcType=VARCHAR},
+            </if>
+            <if test="warehouseOutTitle != null">
+                WAREHOUSE_OUT_TITLE = #{warehouseOutTitle,jdbcType=VARCHAR},
+            </if>
+            <if test="warehouseId != null">
+                WAREHOUSE_ID = #{warehouseId,jdbcType=NUMERIC},
+            </if>
+            <if test="warehouseName != null">
+                WAREHOUSE_NAME = #{warehouseName,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                STATUS = #{status,jdbcType=VARCHAR},
+            </if>
+            <if test="remarks != null">
+                REMARKS = #{remarks,jdbcType=VARCHAR},
+            </if>
+            <if test="auditRemark != null">
+                AUDIT_REMARK = #{auditRemark,jdbcType=VARCHAR},
+            </if>
+            <if test="auditRemark == null">
+                AUDIT_REMARK = NULL,
+            </if>
+            <if test="acceptancePersonId != null">
+                ACCEPTANCE_PERSON_ID = #{acceptancePersonId,jdbcType=NUMERIC},
+            </if>
+            <if test="acceptancePersonId == null">
+                ACCEPTANCE_PERSON_ID = NULL,
+            </if>
+            <if test="acceptancePersonName != null">
+                ACCEPTANCE_PERSON_NAME = #{acceptancePersonName,jdbcType=VARCHAR},
+            </if>
+            <if test="acceptancePersonName == null">
+                ACCEPTANCE_PERSON_NAME = NULL,
+            </if>
+            <if test="acceptanceTime != null">
+                ACCEPTANCE_TIME = #{acceptanceTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="acceptanceTime == null">
+                ACCEPTANCE_TIME = NULL,
+            </if>
+            <if test="loginUserId != null">
+                UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
+            </if>
+            <if test="loginUserName != null and loginUserName != ''">
+                UPDATE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="now != null">
+                UPDATE_TIME = #{now,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        WHERE
+            ID = #{id}
+    </update>
+
+    <!-- 删除物资出库申请（逻辑删除） -->
+    <update id="deleteById">
+        UPDATE E_MAT_WAREHOUSE_OUT_APP
+        SET DEL_FLAG = 1,
+            DELETE_BY = #{loginUserId,jdbcType=NUMERIC},
+            DELETE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            DELETE_TIME = #{now,jdbcType=TIMESTAMP}
+        WHERE ID = #{id}
+    </update>
+
+    <!-- 检查出库单号是否重复 -->
+    <select id="countByWarehouseOutNo" resultType="int">
+        SELECT COUNT(*)
+        FROM E_MAT_WAREHOUSE_OUT_APP
+        WHERE WAREHOUSE_OUT_NO = #{warehouseOutNo}
+        AND DEL_FLAG = 0
+        <if test="id != null">
+            AND ID != #{id}
+        </if>
+    </select>
+
+    <!-- ResultMap：物资出库申请（包含明细和库存数量） -->
+    <resultMap id="EMaterialOutApplicationWithDetailsResultMap" type="com.yy.ppm.equipment.bean.dto.EMaterialOutApplicationDTO">
+        <id property="id" column="APPLICATION_ID"/>
+        <result property="warehouseOutNo" column="WAREHOUSE_OUT_NO"/>
+        <result property="warehouseOutTitle" column="WAREHOUSE_OUT_TITLE"/>
+        <result property="warehouseId" column="WAREHOUSE_ID"/>
+        <result property="warehouseName" column="WAREHOUSE_NAME"/>
+        <result property="status" column="STATUS"/>
+        <result property="remarks" column="REMARKS"/>
+        <result property="auditRemark" column="AUDIT_REMARK"/>
+        <result property="acceptancePersonId" column="ACCEPTANCE_PERSON_ID"/>
+        <result property="acceptancePersonName" column="ACCEPTANCE_PERSON_NAME"/>
+        <result property="acceptanceTime" column="ACCEPTANCE_TIME"/>
+        <result property="createBy" column="CREATE_BY"/>
+        <result property="createByName" column="CREATE_BY_NAME"/>
+        <result property="createTime" column="CREATE_TIME"/>
+        <result property="updateBy" column="UPDATE_BY"/>
+        <result property="updateByName" column="UPDATE_BY_NAME"/>
+        <result property="updateTime" column="UPDATE_TIME"/>
+        <collection property="detailList" ofType="com.yy.ppm.equipment.bean.dto.EMaterialOutApplicationDetailDTO">
+            <id property="id" column="DETAIL_ID"/>
+            <result property="outApplicationId" column="DETAIL_OUT_APPLICATION_ID"/>
+            <result property="materialId" column="DETAIL_MATERIAL_ID"/>
+            <result property="materialName" column="DETAIL_MATERIAL_NAME"/>
+            <result property="specificationModel" column="DETAIL_SPECIFICATION_MODEL"/>
+            <result property="unitCode" column="DETAIL_UNIT_CODE"/>
+            <result property="unitName" column="DETAIL_UNIT_NAME"/>
+            <result property="brand" column="DETAIL_BRAND"/>
+            <result property="applicationQuantity" column="DETAIL_APPLICATION_QUANTITY"/>
+            <result property="flowDirection" column="DETAIL_FLOW_DIRECTION"/>
+            <result property="flowType" column="DETAIL_FLOW_TYPE"/>
+            <result property="equipIds" column="DETAIL_EQUIP_IDS"/>
+            <result property="equipNames" column="DETAIL_EQUIP_NAMES"/>
+            <result property="outQuantitySum" column="DETAIL_OUT_QUANTITY_SUM"/>
+            <result property="stockQuantity" column="DETAIL_STOCK_QUANTITY"/>
+            <result property="createBy" column="DETAIL_CREATE_BY"/>
+            <result property="createByName" column="DETAIL_CREATE_BY_NAME"/>
+            <result property="createTime" column="DETAIL_CREATE_TIME"/>
+            <result property="updateBy" column="DETAIL_UPDATE_BY"/>
+            <result property="updateByName" column="DETAIL_UPDATE_BY_NAME"/>
+            <result property="updateTime" column="DETAIL_UPDATE_TIME"/>
+        </collection>
+    </resultMap>
+
+    <!-- 查询物资出库申请列表（包含明细和库存数量，分页） -->
+    <select id="selectListWithDetails" resultMap="EMaterialOutApplicationWithDetailsResultMap">
+        SELECT
+            A.ID AS APPLICATION_ID,
+            A.WAREHOUSE_OUT_NO,
+            A.WAREHOUSE_OUT_TITLE,
+            A.WAREHOUSE_ID,
+            A.WAREHOUSE_NAME,
+            A.STATUS,
+            A.REMARKS,
+            A.AUDIT_REMARK,
+            A.ACCEPTANCE_PERSON_ID,
+            A.ACCEPTANCE_PERSON_NAME,
+            A.ACCEPTANCE_TIME,
+            A.CREATE_BY,
+            A.CREATE_BY_NAME,
+            A.CREATE_TIME,
+            A.UPDATE_BY,
+            A.UPDATE_BY_NAME,
+            A.UPDATE_TIME,
+            AD.ID AS DETAIL_ID,
+            AD.WAREHOUSE_OUT_APP_ID AS DETAIL_OUT_APPLICATION_ID,
+            AD.MATERIAL_ID AS DETAIL_MATERIAL_ID,
+            AD.MATERIAL_NAME AS DETAIL_MATERIAL_NAME,
+            AD.SPECIFICATION_MODEL AS DETAIL_SPECIFICATION_MODEL,
+            AD.UNIT_CODE AS DETAIL_UNIT_CODE,
+            AD.UNIT_NAME AS DETAIL_UNIT_NAME,
+            AD.BRAND AS DETAIL_BRAND,
+            AD.APPLICATION_QUANTITY AS DETAIL_APPLICATION_QUANTITY,
+            AD.FLOW_DIRECTION AS DETAIL_FLOW_DIRECTION,
+            AD.FLOW_TYPE AS DETAIL_FLOW_TYPE,
+            AD.EQUIP_IDS AS DETAIL_EQUIP_IDS,
+            AD.EQUIP_NAMES AS DETAIL_EQUIP_NAMES,
+            NVL(AD.OUT_QUANTITY_SUM, 0) AS DETAIL_OUT_QUANTITY_SUM,
+            NVL(STOCK.STOCK_QUANTITY, 0) AS DETAIL_STOCK_QUANTITY,
+            AD.CREATE_BY AS DETAIL_CREATE_BY,
+            AD.CREATE_BY_NAME AS DETAIL_CREATE_BY_NAME,
+            AD.CREATE_TIME AS DETAIL_CREATE_TIME,
+            AD.UPDATE_BY AS DETAIL_UPDATE_BY,
+            AD.UPDATE_BY_NAME AS DETAIL_UPDATE_BY_NAME,
+            AD.UPDATE_TIME AS DETAIL_UPDATE_TIME
+        FROM
+            E_MAT_WAREHOUSE_OUT_APP A
+        LEFT JOIN E_MAT_WAREHOUSE_OUT_APP_DETAIL AD ON A.ID = AD.WAREHOUSE_OUT_APP_ID 
+            AND AD.DEL_FLAG = 0
+            AND (AD.OUT_QUANTITY_SUM IS NULL OR AD.OUT_QUANTITY_SUM &lt; AD.APPLICATION_QUANTITY)
+        LEFT JOIN (
+            SELECT
+                WID.MATERIAL_ID,
+                NVL(SUM(WID.REMAINING_QUANTITY), 0) AS STOCK_QUANTITY
+            FROM
+                E_MATERIAL_WAREHOUSE_IN_DETAIL WID
+            INNER JOIN E_MATERIAL_WAREHOUSE_IN WI ON WID.WAREHOUSE_IN_ID = WI.ID
+            WHERE
+                WI.WAREHOUSE_ID = #{warehouseId}
+                AND WI.ACCEPTANCE_STATUS = 1
+            GROUP BY
+                WID.MATERIAL_ID
+        ) STOCK ON AD.MATERIAL_ID = STOCK.MATERIAL_ID
+        <where>
+            A.DEL_FLAG = 0
+            AND EXISTS (
+                SELECT 1
+                FROM E_MAT_WAREHOUSE_OUT_APP_DETAIL AD_CHECK
+                WHERE AD_CHECK.WAREHOUSE_OUT_APP_ID = A.ID
+                    AND AD_CHECK.DEL_FLAG = 0
+                    AND (AD_CHECK.OUT_QUANTITY_SUM IS NULL OR AD_CHECK.OUT_QUANTITY_SUM &lt; AD_CHECK.APPLICATION_QUANTITY)
+            )
+            <if test="warehouseOutNo != null and warehouseOutNo != ''">
+                <bind name="warehouseOutNoPattern" value="'%' + warehouseOutNo + '%'"/>
+                AND A.WAREHOUSE_OUT_NO LIKE #{warehouseOutNoPattern}
+            </if>
+            <if test="warehouseOutTitle != null and warehouseOutTitle != ''">
+                <bind name="warehouseOutTitlePattern" value="'%' + warehouseOutTitle + '%'"/>
+                AND A.WAREHOUSE_OUT_TITLE LIKE #{warehouseOutTitlePattern}
+            </if>
+            <if test="warehouseId != null">
+                AND A.WAREHOUSE_ID = #{warehouseId}
+            </if>
+            <if test="status != null and status != ''">
+                AND A.STATUS = #{status}
+            </if>
+            <if test="createBy != null">
+                AND A.CREATE_BY = #{createBy}
+            </if>
+        </where>
+        ORDER BY A.CREATE_TIME DESC, AD.CREATE_TIME ASC
+    </select>
+
+</mapper>
+

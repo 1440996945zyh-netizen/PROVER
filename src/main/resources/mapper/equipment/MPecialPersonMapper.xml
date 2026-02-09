@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.MPecialPersonMapper">
+
+    <!-- 查询特种作业人员证书列表（分页） -->
+    <select id="selectList" resultType="com.yy.ppm.equipment.bean.dto.MPecialPersonDTO">
+        SELECT
+            ID,
+            CERTIFI_TYPE,
+            CERTIFI_CODE,
+            CERTIFICATE_NAME,
+            CERTIFI_NUMBER,
+            CERTIFI_USER,
+            CERTIFI_USER_NAME,
+            EXPIRE_DATE,
+            VALID_DATE,
+            CERTIFI_STATE,
+            FIRST_DATE,
+            REMARK,
+            DEL_FLAG,
+            USE_ORG_ID,
+            USE_ORG_NAME,
+            CERTIFICATION_AUTHORITY,
+            EXAM_ORG,
+            IS_EMPLOY
+        FROM
+            M_PECIAL_PERSON
+        where
+            DEL_FLAG = 0
+            <if test="certifiUser != null and certifiUser != ''">
+                <bind name="certifiUserPattern" value="'%' + certifiUser + '%'"/>
+                AND CERTIFI_USER_NAME LIKE #{certifiUserPattern}
+            </if>
+            <if test="certifiNumber != null and certifiNumber != ''">
+                <bind name="certifiNumberPattern" value="'%' + certifiNumber + '%'"/>
+                AND CERTIFI_NUMBER LIKE #{certifiNumberPattern}
+            </if>
+            <if test="certifiCode != null and certifiCode != ''">
+                <bind name="certifiCodePattern" value="'%' + certifiCode + '%'"/>
+                AND CERTIFI_CODE LIKE #{certifiCodePattern}
+            </if>
+            <if test="useOrgId != null">
+                AND USE_ORG_ID = #{useOrgId}
+            </if>
+        ORDER BY EXPIRE_DATE ASC
+    </select>
+
+    <!-- 根据ID查询特种作业人员证书 -->
+    <select id="selectById" resultType="com.yy.ppm.equipment.bean.dto.MPecialPersonDTO">
+        SELECT
+            p.ID,
+            p.CERTIFI_TYPE,
+            p.CERTIFI_CODE,
+            p.CERTIFICATE_NAME,
+            p.CERTIFI_NUMBER,
+            p.CERTIFI_USER,
+            p.CERTIFI_USER_NAME,
+            p.EXPIRE_DATE,
+            p.VALID_DATE,
+            p.CERTIFI_STATE,
+            p.FIRST_DATE,
+            p.REMARK,
+            p.DEL_FLAG,
+            p.USE_ORG_ID,
+            p.USE_ORG_NAME,
+            p.CERTIFICATION_AUTHORITY,
+            p.EXAM_ORG,
+            p.IS_EMPLOY,
+            p.CREATE_BY,
+            p.CREATE_BY_NAME,
+            p.CREATE_TIME,
+            p.UPDATE_BY,
+            p.UPDATE_BY_NAME,
+            p.UPDATE_TIME,
+            p.DELETE_BY,
+            p.DELETE_BY_NAME,
+            p.DELETE_TIME
+        FROM
+            M_PECIAL_PERSON p
+        WHERE
+            p.ID = #{id}
+            AND p.DEL_FLAG = 0
+    </select>
+
+    <!-- 新增特种作业人员证书 -->
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.MPecialPersonPO">
+        INSERT INTO M_PECIAL_PERSON (
+            ID,
+            CERTIFI_TYPE,
+            CERTIFI_CODE,
+            CERTIFICATE_NAME,
+            CERTIFI_NUMBER,
+            CERTIFI_USER,
+            CERTIFI_USER_NAME,
+            EXPIRE_DATE,
+            VALID_DATE,
+            CERTIFI_STATE,
+            FIRST_DATE,
+            REMARK,
+            USE_ORG_ID,
+            USE_ORG_NAME,
+            CERTIFICATION_AUTHORITY,
+            EXAM_ORG,
+            IS_EMPLOY,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            DEL_FLAG
+        )
+        VALUES (
+            #{id,jdbcType=NUMERIC},
+            #{certifiType,jdbcType=VARCHAR},
+            #{certifiCode,jdbcType=VARCHAR},
+            #{certificateName,jdbcType=VARCHAR},
+            #{certifiNumber,jdbcType=VARCHAR},
+            #{certifiUser,jdbcType=VARCHAR},
+            #{certifiUserName,jdbcType=VARCHAR},
+            #{expireDate,jdbcType=DATE},
+            #{validDate,jdbcType=NUMERIC},
+            #{certifiState,jdbcType=VARCHAR},
+            #{firstDate,jdbcType=DATE},
+            #{remark,jdbcType=VARCHAR},
+            #{useOrgId,jdbcType=NUMERIC},
+            #{useOrgName,jdbcType=VARCHAR},
+            #{certificationAuthority,jdbcType=VARCHAR},
+            #{examOrg,jdbcType=VARCHAR},
+            #{isEmploy,jdbcType=VARCHAR},
+            #{loginUserId,jdbcType=NUMERIC},
+            #{loginUserName,jdbcType=VARCHAR},
+            #{now,jdbcType=TIMESTAMP},
+            0
+        )
+    </insert>
+
+    <!-- 修改特种作业人员证书 -->
+    <update id="update" parameterType="com.yy.ppm.equipment.bean.po.MPecialPersonPO">
+        UPDATE M_PECIAL_PERSON
+        <set>
+            <if test="certifiType != null">
+                CERTIFI_TYPE = #{certifiType,jdbcType=VARCHAR},
+            </if>
+            <if test="certifiCode != null">
+                CERTIFI_CODE = #{certifiCode,jdbcType=VARCHAR},
+            </if>
+            <if test="certificateName != null">
+                CERTIFICATE_NAME = #{certificateName,jdbcType=VARCHAR},
+            </if>
+            <if test="certifiNumber != null">
+                CERTIFI_NUMBER = #{certifiNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="certifiUser != null and certifiUser != ''">
+                CERTIFI_USER = #{certifiUser,jdbcType=VARCHAR},
+            </if>
+            <if test="certifiUserName != null">
+                CERTIFI_USER_NAME = #{certifiUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="expireDate != null">
+                EXPIRE_DATE = #{expireDate,jdbcType=DATE},
+            </if>
+            <if test="validDate != null">
+                VALID_DATE = #{validDate,jdbcType=NUMERIC},
+            </if>
+            <if test="certifiState != null">
+                CERTIFI_STATE = #{certifiState,jdbcType=NUMERIC},
+            </if>
+            <if test="firstDate != null">
+                FIRST_DATE = #{firstDate,jdbcType=DATE},
+            </if>
+            <if test="remark != null">
+                REMARK = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="useOrgId != null">
+                USE_ORG_ID = #{useOrgId,jdbcType=NUMERIC},
+            </if>
+            <if test="useOrgName != null">
+                USE_ORG_NAME = #{useOrgName,jdbcType=VARCHAR},
+            </if>
+            <if test="certificationAuthority != null">
+                CERTIFICATION_AUTHORITY = #{certificationAuthority,jdbcType=VARCHAR},
+            </if>
+            <if test="examOrg != null">
+                EXAM_ORG = #{examOrg,jdbcType=VARCHAR},
+            </if>
+            <if test="isEmploy != null">
+                IS_EMPLOY = #{isEmploy,jdbcType=NUMERIC},
+            </if>
+            <if test="loginUserId != null">
+                UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
+            </if>
+            <if test="loginUserName != null">
+                UPDATE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="now != null">
+                UPDATE_TIME = #{now,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        WHERE ID = #{id}
+    </update>
+
+    <!-- 删除特种作业人员证书（逻辑删除） -->
+    <update id="deleteById" parameterType="com.yy.ppm.equipment.bean.po.MPecialPersonPO">
+        UPDATE M_PECIAL_PERSON
+        SET
+            DEL_FLAG = 1,
+            DELETE_BY = #{loginUserId,jdbcType=NUMERIC},
+            DELETE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            DELETE_TIME = #{now,jdbcType=TIMESTAMP}
+        WHERE ID = #{id}
+    </update>
+
+</mapper>
+

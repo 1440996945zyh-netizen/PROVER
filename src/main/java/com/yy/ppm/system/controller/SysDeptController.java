@@ -78,4 +78,20 @@ public class SysDeptController {
         int count = deptService.deleteDeptById(id);
         return Response.SUCCESS.newBuilder().out(count > 0  ? "删除成功~" : "删除失败~").toResult();
     }
+
+
+    /**
+     * 根据部门级别查询部门列表
+     */
+    @GetMapping("/getListByLevel")
+    @PreAuthorize("hasAuthority('system:dept:query')")
+    public Map<String, Object> getListByLevel(@RequestParam("deptLevel") String deptLevel) {
+        final String methodName = "SysDeptController:getListByLevel";
+        LOGGER.enter(methodName + "[start]", "deptLevel:" + deptLevel);
+
+        List<SysDeptDTO> result = deptService.selectDeptListByLevel(deptLevel);
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
+    }
 }

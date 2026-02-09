@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EquipmentIndicatorMapper">
+
+    <!-- 查询设备指标统计（按月份） -->
+    <select id="selectIndicatorByMonth" resultType="com.yy.ppm.equipment.bean.dto.EquipmentIndicatorDTO">
+        WITH MONTHS AS (
+            SELECT LEVEL AS MONTH FROM DUAL CONNECT BY LEVEL &lt;= 12
+        ),
+        MONTH_DAYS AS (
+            SELECT 
+                m.MONTH,
+                EXTRACT(DAY FROM LAST_DAY(TO_DATE(#{year} || '-' || LPAD(m.MONTH, 2, '0') || '-01', 'YYYY-MM-DD'))) AS DAYS
+            FROM MONTHS m
+        ),
+        MAINT_DATA AS (
+            SELECT 
+                TO_NUMBER(TO_CHAR(m.MAINT_END_TIME, 'MM')) AS MONTH,
+                SUM(
+                    CASE
+                        WHEN m.MAINT_START_TIME IS NOT NULL AND m.MAINT_END_TIME IS NOT NULL
+                        THEN ROUND((m.MAINT_END_TIME - m.MAINT_START_TIME) * 24, 2)
+                        ELSE 0
+                    END
+                ) AS FAULT_DURATION
+            FROM E_MAINT_INFO m
+            WHERE m.EQUIP_ID = #{equipId}
+                AND m.DEL_FLAG = 0
+                AND TO_CHAR(m.MAINT_END_TIME, 'YYYY') = #{year}
+                AND m.MAINT_END_TIME IS NOT NULL
+            GROUP BY TO_NUMBER(TO_CHAR(m.MAINT_END_TIME, 'MM'))
+        ),
+        OPERATION_DATA AS (
+            SELECT 
+                TO_NUMBER(TO_CHAR(WORK_DATE, 'MM')) AS MONTH,
+                SUM(RUN_TIME) AS RUN_TIME
+            FROM (
+                SELECT 
+                    o.WORK_DATE,
+                    SUM(NVL(o.RUN_TIME, 0)) AS RUN_TIME
+                FROM E_M_EQPT_OPERATION o
+                WHERE o.EQUIP_ID = #{equipId}
+                    AND TO_CHAR(o.WORK_DATE, 'YYYY') = #{year}
+                GROUP BY o.WORK_DATE
+            ) daily_sum
+            GROUP BY TO_NUMBER(TO_CHAR(WORK_DATE, 'MM'))
+        )
+        SELECT 
+            m.MONTH AS month,
+            -- 自然时长：该月的天数 * 24小时
+            (md2.DAYS * 24) AS naturalDuration,
+            NVL(md.FAULT_DURATION, 0) AS faultDuration,
+            NVL(od.RUN_TIME, 0) AS runTime,
+            -- 故障率 = 故障时长 / 自然时长 * 100
+            CASE 
+                WHEN (md2.DAYS * 24) > 0
+                THEN ROUND(NVL(md.FAULT_DURATION, 0) / (md2.DAYS * 24) * 100, 2)
+                ELSE 0
+            END AS failureRate,
+            -- 利用率 = 运行台时 / 自然时长 * 100
+            CASE 
+                WHEN (md2.DAYS * 24) > 0
+                THEN ROUND(NVL(od.RUN_TIME, 0) / (md2.DAYS * 24) * 100, 2)
+                ELSE 0
+            END AS utilizationRate,
+            -- 完好率 = (自然时长 - 维修时长) / 自然时长 * 100
+            CASE 
+                WHEN (md2.DAYS * 24) > 0
+                THEN ROUND((md2.DAYS * 24 - NVL(md.FAULT_DURATION, 0)) / (md2.DAYS * 24) * 100, 2)
+                ELSE 0
+            END AS goodRate
+        FROM MONTHS m
+        LEFT JOIN MONTH_DAYS md2 ON m.MONTH = md2.MONTH
+        LEFT JOIN MAINT_DATA md ON m.MONTH = md.MONTH
+        LEFT JOIN OPERATION_DATA od ON m.MONTH = od.MONTH
+        ORDER BY m.MONTH
+    </select>
+
+</mapper>
+

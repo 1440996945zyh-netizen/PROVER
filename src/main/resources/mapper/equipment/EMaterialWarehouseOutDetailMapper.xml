@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMaterialWarehouseOutDetailMapper">
+
+    <!-- 根据出库主表ID查询明细列表 -->
+    <select id="selectListByWarehouseOutId" resultType="com.yy.ppm.equipment.bean.dto.EMaterialWarehouseOutDetailDTO">
+        SELECT
+            OD.ID,
+            OD.WAREHOUSE_OUT_ID,
+            OD.MATERIAL_ID,
+            OD.MATERIAL_CODE,
+            OD.MATERIAL_NAME,
+            OD.SPECIFICATION_MODEL,
+            OD.BRAND,
+            OD.UNIT_CODE,
+            OD.UNIT_NAME,
+            OD.WAREHOUSE_OUT_APP_DETAIL_ID,
+            OD.OUT_QUANTITY,
+            OD.FLOW_DIRECTION,
+            OD.CREATE_BY,
+            OD.CREATE_BY_NAME,
+            OD.CREATE_TIME,
+            OD.UPDATE_BY,
+            OD.UPDATE_BY_NAME,
+            OD.UPDATE_TIME,
+            NVL(AD.APPLICATION_QUANTITY, 0) AS APPLICATION_QUANTITY,
+            NVL(AD.OUT_QUANTITY_SUM, 0) AS OUT_QUANTITY_SUM,
+            NVL(AD.APPLICATION_QUANTITY, 0) - NVL(AD.OUT_QUANTITY_SUM, 0) AS REMAINING_QUANTITY
+        FROM
+            E_MAT_WAREHOUSE_OUT_DETAIL OD
+        LEFT JOIN E_MAT_WAREHOUSE_OUT_APP_DETAIL AD ON OD.WAREHOUSE_OUT_APP_DETAIL_ID = AD.ID AND AD.DEL_FLAG = 0
+        WHERE
+            OD.WAREHOUSE_OUT_ID = #{warehouseOutId}
+        ORDER BY OD.CREATE_TIME ASC
+    </select>
+
+    <!-- 新增物资出库明细 -->
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.EMaterialWarehouseOutDetailPO">
+        INSERT INTO E_MAT_WAREHOUSE_OUT_DETAIL
+        (
+            ID,
+            WAREHOUSE_OUT_ID,
+            MATERIAL_ID,
+            MATERIAL_CODE,
+            MATERIAL_NAME,
+            SPECIFICATION_MODEL,
+            BRAND,
+            UNIT_CODE,
+            UNIT_NAME,
+            WAREHOUSE_OUT_APP_DETAIL_ID,
+            OUT_QUANTITY,
+            FLOW_DIRECTION,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )
+        VALUES
+        (
+            #{id,jdbcType=NUMERIC},
+            #{warehouseOutId,jdbcType=NUMERIC},
+            #{materialId,jdbcType=NUMERIC},
+            #{materialCode,jdbcType=VARCHAR},
+            #{materialName,jdbcType=VARCHAR},
+            #{specificationModel,jdbcType=VARCHAR},
+            #{brand,jdbcType=VARCHAR},
+            #{unitCode,jdbcType=VARCHAR},
+            #{unitName,jdbcType=VARCHAR},
+            #{warehouseOutAppDetailId,jdbcType=NUMERIC},
+            #{outQuantity,jdbcType=NUMERIC},
+            #{flowDirection,jdbcType=VARCHAR},
+            #{loginUserId,jdbcType=NUMERIC},
+            #{loginUserName,jdbcType=VARCHAR},
+            #{now,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <!-- 批量新增物资出库明细 -->
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO E_MAT_WAREHOUSE_OUT_DETAIL
+        (
+            ID,
+            WAREHOUSE_OUT_ID,
+            MATERIAL_ID,
+            MATERIAL_CODE,
+            MATERIAL_NAME,
+            SPECIFICATION_MODEL,
+            BRAND,
+            UNIT_CODE,
+            UNIT_NAME,
+            WAREHOUSE_OUT_APP_DETAIL_ID,
+            OUT_QUANTITY,
+            FLOW_DIRECTION,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )
+        <foreach collection="list" item="item" separator="UNION ALL">
+            SELECT
+                #{item.id,jdbcType=NUMERIC},
+                #{item.warehouseOutId,jdbcType=NUMERIC},
+                #{item.materialId,jdbcType=NUMERIC},
+                #{item.materialCode,jdbcType=VARCHAR},
+                #{item.materialName,jdbcType=VARCHAR},
+                #{item.specificationModel,jdbcType=VARCHAR},
+                #{item.brand,jdbcType=VARCHAR},
+                #{item.unitCode,jdbcType=VARCHAR},
+                #{item.unitName,jdbcType=VARCHAR},
+                #{item.warehouseOutAppDetailId,jdbcType=NUMERIC},
+                #{item.outQuantity,jdbcType=NUMERIC},
+                #{item.flowDirection,jdbcType=VARCHAR},
+                #{item.loginUserId,jdbcType=NUMERIC},
+                #{item.loginUserName,jdbcType=VARCHAR},
+                #{item.now,jdbcType=TIMESTAMP}
+            FROM DUAL
+        </foreach>
+    </insert>
+
+    <!-- 修改物资出库明细 -->
+    <update id="update" parameterType="com.yy.ppm.equipment.bean.po.EMaterialWarehouseOutDetailPO">
+        UPDATE E_MAT_WAREHOUSE_OUT_DETAIL
+        <set>
+            <if test="warehouseOutId != null">
+                WAREHOUSE_OUT_ID = #{warehouseOutId,jdbcType=NUMERIC},
+            </if>
+            <if test="materialId != null">
+                MATERIAL_ID = #{materialId,jdbcType=NUMERIC},
+            </if>
+            <if test="materialCode != null">
+                MATERIAL_CODE = #{materialCode,jdbcType=VARCHAR},
+            </if>
+            <if test="materialName != null">
+                MATERIAL_NAME = #{materialName,jdbcType=VARCHAR},
+            </if>
+            <if test="specificationModel != null">
+                SPECIFICATION_MODEL = #{specificationModel,jdbcType=VARCHAR},
+            </if>
+            <if test="brand != null">
+                BRAND = #{brand,jdbcType=VARCHAR},
+            </if>
+            <if test="unitCode != null">
+                UNIT_CODE = #{unitCode,jdbcType=VARCHAR},
+            </if>
+            <if test="unitName != null">
+                UNIT_NAME = #{unitName,jdbcType=VARCHAR},
+            </if>
+            <if test="warehouseOutAppDetailId != null">
+                WAREHOUSE_OUT_APP_DETAIL_ID = #{warehouseOutAppDetailId,jdbcType=NUMERIC},
+            </if>
+            <if test="outQuantity != null">
+                OUT_QUANTITY = #{outQuantity,jdbcType=NUMERIC},
+            </if>
+            <if test="flowDirection != null">
+                FLOW_DIRECTION = #{flowDirection,jdbcType=VARCHAR},
+            </if>
+                UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
+                UPDATE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+                UPDATE_TIME = #{now,jdbcType=TIMESTAMP}
+        </set>
+        WHERE
+            ID = #{id}
+    </update>
+
+    <!-- 根据出库主表ID删除明细 -->
+    <delete id="deleteByWarehouseOutId">
+        DELETE FROM E_MAT_WAREHOUSE_OUT_DETAIL
+        WHERE WAREHOUSE_OUT_ID = #{warehouseOutId}
+    </delete>
+
+    <!-- 根据ID删除明细 -->
+    <delete id="deleteById">
+        DELETE FROM E_MAT_WAREHOUSE_OUT_DETAIL
+        WHERE ID = #{id}
+    </delete>
+
+</mapper>
+

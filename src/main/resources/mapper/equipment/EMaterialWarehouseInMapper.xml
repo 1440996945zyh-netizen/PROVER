@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMaterialWarehouseInMapper">
+
+    <!-- 查询物资入库列表 -->
+    <select id="selectList" resultType="com.yy.ppm.equipment.bean.dto.EMaterialWarehouseInDTO">
+        SELECT
+            ID,
+            WAREHOUSE_IN_TITLE,
+            WAREHOUSE_IN_NO,
+            WAREHOUSE_IN_TYPE_CODE,
+            WAREHOUSE_IN_TYPE_NAME,
+            WAREHOUSE_IN_DATE,
+            DEPT_ID,
+            DEPT_NAME,
+            WAREHOUSE_ID,
+            WAREHOUSE_NAME,
+            SUPPLIER_ID,
+            SUPPLIER_NAME,
+            REMARKS,
+            DELIVERY_PERSON_ID,
+            DELIVERY_PERSON_NAME,
+            ACCEPTANCE_PERSON_ID,
+            ACCEPTANCE_PERSON_NAME,
+            ACCEPTANCE_STATUS,
+            ACCEPTANCE_REMARKS,
+            BATCH_NO,
+            CHECK_ID,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME,
+            APPROVAL_BY,
+            APPROVAL_BY_NAME,
+            APPROVAL_TIME
+        FROM
+            E_MATERIAL_WAREHOUSE_IN
+        <where>
+            <if test="warehouseInNo != null and warehouseInNo != ''">
+                <bind name="warehouseInNoPattern" value="'%' + warehouseInNo + '%'"/>
+                AND WAREHOUSE_IN_NO LIKE #{warehouseInNoPattern}
+            </if>
+            <if test="warehouseInTitle != null and warehouseInTitle != ''">
+                <bind name="warehouseInTitlePattern" value="'%' + warehouseInTitle + '%'"/>
+                AND WAREHOUSE_IN_TITLE LIKE #{warehouseInTitlePattern}
+            </if>
+            <if test="supplierName != null and supplierName != ''">
+                <bind name="supplierNamePattern" value="'%' + supplierName + '%'"/>
+                AND SUPPLIER_NAME LIKE #{supplierNamePattern}
+            </if>
+            <if test="warehouseInTypeCode != null and warehouseInTypeCode != ''">
+                AND WAREHOUSE_IN_TYPE_CODE = #{warehouseInTypeCode}
+            </if>
+            <if test="deptId != null">
+                AND DEPT_ID = #{deptId}
+            </if>
+            <if test="warehouseId != null">
+                AND WAREHOUSE_ID = #{warehouseId}
+            </if>
+            <if test="acceptanceStatus != null">
+                AND ACCEPTANCE_STATUS = #{acceptanceStatus}
+            </if>
+        </where>
+        ORDER BY CREATE_TIME DESC
+    </select>
+
+    <!-- 根据ID查询物资入库 -->
+    <select id="selectById" resultType="com.yy.ppm.equipment.bean.dto.EMaterialWarehouseInDTO">
+        SELECT
+            ID,
+            WAREHOUSE_IN_TITLE,
+            WAREHOUSE_IN_NO,
+            WAREHOUSE_IN_TYPE_CODE,
+            WAREHOUSE_IN_TYPE_NAME,
+            WAREHOUSE_IN_DATE,
+            DEPT_ID,
+            DEPT_NAME,
+            WAREHOUSE_ID,
+            WAREHOUSE_NAME,
+            SUPPLIER_ID,
+            SUPPLIER_NAME,
+            REMARKS,
+            DELIVERY_PERSON_ID,
+            DELIVERY_PERSON_NAME,
+            ACCEPTANCE_PERSON_ID,
+            ACCEPTANCE_PERSON_NAME,
+            ACCEPTANCE_STATUS,
+            ACCEPTANCE_REMARKS,
+            BATCH_NO,
+            CHECK_ID,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME
+        FROM
+            E_MATERIAL_WAREHOUSE_IN
+        WHERE
+            ID = #{id}
+    </select>
+
+    <!-- 新增物资入库 -->
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.EMaterialWarehouseInPO">
+        INSERT INTO E_MATERIAL_WAREHOUSE_IN
+        (
+            ID,
+            <if test="acceptanceStatus == 1">
+                ACCEPTANCE_STATUS,
+            </if>
+            WAREHOUSE_IN_TITLE,
+            WAREHOUSE_IN_NO,
+            WAREHOUSE_IN_TYPE_CODE,
+            WAREHOUSE_IN_TYPE_NAME,
+            WAREHOUSE_IN_DATE,
+            DEPT_ID,
+            DEPT_NAME,
+            WAREHOUSE_ID,
+            WAREHOUSE_NAME,
+            SUPPLIER_ID,
+            SUPPLIER_NAME,
+            REMARKS,
+            DELIVERY_PERSON_ID,
+            DELIVERY_PERSON_NAME,
+            ACCEPTANCE_PERSON_ID,
+            ACCEPTANCE_PERSON_NAME,
+            ACCEPTANCE_REMARKS,
+            BATCH_NO,
+            CHECK_ID,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )
+        VALUES
+        (
+            #{id,jdbcType=NUMERIC},
+            <if test="acceptanceStatus == 1">
+                #{acceptanceStatus},
+            </if>
+            #{warehouseInTitle,jdbcType=VARCHAR},
+            #{warehouseInNo,jdbcType=VARCHAR},
+            #{warehouseInTypeCode,jdbcType=VARCHAR},
+            #{warehouseInTypeName,jdbcType=VARCHAR},
+            #{warehouseInDate,jdbcType=DATE},
+            #{deptId,jdbcType=NUMERIC},
+            #{deptName,jdbcType=VARCHAR},
+            #{warehouseId,jdbcType=NUMERIC},
+            #{warehouseName,jdbcType=VARCHAR},
+            #{supplierId,jdbcType=NUMERIC},
+            #{supplierName,jdbcType=VARCHAR},
+            #{remarks,jdbcType=VARCHAR},
+            #{deliveryPersonId,jdbcType=NUMERIC},
+            #{deliveryPersonName,jdbcType=VARCHAR},
+            #{acceptancePersonId,jdbcType=NUMERIC},
+            #{acceptancePersonName,jdbcType=VARCHAR},
+            #{acceptanceRemarks,jdbcType=VARCHAR},
+            #{batchNo,jdbcType=VARCHAR},
+            #{checkId,jdbcType=NUMERIC},
+            #{loginUserId,jdbcType=NUMERIC},
+            #{loginUserName,jdbcType=VARCHAR},
+            #{now,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <!-- 修改物资入库 -->
+    <update id="update" parameterType="com.yy.ppm.equipment.bean.po.EMaterialWarehouseInPO">
+        UPDATE E_MATERIAL_WAREHOUSE_IN
+        <set>
+            <if test="warehouseInTitle != null">
+                WAREHOUSE_IN_TITLE = #{warehouseInTitle,jdbcType=VARCHAR},
+            </if>
+            <if test="warehouseInNo != null and warehouseInNo != ''">
+                WAREHOUSE_IN_NO = #{warehouseInNo,jdbcType=VARCHAR},
+            </if>
+            <if test="warehouseInTypeCode != null">
+                WAREHOUSE_IN_TYPE_CODE = #{warehouseInTypeCode,jdbcType=VARCHAR},
+            </if>
+            <if test="warehouseInTypeName != null">
+                WAREHOUSE_IN_TYPE_NAME = #{warehouseInTypeName,jdbcType=VARCHAR},
+            </if>
+            <if test="warehouseInDate != null">
+                WAREHOUSE_IN_DATE = #{warehouseInDate,jdbcType=DATE},
+            </if>
+            <if test="deptId != null">
+                DEPT_ID = #{deptId,jdbcType=NUMERIC},
+            </if>
+            <if test="deptName != null">
+                DEPT_NAME = #{deptName,jdbcType=VARCHAR},
+            </if>
+            <if test="warehouseId != null">
+                WAREHOUSE_ID = #{warehouseId,jdbcType=NUMERIC},
+            </if>
+            <if test="warehouseName != null">
+                WAREHOUSE_NAME = #{warehouseName,jdbcType=VARCHAR},
+            </if>
+            <if test="supplierId != null">
+                SUPPLIER_ID = #{supplierId,jdbcType=NUMERIC},
+            </if>
+            <if test="supplierName != null">
+                SUPPLIER_NAME = #{supplierName,jdbcType=VARCHAR},
+            </if>
+            <if test="remarks != null">
+                REMARKS = #{remarks,jdbcType=VARCHAR},
+            </if>
+            <if test="deliveryPersonId != null">
+                DELIVERY_PERSON_ID = #{deliveryPersonId,jdbcType=NUMERIC},
+            </if>
+            <if test="deliveryPersonName != null">
+                DELIVERY_PERSON_NAME = #{deliveryPersonName,jdbcType=VARCHAR},
+            </if>
+            <if test="acceptancePersonId != null">
+                ACCEPTANCE_PERSON_ID = #{acceptancePersonId,jdbcType=NUMERIC},
+            </if>
+            <if test="acceptancePersonName != null">
+                ACCEPTANCE_PERSON_NAME = #{acceptancePersonName,jdbcType=VARCHAR},
+            </if>
+            <if test="acceptanceStatus != null">
+                ACCEPTANCE_STATUS = #{acceptanceStatus,jdbcType=NUMERIC},
+            </if>
+            <if test="acceptanceRemarks != null">
+                ACCEPTANCE_REMARKS = #{acceptanceRemarks,jdbcType=VARCHAR},
+            </if>
+            <if test="batchNo != null">
+                BATCH_NO = #{batchNo,jdbcType=VARCHAR},
+            </if>
+                UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
+                UPDATE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+                UPDATE_TIME = #{now,jdbcType=TIMESTAMP}
+        </set>
+        WHERE
+            ID = #{id}
+    </update>
+
+    <!-- 删除物资入库（物理删除） -->
+    <delete id="deleteById">
+        DELETE FROM E_MATERIAL_WAREHOUSE_IN
+        WHERE ID = #{id}
+    </delete>
+
+    <!-- 检查入库单号是否重复 -->
+    <select id="countByWarehouseInNo" resultType="int">
+        SELECT COUNT(*)
+        FROM E_MATERIAL_WAREHOUSE_IN
+        WHERE WAREHOUSE_IN_NO = #{warehouseInNo}
+        <if test="id != null">
+            AND ID != #{id}
+        </if>
+    </select>
+
+    <update id="updateStatus">
+        UPDATE E_MATERIAL_WAREHOUSE_IN
+        <set>
+            <if test="acceptanceStatus != null">
+                ACCEPTANCE_STATUS = #{acceptanceStatus,jdbcType=NUMERIC},
+            </if>
+            <if test="acceptanceRemarks != null">
+                ACCEPTANCE_REMARKS = #{acceptanceRemarks,jdbcType=VARCHAR},
+            </if>
+            UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
+            UPDATE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            UPDATE_TIME = #{now,jdbcType=TIMESTAMP},
+            APPROVAL_BY = #{loginUserId,jdbcType=NUMERIC},
+            APPROVAL_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            APPROVAL_TIME = #{now,jdbcType=TIMESTAMP}
+        </set>
+        WHERE
+        ID = #{id}
+    </update>
+
+</mapper>
+

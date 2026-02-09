@@ -2,6 +2,7 @@ package com.yy.ppm.common.service;
 
 import com.yy.ppm.common.bean.dto.CheckDTO;
 import com.yy.ppm.common.enums.AutoNumEnum;
+import com.yy.ppm.common.enums.SerialNumberPrefixEnum;
 import com.yy.ppm.system.bean.dto.SysDeptDTO;
 
 import java.util.HashMap;
@@ -83,4 +84,22 @@ public interface CommonService {
      * @return
      */
     public String getAutoNum(AutoNumEnum.BusinessAutoEnum businessType, String parentCodeVal);
+
+    /**
+     * 生成单号
+     * 生成规则：前缀 + 日期(yyyyMMdd) + 4位序列号（前面补0）
+     *
+     * @param prefix 单号前缀
+     * @return 生成的单号
+     */
+    public String generateSerialNumber(String prefix);
+
+    /**
+     * 生成单号（使用枚举）
+     * 生成规则：前缀 + 日期(yyyyMMdd) + 4位序列号（前面补0）
+     *
+     * @param prefixEnum 单号前缀枚举
+     * @return 生成的单号
+     */
+    public String generateSerialNumber(SerialNumberPrefixEnum prefixEnum);
 }

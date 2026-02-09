@@ -207,7 +207,11 @@ public class SelectServiceImpl implements SelectService {
                 break;
             // 字典
             case "DICT" :
+
                 String dictType = StringUtil.getString(params.get("dictType"));
+                if("E_ENERGY".equals(dictType)){
+                    System.out.println(dictType);
+                }
                 String remark = StringUtil.getString(params.get("remark"));
                 // 基础过滤条件
                 String condition = " DICT_TYPE = '" + DictTypeEnum.match(dictType) + "' AND STATUS = '1'";

@@ -110,4 +110,12 @@ public interface SysDeptMapper {
      * @return 部门信息数组
      */
     List<SysDeptDTO> getDeptList(@Param("list") Collection<Long> ids);
+
+    /**
+     * 根据部门级别查询部门列表
+     *
+     * @param deptLevel 部门级别
+     * @return 部门信息集合
+     */
+    public List<SysDeptDTO> selectDeptListByLevel(@Param("deptLevel") String deptLevel);
 }

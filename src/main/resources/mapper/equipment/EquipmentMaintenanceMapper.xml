@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EquipmentMaintenanceMapper">
+
+    <!-- 查询设备检修历史统计（按月份） -->
+    <select id="selectMaintenanceByMonth" resultType="com.yy.ppm.equipment.bean.dto.EquipmentMaintenanceDTO">
+        WITH MONTHS AS (
+            SELECT LEVEL AS MONTH FROM DUAL CONNECT BY LEVEL &lt;= 12
+        ),
+        CHECK_DATA AS (
+            SELECT
+                TO_NUMBER(TO_CHAR(t.END_DATE, 'MM')) AS MONTH,
+                COUNT(*) AS SPOT_CHECK_COUNT
+            FROM E_CHECK_TASK t
+            WHERE t.EQUIP_ID = #{equipId}
+                AND t.STATUS = '2'
+                AND TO_CHAR(t.END_DATE, 'YYYY') = #{year}
+                AND t.END_DATE IS NOT NULL
+            GROUP BY TO_NUMBER(TO_CHAR(t.END_DATE, 'MM'))
+        ),
+        MAINT_DATA AS (
+            SELECT
+                TO_NUMBER(TO_CHAR(m.ACCEPTANCE_TIME, 'MM')) AS MONTH,
+                COUNT(*) AS FAULT_COUNT
+            FROM E_MAINT_INFO m
+            WHERE m.EQUIP_ID = #{equipId}
+                AND m.DEL_FLAG = 0
+                AND m.STATUS IN (5, 6)
+                AND TO_CHAR(m.ACCEPTANCE_TIME, 'YYYY') = #{year}
+                AND m.ACCEPTANCE_TIME IS NOT NULL
+            GROUP BY TO_NUMBER(TO_CHAR(m.ACCEPTANCE_TIME, 'MM'))
+        ),
+        LUBRICATION_DATA AS (
+            SELECT
+                TO_NUMBER(TO_CHAR(p.END_DATE, 'MM')) AS MONTH,
+                COUNT(*) AS LUBRICATION_COUNT
+            FROM E_PM_MAINTAIN_TASK p
+            WHERE p.EQUIP_ID = #{equipId}
+                AND TO_CHAR(p.END_DATE, 'YYYY') = #{year}
+                AND p.END_DATE IS NOT NULL AND p.STATUS = 2
+            GROUP BY TO_NUMBER(TO_CHAR(p.END_DATE, 'MM'))
+        )
+        SELECT
+            m.MONTH AS month,
+            NVL(cd.SPOT_CHECK_COUNT, 0) AS spotCheckCount,
+            NVL(md.FAULT_COUNT, 0) AS faultCount,
+            NVL(ld.LUBRICATION_COUNT, 0) AS lubricationCount
+        FROM MONTHS m
+        LEFT JOIN CHECK_DATA cd ON m.MONTH = cd.MONTH
+        LEFT JOIN MAINT_DATA md ON m.MONTH = md.MONTH
+        LEFT JOIN LUBRICATION_DATA ld ON m.MONTH = ld.MONTH
+        ORDER BY m.MONTH
+    </select>
+
+</mapper>
+

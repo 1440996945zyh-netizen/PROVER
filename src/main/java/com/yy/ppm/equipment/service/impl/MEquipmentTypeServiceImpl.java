@@ -1,0 +1,322 @@
+package com.yy.ppm.equipment.service.impl;
+
+import cn.hutool.core.lang.Snowflake;
+import com.yy.framework.exception.BusinessRuntimeException;
+import com.yy.ppm.equipment.bean.dto.EquipmentTypePathDTO;
+import com.yy.ppm.equipment.bean.dto.MEquipmentTypeDTO;
+import com.yy.ppm.equipment.bean.po.MEquipmentTypePO;
+import com.yy.ppm.equipment.mapper.MEquipmentTypeMapper;
+import com.yy.ppm.equipment.service.MEquipmentTypeService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.annotation.Resource;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+/**
+ * 设备类型分类Service业务层处理
+ * @author system
+ */
+@RequiredArgsConstructor
+@Service
+public class MEquipmentTypeServiceImpl implements MEquipmentTypeService {
+
+    @Resource
+    private MEquipmentTypeMapper mapper;
+
+    @Resource
+    private Snowflake snowflake;
+
+    /**
+     * 查询设备类型分类树形列表
+     */
+    @Override
+    public List<MEquipmentTypeDTO> getTreeList(String typeName) {
+        if (typeName == null || typeName.trim().isEmpty()) {
+            // 如果没有查询条件，直接查询所有数据
+            List<MEquipmentTypeDTO> allList = mapper.selectEquipmentTypeTree(null);
+            return buildTree(allList, null);
+        }
+
+        // 先查询所有匹配的节点
+        List<MEquipmentTypeDTO> matchedList = mapper.selectEquipmentTypeTree(typeName);
+        if (matchedList.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // 收集所有需要查询的节点ID（包括匹配节点及其所有父节点）
+        Set<Long> nodeIds = new HashSet<>();
+        for (MEquipmentTypeDTO item : matchedList) {
+            nodeIds.add(item.getId());
+            // 递归收集所有父节点ID
+            collectParentIds(item.getParentId(), nodeIds);
+        }
+
+        // 查询所有需要的节点（包括匹配节点和它们的父节点）
+        List<MEquipmentTypeDTO> allList = new ArrayList<>();
+        for (Long id : nodeIds) {
+            MEquipmentTypeDTO node = mapper.selectById(id);
+            if (node != null) {
+                allList.add(node);
+            }
+        }
+
+        // 构建树形结构
+        return buildTree(allList, null);
+    }
+    /**
+     * 查询设备类型分类树形列表
+     */
+    @Override
+    public List<MEquipmentTypeDTO> partsTree(MEquipmentTypeDTO mEquipmentTypeDTO) {
+        List<MEquipmentTypeDTO> allList = mapper.partsTree(mEquipmentTypeDTO);
+        return buildTree(allList, null);
+    }
+
+    /**
+     * 递归收集所有父节点ID
+     */
+    private void collectParentIds(Long parentId, Set<Long> nodeIds) {
+        if (parentId != null && parentId != 0 && !nodeIds.contains(parentId)) {
+            nodeIds.add(parentId);
+            MEquipmentTypeDTO parent = mapper.selectById(parentId);
+            if (parent != null && parent.getParentId() != null && parent.getParentId() != 0) {
+                collectParentIds(parent.getParentId(), nodeIds);
+            }
+        }
+    }
+
+    /**
+     * 构建树形结构
+     */
+    private List<MEquipmentTypeDTO> buildTree(List<MEquipmentTypeDTO> allList, Long parentId) {
+        List<MEquipmentTypeDTO> result = new ArrayList<>();
+        for (MEquipmentTypeDTO item : allList) {
+            Long itemParentId = item.getParentId();
+            if ((parentId == null && (itemParentId == null || itemParentId == 0)) ||
+                (parentId != null && parentId.equals(itemParentId))) {
+                item.setChildren(buildTree(allList, item.getId()));
+                result.add(item);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 根据ID查询设备类型分类
+     */
+    @Override
+    public MEquipmentTypeDTO getById(Long id) {
+        return mapper.selectById(id);
+    }
+
+    /**
+     * 新增或修改设备类型分类
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
+    public void save(MEquipmentTypeDTO dto) {
+        // 验证分类级别
+        if (dto.getCategoryLevel() == null || dto.getCategoryLevel() < 1 || dto.getCategoryLevel() > 3) {
+            throw new BusinessRuntimeException("分类级别必须在1-3之间");
+        }
+
+        // 验证父级
+        if (dto.getCategoryLevel() > 1) {
+            if (dto.getParentId() == null || dto.getParentId() == 0) {
+                throw new BusinessRuntimeException("设备中类和小类必须选择父级");
+            }
+            // 验证父级是否存在
+            MEquipmentTypeDTO parent = mapper.selectById(dto.getParentId());
+            if (parent == null) {
+                throw new BusinessRuntimeException("父级分类不存在");
+            }
+            // 验证级别关系
+            if (dto.getCategoryLevel() != parent.getCategoryLevel() + 1) {
+                throw new BusinessRuntimeException("分类级别不正确，设备中类的父级必须是设备大类，设备小类的父级必须是设备中类");
+            }
+        } else {
+            // 设备大类的父级必须为空或0
+            dto.setParentId(null);
+        }
+
+        // 验证同级下名称不能重复
+        int count = mapper.countByNameAndParent(
+            dto.getTypeName(),
+            dto.getParentId(),
+            dto.getId()
+        );
+        if (count > 0) {
+            throw new BusinessRuntimeException("同级下已存在相同的设备类型名称");
+        }
+
+        MEquipmentTypePO po = new MEquipmentTypePO();
+        BeanUtils.copyProperties(dto, po);
+
+        if (dto.getId() == null) {
+            // 新增
+            po.setId(snowflake.nextId());
+            if (po.getSortOrder() == null) {
+                po.setSortOrder(0);
+            }
+            mapper.insert(po);
+        } else {
+            // 修改
+            // 检查是否有子级，如果有子级，不能修改分类级别
+            if (dto.getCategoryLevel() != null) {
+                int childCount = mapper.countByParentId(dto.getId());
+                if (childCount > 0) {
+                    throw new BusinessRuntimeException("该分类下存在子级，不能修改分类级别");
+                }
+            }
+            mapper.update(po);
+        }
+    }
+    /**
+     * 新增或修改设备类型分类
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
+    public void addParts(MEquipmentTypeDTO dto) {
+        // 验证分类级别
+        if (dto.getCategoryLevel() == null || dto.getCategoryLevel() < 3 || dto.getCategoryLevel() > 5) {
+            throw new BusinessRuntimeException("分类级别必须在3-5之间");
+        }
+
+        // 验证父级
+        if (dto.getCategoryLevel() > 3) {
+            if (dto.getParentId() == null || dto.getParentId() == 0) {
+                throw new BusinessRuntimeException("设备机构和部件必须选择父级");
+            }
+            // 验证父级是否存在
+            MEquipmentTypeDTO parent = mapper.selectById(dto.getParentId());
+            if (parent == null) {
+                throw new BusinessRuntimeException("父级分类不存在");
+            }
+            // 验证级别关系
+            if (dto.getCategoryLevel() != parent.getCategoryLevel() + 1) {
+                throw new BusinessRuntimeException("分类级别不正确，设备中类的父级必须是设备大类，设备小类的父级必须是设备中类");
+            }
+        } else {
+            // 设备大类的父级必须为空或0
+            dto.setParentId(null);
+        }
+
+        // 验证同级下名称不能重复
+        int count = mapper.countByNameAndParent(
+            dto.getTypeName(),
+            dto.getParentId(),
+            dto.getId()
+        );
+        if (count > 0) {
+            throw new BusinessRuntimeException("同级下已存在相同的设备类型名称");
+        }
+
+        MEquipmentTypePO po = new MEquipmentTypePO();
+        BeanUtils.copyProperties(dto, po);
+
+        if (dto.getId() == null) {
+            // 新增
+            po.setId(snowflake.nextId());
+            if (po.getSortOrder() == null) {
+                po.setSortOrder(0);
+            }
+            mapper.insert(po);
+        } else {
+            // 修改
+            // 检查是否有子级，如果有子级，不能修改分类级别
+            if (dto.getCategoryLevel() != null) {
+               int childCount = mapper.countByParentId(dto.getId());
+               if (childCount > 0) {
+                   throw new BusinessRuntimeException("该分类下存在子级，不能修改分类级别");
+               }
+            }
+            mapper.update(po);
+        }
+    }
+
+    /**
+     * 删除设备类型分类
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
+    public void deleteById(Long id) {
+        // 检查是否有子级
+        int childCount = mapper.countByParentId(id);
+        if (childCount > 0) {
+            throw new BusinessRuntimeException("该分类下存在子级，不能删除");
+        }
+        MEquipmentTypePO po = new MEquipmentTypePO();
+        po.setId(id);
+        mapper.deleteById(po);
+    }
+
+    /**
+     * 根据父级ID查询子级列表
+     */
+    @Override
+    public List<MEquipmentTypeDTO> getByParentId(Long parentId) {
+        return mapper.selectByParentId(parentId);
+    }
+
+    /**
+     * 根据级别和父级ID查询设备类型列表
+     */
+    @Override
+    public List<MEquipmentTypeDTO> getByLevelAndParent(Integer categoryLevel, Long parentId) {
+        return mapper.selectByLevelAndParent(categoryLevel, parentId);
+    }
+
+    /**
+     * 根据小类ID获取完整路径（大类、中类、小类）
+     */
+    @Override
+    public EquipmentTypePathDTO getPathBySmallCategoryId(Long smallCategoryId) {
+        if (smallCategoryId == null) {
+            throw new BusinessRuntimeException("小类ID不能为空");
+        }
+
+        // 查询小类信息
+        MEquipmentTypeDTO smallCategory = mapper.selectById(smallCategoryId);
+        if (smallCategory == null) {
+            throw new BusinessRuntimeException("设备小类不存在");
+        }
+
+        // 验证是否为小类（级别为3）
+        if (smallCategory.getCategoryLevel() == null || smallCategory.getCategoryLevel() != 3) {
+            throw new BusinessRuntimeException("所选设备类型不是小类");
+        }
+
+        EquipmentTypePathDTO pathDTO = new EquipmentTypePathDTO();
+        pathDTO.setEquipSmallCategoryId(smallCategory.getId());
+        pathDTO.setEquipSmallCategoryName(smallCategory.getTypeName());
+
+        // 查询中类信息
+        if (smallCategory.getParentId() != null && smallCategory.getParentId() != 0) {
+            MEquipmentTypeDTO middleCategory = mapper.selectById(smallCategory.getParentId());
+            if (middleCategory != null) {
+                pathDTO.setEquipMiddleCategoryId(middleCategory.getId());
+                pathDTO.setEquipMiddleCategoryName(middleCategory.getTypeName());
+
+                // 查询大类信息
+                if (middleCategory.getParentId() != null && middleCategory.getParentId() != 0) {
+                    MEquipmentTypeDTO bigCategory = mapper.selectById(middleCategory.getParentId());
+                    if (bigCategory != null) {
+                        pathDTO.setEquipBigCategoryId(bigCategory.getId());
+                        pathDTO.setEquipBigCategoryName(bigCategory.getTypeName());
+                    }
+                }
+            }
+        }
+
+        return pathDTO;
+    }
+}
+

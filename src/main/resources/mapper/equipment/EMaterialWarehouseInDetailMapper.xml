@@ -1,0 +1,492 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMaterialWarehouseInDetailMapper">
+
+    <!-- 根据ID查询入库明细 -->
+    <select id="selectById" resultType="com.yy.ppm.equipment.bean.dto.EMaterialWarehouseInDetailDTO">
+        SELECT
+            WID.ID,
+            WID.WAREHOUSE_IN_ID,
+            WID.APPLICATION_ID,
+            WID.APPLICATION_DEPT_ID,
+            WID.APPLICATION_DEPT_NAME,
+            WID.PURCHASE_QUANTITY,
+            WID.MATERIAL_ID,
+            WID.MATERIAL_NAME,
+            WID.SPECIFICATION,
+            WID.SPECIFICATION_DESC,
+            WID.BRAND,
+            WI.BATCH_NO,
+            WI.SUPPLIER_ID,
+            WI.SUPPLIER_NAME,
+            WID.WAREHOUSE_IN_QUANTITY,
+            WID.OUT_QUANTITY,
+            WID.REMAINING_QUANTITY,
+            WID.UNIT,
+            WID.UNIT_CODE,
+            WID.TAX_EXCLUDED_UNIT_PRICE,
+            WID.TAX_INCLUDED_UNIT_PRICE,
+            WID.TAX_EXCLUDED_AMOUNT,
+            WID.TAX_INCLUDED_AMOUNT,
+            WID.INVOICED_AMOUNT,
+            WID.UNINVOICED_AMOUNT,
+            WID.TAX_AMOUNT,
+            WID.TAX_RATE,
+            WID.MATERIAL_CODE,
+            WID.WARRANTY_EXPIRY_DATE,
+            WID.APPLICATION_DEPT_ID,
+            WID.APPLICATION_DEPT_NAME,
+            WID.PURCHASER_ID,
+            WID.PURCHASER_NAME
+        FROM
+            E_MATERIAL_WAREHOUSE_IN_DETAIL WID
+        INNER JOIN E_MATERIAL_WAREHOUSE_IN WI ON WID.WAREHOUSE_IN_ID = WI.ID
+        WHERE
+            WID.ID = #{id}
+    </select>
+
+    <!-- 根据入库主表ID查询明细列表 -->
+    <select id="selectListByWarehouseInId" resultType="com.yy.ppm.equipment.bean.dto.EMaterialWarehouseInDetailDTO">
+        SELECT
+            ID,
+            WAREHOUSE_IN_ID,
+            APPLICATION_ID,
+            APPLICATION_DEPT_ID,
+            APPLICATION_DEPT_NAME,
+            PURCHASE_QUANTITY,
+            MATERIAL_NAME,
+            SPECIFICATION,
+            SPECIFICATION_DESC,
+            BRAND,
+            SUPPLIER_ID,
+            SUPPLIER_NAME,
+            WAREHOUSE_IN_QUANTITY,
+            OUT_QUANTITY,
+            REMAINING_QUANTITY,
+            UNIT,
+            UNIT_CODE,
+            TAX_EXCLUDED_UNIT_PRICE,
+            TAX_INCLUDED_UNIT_PRICE,
+            TAX_EXCLUDED_AMOUNT,
+            TAX_INCLUDED_AMOUNT,
+            INVOICED_AMOUNT,
+            UNINVOICED_AMOUNT,
+            TAX_AMOUNT,
+            TAX_RATE,
+            MATERIAL_CODE,
+            MATERIAL_ID,
+            WARRANTY_EXPIRY_DATE,
+            PURCHASER_ID,
+            PURCHASER_NAME,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME
+        FROM
+            E_MATERIAL_WAREHOUSE_IN_DETAIL
+        WHERE
+            WAREHOUSE_IN_ID = #{warehouseInId}
+        ORDER BY CREATE_TIME ASC
+    </select>
+
+    <!-- 批量新增物资入库明细 -->
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO E_MATERIAL_WAREHOUSE_IN_DETAIL
+        (
+            ID,
+            WAREHOUSE_IN_ID,
+            APPLICATION_ID,
+            APPLICATION_DEPT_ID,
+            APPLICATION_DEPT_NAME,
+            PURCHASE_QUANTITY,
+            MATERIAL_NAME,
+            SPECIFICATION,
+            SPECIFICATION_DESC,
+            BRAND,
+            SUPPLIER_ID,
+            SUPPLIER_NAME,
+            WAREHOUSE_IN_QUANTITY,
+            OUT_QUANTITY,
+            REMAINING_QUANTITY,
+            UNIT,
+            UNIT_CODE,
+            TAX_EXCLUDED_UNIT_PRICE,
+            TAX_INCLUDED_UNIT_PRICE,
+            TAX_EXCLUDED_AMOUNT,
+            TAX_INCLUDED_AMOUNT,
+            INVOICED_AMOUNT,
+            UNINVOICED_AMOUNT,
+            TAX_AMOUNT,
+            TAX_RATE,
+            MATERIAL_CODE,
+            MATERIAL_ID,
+            WARRANTY_EXPIRY_DATE,
+            PURCHASER_ID,
+            PURCHASER_NAME,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )
+        <foreach collection="list" item="item" separator="UNION ALL">
+            SELECT
+                #{item.id,jdbcType=NUMERIC},
+                #{item.warehouseInId,jdbcType=NUMERIC},
+                #{item.applicationId,jdbcType=NUMERIC},
+                #{item.applicationDeptId,jdbcType=NUMERIC},
+                #{item.applicationDeptName,jdbcType=VARCHAR},
+                #{item.purchaseQuantity,jdbcType=NUMERIC},
+                #{item.materialName,jdbcType=VARCHAR},
+                #{item.specification,jdbcType=VARCHAR},
+                #{item.specificationDesc,jdbcType=VARCHAR},
+                #{item.brand,jdbcType=VARCHAR},
+                #{item.supplierId,jdbcType=NUMERIC},
+                #{item.supplierName,jdbcType=VARCHAR},
+                #{item.warehouseInQuantity,jdbcType=NUMERIC},
+                #{item.outQuantity,jdbcType=NUMERIC},
+                #{item.remainingQuantity,jdbcType=NUMERIC},
+                #{item.unit,jdbcType=VARCHAR},
+                #{item.unitCode,jdbcType=VARCHAR},
+                #{item.taxExcludedUnitPrice,jdbcType=NUMERIC},
+                #{item.taxIncludedUnitPrice,jdbcType=NUMERIC},
+                #{item.taxExcludedAmount,jdbcType=NUMERIC},
+                #{item.taxIncludedAmount,jdbcType=NUMERIC},
+                #{item.invoicedAmount,jdbcType=NUMERIC},
+                #{item.uninvoicedAmount,jdbcType=NUMERIC},
+                #{item.taxAmount,jdbcType=NUMERIC},
+                #{item.taxRate,jdbcType=NUMERIC},
+                #{item.materialCode,jdbcType=VARCHAR},
+                #{item.materialId,jdbcType=NUMERIC},
+                #{item.warrantyExpiryDate,jdbcType=DATE},
+                #{item.purchaserId,jdbcType=NUMERIC},
+                #{item.purchaserName,jdbcType=VARCHAR},
+                #{item.loginUserId,jdbcType=NUMERIC},
+                #{item.loginUserName,jdbcType=VARCHAR},
+                #{item.now,jdbcType=TIMESTAMP}
+            FROM DUAL
+        </foreach>
+    </insert>
+
+    <!-- 修改物资入库明细 -->
+    <update id="update" parameterType="com.yy.ppm.equipment.bean.po.EMaterialWarehouseInDetailPO">
+        UPDATE E_MATERIAL_WAREHOUSE_IN_DETAIL
+        <set>
+            <if test="applicationId != null">
+                APPLICATION_ID = #{applicationId,jdbcType=NUMERIC},
+            </if>
+            <if test="applicationDeptId != null">
+                APPLICATION_DEPT_ID = #{applicationDeptId,jdbcType=NUMERIC},
+            </if>
+            <if test="applicationDeptName != null">
+                APPLICATION_DEPT_NAME = #{applicationDeptName,jdbcType=VARCHAR},
+            </if>
+            <if test="purchaseQuantity != null">
+                PURCHASE_QUANTITY = #{purchaseQuantity,jdbcType=NUMERIC},
+            </if>
+            <if test="materialName != null">
+                MATERIAL_NAME = #{materialName,jdbcType=VARCHAR},
+            </if>
+            <if test="specification != null">
+                SPECIFICATION = #{specification,jdbcType=VARCHAR},
+            </if>
+            <if test="specificationDesc != null">
+                SPECIFICATION_DESC = #{specificationDesc,jdbcType=VARCHAR},
+            </if>
+            <if test="brand != null">
+                BRAND = #{brand,jdbcType=VARCHAR},
+            </if>
+            <if test="supplierId != null">
+                SUPPLIER_ID = #{supplierId,jdbcType=NUMERIC},
+            </if>
+            <if test="supplierName != null">
+                SUPPLIER_NAME = #{supplierName,jdbcType=VARCHAR},
+            </if>
+            <if test="warehouseInQuantity != null">
+                WAREHOUSE_IN_QUANTITY = #{warehouseInQuantity,jdbcType=NUMERIC},
+            </if>
+            <if test="outQuantity != null">
+                OUT_QUANTITY = #{outQuantity,jdbcType=NUMERIC},
+            </if>
+            <if test="remainingQuantity != null">
+                REMAINING_QUANTITY = #{remainingQuantity,jdbcType=NUMERIC},
+            </if>
+            <if test="unit != null">
+                UNIT = #{unit,jdbcType=VARCHAR},
+            </if>
+            <if test="unitCode != null">
+                UNIT_CODE = #{unitCode,jdbcType=VARCHAR},
+            </if>
+            <if test="taxExcludedUnitPrice != null">
+                TAX_EXCLUDED_UNIT_PRICE = #{taxExcludedUnitPrice,jdbcType=NUMERIC},
+            </if>
+            <if test="taxIncludedUnitPrice != null">
+                TAX_INCLUDED_UNIT_PRICE = #{taxIncludedUnitPrice,jdbcType=NUMERIC},
+            </if>
+            <if test="taxExcludedAmount != null">
+                TAX_EXCLUDED_AMOUNT = #{taxExcludedAmount,jdbcType=NUMERIC},
+            </if>
+            <if test="taxIncludedAmount != null">
+                TAX_INCLUDED_AMOUNT = #{taxIncludedAmount,jdbcType=NUMERIC},
+            </if>
+            <if test="invoicedAmount != null">
+                INVOICED_AMOUNT = #{invoicedAmount,jdbcType=NUMERIC},
+            </if>
+            <if test="uninvoicedAmount != null">
+                UNINVOICED_AMOUNT = #{uninvoicedAmount,jdbcType=NUMERIC},
+            </if>
+            <if test="taxAmount != null">
+                TAX_AMOUNT = #{taxAmount,jdbcType=NUMERIC},
+            </if>
+            <if test="taxRate != null">
+                TAX_RATE = #{taxRate,jdbcType=NUMERIC},
+            </if>
+            <if test="materialCode != null">
+                MATERIAL_CODE = #{materialCode,jdbcType=VARCHAR},
+            </if>
+            <if test="materialId != null">
+                MATERIAL_ID = #{materialId,jdbcType=NUMERIC},
+            </if>
+            <if test="warrantyExpiryDate != null">
+                WARRANTY_EXPIRY_DATE = #{warrantyExpiryDate,jdbcType=DATE},
+            </if>
+            <if test="purchaserId != null">
+                PURCHASER_ID = #{purchaserId,jdbcType=NUMERIC},
+            </if>
+            <if test="purchaserName != null">
+                PURCHASER_NAME = #{purchaserName,jdbcType=VARCHAR},
+            </if>
+            <if test="loginUserId != null">
+                UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
+            </if>
+            <if test="loginUserName != null and loginUserName != ''">
+                UPDATE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="now != null">
+                UPDATE_TIME = #{now,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        WHERE
+            ID = #{id}
+    </update>
+
+    <!-- 根据入库主表ID删除明细 -->
+    <delete id="deleteByWarehouseInId">
+        DELETE FROM E_MATERIAL_WAREHOUSE_IN_DETAIL
+        WHERE WAREHOUSE_IN_ID = #{warehouseInId}
+    </delete>
+
+    <!-- 根据ID删除明细 -->
+    <delete id="deleteById">
+        DELETE FROM E_MATERIAL_WAREHOUSE_IN_DETAIL
+        WHERE ID = #{id}
+    </delete>
+
+    <!-- 根据采购明细ID查询已入库数量总和（排除当前入库单） -->
+    <select id="sumWarehouseInQuantityByPurchaseDetailId" resultType="java.math.BigDecimal">
+        SELECT
+            NVL(SUM(WID.WAREHOUSE_IN_QUANTITY), 0)
+        FROM
+            E_MATERIAL_WAREHOUSE_IN_DETAIL WID
+        INNER JOIN E_MATERIAL_APPLICATION_DETAIL AD ON WID.APPLICATION_ID = AD.ID
+        WHERE
+            AD.PURCHASE_DETAIL_ID = #{purchaseDetailId}
+            <if test="excludeWarehouseInId != null">
+                AND WID.WAREHOUSE_IN_ID != #{excludeWarehouseInId}
+            </if>
+    </select>
+
+    <!-- 根据申报明细ID查询采购明细ID和采购数量 -->
+    <select id="getPurchaseDetailInfoByApplicationId" resultType="java.util.HashMap">
+        SELECT
+            AD.PURCHASE_DETAIL_ID AS "purchaseDetailId",
+            PD.PURCHASE_QUANTITY AS "purchaseQuantity"
+        FROM
+            E_MATERIAL_APPLICATION_DETAIL AD
+        INNER JOIN E_MATERIAL_PURCHASE_DETAIL PD ON AD.PURCHASE_DETAIL_ID = PD.ID
+        WHERE
+            AD.ID = #{applicationId}
+    </select>
+
+    <!-- 检查采购明细是否有入库记录 -->
+    <select id="countByPurchaseDetailId" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM
+            E_MATERIAL_WAREHOUSE_IN_DETAIL WID
+        INNER JOIN E_MATERIAL_APPLICATION_DETAIL AD ON WID.APPLICATION_ID = AD.ID
+        WHERE
+            AD.PURCHASE_DETAIL_ID = #{purchaseDetailId}
+    </select>
+
+    <!-- 查询物资库存数量（按物资ID和仓库ID） -->
+    <select id="getStockQuantity" resultType="java.math.BigDecimal">
+        SELECT
+            NVL(SUM(WID.REMAINING_QUANTITY), 0) AS STOCK_QUANTITY
+        FROM
+            E_MATERIAL_WAREHOUSE_IN_DETAIL WID
+        INNER JOIN E_MATERIAL_WAREHOUSE_IN WI ON WID.WAREHOUSE_IN_ID = WI.ID
+        WHERE
+            WID.MATERIAL_ID = #{materialId}
+            <if test="warehouseId != null">
+                AND WI.WAREHOUSE_ID = #{warehouseId}
+            </if>
+    </select>
+
+    <!-- 批量查询物资库存数量 -->
+    <select id="batchGetStockQuantity" resultType="java.util.HashMap">
+        SELECT
+            WID.MATERIAL_ID AS materialId,
+            NVL(SUM(WID.REMAINING_QUANTITY), 0) AS stockQuantity
+        FROM
+            E_MATERIAL_WAREHOUSE_IN_DETAIL WID
+        INNER JOIN E_MATERIAL_WAREHOUSE_IN WI ON WID.WAREHOUSE_IN_ID = WI.ID AND WI.DEL_FLAG = 0
+        WHERE
+            WID.MATERIAL_ID IN
+            <foreach collection="materialIds" item="materialId" open="(" separator="," close=")">
+                #{materialId}
+            </foreach>
+            AND WI.WAREHOUSE_ID = #{warehouseId}
+            AND WID.DEL_FLAG = 0
+        GROUP BY
+            WID.MATERIAL_ID
+    </select>
+
+    <!-- 查询可用的入库明细（按FIFO原则，优先使用创建时间早的，且未出库数量大于0的） -->
+    <select id="selectAvailableInDetails" resultType="com.yy.ppm.equipment.bean.dto.EMaterialWarehouseInDetailDTO">
+        SELECT
+            WID.ID,
+            WID.WAREHOUSE_IN_ID,
+            WID.APPLICATION_ID,
+            WID.MATERIAL_ID,
+            WID.MATERIAL_NAME,
+            WID.WAREHOUSE_IN_QUANTITY,
+            WID.OUT_QUANTITY,
+            WID.REMAINING_QUANTITY,
+            WID.CREATE_TIME
+        FROM
+            E_MATERIAL_WAREHOUSE_IN_DETAIL WID
+        INNER JOIN E_MATERIAL_WAREHOUSE_IN WI ON WID.WAREHOUSE_IN_ID = WI.ID
+        WHERE
+            WID.MATERIAL_ID = #{materialId}
+            AND WI.WAREHOUSE_ID = #{warehouseId}
+            AND WI.ACCEPTANCE_STATUS = 1
+            AND WID.REMAINING_QUANTITY > 0
+        ORDER BY WID.CREATE_TIME ASC
+    </select>
+
+    <!-- 批量更新入库明细的已出库数量和未出库数量 -->
+    <update id="batchUpdateOutQuantity" parameterType="java.util.List">
+        BEGIN
+        <foreach collection="list" item="item">
+            UPDATE E_MATERIAL_WAREHOUSE_IN_DETAIL
+            SET
+                OUT_QUANTITY = #{item.outQuantity,jdbcType=NUMERIC},
+                REMAINING_QUANTITY = #{item.remainingQuantity,jdbcType=NUMERIC},
+                UPDATE_BY = #{item.loginUserId,jdbcType=NUMERIC},
+                UPDATE_BY_NAME = #{item.loginUserName,jdbcType=VARCHAR},
+                UPDATE_TIME = SYSDATE
+            WHERE ID = #{item.id};
+        </foreach>
+        END;
+    </update>
+
+    <!-- 查询物资最近一次入库的含税单价（用于盘点入库） -->
+    <select id="selectLatestTaxIncludedUnitPrice" resultType="java.math.BigDecimal">
+        SELECT
+            TAX_INCLUDED_UNIT_PRICE
+        FROM
+            (
+                SELECT
+                    WID.TAX_INCLUDED_UNIT_PRICE,
+                    ROW_NUMBER() OVER (ORDER BY WID.CREATE_TIME DESC) AS RN
+                FROM
+                    E_MATERIAL_WAREHOUSE_IN_DETAIL WID
+                INNER JOIN E_MATERIAL_WAREHOUSE_IN WI ON WID.WAREHOUSE_IN_ID = WI.ID
+                WHERE
+                    WID.MATERIAL_ID = #{materialId}
+                    AND WI.WAREHOUSE_ID = #{warehouseId}
+                    AND WI.ACCEPTANCE_STATUS = 1
+                    AND WID.TAX_INCLUDED_UNIT_PRICE IS NOT NULL
+                    AND WID.TAX_INCLUDED_UNIT_PRICE > 0
+            )
+        WHERE
+            RN = 1
+    </select>
+
+    <!-- 根据设备ID查询备品备件列表（通过申报明细表的equipIds字段关联） -->
+    <select id="selectSpareListByEquipId" resultType="com.yy.ppm.equipment.bean.dto.EquipmentSpareDTO">
+        SELECT
+            WID.ID,
+            WI.WAREHOUSE_ID AS warehouseId,
+            WI.WAREHOUSE_NAME AS warehouseName,
+            WID.MATERIAL_CODE AS materialCode,
+            WID.MATERIAL_NAME AS materialName,
+            CASE
+                WHEN c3.CATEGORY_NAME IS NOT NULL AND c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL
+                    THEN c3.CATEGORY_NAME || '/' || c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
+                WHEN c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL
+                    THEN c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
+                WHEN c.CATEGORY_NAME IS NOT NULL
+                    THEN c.CATEGORY_NAME
+                ELSE ''
+            END AS categoryName,
+            WID.SPECIFICATION AS specification,
+            WID.REMAINING_QUANTITY AS availableStock,
+            WID.BRAND AS brand,
+            WID.UNIT AS unit
+        FROM
+            E_MATERIAL_WAREHOUSE_IN_DETAIL WID
+        INNER JOIN E_MATERIAL_WAREHOUSE_IN WI ON WID.WAREHOUSE_IN_ID = WI.ID
+        INNER JOIN E_MATERIAL_APPLICATION_DETAIL AD ON WID.APPLICATION_ID = AD.ID
+        LEFT JOIN E_MATERIAL_CODE MC ON WID.MATERIAL_ID = MC.ID AND MC.DEL_FLAG = 0
+        LEFT JOIN E_MATERIAL_CATEGORY c ON MC.CATEGORY_ID = c.ID AND c.DEL_FLAG = 0
+        LEFT JOIN E_MATERIAL_CATEGORY c2 ON c.PARENT_ID = c2.ID AND c2.DEL_FLAG = 0
+        LEFT JOIN E_MATERIAL_CATEGORY c3 ON c2.PARENT_ID = c3.ID AND c3.DEL_FLAG = 0
+        WHERE
+             WID.REMAINING_QUANTITY > 0
+            AND (
+                AD.EQUIP_IDS IS NOT NULL
+                AND (
+                    AD.EQUIP_IDS = #{equipId}
+                    OR INSTR(',' || AD.EQUIP_IDS || ',', ',' || #{equipId} || ',') > 0
+                )
+            )
+            <if test="materialName != null and materialName != ''">
+                AND WID.MATERIAL_NAME LIKE '%' || #{materialName} || '%'
+            </if>
+            <if test="warehouseName != null and warehouseName != ''">
+                AND WI.WAREHOUSE_NAME LIKE '%' || #{warehouseName} || '%'
+            </if>
+        ORDER BY WID.CREATE_TIME DESC
+    </select>
+
+    <!-- 根据仓库ID查询所有入库明细（用于盘点，不合并，每个入库明细一条记录） -->
+    <select id="selectListByWarehouseId" resultType="com.yy.ppm.equipment.bean.dto.EMaterialWarehouseInDetailDTO">
+        SELECT
+            WID.ID,
+            WID.WAREHOUSE_IN_ID,
+            WID.APPLICATION_ID,
+            WID.MATERIAL_ID,
+            WID.MATERIAL_NAME,
+            WID.SPECIFICATION AS specificationModel,
+            WID.UNIT AS unitName,
+            WID.UNIT_CODE AS unitCode,
+            WID.WAREHOUSE_IN_QUANTITY,
+            WID.OUT_QUANTITY,
+            WID.REMAINING_QUANTITY AS bookQuantity,
+            WID.CREATE_TIME
+        FROM
+            E_MATERIAL_WAREHOUSE_IN_DETAIL WID
+        INNER JOIN E_MATERIAL_WAREHOUSE_IN WI ON WID.WAREHOUSE_IN_ID = WI.ID
+        WHERE
+            WI.WAREHOUSE_ID = #{warehouseId}
+            AND WI.ACCEPTANCE_STATUS = 1
+            AND WID.REMAINING_QUANTITY > 0
+        ORDER BY WID.CREATE_TIME ASC
+    </select>
+
+</mapper>
+

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.MEquipmentSpecialMapper">
+
+    <!-- 根据设备ID查询特种设备信息 -->
+    <select id="selectByEquipId" resultType="com.yy.ppm.equipment.bean.po.MEquipmentSpecialPO">
+        SELECT
+            ID,
+            EQUIP_ID,
+            PARTICULAR_REGISTRATION_CODE,
+            SPECIAL_DISCOVER_CYCLE,
+            CERTIFI_TYPE,
+            CERTIFI_TYPE_NAME,
+            CERTIFI_CODE,
+            RELEASE_DATE,
+            CERTIFI_USER,
+            EXPIRE_DATE,
+            VALID_DATE,
+            CERTIFI_STATE,
+            REMARK,
+            DEL_FLAG,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME,
+            DELETE_BY,
+            DELETE_BY_NAME,
+            DELETE_TIME
+        FROM
+            E_M_EQPT_SPECIAL
+        WHERE
+            EQUIP_ID = #{equipId}
+            AND DEL_FLAG = 0
+    </select>
+
+    <!-- 新增特种设备信息 -->
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.MEquipmentSpecialPO">
+        INSERT INTO E_M_EQPT_SPECIAL
+        (
+            ID,
+            EQUIP_ID,
+            PARTICULAR_REGISTRATION_CODE,
+            SPECIAL_DISCOVER_CYCLE,
+            CERTIFI_TYPE,
+            CERTIFI_TYPE_NAME,
+            CERTIFI_CODE,
+            RELEASE_DATE,
+            CERTIFI_USER,
+            EXPIRE_DATE,
+            VALID_DATE,
+            CERTIFI_STATE,
+            REMARK,
+            DEL_FLAG,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )
+        VALUES
+        (
+            #{id,jdbcType=NUMERIC},
+            #{equipId,jdbcType=NUMERIC},
+            #{particularRegistrationCode,jdbcType=VARCHAR},
+            #{specialDiscoverCycle,jdbcType=NUMERIC},
+            #{certifiType,jdbcType=VARCHAR},
+            #{certifiTypeName,jdbcType=VARCHAR},
+            #{certifiCode,jdbcType=VARCHAR},
+            #{releaseDate,jdbcType=DATE},
+            #{certifiUser,jdbcType=VARCHAR},
+            #{expireDate,jdbcType=DATE},
+            #{validDate,jdbcType=NUMERIC},
+            #{certifiState,jdbcType=NUMERIC},
+            #{remark,jdbcType=VARCHAR},
+            0,
+            #{loginUserId,jdbcType=NUMERIC},
+            #{loginUserName,jdbcType=NVARCHAR},
+            #{now,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <!-- 修改特种设备信息 -->
+    <update id="update" parameterType="com.yy.ppm.equipment.bean.po.MEquipmentSpecialPO">
+        UPDATE E_M_EQPT_SPECIAL
+        <set>
+            <if test="particularRegistrationCode != null">
+                PARTICULAR_REGISTRATION_CODE = #{particularRegistrationCode,jdbcType=VARCHAR},
+            </if>
+            <if test="specialDiscoverCycle != null">
+                SPECIAL_DISCOVER_CYCLE = #{specialDiscoverCycle,jdbcType=NUMERIC},
+            </if>
+            <if test="certifiType != null">
+                CERTIFI_TYPE = #{certifiType,jdbcType=VARCHAR},
+            </if>
+            <if test="certifiTypeName != null">
+                CERTIFI_TYPE_NAME = #{certifiTypeName,jdbcType=VARCHAR},
+            </if>
+            <if test="certifiCode != null">
+                CERTIFI_CODE = #{certifiCode,jdbcType=VARCHAR},
+            </if>
+            <if test="releaseDate != null">
+                RELEASE_DATE = #{releaseDate,jdbcType=DATE},
+            </if>
+            <if test="certifiUser != null">
+                CERTIFI_USER = #{certifiUser,jdbcType=VARCHAR},
+            </if>
+            <if test="expireDate != null">
+                EXPIRE_DATE = #{expireDate,jdbcType=DATE},
+            </if>
+            <if test="validDate != null">
+                VALID_DATE = #{validDate,jdbcType=NUMERIC},
+            </if>
+            <if test="certifiState != null">
+                CERTIFI_STATE = #{certifiState,jdbcType=NUMERIC},
+            </if>
+            <if test="remark != null">
+                REMARK = #{remark,jdbcType=VARCHAR},
+            </if>
+            UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
+            UPDATE_BY_NAME = #{loginUserName,jdbcType=NVARCHAR},
+            UPDATE_TIME = #{now,jdbcType=TIMESTAMP}
+        </set>
+        WHERE
+            ID = #{id}
+    </update>
+
+    <!-- 删除特种设备信息（逻辑删除） -->
+    <update id="deleteByEquipId">
+        UPDATE E_M_EQPT_SPECIAL
+        SET
+            DEL_FLAG = 1,
+            DELETE_BY = #{loginUserId,jdbcType=BIGINT},
+            DELETE_BY_NAME = #{loginUserName,jdbcType=NVARCHAR},
+            DELETE_TIME = #{now,jdbcType=TIMESTAMP}
+        WHERE
+            EQUIP_ID = #{equipId}
+    </update>
+
+</mapper>
+

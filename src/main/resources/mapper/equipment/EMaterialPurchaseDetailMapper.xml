@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMaterialPurchaseDetailMapper">
+
+    <!-- 根据采购表ID查询明细列表 -->
+    <select id="selectListByPurchaseId" resultType="com.yy.ppm.equipment.bean.dto.EMaterialPurchaseDetailDTO">
+        SELECT
+            PD.ID,
+            PD.PURCHASE_ID,
+            PD.APPLICATION_DETAIL_ID,
+            PD.APPLICATION_QUANTITY,
+            PD.PURCHASE_QUANTITY,
+            PD.TAX_RATE,
+            PD.TAX_INCLUDED_UNIT_PRICE,
+            PD.TAX_EXCLUDED_UNIT_PRICE,
+            PD.TAX_INCLUDED_AMOUNT,
+            PD.TAX_EXCLUDED_AMOUNT,
+            PD.TAX_AMOUNT,
+            AD.MATERIAL_NAME,
+            AD.MATERIAL_CODE,
+            AD.SPECIFICATION_MODEL,
+            AD.UNIT,
+            A.APPLICATION_NO,
+            A.APPLICATION_TITLE,
+            CASE
+                WHEN c3.CATEGORY_NAME IS NOT NULL AND c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL
+                    THEN c3.CATEGORY_NAME || '/' || c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
+                WHEN c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL
+                    THEN c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
+                WHEN c.CATEGORY_NAME IS NOT NULL
+                    THEN c.CATEGORY_NAME
+                ELSE ''
+            END AS CATEGORY_NAME,
+            PD.CREATE_BY,
+            PD.CREATE_BY_NAME,
+            PD.CREATE_TIME,
+            PD.UPDATE_BY,
+            PD.UPDATE_BY_NAME,
+            PD.UPDATE_TIME
+        FROM
+            E_MATERIAL_PURCHASE_DETAIL PD
+        LEFT JOIN E_MATERIAL_APPLICATION_DETAIL AD ON PD.APPLICATION_DETAIL_ID = AD.ID
+        LEFT JOIN E_MATERIAL_APPLICATION A ON AD.APPLICATION_ID = A.ID
+        LEFT JOIN E_MATERIAL_CODE MC ON AD.MATERIAL_CODE_ID = MC.ID AND MC.DEL_FLAG = 0
+        LEFT JOIN E_MATERIAL_CATEGORY c ON MC.CATEGORY_ID = c.ID AND c.DEL_FLAG = 0
+        LEFT JOIN E_MATERIAL_CATEGORY c2 ON c.PARENT_ID = c2.ID AND c2.DEL_FLAG = 0
+        LEFT JOIN E_MATERIAL_CATEGORY c3 ON c2.PARENT_ID = c3.ID AND c3.DEL_FLAG = 0
+        WHERE
+            PD.PURCHASE_ID = #{purchaseId}
+        ORDER BY PD.CREATE_TIME ASC
+    </select>
+
+    <!-- 新增物资采购明细 -->
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.EMaterialPurchaseDetailPO">
+        INSERT INTO E_MATERIAL_PURCHASE_DETAIL
+        (
+            ID,
+            PURCHASE_ID,
+            APPLICATION_DETAIL_ID,
+            APPLICATION_QUANTITY,
+            PURCHASE_QUANTITY,
+            TAX_RATE,
+            TAX_INCLUDED_UNIT_PRICE,
+            TAX_EXCLUDED_UNIT_PRICE,
+            TAX_INCLUDED_AMOUNT,
+            TAX_EXCLUDED_AMOUNT,
+            TAX_AMOUNT,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )
+        VALUES
+        (
+            #{id,jdbcType=NUMERIC},
+            #{purchaseId,jdbcType=NUMERIC},
+            #{applicationDetailId,jdbcType=NUMERIC},
+            #{applicationQuantity,jdbcType=NUMERIC},
+            #{purchaseQuantity,jdbcType=NUMERIC},
+            #{taxRate,jdbcType=NUMERIC},
+            #{taxIncludedUnitPrice,jdbcType=NUMERIC},
+            #{taxExcludedUnitPrice,jdbcType=NUMERIC},
+            #{taxIncludedAmount,jdbcType=NUMERIC},
+            #{taxExcludedAmount,jdbcType=NUMERIC},
+            #{taxAmount,jdbcType=NUMERIC},
+            #{loginUserId,jdbcType=NUMERIC},
+            #{loginUserName,jdbcType=VARCHAR},
+            #{now,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <!-- 批量新增物资采购明细 -->
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO E_MATERIAL_PURCHASE_DETAIL
+        (
+            ID,
+            PURCHASE_ID,
+            APPLICATION_DETAIL_ID,
+            APPLICATION_QUANTITY,
+            PURCHASE_QUANTITY,
+            TAX_RATE,
+            TAX_INCLUDED_UNIT_PRICE,
+            TAX_EXCLUDED_UNIT_PRICE,
+            TAX_INCLUDED_AMOUNT,
+            TAX_EXCLUDED_AMOUNT,
+            TAX_AMOUNT,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )
+        <foreach collection="list" item="item" separator=" UNION ALL ">
+            SELECT
+                #{item.id},
+                #{item.purchaseId},
+                #{item.applicationDetailId},
+                #{item.applicationQuantity},
+                #{item.purchaseQuantity},
+                #{item.taxRate},
+                #{item.taxIncludedUnitPrice},
+                #{item.taxExcludedUnitPrice},
+                #{item.taxIncludedAmount},
+                #{item.taxExcludedAmount},
+                #{item.taxAmount},
+                #{item.loginUserId},
+                #{item.loginUserName},
+                #{item.now}
+            FROM DUAL
+        </foreach>
+    </insert>
+
+    <!-- 修改物资采购明细 -->
+    <update id="update" parameterType="com.yy.ppm.equipment.bean.po.EMaterialPurchaseDetailPO">
+        UPDATE E_MATERIAL_PURCHASE_DETAIL
+        <set>
+            <if test="purchaseId != null">
+                PURCHASE_ID = #{purchaseId,jdbcType=NUMERIC},
+            </if>
+            <if test="applicationDetailId != null">
+                APPLICATION_DETAIL_ID = #{applicationDetailId,jdbcType=NUMERIC},
+            </if>
+            <if test="applicationQuantity != null">
+                APPLICATION_QUANTITY = #{applicationQuantity,jdbcType=NUMERIC},
+            </if>
+            <if test="applicationQuantity == null">
+                APPLICATION_QUANTITY = NULL,
+            </if>
+            <if test="purchaseQuantity != null">
+                PURCHASE_QUANTITY = #{purchaseQuantity,jdbcType=NUMERIC},
+            </if>
+            <if test="taxRate != null">
+                TAX_RATE = #{taxRate,jdbcType=NUMERIC},
+            </if>
+            <if test="taxIncludedUnitPrice != null">
+                TAX_INCLUDED_UNIT_PRICE = #{taxIncludedUnitPrice,jdbcType=NUMERIC},
+            </if>
+            <if test="taxExcludedUnitPrice != null">
+                TAX_EXCLUDED_UNIT_PRICE = #{taxExcludedUnitPrice,jdbcType=NUMERIC},
+            </if>
+            <if test="taxIncludedAmount != null">
+                TAX_INCLUDED_AMOUNT = #{taxIncludedAmount,jdbcType=NUMERIC},
+            </if>
+            <if test="taxExcludedAmount != null">
+                TAX_EXCLUDED_AMOUNT = #{taxExcludedAmount,jdbcType=NUMERIC},
+            </if>
+            <if test="taxAmount != null">
+                TAX_AMOUNT = #{taxAmount,jdbcType=NUMERIC},
+            </if>
+            <if test="loginUserId != null">
+                UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
+            </if>
+            <if test="loginUserName != null and loginUserName != ''">
+                UPDATE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="now != null">
+                UPDATE_TIME = #{now,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        WHERE
+            ID = #{id}
+    </update>
+
+    <!-- 删除物资采购明细（根据采购表ID） -->
+    <delete id="deleteByPurchaseId">
+        DELETE FROM E_MATERIAL_PURCHASE_DETAIL
+        WHERE PURCHASE_ID = #{purchaseId}
+    </delete>
+
+    <!-- 删除物资采购明细（根据ID） -->
+    <delete id="deleteById">
+        DELETE FROM E_MATERIAL_PURCHASE_DETAIL
+        WHERE ID = #{id}
+    </delete>
+
+</mapper>
+

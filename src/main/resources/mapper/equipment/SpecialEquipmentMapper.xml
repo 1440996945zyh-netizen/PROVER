@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.SpecialEquipmentMapper">
+
+    <!-- 查询特种设备列表（分页） -->
+    <select id="selectList" resultType="com.yy.ppm.equipment.bean.dto.SpecialEquipmentDTO">
+        SELECT
+            e.UNIT_NAME AS unitName,
+            d.DEPT_NAME AS useOrgName,
+            e.EQUIP_SMALL_CATEGORY_NAME AS equipSmallCategoryName,
+            e.EQUIP_NAME AS equipName,
+            e.EQUIP_CODE AS equipCode,
+            e.SPECIFIC_CODE AS specificCode,
+            e.MODEL_NUMBER AS modelNumber,
+            s.PARTICULAR_REGISTRATION_CODE AS particularRegistrationCode,
+            s.RELEASE_DATE AS releaseDate,
+            s.EXPIRE_DATE AS expireDate,
+            s.VALID_DATE AS validDate
+        FROM
+            E_M_EQPT_INFO e
+        INNER JOIN E_M_EQPT_SPECIAL s ON e.ID = s.EQUIP_ID AND s.DEL_FLAG = 0
+        LEFT JOIN SYS_DEPT d ON e.USE_ORG_ID = d.ID
+        <where>
+            e.DEL_FLAG = 0
+            AND e.IS_PARTICULAR = 1
+            <if test="equipName != null and equipName != ''">
+                <bind name="equipNamePattern" value="'%' + equipName + '%'"/>
+                AND e.EQUIP_NAME LIKE #{equipNamePattern}
+            </if>
+            <if test="equipCode != null and equipCode != ''">
+                <bind name="equipCodePattern" value="'%' + equipCode + '%'"/>
+                AND e.EQUIP_CODE LIKE #{equipCodePattern}
+            </if>
+            <if test="particularRegistrationCode != null and particularRegistrationCode != ''">
+                <bind name="particularRegistrationCodePattern" value="'%' + particularRegistrationCode + '%'"/>
+                AND s.PARTICULAR_REGISTRATION_CODE LIKE #{particularRegistrationCodePattern}
+            </if>
+        </where>
+        ORDER BY s.EXPIRE_DATE ASC
+    </select>
+
+</mapper>
+

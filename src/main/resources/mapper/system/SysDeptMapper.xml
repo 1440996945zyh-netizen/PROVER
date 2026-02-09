@@ -326,4 +326,14 @@
         delete from sys_dept where id = #{id}
     </delete>
 
+
+    <select id="selectDeptListByLevel" parameterType="String" resultType="com.yy.ppm.system.bean.dto.SysDeptDTO">
+        <include refid="selectDeptVo"/>
+        <where>
+            AND d.DEPT_LEVEL = #{deptLevel}
+            AND d.STATUS = '1'
+        </where>
+        order by d.order_no, d.dept_name
+    </select>
+
 </mapper>

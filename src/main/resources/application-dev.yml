@@ -16,14 +16,14 @@ spring:
         # 主数据源 - Oracle
         master:
           driver-class-name: oracle.jdbc.OracleDriver  # Oracle 驱动
-          username: FRAMEWORK  # 替换为实际用户名
-          password: Rever168  # 替换为实际密码
+          username: EMS  # 替换为实际用户名
+          password: ems@2026  # 替换为实际密码
           url: jdbc:oracle:thin:@//42.120.10.45:1521/ORCL  # 替换为实际连接串（格式：@主机:端口:SID）
         # 第二个数据源（若需要，保持 Oracle 配置）
         bhtnewdb:
           driver-class-name: oracle.jdbc.OracleDriver
-          username: FRAMEWORK
-          password: Rever168
+          username: EMS
+          password: ems@2026
           url: jdbc:oracle:thin:@//42.120.10.45:1521/ORCL
       # Druid 连接池配置
       druid:
@@ -99,7 +99,7 @@ spring:
       client-name: bdss-redis
       database: 4
       host: localhost
-      password: admin123
+#      password: admin123
       port: 6379
       timeout: 3000ms
       lettuce:

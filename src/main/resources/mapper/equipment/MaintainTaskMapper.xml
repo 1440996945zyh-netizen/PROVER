@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.MaintainTaskMapper">
+
+
+
+<select id="getList" resultType="com.yy.ppm.equipment.bean.po.MaintainTaskPO">
+    SELECT
+    t1.ID,
+    t1.EQUIP_PLAN_ID,
+    t1.PLAN_TYPE,
+    t1.EQUIP_ID,
+    t1.EQUIP_NAME,
+    t1.START_DATE,
+    t1.END_DATE,
+    t1.INITIAL_NUMBER,
+    t1.DEADLINE_NUMBER,
+    t1.INSPECTOR_ID,
+    t1.INSPECTOR_NAME,
+    t1.STATUS,
+    t2.EQUIP_SMALL_CATEGORY_ID,
+    t2.EQUIP_SMALL_CATEGORY_NAME,
+    t2.TIME_LIMIT,
+    t2.EQUIP_TYPE,
+    t1.CREATE_BY_NAME,
+    t1.CREATE_TIME
+    FROM
+    E_PM_MAINTAIN_TASK T1
+    LEFT JOIN E_PM_MAINTAIN_PLAN T2 ON T2.ID = T1.EQUIP_PLAN_ID
+    where
+    1=1
+    <if test="startTime != null and startTime != ''">
+        and T1.START_DATE >= to_date(#{startTime},'yyyy-MM-dd')
+    </if>
+    <if test="endTime != null and endTime != ''">
+        and T1.START_DATE &lt;= to_date(#{endTime},'yyyy-MM-dd')
+    </if>
+    <if test="equipSmallCategoryId != null and equipSmallCategoryId != ''">
+        and t2.EQUIP_SMALL_CATEGORY_ID = #{equipSmallCategoryId}
+    </if>
+    <if test="equipType != null and equipType != ''">
+        and t2.EQUIP_TYPE = #{equipType}
+    </if>
+    <if test="planType != null and planType != ''">
+        and t1.PLAN_TYPE = #{planType}
+    </if>
+    <if test="status != null and status != ''">
+        and t1.STATUS = #{status}
+    </if>
+    <if test="equipId != null and equipId != ''">
+        and t1.EQUIP_ID = #{equipId}
+    </if>
+    <if test="equipName != null and equipName != ''">
+        <bind name="equipNameLike" value="'%'+equipName+'%'"/>
+        and t1.EQUIP_NAME like #{equipNameLike}
+    </if>
+    order by
+    t1.CREATE_TIME DESC
+</select>
+
+<select id="getListAPP" resultType="com.yy.ppm.equipment.bean.po.MaintainTaskPO">
+    SELECT
+    t1.ID,
+    t1.EQUIP_PLAN_ID,
+    t1.PLAN_TYPE,
+    t1.EQUIP_ID,
+    t1.EQUIP_NAME,
+    t1.START_DATE,
+    t1.END_DATE,
+    t1.INITIAL_NUMBER,
+    t1.DEADLINE_NUMBER,
+    t1.INSPECTOR_ID,
+    t1.INSPECTOR_NAME,
+    t1.STATUS,
+    t2.EQUIP_SMALL_CATEGORY_ID,
+    t2.EQUIP_SMALL_CATEGORY_NAME,
+    t2.TIME_LIMIT,
+    t2.EQUIP_TYPE,
+    t1.CREATE_BY_NAME,
+    t1.CREATE_TIME
+    FROM
+    E_PM_MAINTAIN_TASK T1
+    LEFT JOIN E_PM_MAINTAIN_PLAN T2 ON T2.ID = T1.EQUIP_PLAN_ID
+    where
+    1=1
+    <if test="startTime != null and startTime != ''">
+        and T1.START_DATE >= to_date(#{startTime},'yyyy-MM-dd')
+    </if>
+    <if test="endTime != null and endTime != ''">
+        and T1.START_DATE &lt;= to_date(#{endTime},'yyyy-MM-dd')
+    </if>
+    <if test="equipSmallCategoryId != null and equipSmallCategoryId != ''">
+        and t2.EQUIP_SMALL_CATEGORY_ID = #{equipSmallCategoryId}
+    </if>
+    <if test="equipType != null and equipType != ''">
+        and t2.EQUIP_TYPE = #{equipType}
+    </if>
+    <if test="planType != null and planType != ''">
+        and t1.PLAN_TYPE = #{planType}
+    </if>
+    <if test="status != null and status != ''">
+        and instr( #{status}, t1.STATUS) > 0
+    </if>
+    <if test="equipId != null and equipId != ''">
+        and t1.EQUIP_ID = #{equipId}
+    </if>
+    <if test="inspectorId != null and inspectorId != ''">
+        and t1.INSPECTOR_ID = #{inspectorId}
+    </if>
+    <if test="equipName != null and equipName != ''">
+        <bind name="equipNameLike" value="'%'+equipName+'%'"/>
+        and t1.EQUIP_NAME like #{equipNameLike}
+    </if>
+    order by
+    t1.CREATE_TIME DESC
+</select>
+
+<select id="getById" resultType="com.yy.ppm.equipment.bean.po.MaintainTaskItemPO">
+    SELECT
+    t1.ID,
+    t4.DEPT_NAME,
+    t1.EQUIP_SMALL_CATEGORY_ID,
+    t1.EQUIP_SMALL_CATEGORY_NAME,
+    t1.EQUIP_INSTITUTION_ID,
+    t1.EQUIP_INSTITUTION_NAME,
+    t1.EQUIP_UNIT_ID,
+    t1.EQUIP_UNIT_NAME,
+    t1.CONTENT,
+    t1.STANDARD,
+    t2.EQUIP_ID,
+    t2.EQUIP_NAME,
+    t2.INSPECTOR_ID,
+    t2.INSPECTOR_NAME,
+    t2.START_DATE,
+    t2.END_DATE,
+    t2.INITIAL_NUMBER,
+    t2.DEADLINE_NUMBER,
+    t1.STATUS,
+    t6.FILE_IDS,
+    t1.IS_ABNORMAL,
+    t1.IS_REPAIR,
+    t1.REMARK,
+    t1.EQUIP_TYPE
+    FROM
+    E_PM_MAINTAIN_TASK_ITEM t1
+    LEFT JOIN E_PM_MAINTAIN_TASK t2 on t2.ID = t1.EQUIP_TASK_ID
+    LEFT JOIN E_M_EQPT_INFO t3 on t3.ID = t2.EQUIP_ID
+    LEFT JOIN SYS_DEPT t4 on t4.ID = t3.USE_ORG_ID
+    LEFT JOIN E_PM_MAINTAIN_PLAN t5 on t5.ID = t1.EQUIP_PLAN_ID
+    LEFT JOIN (
+    select
+    BUSINESS_ID,
+    LISTAGG(FILE_ID, ',') WITHIN GROUP ( ORDER BY FILE_ID ) FILE_IDS
+    from
+    SYS_FILE_BUSINESS
+    group by
+    BUSINESS_ID
+    )t6 ON t1.ID = t6.BUSINESS_ID
+    where
+    t2.ID = #{id}
+</select>
+
+<select id="getInstitutionById" resultType="java.util.Map">
+    select
+    distinct
+    EQUIP_INSTITUTION_ID "value",
+    EQUIP_INSTITUTION_NAME "label"
+    from
+    E_PM_MAINTAIN_TASK_ITEM
+    where
+    EQUIP_TASK_ID = #{id}
+</select>
+
+<select id="getUnitById" resultType="java.util.Map">
+    select
+    distinct
+    EQUIP_INSTITUTION_ID "equipInstitutionId",
+    EQUIP_INSTITUTION_NAME "equipInstitutionName",
+    EQUIP_UNIT_ID "value",
+    EQUIP_UNIT_NAME "label"
+    from
+    E_PM_MAINTAIN_TASK_ITEM
+    where
+    EQUIP_TASK_ID = #{id}
+    <if test="equipInstitutionId != null and equipInstitutionId != ''">
+        and EQUIP_INSTITUTION_ID = #{equipInstitutionId}
+    </if>
+</select>
+
+<select id="getTaskItemById" resultType="com.yy.ppm.equipment.bean.po.MaintainTaskItemPO">
+    SELECT
+    t1.ID,
+    t1.EQUIP_TASK_ID,
+    t1.EQUIP_SMALL_CATEGORY_ID,
+    t1.EQUIP_SMALL_CATEGORY_NAME,
+    t1.EQUIP_INSTITUTION_ID,
+    t1.EQUIP_INSTITUTION_NAME,
+    t1.EQUIP_UNIT_ID,
+    t1.EQUIP_UNIT_NAME,
+    t1.CONTENT,
+    t1.STANDARD,
+    t1.IS_ABNORMAL,
+    t1.REMARK,
+    t2.EQUIP_ID,
+    t2.EQUIP_NAME,
+    t1.STATUS,
+    t1.EQUIP_TYPE,
+    t1.IS_REPAIR
+    FROM
+    E_PM_MAINTAIN_TASK_ITEM t1
+    LEFT JOIN E_PM_MAINTAIN_TASK t2 on t2.ID = t1.EQUIP_TASK_ID
+    where
+    t1.EQUIP_TASK_ID = #{id}
+    <if test="equipInstitutionId != null and equipInstitutionId != ''">
+        and t1.EQUIP_INSTITUTION_ID = #{equipInstitutionId}
+    </if>
+    <if test="equipUnitId != null and equipUnitId != ''">
+        and t1.EQUIP_UNIT_ID = #{equipUnitId}
+    </if>
+</select>
+
+<update id="updateTaskItemList">
+    begin
+    <foreach collection="list" item="item" separator=" ">
+        UPDATE
+        E_PM_MAINTAIN_TASK_ITEM
+        SET
+        IS_ABNORMAL = #{item.isAbnormal,jdbcType=INTEGER},
+        STATUS = 1,
+        REMARK = #{item.remark,jdbcType=VARCHAR},
+        IS_REPAIR = #{item.isRepair,jdbcType=INTEGER},
+        UPDATE_BY = #{item.loginUserId, jdbcType=BIGINT},
+        UPDATE_BY_NAME = #{item.loginUserName, jdbcType=VARCHAR},
+        UPDATE_TIME = #{item.now}
+        <where>
+            ID = #{item.id,jdbcType=BIGINT}
+        </where>;
+    </foreach>
+    end;
+</update>
+
+<select id="getTaskItemCountById" resultType="int">
+    SELECT
+    COUNT(*)
+    FROM
+    E_PM_MAINTAIN_TASK_ITEM
+    WHERE
+    EQUIP_TASK_ID = #{equipTaskId}
+    AND STATUS = 0
+</select>
+
+<update id="updateTaskById">
+    update E_PM_MAINTAIN_TASK
+    set
+    STATUS = #{status}
+    where
+    ID = #{equipTaskId}
+</update>
+</mapper>
+

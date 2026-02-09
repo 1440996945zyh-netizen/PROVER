@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.MaintainStandardMapper">
+
+
+<select id="queryByUnitId" resultType="com.yy.ppm.equipment.bean.po.MaintainStandardPO">
+    SELECT
+    ID,
+    EQUIP_SMALL_CATEGORY_ID,
+    EQUIP_SMALL_CATEGORY_NAME,
+    EQUIP_INSTITUTION_ID,
+    EQUIP_INSTITUTION_NAME,
+    EQUIP_UNIT_ID,
+    EQUIP_UNIT_NAME,
+    CONTENT,
+    STANDARD,
+    EQUIP_TYPE,
+    CREATE_BY,
+    CREATE_BY_NAME,
+    CREATE_TIME
+    FROM
+    E_PM_MAINTAIN_STANDARD
+    WHERE
+    1=1
+    <if test="equipUnitId != null">
+        AND EQUIP_UNIT_ID = #{equipUnitId}
+    </if>
+    <if test="equipSmallCategoryId != null">
+        AND EQUIP_SMALL_CATEGORY_ID = #{equipSmallCategoryId}
+    </if>
+</select>
+
+<delete id="deleteByUnitId">
+    DELETE FROM E_PM_MAINTAIN_STANDARD WHERE EQUIP_UNIT_ID = #{equipUnitId}
+</delete>
+
+<insert id="save">
+    INSERT INTO E_PM_MAINTAIN_STANDARD(
+    ID,
+    EQUIP_SMALL_CATEGORY_ID,
+    EQUIP_SMALL_CATEGORY_NAME,
+    EQUIP_INSTITUTION_ID,
+    EQUIP_INSTITUTION_NAME,
+    EQUIP_UNIT_ID,
+    EQUIP_UNIT_NAME,
+    CONTENT,
+    STANDARD,
+    EQUIP_TYPE,
+    CREATE_BY,
+    CREATE_BY_NAME,
+    CREATE_TIME
+    )
+    (
+    <foreach collection="list" item="item" separator="union all">
+        select
+        #{item.id},
+        #{item.equipSmallCategoryId},
+        #{item.equipSmallCategoryName},
+        #{item.equipInstitutionId},
+        #{item.equipInstitutionName},
+        #{item.equipUnitId},
+        #{item.equipUnitName},
+        #{item.content},
+        #{item.standard},
+        #{item.equipType},
+        #{item.loginUserId},
+        #{item.loginUserName},
+        #{item.now}
+        from dual
+    </foreach>
+    )
+</insert>
+
+<select id="queryParentByUnitId" resultType="com.yy.ppm.equipment.bean.po.MaintainStandardPO">
+    SELECT
+    t1.ID EQUIP_UNIT_ID,
+    t1.TYPE_NAME EQUIP_UNIT_NAME,
+    t2.ID EQUIP_INSTITUTION_ID,
+    t2.TYPE_NAME EQUIP_INSTITUTION_NAME,
+    t3.ID EQUIP_SMALL_CATEGORY_ID,
+    t3.TYPE_NAME EQUIP_SMALL_CATEGORY_NAME
+    FROM
+    E_M_EQPT_TYPE t1
+    LEFT JOIN E_M_EQPT_TYPE t2 ON t1.PARENT_ID = t2.ID
+    LEFT JOIN E_M_EQPT_TYPE t3 ON t2.PARENT_ID = t3.ID
+    WHERE
+    t1.ID = #{equipUnitId}
+</select>
+
+<select id="queryAll" resultType="com.yy.ppm.equipment.bean.po.MaintainStandardPO">
+    SELECT
+    ID,
+    EQUIP_SMALL_CATEGORY_ID,
+    EQUIP_SMALL_CATEGORY_NAME,
+    EQUIP_INSTITUTION_ID,
+    EQUIP_INSTITUTION_NAME,
+    EQUIP_UNIT_ID,
+    EQUIP_UNIT_NAME,
+    CONTENT,
+    STANDARD,
+    EQUIP_TYPE,
+    CREATE_BY,
+    CREATE_BY_NAME,
+    CREATE_TIME
+    FROM
+    E_PM_MAINTAIN_STANDARD
+    WHERE
+    1=1
+    <if test="equipUnitId != null">
+        AND EQUIP_UNIT_ID = #{equipUnitId}
+    </if>
+    <if test="equipSmallCategoryId != null">
+        AND EQUIP_SMALL_CATEGORY_ID = #{equipSmallCategoryId}
+    </if>
+    <if test="equipInstitutionId != null">
+        AND EQUIP_INSTITUTION_ID = #{equipInstitutionId}
+    </if>
+    <if test="equipType != null and equipType != ''">
+        AND EQUIP_TYPE = #{equipType}
+    </if>
+</select>
+</mapper>
+
