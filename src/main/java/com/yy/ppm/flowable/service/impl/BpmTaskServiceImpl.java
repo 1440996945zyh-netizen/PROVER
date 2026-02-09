@@ -1602,6 +1602,7 @@ public class BpmTaskServiceImpl implements BpmTaskService {
 
         // 4. 拼接处理人 (将 ID 转为 昵称)
         String approverNames = "";
+
         Set<Long> assigneeIds = tasks.stream()
                 .map(Task::getAssignee)
                 .filter(StrUtil::isNotBlank)

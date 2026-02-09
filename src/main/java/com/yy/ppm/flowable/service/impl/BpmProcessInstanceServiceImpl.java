@@ -822,7 +822,10 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
     private ProcessInstance createProcessInstance0(Long userId, ProcessDefinition definition,BpmProcessInstanceDTO createReqVO) {
 
         Map<String, Object> variables = createReqVO.getVariables();
-        String businessKey = createReqVO.getBusinessId().toString();
+        String businessKey = null;
+        if (!StringUtils.isEmpty(createReqVO.getBusinessId().toString())) {
+           businessKey = createReqVO.getBusinessId().toString();
+        }
         Map<String, List<Long>> startUserSelectAssignees = createReqVO.getStartUserSelectAssignees();
 
         // 1.1 校验流程定义
@@ -911,9 +914,9 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
                         }
                     }
 
-                    // 如果没有 Assignee，可能是候选人模式，暂时显示"待认领"
+                    // 如果没有 Assignee，可能是候选人模式，暂时显示"未分配具体用户"
                     if (StrUtil.isBlank(approverNames) && CollUtil.isNotEmpty(activeTasks)) {
-                        approverNames = "待认领/候选人";
+                        approverNames = "待定";
                     }
                 }
 
