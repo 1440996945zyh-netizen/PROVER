@@ -52,11 +52,15 @@
         b.APPROVER_NAMES,
         a.APPLY_TIME,
         a.EXPECTED_PAYMENT_TIME
-        FROM BPM_APPLICATION_EXAMPLE a left join BPM_BUSINESS_INSTANCE b on a.id = b.BUSINESS_DATA_ID AND b.START_TIME = (
-        SELECT MAX(sub.START_TIME)
-        FROM BPM_BUSINESS_INSTANCE sub
-        WHERE sub.BUSINESS_DATA_ID = a.ID
-        )
+        FROM BPM_APPLICATION_EXAMPLE a
+        LEFT JOIN (
+        SELECT * FROM (
+        SELECT
+        t.*,
+        ROW_NUMBER() OVER(PARTITION BY BUSINESS_DATA_ID ORDER BY START_TIME DESC) as rn
+        FROM BPM_BUSINESS_INSTANCE t
+        ) WHERE rn = 1
+        ) b ON a.id = b.BUSINESS_DATA_ID
         <where>
             <if test="paymentTitle != null and paymentTitle != ''">
                 AND a.PAYMENT_TITLE LIKE '%' || #{paymentTitle, jdbcType=VARCHAR} || '%'
