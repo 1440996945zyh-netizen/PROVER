@@ -148,4 +148,11 @@
             #{item}
         </foreach>
     </select>
+
+
+    <select id="selectModelIdsByFormId" resultType="java.lang.String">
+        SELECT DISTINCT MODEL_ID
+        FROM BPM_PROCESS_DEFINITION_INFO
+        WHERE FORM_ID = #{formId}
+    </select>
 </mapper>
