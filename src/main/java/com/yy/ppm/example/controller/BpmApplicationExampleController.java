@@ -170,5 +170,19 @@ public class BpmApplicationExampleController {
         LOGGER.exit(methodName, "新增BPM业务配置完成");
         return Response.SUCCESS.newBuilder().out("新增成功").toResult();
     }
+    /**
+     * 提交统一付款审批
+     */
+    @PostMapping("/submitUnificationPayment")
+    @PreAuthorize("hasAuthority('bpm:application:example:unificationpayment')")
+    @Log(OperateTypeEnum.INSERT)
+    public Map<String, Object> submitUnification(@RequestBody BpmProcessInstanceDTO dto) {
+        final String methodName = "BpmBusinessConfigController:insert";
+        LOGGER.enter(methodName, "提交业务数据");
 
+        bpmApplicationExampleService.submit(dto);
+
+        LOGGER.exit(methodName, "新增BPM业务配置完成");
+        return Response.SUCCESS.newBuilder().out("新增成功").toResult();
+    }
 }

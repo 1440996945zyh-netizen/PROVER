@@ -24,7 +24,13 @@ public class DemoDelegateExpressionExecutionListener implements JavaDelegate {
                 execution.getCurrentFlowableListener().getFieldExtensions());
 
         // 获取字段值
-        Object versionValue = version.getValue(execution);
+        if (version != null) {
+            Object versionValue = version.getValue(execution);
+
+        } else {
+            // 打印日志或者给个默认值
+            log.warn("version expression is null, skipping...");
+        }
 
         // 1. 获取流程实例 ID (ACT_RU_EXECUTION 表的 PROC_INST_ID_)
         String processInstanceId = execution.getProcessInstanceId();
