@@ -35,7 +35,11 @@ public class BpmApplicationExampleDTO extends BpmApplicationExamplePO implements
     private String approverNames;
 
     /**
-     * 付款类型 耗材付款 / 商用付款
+     * 流程实例ID
      */
-    private String paymentType;
+    private String procInstId;
+    /**
+     * 流程定义ID
+     */
+    private String procDefId;
 }

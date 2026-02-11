@@ -15,6 +15,9 @@
         <result column="APPROVER_NAMES" property="approverNames" jdbcType="VARCHAR"/>
         <result column="APPLY_TIME" property="applyTime" jdbcType="TIMESTAMP"/>
         <result column="EXPECTED_PAYMENT_TIME" property="expectedPaymentTime" jdbcType="TIMESTAMP"/>
+        <result column="PROC_INST_ID" property="procInstId" jdbcType="VARCHAR"/>
+        <result column="PROC_DEF_ID" property="procDefId" jdbcType="VARCHAR"/>
+        <result column="PAYMENT_TYPE" property="paymentType" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="commonList">
@@ -27,6 +30,9 @@
         APPROVAL_STATUS,
         APPLY_TIME,
         EXPECTED_PAYMENT_TIME,
+        PAYMENT_TYPE,
+        PROC_INST_ID,
+        PROC_DEF_ID,
         PAYMENT_TYPE
     </sql>
 
@@ -50,6 +56,8 @@
         end as APPROVAL_STATUS_LABEL,
         b.CURRENT_NODE_NAME,
         b.APPROVER_NAMES,
+        b.PROC_INST_ID,
+        b.PROC_DEF_ID,
         a.APPLY_TIME,
         a.EXPECTED_PAYMENT_TIME
         FROM BPM_APPLICATION_EXAMPLE a
@@ -129,9 +137,21 @@
     <!-- 根据ID查询详情 -->
     <select id="getDetail" parameterType="java.lang.Long" resultMap="BaseResultMap">
         SELECT
-        <include refid="commonList" />
-        FROM BPM_APPLICATION_EXAMPLE
-        WHERE ID = #{id, jdbcType=NUMERIC}
+            b.ID,
+            b.PAYMENT_TITLE,
+            b.PAYMENT_AMOUNT,
+            b.PAYEE_NAME,
+            b.APPLICANT_ID,
+            b.APPLICANT_NAME,
+            b.APPROVAL_STATUS,
+            b.APPLY_TIME,
+            b.EXPECTED_PAYMENT_TIME,
+            b.PAYMENT_TYPE,
+            i.PROC_INST_ID,
+            i.PROC_DEF_ID
+        FROM BPM_APPLICATION_EXAMPLE b
+            LEFT JOIN BPM_BUSINESS_INSTANCE i ON b.ID = i.BUSINESS_DATA_ID
+        WHERE b.ID = #{id, jdbcType=NUMERIC}
     </select>
 
 

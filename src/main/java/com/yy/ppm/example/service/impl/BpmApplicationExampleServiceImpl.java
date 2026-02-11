@@ -92,6 +92,9 @@ public class BpmApplicationExampleServiceImpl implements BpmApplicationExampleSe
             throw new BusinessRuntimeException("删除失败！");
         }
 
+        // 调用公共方法业务流程相关数据
+        bpmProcessInstanceService.deleteProcessInstanceByBusinessDataId(id,"业务流程删除");
+
         LOGGER.exit(methodName, StringUtils.EMPTY);
     }
 
