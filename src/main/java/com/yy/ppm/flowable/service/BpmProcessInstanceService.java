@@ -184,4 +184,11 @@ public interface BpmProcessInstanceService {
      * @param instance 流程任务
      */
     void processProcessInstanceCreated(ProcessInstance instance);
+
+    /**
+     * 根据业务ID 彻底删除流程相关数据
+     * @param businessDataId 业务Id
+     * @param deleteReason 删除原因
+     */
+    void deleteProcessInstanceByBusinessDataId(Long businessDataId, String deleteReason);
 }

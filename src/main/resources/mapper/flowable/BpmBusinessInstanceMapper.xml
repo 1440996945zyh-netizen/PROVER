@@ -49,4 +49,14 @@
         </set>
         WHERE PROC_INST_ID = #{procInstId}
     </update>
+
+    <delete id="deleteByBusinessDataId">
+        DELETE FROM BPM_BUSINESS_INSTANCE
+        WHERE BUSINESS_DATA_ID = #{businessDataId}
+    </delete>
+
+    <select id="selectListByBusinessDataId" resultType="com.yy.ppm.flowable.bean.po.BpmBusinessInstancePO">
+        SELECT * FROM BPM_BUSINESS_INSTANCE
+        WHERE BUSINESS_DATA_ID = #{businessDataId}
+    </select>
 </mapper>

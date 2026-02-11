@@ -19,6 +19,7 @@ import com.yy.framework.flowable.event.BpmProcessInstanceEventPublisher;
 import com.yy.framework.flowable.redis.BpmProcessIdRedisDAO;
 import com.yy.framework.flowable.strategy.BpmTaskCandidateInvoker;
 import com.yy.ppm.flowable.bean.dto.*;
+import com.yy.ppm.flowable.bean.po.BpmBusinessInstancePO;
 import com.yy.ppm.flowable.bean.po.BpmProcessDefinitionInfoPO;
 import com.yy.ppm.flowable.mapper.BpmBusinessInstanceMapper;
 import com.yy.ppm.flowable.service.BpmProcessDefinitionService;
@@ -823,7 +824,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
 
         Map<String, Object> variables = createReqVO.getVariables();
         String businessKey = null;
-        if (!StringUtils.isEmpty(createReqVO.getBusinessId().toString())) {
+        if (createReqVO.getBusinessId() != null) {
            businessKey = createReqVO.getBusinessId().toString();
         }
         Map<String, List<Long>> startUserSelectAssignees = createReqVO.getStartUserSelectAssignees();
@@ -882,7 +883,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
             ProcessInstance instance = processInstanceBuilder.start();
 
             // 新增业务与实例关联数据
-            if (!StringUtils.isEmpty(createReqVO.getBusinessId().toString()) && !StringUtils.isEmpty(createReqVO.getBusinessDataId().toString())) {
+            if (createReqVO.getBusinessId() != null && createReqVO.getBusinessDataId() != null) {
                 // 4. 获取当前活跃的任务节点
                 List<Task> activeTasks = taskService.getRunningTaskListByProcessInstanceId(instance.getId(), null, null);
                 // 5. 解析当前节点名称和审批人名称
@@ -1211,6 +1212,57 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
             }
 
         });
+    }
+
+    /**
+     * 公共方法：根据业务数据ID删除流程相关数据
+     *
+     * @param businessDataId 业务数据主键 ID
+     * @param deleteReason   删除原因
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteProcessInstanceByBusinessDataId(Long businessDataId, String deleteReason) {
+        // 1. 查询关联关系
+        List<BpmBusinessInstancePO> businessInstances = bpmBusinessInstanceMapper.selectListByBusinessDataId(businessDataId);
+
+        if (CollUtil.isEmpty(businessInstances)) {
+            log.info("[删除业务流程] 业务ID: {} 未关联任何流程实例，无需清理", businessDataId);
+            return;
+        }
+
+        for (BpmBusinessInstancePO instance : businessInstances) {
+            String procInstId = instance.getProcInstId();
+            if (StrUtil.isBlank(procInstId)) {
+                continue;
+            }
+
+            // 2. 删除 Flowable/Activiti 运行时数据
+            // 如果流程还在运行中，调用 deleteProcessInstance
+            long count = runtimeService.createProcessInstanceQuery().processInstanceId(procInstId).count();
+            if (count > 0) {
+                try {
+                    runtimeService.deleteProcessInstance(procInstId, deleteReason);
+                    log.info("[删除业务流程] 成功删除运行中实例: {}", procInstId);
+                } catch (Exception e) {
+                    log.error("[删除业务流程] 删除运行实例失败: {}, 错误: {}", procInstId, e.getMessage());
+                }
+            }
+
+            // 3. 删除 Flowable/Activiti 历史数据
+            // 无论流程是否结束，删除历史记录（ACT_HI_* 系列表）
+            try {
+                historyService.deleteHistoricProcessInstance(procInstId);
+                log.info("[删除业务流程] 成功删除历史实例: {}", procInstId);
+            } catch (Exception e) {
+                // 如果历史也不存在，会抛异常，这里捕获一下
+                log.warn("[删除业务流程] 删除历史实例失败或不存在: {}", procInstId);
+            }
+        }
+
+        // 4. 删除业务关联中间表数据
+        bpmBusinessInstanceMapper.deleteByBusinessDataId(businessDataId);
+        log.info("[删除业务流程] 成功清理中间表关联记录，业务ID: {}", businessDataId);
     }
 
 }
