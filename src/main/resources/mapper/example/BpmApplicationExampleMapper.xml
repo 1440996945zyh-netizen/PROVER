@@ -137,9 +137,21 @@
     <!-- 根据ID查询详情 -->
     <select id="getDetail" parameterType="java.lang.Long" resultMap="BaseResultMap">
         SELECT
-        <include refid="commonList" />
-        FROM BPM_APPLICATION_EXAMPLE
-        WHERE ID = #{id, jdbcType=NUMERIC}
+            b.ID,
+            b.PAYMENT_TITLE,
+            b.PAYMENT_AMOUNT,
+            b.PAYEE_NAME,
+            b.APPLICANT_ID,
+            b.APPLICANT_NAME,
+            b.APPROVAL_STATUS,
+            b.APPLY_TIME,
+            b.EXPECTED_PAYMENT_TIME,
+            b.PAYMENT_TYPE,
+            i.PROC_INST_ID,
+            i.PROC_DEF_ID
+        FROM BPM_APPLICATION_EXAMPLE b
+            LEFT JOIN BPM_BUSINESS_INSTANCE i ON b.ID = i.BUSINESS_DATA_ID
+        WHERE b.ID = #{id, jdbcType=NUMERIC}
     </select>
 
 
