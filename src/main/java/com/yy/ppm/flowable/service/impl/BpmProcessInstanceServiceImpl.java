@@ -14,6 +14,7 @@ import com.yy.common.flowable.enums.*;
 import com.yy.common.flowable.utils.*;
 import com.yy.common.page.Pages;
 import com.yy.common.util.PageConverterUtils;
+import com.yy.common.util.str.StringUtil;
 import com.yy.framework.flowable.convert.BpmProcessInstanceConvert;
 import com.yy.framework.flowable.event.BpmProcessInstanceEventPublisher;
 import com.yy.framework.flowable.redis.BpmProcessIdRedisDAO;
@@ -355,6 +356,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         }
         if (StrUtil.isNotEmpty(pageReqVO.getProcessDefinitionKey())) {
             processInstanceQuery.processDefinitionKey(pageReqVO.getProcessDefinitionKey());
+
         }
         if (StrUtil.isNotEmpty(pageReqVO.getCategory())) {
             processInstanceQuery.processDefinitionCategory(pageReqVO.getCategory());
@@ -823,7 +825,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
 
         Map<String, Object> variables = createReqVO.getVariables();
         String businessKey = null;
-        if (!StringUtils.isEmpty(createReqVO.getBusinessId().toString())) {
+        if (!StringUtil.isEmpty(createReqVO.getBusinessId())) {
            businessKey = createReqVO.getBusinessId().toString();
         }
         Map<String, List<Long>> startUserSelectAssignees = createReqVO.getStartUserSelectAssignees();
@@ -882,7 +884,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
             ProcessInstance instance = processInstanceBuilder.start();
 
             // 新增业务与实例关联数据
-            if (!StringUtils.isEmpty(createReqVO.getBusinessId().toString()) && !StringUtils.isEmpty(createReqVO.getBusinessDataId().toString())) {
+            if (!StringUtil.isEmpty(createReqVO.getBusinessId()) && !StringUtil.isEmpty(createReqVO.getBusinessDataId())) {
                 // 4. 获取当前活跃的任务节点
                 List<Task> activeTasks = taskService.getRunningTaskListByProcessInstanceId(instance.getId(), null, null);
                 // 5. 解析当前节点名称和审批人名称
