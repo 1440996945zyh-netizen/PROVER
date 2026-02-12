@@ -35,7 +35,7 @@ public class BpmTaskCandidateRoleStrategy implements BpmTaskCandidateStrategy {
     @Override
     public Set<Long> calculateUsers(String param) {
         Set<Long> roleIds = StrUtils.splitToLongSet(param);
-        return sysRoleService.getUserRoleIdListByRoleIds(roleIds);
+        return sysRoleService.getUserIdListByRoleIds(roleIds);
     }
 
 }
