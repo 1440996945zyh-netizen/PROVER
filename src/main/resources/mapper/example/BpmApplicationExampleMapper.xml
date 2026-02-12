@@ -30,9 +30,6 @@
         APPROVAL_STATUS,
         APPLY_TIME,
         EXPECTED_PAYMENT_TIME,
-        PAYMENT_TYPE,
-        PROC_INST_ID,
-        PROC_DEF_ID,
         PAYMENT_TYPE
     </sql>
 
