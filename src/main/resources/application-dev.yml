@@ -72,8 +72,8 @@ spring:
             masterDataSource:
               driver: oracle.jdbc.OracleDriver # 与master的driver-class-name一致
               URL: jdbc:oracle:thin:@//42.120.10.45:1521/ORCL # 与master的url一致
-              user: FRAMEWORK   # 与master的username一致
-              password: Rever168  # 与master的password一致
+              user: EMS   # 与master的username一致
+              password: ems@2026  # 与master的password一致
               maxConnections: 30 # 数据源最大连接数（建议与Druid的maxActive匹配，你的Druid是128，这里可设30-50）
           scheduler:
             instanceName: BusinessScheduler

@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.applet.mapper.TStdEnterPortNoticeMapper">
+
+    <sql id="commonList">
+        SELECT ID,
+               TITLE,
+               TYPE,
+               STATUS,
+               CONTENT,
+               CREATE_BY,
+               CREATE_BY_NAME,
+               CREATE_TIME,
+               UPDATE_BY,
+               UPDATE_BY_NAME,
+               UPDATE_TIME,
+               ROLE_CODE,
+               ROLE_NAME,
+               START_TIME,
+               END_TIME
+        FROM T_PORT_NOTICE
+    </sql>
+    <sql id="condition">
+        <where>
+            <if test="id != null">
+                and ID = #{id}
+            </if>
+            <if test="title != null and title != ''">
+                <bind name="title" value="'%'+title+'%'"/>
+                and TITLE like #{title}
+            </if>
+            <if test="type != null">
+                and TYPE = #{type}
+            </if>
+            <if test="status != null">
+                and STATUS = #{status}
+            </if>
+            <if test="content != null and content != ''">
+                <bind name="content" value="'%'+content+'%'"/>
+                and CONTENT like #{content}
+            </if>
+        </where>
+    </sql>
+
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getPageList" resultType="com.yy.ppm.applet.bean.dto.TStdEnterPortNoticeDTO"
+            parameterType="com.yy.ppm.applet.bean.dto.TStdEnterPortNoticeSearchDTO">
+        <include refid="commonList"></include>
+        <include refid="condition"></include>
+        order by START_TIME DESC
+    </select>
+
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="exportList" resultType="com.yy.ppm.applet.bean.dto.TStdEnterPortNoticeDTO"
+            parameterType="com.yy.ppm.applet.bean.dto.TStdEnterPortNoticeSearchDTO">
+        <include refid="commonList"></include>
+        <include refid="condition"></include>
+        order by START_TIME DESC
+    </select>
+
+    <select id="getLatestOne" resultType="com.yy.ppm.applet.bean.dto.TStdEnterPortNoticeDTO"
+            parameterType="com.yy.ppm.applet.bean.dto.TStdEnterPortNoticeSearchDTO">
+        SELECT *
+        FROM (
+                 SELECT
+                     ID,
+                     TITLE,
+                     TYPE,
+                     STATUS,
+                     CONTENT,
+                     CREATE_BY,
+                     CREATE_BY_NAME,
+                     CREATE_TIME,
+                     UPDATE_BY,
+                     UPDATE_BY_NAME,
+                     UPDATE_TIME,
+                     ROLE_CODE,
+                     ROLE_NAME,
+                     START_TIME,
+                     END_TIME
+                 FROM T_PORT_NOTICE WHERE STATUS = '1'
+                 ORDER BY START_TIME DESC
+             )
+        WHERE ROWNUM = 1
+    </select>
+
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.applet.bean.dto.TStdEnterPortNoticeDTO" parameterType="java.lang.Long">
+        <include refid="commonList"></include>
+        <where>
+            id = #{id}
+        </where>
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.yy.ppm.applet.bean.dto.TStdEnterPortNoticeDTO">
+        INSERT INTO T_PORT_NOTICE(ID,
+                                            TITLE,
+                                            TYPE,
+                                            STATUS,
+                                            CONTENT,
+                                            CREATE_BY,
+                                            CREATE_BY_NAME,
+                                            CREATE_TIME,
+                                            ROLE_CODE,
+                                            ROLE_NAME,
+                                            START_TIME,
+                                            END_TIME)
+        VALUES (
+                #{id, jdbcType=BIGINT},
+                #{title, jdbcType=VARCHAR},
+                #{type, jdbcType=VARCHAR},
+                #{status, jdbcType=VARCHAR},
+                #{content, jdbcType=VARCHAR},
+                #{loginUserId, jdbcType=BIGINT},
+                #{loginUserName, jdbcType=VARCHAR},
+                #{now},
+                #{roleCode, jdbcType=VARCHAR},
+                #{roleName, jdbcType=VARCHAR},
+                #{startTime},
+                #{endTime})
+    </insert>
+
+    <!-- 批量新增 -->
+    <insert id="insertList" parameterType="com.yy.ppm.applet.bean.dto.TStdEnterPortNoticeDTO">
+        begin
+        <foreach collection="tStdEnterPortNoticeDTOS" item="item" separator="  ">
+            INSERT INTO T_PORT_NOTICE(
+            ID,
+            TITLE,
+            TYPE,
+            STATUS,
+            CONTENT,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            ROLE_CODE,
+            ROLE_NAME,
+            START_TIME,
+            END_TIME
+            )VALUES (
+            #{title, jdbcType=VARCHAR},
+            #{type, jdbcType=VARCHAR},
+            #{status, jdbcType=VARCHAR},
+            #{content, jdbcType=VARCHAR},
+            #{loginUserId, jdbcType=BIGINT},
+            #{loginUserName, jdbcType=VARCHAR},
+            #{now},
+            #{roleCode, jdbcType=VARCHAR},
+            #{roleName, jdbcType=VARCHAR},
+            #{startTime},
+            #{endTime}
+            );
+        </foreach>
+        end;
+    </insert>
+
+    <!-- 修改 -->
+    <update id="update" parameterType="com.yy.ppm.applet.bean.dto.TStdEnterPortNoticeDTO">
+        UPDATE
+        T_PORT_NOTICE
+        <set>
+            <if test="title != null">
+                TITLE = #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                TYPE = #{type,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                STATUS = #{status,jdbcType=VARCHAR},
+            </if>
+            <if test="content != null">
+                CONTENT = #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="roleCode != null and roleCode != ''">
+                ROLE_CODE = #{roleCode,jdbcType=VARCHAR},
+            </if>
+            <if test="roleName != null and roleName != ''">
+                ROLE_NAME = #{roleName,jdbcType=VARCHAR},
+            </if>
+            <if test="startTime != null">
+                START_TIME = #{startTime},
+            </if>
+            <if test="endTime != null">
+                END_TIME = #{endTime},
+            </if>
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now}
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 批量修改 -->
+    <update id="updateListById" parameterType="com.yy.ppm.applet.bean.dto.TStdEnterPortNoticeDTO">
+        begin
+        <foreach collection="tStdEnterPortNoticeDTOS" item="item" separator=" ">
+            UPDATE
+            T_PORT_NOTICE
+            SET
+            <if test="title != null">
+                TITLE = #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                TYPE = #{type,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                STATUS = #{status,jdbcType=VARCHAR},
+            </if>
+            <if test="content != null">
+                CONTENT = #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="roleCode != null and roleCode != ''">
+                ROLE_CODE = #{roleCode,jdbcType=VARCHAR},
+            </if>
+            <if test="roleName != null and roleName != ''">
+                ROLE_NAME = #{roleName,jdbcType=VARCHAR},
+            </if>
+            <if test="startTime != null">
+                START_TIME = #{startTime},
+            </if>
+            <if test="endTime != null">
+                END_TIME = #{endTime},
+            </if>
+            UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
+            UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
+            UPDATE_TIME = #{now}
+            <where>
+                id = #{id};
+            </where>
+        </foreach>
+        end;
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE
+        FROM T_PORT_NOTICE
+        WHERE id = #{id}
+    </delete>
+
+    <!-- 批量删除 -->
+    <delete id="deleteListByIds" parameterType="java.lang.Long">
+        DELETE FROM
+        T_PORT_NOTICE
+        WHERE
+        ID IN (
+        <foreach collection="ids" item="id" index="index" separator=",">
+            #{id}
+        </foreach>
+        )
+    </delete>
+
+    <!-- 批量删除 -->
+    <delete id="deleteByCondition" parameterType="com.yy.ppm.applet.bean.dto.TStdEnterPortNoticeDTO">
+        DELETE FROM
+        T_PORT_NOTICE
+        <include refid="condition"></include>
+    </delete>
+
+
+</mapper>
+

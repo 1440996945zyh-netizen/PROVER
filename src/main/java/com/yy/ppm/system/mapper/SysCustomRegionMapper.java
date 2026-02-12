@@ -3,6 +3,7 @@ package com.yy.ppm.system.mapper;
 
 import com.yy.framework.annotation.Edit;
 import com.yy.ppm.system.bean.dto.SysCustomRegionDTO;
+import com.yy.ppm.system.bean.dto.SysMenuDTO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -24,6 +25,14 @@ public interface SysCustomRegionMapper {
   * @return
   */
  public List<SysCustomRegionDTO> getList(@Param("loginUserId") Long loginUserId);
+
+
+ /**
+  * 获取列表
+  * @param
+  * @return
+  */
+ public List<SysMenuDTO> getListApp(@Param("loginUserId") Long loginUserId);
 
 
  /**

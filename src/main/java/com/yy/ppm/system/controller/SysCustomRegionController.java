@@ -3,6 +3,7 @@ package com.yy.ppm.system.controller;
 import com.yy.common.enums.Response;
 import com.yy.common.log.MicroLogger;
 import com.yy.ppm.system.bean.dto.SysCustomRegionDTO;
+import com.yy.ppm.system.bean.dto.SysMenuDTO;
 import com.yy.ppm.system.service.SysCustomRegionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -41,6 +42,18 @@ public class SysCustomRegionController {
         List<SysCustomRegionDTO> pages = sysCustomRegionService.getList();
 
         LOGGER.exit( methodName + "result:" + pages);
+
+        return Response.SUCCESS.newBuilder().out("查询成功").toResult(pages);
+    }
+
+    /**
+     * 获取列表（翻页）
+     * @return
+     */
+    @GetMapping("/getListApp")
+    public Map<String, Object> getListApp() {
+
+        List<SysMenuDTO> pages = sysCustomRegionService.getListApp();
 
         return Response.SUCCESS.newBuilder().out("查询成功").toResult(pages);
     }

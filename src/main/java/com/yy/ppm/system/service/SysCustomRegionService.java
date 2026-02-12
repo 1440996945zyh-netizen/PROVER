@@ -2,6 +2,7 @@ package com.yy.ppm.system.service;
 
 
 import com.yy.ppm.system.bean.dto.SysCustomRegionDTO;
+import com.yy.ppm.system.bean.dto.SysMenuDTO;
 
 import java.util.List;
 
@@ -21,6 +22,9 @@ public interface SysCustomRegionService {
      * @return 对象列表
      */
     public List<SysCustomRegionDTO> getList();
+
+    List<SysMenuDTO> getListApp();
+
 
      /**
       * 查询单条记录

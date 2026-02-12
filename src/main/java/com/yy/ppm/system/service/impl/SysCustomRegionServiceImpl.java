@@ -6,6 +6,7 @@ import com.yy.common.util.SecurityUtils;
 import com.yy.framework.exception.BusinessRuntimeException;
 import com.yy.ppm.common.mapper.CommonMapper;
 import com.yy.ppm.system.bean.dto.SysCustomRegionDTO;
+import com.yy.ppm.system.bean.dto.SysMenuDTO;
 import com.yy.ppm.system.mapper.SysCustomRegionMapper;
 import com.yy.ppm.system.service.SysCustomRegionService;
 import org.springframework.stereotype.Service;
@@ -49,6 +50,18 @@ public class SysCustomRegionServiceImpl implements SysCustomRegionService {
     public List<SysCustomRegionDTO> getList() {
 
         return sysCustomRegionMapper.getList(securityUtils.getLoginUserId());
+    }
+
+    /**
+     * 获取列表（翻页）
+     *
+     * @param
+     * @return 对象列表
+     */
+    @Override
+    public List<SysMenuDTO> getListApp() {
+
+        return sysCustomRegionMapper.getListApp(securityUtils.getLoginUserId());
     }
 
     /**
