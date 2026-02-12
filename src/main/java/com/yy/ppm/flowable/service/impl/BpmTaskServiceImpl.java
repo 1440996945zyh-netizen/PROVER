@@ -1682,6 +1682,12 @@ public class BpmTaskServiceImpl implements BpmTaskService {
                         && getTask(task.getId()) == null) {
                     return;
                 }
+                // 更新业务关联表
+                try {
+                    updateBusinessInstanceCurrentInfo(task.getProcessInstanceId());
+                } catch (Exception e) {
+                    log.error("[processTaskAssigned][更新业务中间表失败，processInstanceId({})]", task.getProcessInstanceId(), e);
+                }
                 if (StrUtil.isEmpty(task.getAssignee())) {
                     log.error("[processTaskAssigned][taskId({}) 没有分配到负责人]", task.getId());
                     return;
