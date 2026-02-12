@@ -2,10 +2,13 @@ package com.yy.ppm.flowable.mapper;
 
 import com.github.pagehelper.Page;
 import com.yy.framework.annotation.Edit;
+import com.yy.ppm.flowable.bean.dto.BpmModelDTO;
 import com.yy.ppm.flowable.bean.dto.BpmProcessListenerDTO;
 import com.yy.ppm.flowable.bean.dto.BpmProcessListenerSearchDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 @Mapper
 public interface BpmProcessListenerMapper {
@@ -42,4 +45,6 @@ public interface BpmProcessListenerMapper {
      * @return
      */
     BpmProcessListenerDTO getDetail(@Param("id") Long id);
+
+    List<BpmModelDTO> getAllModelXml();
 }

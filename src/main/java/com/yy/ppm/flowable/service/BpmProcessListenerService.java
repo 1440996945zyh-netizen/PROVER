@@ -1,8 +1,11 @@
 package com.yy.ppm.flowable.service;
 
 import com.yy.common.page.Pages;
+import com.yy.ppm.flowable.bean.dto.BpmModelDTO;
 import com.yy.ppm.flowable.bean.dto.BpmProcessListenerDTO;
 import com.yy.ppm.flowable.bean.dto.BpmProcessListenerSearchDTO;
+
+import java.util.List;
 
 /**
  * @Description BPM流程监听器Service接口
@@ -33,4 +36,6 @@ public interface BpmProcessListenerService {
      * 根据ID查询详情
      */
     BpmProcessListenerDTO getDetail(Long id);
+
+    List<BpmModelDTO> getListenerModel(Long id);
 }
