@@ -18,8 +18,10 @@ import com.yy.ppm.flowable.bean.po.BpmProcessDefinitionInfoPO;
 import com.yy.ppm.flowable.mapper.BpmBusinessInstanceMapper;
 import com.yy.ppm.flowable.service.*;
 import com.yy.ppm.system.bean.dto.SysDeptDTO;
+import com.yy.ppm.system.bean.dto.SysRoleDTO;
 import com.yy.ppm.system.bean.dto.SysUserDTO;
 import com.yy.ppm.system.service.SysDeptService;
+import com.yy.ppm.system.service.SysRoleService;
 import com.yy.ppm.system.service.SysUserService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -33,6 +35,7 @@ import org.flowable.engine.history.HistoricActivityInstance;
 import org.flowable.engine.runtime.ActivityInstance;
 import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.identitylink.api.IdentityLink;
 import org.flowable.task.api.DelegationState;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.TaskInfo;
@@ -95,6 +98,9 @@ public class BpmTaskServiceImpl implements BpmTaskService {
 
     @Resource
     private BpmBusinessInstanceMapper bpmBusinessInstanceMapper;
+
+    @Resource
+    private SysRoleService sysRoleService;
 
 
     // ========== Query 查询相关方法 ==========
@@ -1600,27 +1606,40 @@ public class BpmTaskServiceImpl implements BpmTaskService {
                 .distinct()
                 .collect(Collectors.joining(","));
 
-        // 4. 拼接处理人 (将 ID 转为 昵称)
-        String approverNames = "";
+        // 4.解析处理人
+        Set<String> approverNameSet = new LinkedHashSet<>();
 
-        Set<Long> assigneeIds = tasks.stream()
-                .map(Task::getAssignee)
-                .filter(StrUtil::isNotBlank)
-                .map(NumberUtils::parseLong)
-                .collect(Collectors.toSet());
-
-        if (CollUtil.isNotEmpty(assigneeIds)) {
-            List<SysUserDTO> users = sysUserService.getUserList(assigneeIds);
-            if (CollUtil.isNotEmpty(users)) {
-                approverNames = users.stream()
-                        .map(SysUserDTO::getUserName) // 请确认 SysUserDTO 获取昵称的方法
-                        .filter(StrUtil::isNotBlank)
-                        .collect(Collectors.joining(","));
+        for (Task task : tasks) {
+            // 情况 A：有受理人 (Assignee)
+            if (StrUtil.isNotBlank(task.getAssignee())) {
+                SysUserDTO user = sysUserService.getById(NumberUtils.parseLong(task.getAssignee()));
+                if (user != null) {
+                    approverNameSet.add(user.getUserName());
+                }
+            }
+            // 情况 B：无受理人，查找候选关系 (IdentityLinks)
+            else {
+                List<IdentityLink> links = taskService.getIdentityLinksForTask(task.getId());
+                if (CollUtil.isNotEmpty(links)) {
+                    for (IdentityLink link : links) {
+                        // todo 这里可能是岗位也可能是角色，目前只处理了角色
+                        if (StrUtil.isNotBlank(link.getGroupId())) {
+                            SysRoleDTO role = sysRoleService.getById(NumberUtils.parseLong(link.getGroupId()));
+                            if (role != null) {
+                                approverNameSet.add("角色:" + role.getRoleName());
+                            }
+                        }
+                    }
+                }
             }
         }
-        // 如果是候选组/候选人模式，assignee为空，给予提示
+
+        // 拼接结果
+        String approverNames = CollUtil.join(approverNameSet, ",");
+
+        // 兜底显示
         if (StrUtil.isBlank(approverNames)) {
-            approverNames = "待认领/候选人";
+            approverNames = "待定";
         }
 
         // 5. 执行更新 SQL
