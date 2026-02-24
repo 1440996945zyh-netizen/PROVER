@@ -59,4 +59,9 @@ public class BpmApplicationExampleSearchDTO extends PageParameter implements Ser
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date expectedPaymentTime;
+
+    /**
+     * 付款类型 耗材付款 / 商用付款
+     */
+    private String paymentType;
 }

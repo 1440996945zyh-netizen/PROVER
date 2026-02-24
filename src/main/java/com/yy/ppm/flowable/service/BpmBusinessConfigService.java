@@ -4,6 +4,7 @@ package com.yy.ppm.flowable.service;
 import com.yy.common.page.Pages;
 import com.yy.ppm.flowable.bean.dto.BpmBusinessConfigDTO;
 import com.yy.ppm.flowable.bean.dto.BpmBusinessConfigSearchDTO;
+import com.yy.ppm.flowable.bean.po.BpmProcessDefinitionInfoPO;
 
 import java.util.List;
 
@@ -41,5 +42,5 @@ public interface BpmBusinessConfigService {
     /**
      * 根据菜单和流程业务类型获取流程定义
      */
-    String getProcDefId(Long businessId, String businessTypeCode);
+    BpmProcessDefinitionInfoPO getProcDefInfo(Long businessId, String businessTypeCode);
 }

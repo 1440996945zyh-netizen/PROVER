@@ -100,4 +100,11 @@ public interface SysRoleService {
      * @return
      */
     Set<Long> getUserRoleIdListByRoleIds(Set<Long> roleIds);
+
+    /**
+     * 根据用户角色ID查询用户信息
+     * @param roleIds
+     * @return
+     */
+    Set<Long> getUserIdListByRoleIds(Set<Long> roleIds);
 }

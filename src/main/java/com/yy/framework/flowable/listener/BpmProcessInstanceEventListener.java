@@ -39,12 +39,20 @@ public class BpmProcessInstanceEventListener extends AbstractFlowableEngineEvent
         super(PROCESS_INSTANCE_EVENTS);
     }
 
+    /**
+     * 实例创建
+     * @param event
+     */
     @Override
     protected void processCreated(FlowableEngineEntityEvent event) {
         ProcessInstance processInstance = (ProcessInstance) event.getEntity();
         processInstanceService.processProcessInstanceCreated(processInstance);
     }
 
+    /**
+     * 实例完成
+     * @param event
+     */
     @Override
     protected void processCompleted(FlowableEngineEntityEvent event) {
         ProcessInstance processInstance = (ProcessInstance) event.getEntity();

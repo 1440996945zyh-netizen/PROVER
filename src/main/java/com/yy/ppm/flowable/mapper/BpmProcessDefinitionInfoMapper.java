@@ -23,4 +23,11 @@ public interface BpmProcessDefinitionInfoMapper{
      */
     @Edit
     int insert(BpmProcessDefinitionInfoPO bpmProcessDefinitionInfoPO);
+
+    /**
+     * 根据表单id查询表单关联的模型id集合
+     * @param formId
+     * @return
+     */
+    List<String> selectModelIdsByFormId(Long formId);
 }

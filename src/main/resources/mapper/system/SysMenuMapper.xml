@@ -348,4 +348,12 @@
         where A.MENU_TYPE in ('C','M')
     </select>
 
+    <select id="getButtonPermsListByParentId" resultType="com.yy.ppm.system.bean.dto.SysMenuDTO">
+        SELECT
+            PERMS
+        FROM SYS_MENU
+        WHERE PARENT_ID = #{parentId}
+            AND MENU_TYPE = 'F'
+    </select>
+
 </mapper>

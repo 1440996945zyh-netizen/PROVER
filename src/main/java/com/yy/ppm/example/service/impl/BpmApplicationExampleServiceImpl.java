@@ -10,6 +10,7 @@ import com.yy.ppm.example.bean.dto.BpmApplicationExampleSearchDTO;
 import com.yy.ppm.example.mapper.BpmApplicationExampleMapper;
 import com.yy.ppm.example.service.BpmApplicationExampleService;
 import com.yy.ppm.flowable.bean.dto.BpmBusinessInstanceDTO;
+import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceDTO;
 import com.yy.ppm.flowable.service.BpmProcessInstanceService;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -91,6 +92,9 @@ public class BpmApplicationExampleServiceImpl implements BpmApplicationExampleSe
             throw new BusinessRuntimeException("删除失败！");
         }
 
+        // 调用公共方法业务流程相关数据
+        bpmProcessInstanceService.deleteProcessInstanceByBusinessDataId(id,"业务流程删除");
+
         LOGGER.exit(methodName, StringUtils.EMPTY);
     }
 
@@ -136,29 +140,11 @@ public class BpmApplicationExampleServiceImpl implements BpmApplicationExampleSe
     }
 
     /**
-     * 提交
+     * 提交发起流程
      */
     @Override
-    public void submit(BpmApplicationExampleDTO dto) {
-
-
-        // 流程发起，获取流程实例
-        ProcessInstance processInstance = bpmProcessInstanceService.createProcessInstance(getLoginUserId(), dto.getBpmProcessInstanceDTO());
-
-
-        // 业务与流程实例信息
-        BpmBusinessInstanceDTO bpmBusinessInstanceDTO = new BpmBusinessInstanceDTO();
-        bpmBusinessInstanceDTO.setId(snowflake.nextId());
-        bpmBusinessInstanceDTO.setBusinessDataId(dto.getId());
-        bpmBusinessInstanceDTO.setBusinessId(dto.getBusinessId());
-        bpmBusinessInstanceDTO.setProcInstId(processInstance.getId());
-        bpmBusinessInstanceDTO.setProcDefId(processInstance.getProcessDefinitionId());
-        bpmBusinessInstanceDTO.setCurrentNodeName("");
-        bpmBusinessInstanceDTO.setApproverNames("");
-        bpmBusinessInstanceDTO.setInstanceStatus("1");
-        bpmBusinessInstanceDTO.setStartTime(new Date());
-
-
-
+    public void submit(BpmProcessInstanceDTO dto) {
+        // 调用流程实例发起
+        bpmProcessInstanceService.createProcessInstance(getLoginUserId(), dto);
     }
 }

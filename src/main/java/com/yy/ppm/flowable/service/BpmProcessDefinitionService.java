@@ -169,4 +169,11 @@ public interface BpmProcessDefinitionService {
      */
     Deployment getDeployment(String id);
 
+    /**
+     * 根据表单id 查询该表单关联的模型id集合
+     *
+     * @param formId 表单 id
+     * @return
+     */
+    List<String> getModelIdsByFormId(Long formId);
 }

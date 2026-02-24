@@ -5,6 +5,7 @@ import com.yy.common.enums.Response;
 import com.yy.common.log.MicroLogger;
 import com.yy.common.page.Pages;
 import com.yy.framework.annotation.Log;
+import com.yy.ppm.flowable.bean.dto.BpmModelDTO;
 import com.yy.ppm.flowable.bean.dto.BpmProcessListenerDTO;
 import com.yy.ppm.flowable.bean.dto.BpmProcessListenerSearchDTO;
 import com.yy.ppm.flowable.service.BpmProcessListenerService;
@@ -15,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -80,5 +82,16 @@ public class BpmProcessListenerController {
     public Map<String, Object> getDetail(@PathVariable("id") Long id) {
         BpmProcessListenerDTO dto = bpmProcessListenerService.getDetail(id);
         return Response.SUCCESS.newBuilder().toResult(dto);
+    }
+
+    /**获取全部使用该监听的流程模型*/
+    @GetMapping("/getListenerModel/{id}")
+    @PreAuthorize("hasAuthority('bpm:processListener:query')")
+    @Log(OperateTypeEnum.QUERY)
+    @Operation(summary = "查询全部使用该监听的流程模型")
+    public Map<String, Object> getListenerModel(@PathVariable("id") Long id) {
+        List<BpmModelDTO> modelDTOList = bpmProcessListenerService.getListenerModel(id);
+
+        return Response.SUCCESS.newBuilder().toResult(modelDTOList);
     }
 }

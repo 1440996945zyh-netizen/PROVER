@@ -23,7 +23,7 @@ public enum BpmTaskStatusEnum implements ArrayValuable<Integer> {
     RUNNING(1, "审批中"),
     APPROVE(2, "审批通过"),
     REJECT(3, "审批不通过"),
-    CANCEL(4, "已取消"),
+    CANCEL(4, "已办结"),
 
     RETURN(5, "已退回"),
 

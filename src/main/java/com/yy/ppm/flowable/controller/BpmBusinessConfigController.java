@@ -8,6 +8,7 @@ import com.yy.common.page.Pages;
 import com.yy.framework.annotation.Log;
 import com.yy.ppm.flowable.bean.dto.BpmBusinessConfigDTO;
 import com.yy.ppm.flowable.bean.dto.BpmBusinessConfigSearchDTO;
+import com.yy.ppm.flowable.bean.po.BpmProcessDefinitionInfoPO;
 import com.yy.ppm.flowable.service.BpmBusinessConfigService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -118,19 +119,19 @@ public class BpmBusinessConfigController {
     }
 
     /**
-     * 根据菜单和按钮获取流程定义
+     * 根据菜单和按钮获取流程定义ID以及表单字段信息
      */
-    @GetMapping("/getProcDefId")
-    @PreAuthorize("hasAuthority('bpm:businessConfig:getProcDefId')")
+    @GetMapping("/getProcDefInfo")
+    @PreAuthorize("hasAuthority('bpm:businessConfig:getProcDefInfo')")
     @Log(OperateTypeEnum.QUERY)
-    @Operation(summary = "根据ID查询BPM业务配置详情")
-    public Map<String, Object> getDetail(@RequestParam("businessId") Long businessId,@RequestParam("businessTypeCode") String businessTypeCode) {
+    @Operation(summary = "获取流程定义ID以及表单字段")
+    public Map<String, Object> getProcDefInfo(@RequestParam("businessId") Long businessId,@RequestParam("businessTypeCode") String businessTypeCode) {
         final String methodName = "BpmBusinessConfigController:getProcDefId";
         LOGGER.enter(methodName, "根据菜单和流程业务类型获取流程定义");
 
-        String procDefId = bpmBusinessConfigService.getProcDefId(businessId,businessTypeCode);
+        BpmProcessDefinitionInfoPO getProcDefInfo = bpmBusinessConfigService.getProcDefInfo(businessId,businessTypeCode);
 
         LOGGER.exit(methodName, "根据菜单和流程业务类型获取流程定义");
-        return Response.SUCCESS.newBuilder().toResult(procDefId);
+        return Response.SUCCESS.newBuilder().toResult(getProcDefInfo);
     }
 }

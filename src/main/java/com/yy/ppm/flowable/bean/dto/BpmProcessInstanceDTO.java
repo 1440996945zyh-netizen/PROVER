@@ -76,6 +76,16 @@ public class BpmProcessInstanceDTO implements Serializable {
      */
     private Map<String, List<Long>> startUserSelectAssignees;
 
+    /**
+     * 业务菜单ID
+     */
+    private Long businessId;
+
+    /**
+     * 业务数据主键
+     */
+    private Long businessDataId;
+
     /** 流程任务 */
     @Data
     public static class Task {

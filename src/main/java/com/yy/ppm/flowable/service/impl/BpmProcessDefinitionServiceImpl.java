@@ -157,6 +157,11 @@ public class BpmProcessDefinitionServiceImpl implements BpmProcessDefinitionServ
     }
 
     @Override
+    public List<String> getModelIdsByFormId(Long formId) {
+        return processDefinitionMapper.selectModelIdsByFormId(formId);
+    }
+
+    @Override
     public String createProcessDefinition(Model model, BpmModelMetaInfoDTO modelMetaInfo,
                                           byte[] bpmnBytes, BpmFormPO form) {
         // 创建 Deployment 部署

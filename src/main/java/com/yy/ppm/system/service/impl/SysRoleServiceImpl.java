@@ -370,4 +370,14 @@ public class SysRoleServiceImpl implements SysRoleService {
         return sysRoleMapper.getUserRoleIdListByRoleId(roleIds);
     }
 
+    /**
+     * 根据用户角色ID查询用户信息
+     * @param roleIds
+     * @return
+     */
+    @Override
+    public Set<Long> getUserIdListByRoleIds(Set<Long> roleIds) {
+        return sysRoleMapper.getUserIdListByRoleIds(roleIds);
+    }
+
 }
