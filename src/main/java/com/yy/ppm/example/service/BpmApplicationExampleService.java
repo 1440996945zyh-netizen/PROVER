@@ -3,6 +3,7 @@ package com.yy.ppm.example.service;
 import com.yy.common.page.Pages;
 import com.yy.ppm.example.bean.dto.BpmApplicationExampleDTO;
 import com.yy.ppm.example.bean.dto.BpmApplicationExampleSearchDTO;
+import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceDTO;
 
 import java.util.List;
 
@@ -44,5 +45,5 @@ public interface BpmApplicationExampleService {
     /**
      * 提交
      */
-    void submit(BpmApplicationExampleDTO dto);
+    void submit(BpmProcessInstanceDTO dto);
 }

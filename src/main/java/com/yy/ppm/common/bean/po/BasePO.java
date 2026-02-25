@@ -2,6 +2,7 @@ package com.yy.ppm.common.bean.po;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceDTO;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -81,5 +82,4 @@ public class BasePO implements Serializable {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonIgnore
     private Date now;
-
 }

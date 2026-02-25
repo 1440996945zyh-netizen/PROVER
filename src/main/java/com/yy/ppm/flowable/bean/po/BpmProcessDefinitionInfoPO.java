@@ -1,5 +1,6 @@
 package com.yy.ppm.flowable.bean.po;
 
+import com.alibaba.fastjson.JSONPath;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
@@ -12,7 +13,10 @@ import org.flowable.engine.repository.Model;
 import org.flowable.engine.repository.ProcessDefinition;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * BPM 流程定义的拓信息
  * 主要解决 Flowable {@link org.flowable.engine.repository.ProcessDefinition} 不支持拓展字段，所以新建该表
@@ -211,4 +215,21 @@ public class BpmProcessDefinitionInfoPO extends BasePO implements Serializable {
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
     private BpmModelMetaInfoDTO.PrintTemplateSetting printTemplateSetting;
+
+    /**
+     * 表单字段信息
+     */
+    private List<String> fieldList;
+
+
+    /**
+     * 获取表单字段信息
+     * @return
+     */
+    public List<String> getFieldKeys() {
+        if (this.formFields == null) return new ArrayList<>();
+        return this.formFields.stream()
+                .map(json -> JSONPath.read(json, "$.field").toString())
+                .collect(Collectors.toList());
+    }
 }

@@ -140,4 +140,15 @@ public class BpmProcessDefinitionController {
         return Response.SUCCESS.newBuilder().toResult(bpmProcessDefinitionDTO);
     }
 
+    /**
+     * 根据表单id查询流程模型id集合
+     * @param formId
+     * @return
+     */
+    @GetMapping("/getModelIdsByForm")
+    public Map<String, Object> getModelIdsByFormId(@RequestParam("formId") Long formId) {
+        List<String> modelIds = processDefinitionService.getModelIdsByFormId(formId);
+        return Response.SUCCESS.newBuilder().toResult(modelIds);
+    }
+
 }

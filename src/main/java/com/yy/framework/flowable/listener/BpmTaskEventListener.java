@@ -57,6 +57,10 @@ public class BpmTaskEventListener extends AbstractFlowableEngineEventListener {
         super(TASK_EVENTS);
     }
 
+    /**
+     * 任务创建
+     * @param event
+     */
     @Override
     protected void taskCreated(FlowableEngineEntityEvent event) {
         taskService.processTaskCreated((Task) event.getEntity());
@@ -67,6 +71,10 @@ public class BpmTaskEventListener extends AbstractFlowableEngineEventListener {
         taskService.processTaskAssigned((Task) event.getEntity());
     }
 
+    /**
+     * 任务完成
+     * @param event
+     */
     @Override
     protected void taskCompleted(FlowableEngineEntityEvent event) {
         taskService.processTaskCompleted((Task) event.getEntity());

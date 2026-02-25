@@ -1,25 +1,56 @@
 package com.yy.ppm.flowable.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Snowflake;
+import com.yy.common.enums.Response;
+import com.yy.common.flowable.utils.BpmnModelUtils;
 import com.yy.common.log.MicroLogger;
 import com.yy.common.page.Pages;
 import com.yy.common.util.PageHelperUtils;
+import com.yy.common.util.str.StringUtil;
 import com.yy.framework.exception.BusinessRuntimeException;
+import com.yy.framework.flowable.convert.BpmModelConvert;
+import com.yy.ppm.flowable.bean.dto.BpmModelDTO;
+import com.yy.ppm.flowable.bean.dto.BpmModelMetaInfoDTO;
 import com.yy.ppm.flowable.bean.dto.BpmProcessListenerDTO;
 import com.yy.ppm.flowable.bean.dto.BpmProcessListenerSearchDTO;
+import com.yy.ppm.flowable.bean.po.BpmCategoryPO;
+import com.yy.ppm.flowable.bean.po.BpmFormPO;
 import com.yy.ppm.flowable.mapper.BpmProcessListenerMapper;
-import com.yy.ppm.flowable.service.BpmProcessListenerService;
+import com.yy.ppm.flowable.service.*;
+import com.yy.ppm.system.bean.dto.SysDeptDTO;
+import com.yy.ppm.system.bean.dto.SysUserDTO;
+import com.yy.ppm.system.service.SysDeptService;
+import com.yy.ppm.system.service.SysUserService;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.engine.delegate.JavaDelegate;
+import org.flowable.engine.repository.Deployment;
+import org.flowable.engine.repository.Model;
+import org.flowable.engine.repository.ProcessDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.yy.common.flowable.enums.BpmProcessListenerTypeEnum;
 import com.yy.common.flowable.enums.BpmProcessListenerValueTypeEnum;
 import org.flowable.engine.delegate.TaskListener;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
-import java.util.Date;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.*;
+import java.util.stream.Stream;
+
+import static com.yy.common.flowable.utils.CollectionUtils.*;
+import static com.yy.common.flowable.utils.CollectionUtils.convertSetByFlatMap;
 
 @Service
 public class BpmProcessListenerServiceImpl implements BpmProcessListenerService {
@@ -31,6 +62,23 @@ public class BpmProcessListenerServiceImpl implements BpmProcessListenerService 
 
     @Resource
     private BpmProcessListenerMapper bpmProcessListenerMapper;
+    @Resource
+    private BpmModelService modelService;
+
+    @Resource
+    private BpmFormService formService;
+
+    @Resource
+    private BpmCategoryService categoryService;
+
+    @Resource
+    private BpmProcessDefinitionService processDefinitionService;
+
+    @Resource
+    private SysUserService sysUserService;
+
+    @Resource
+    private SysDeptService sysDeptService;
 
     /**
      * 分页查询列表
@@ -113,6 +161,8 @@ public class BpmProcessListenerServiceImpl implements BpmProcessListenerService 
         LOGGER.exit(methodName, StringUtils.EMPTY);
         return dto;
     }
+
+
     /**
      * 将 DTO 的输入字段映射到 PO 的持久化字段
      * @param dto 监听器数据
@@ -173,6 +223,115 @@ public class BpmProcessListenerServiceImpl implements BpmProcessListenerService 
             if (!StringUtils.startsWith(dto.getListenerValue(), "${") || !StringUtils.endsWith(dto.getListenerValue(), "}")) {
                 throw new BusinessRuntimeException(String.format("流程监听器表达式(%s)不合法，必须以 ${ 开头，以 } 结尾", dto.getListenerValue()));
             }
+        }
+    }
+
+
+    /**获取全部使用该监听的流程模型*/
+    @Override
+    public List<BpmModelDTO> getListenerModel(Long id) {
+        BpmProcessListenerDTO dto = bpmProcessListenerMapper.getDetail(id);
+
+        //查询全部的流程模型
+        List<Model> list = modelService.getModelList(null);
+        if (CollUtil.isEmpty(list)) {
+            return null;
+        }
+
+        // 获得 Form 表单
+        Set<Long> formIds = convertSet(list, model -> {
+            BpmModelMetaInfoDTO metaInfo = BpmModelConvert.INSTANCE.parseMetaInfo(model);
+            return metaInfo != null ? metaInfo.getFormId() : null;
+        });
+        Map<Long, BpmFormPO> formMap = formService.getFormMap(formIds);
+        // 获得 Category Map
+        // convertSet从对象中提取set<String>类型的某个字段
+        Map<String, BpmCategoryPO> categoryMap = categoryService.getCategoryMap(
+                convertSet(list, Model::getCategory));
+        // 获得 Deployment Map
+        Map<String, Deployment> deploymentMap = processDefinitionService.getDeploymentMap(
+                convertSet(list, Model::getDeploymentId));
+        // 获得 ProcessDefinition Map
+        List<ProcessDefinition> processDefinitions = processDefinitionService.getProcessDefinitionListByDeploymentIds(
+                deploymentMap.keySet());
+        Map<String, ProcessDefinition> processDefinitionMap = convertMap(processDefinitions, ProcessDefinition::getDeploymentId);
+        // 获得 User Map、Dept Map
+        Set<Long> userIds = convertSetByFlatMap(list, model -> {
+            BpmModelMetaInfoDTO metaInfo = BpmModelConvert.INSTANCE.parseMetaInfo(model);
+            return metaInfo != null ? metaInfo.getStartUserIds().stream() : Stream.empty();
+        });
+        Map<Long, SysUserDTO> userMap = CollUtil.isEmpty(userIds) ? Map.of() : sysUserService.getUserMap(userIds);
+
+        Set<Long> deptIds = convertSetByFlatMap(list, model -> {
+            BpmModelMetaInfoDTO metaInfo = BpmModelConvert.INSTANCE.parseMetaInfo(model);
+            return metaInfo != null && metaInfo.getStartDeptIds() != null ? metaInfo.getStartDeptIds().stream() : Stream.empty();
+        });
+        Map<Long, SysDeptDTO> deptMap = CollUtil.isEmpty(deptIds) ? Map.of() : sysDeptService.getDeptMap(deptIds);
+        List<BpmModelDTO> modelDTOList = BpmModelConvert.INSTANCE.buildModelList(list,
+                formMap, categoryMap, deploymentMap, processDefinitionMap,userMap,deptMap);
+
+        List<BpmModelDTO> resultModelList = new ArrayList<>();
+        for (BpmModelDTO bpmModelDTO : modelDTOList) {
+            byte[] bpmnBytes = modelService.getModelBpmnXML(bpmModelDTO.getId());
+            String xmlStr = BpmnModelUtils.getBpmnXml(bpmnBytes);
+            if(checkTaskListener(xmlStr,dto.getListenerValue(),dto.getListenerEventCode())){
+                resultModelList.add(bpmModelDTO);
+            }
+        }
+        return resultModelList;
+    }
+
+    /**
+     * 核心方法：检查XML字符串中是否包含指定的taskListener
+     * @param xmlStr BPMN XML片段字符串
+     * @param targetClass 目标class属性值
+     * @param targetEvent 目标event属性值
+     * @return 匹配返回true，否则返回false
+     */
+    public static boolean checkTaskListener(String xmlStr, String targetClass, String targetEvent) {
+
+        // 初始化DOM解析器
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        // 开启命名空间支持（必须开启，否则无法识别flowable:前缀的标签）
+        factory.setNamespaceAware(true);
+
+        try {
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            // 3. 解析XML字符串为Document对象
+            Document document = builder.parse(new InputSource(new StringReader(xmlStr)));
+
+            // 4. 查找所有flowable:taskListener节点（通过命名空间+标签名）
+            NodeList taskListenerNodes = document.getElementsByTagNameNS("http://flowable.org/bpmn", "taskListener");
+
+            // 5. 遍历节点，检查属性是否匹配
+            for (int i = 0; i < taskListenerNodes.getLength(); i++) {
+                Node node = taskListenerNodes.item(i);
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+                    Element listenerElement = (Element) node;
+
+                    // 获取class和event属性值（属性无命名空间，直接通过属性名获取）
+                    String classValue = listenerElement.getAttribute("class");
+                    String eventValue = listenerElement.getAttribute("event");
+
+                    // 检查属性值是否完全匹配（注意大小写、空格、特殊字符需一致）
+                    if (targetClass.equals(classValue) && targetEvent.equals(eventValue)) {
+                        return true;
+                    }
+                }
+            }
+
+            // 未找到匹配的节点
+            return false;
+
+        } catch (ParserConfigurationException e) {
+            System.err.println("XML解析器配置异常：" + e.getMessage());
+            return false;
+        } catch (SAXException e) {
+            System.err.println("XML语法解析异常：" + e.getMessage());
+            return false;
+        } catch (IOException e) {
+            System.err.println("XML读取IO异常：" + e.getMessage());
+            return false;
         }
     }
 }

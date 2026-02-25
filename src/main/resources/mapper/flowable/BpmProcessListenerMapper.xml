@@ -87,4 +87,24 @@
         WHERE ID = #{id, jdbcType=BIGINT}
     </select>
 
+    <select id="getAllModelXml" resultType="com.yy.ppm.flowable.bean.dto.BpmModelDTO">
+        SELECT
+            a1.ID_ as id,
+            a1.NAME_ as name,
+            a1.CATEGORY_ as catagory,
+            a1.KEY_ as key
+--             a3.BYTES_ as bpmnXml
+        FROM ACT_RE_MODEL a1
+--                  LEFT JOIN (
+--                     -- 窗口函数：按KEY_分组，TIME_降序排序，取每组第一条
+--                     SELECT
+--                         ID_,
+--                         KEY_,
+--                         DEPLOY_TIME_,
+--                         ROW_NUMBER() OVER (PARTITION BY KEY_ ORDER BY DEPLOY_TIME_ DESC) AS rn
+--                     FROM ACT_RE_DEPLOYMENT
+--                 ) a2 ON a1.KEY_ = a2.KEY_ AND a2.rn = 1
+--                 LEFT JOIN ACT_GE_BYTEARRAY a3 on a2.ID_ = a3.DEPLOYMENT_ID_ and a3.GENERATED_ = '0'
+    </select>
+
 </mapper>

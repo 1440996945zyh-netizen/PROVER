@@ -23,8 +23,14 @@ public class DemoDelegateExpressionTaskListener implements TaskListener {
     public void notify(DelegateTask delegateTask) {
         log.info("[execute][task({}) 被调用]", delegateTask.getId());
 
-        // 获取字段值
-        Object versionValue = version.getValue(delegateTask);
+        if (version != null) {
+            // 获取字段值
+            Object versionValue = version.getValue(delegateTask);
+
+        } else {
+            // 打印日志或者给个默认值
+            log.warn("version expression is null, skipping...");
+        }
 
         // 1. 获取任务 ID (就是数据库 ACT_RU_TASK 表的主键)
         String taskId = delegateTask.getId();

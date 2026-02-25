@@ -66,5 +66,12 @@ public interface SysMenuMapper {
      * @return
      */
     List<SysMenuDTO> getContentsMenu();
+
+    /**
+     * 根据父ID查询所有按钮类型菜单权限标识列表
+     * @param parentId
+     * @return
+     */
+    List<SysMenuDTO> getButtonPermsListByParentId(Long parentId);
 }
 

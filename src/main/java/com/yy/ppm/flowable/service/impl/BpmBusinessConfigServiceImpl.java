@@ -9,8 +9,10 @@ import com.yy.common.util.PageHelperUtils;
 import com.yy.framework.exception.BusinessRuntimeException;
 import com.yy.ppm.flowable.bean.dto.BpmBusinessConfigDTO;
 import com.yy.ppm.flowable.bean.dto.BpmBusinessConfigSearchDTO;
+import com.yy.ppm.flowable.bean.po.BpmProcessDefinitionInfoPO;
 import com.yy.ppm.flowable.mapper.BpmBusinessConfigMapper;
 import com.yy.ppm.flowable.service.BpmBusinessConfigService;
+import com.yy.ppm.flowable.service.BpmProcessDefinitionService;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,9 @@ public class BpmBusinessConfigServiceImpl implements BpmBusinessConfigService {
 
     @Resource
     private BpmBusinessConfigMapper bpmBusinessConfigMapper;
+
+    @Resource
+    private BpmProcessDefinitionService processDefinitionService;
 
     /**
      * 分页查询列表
@@ -110,7 +115,7 @@ public class BpmBusinessConfigServiceImpl implements BpmBusinessConfigService {
         // 获取流程模型对应的最新流程定义ID
         String procDefId = bpmBusinessConfigMapper.getprocDefId(dto.getProcModelId());
         dto.setProcDefId(procDefId);
-        
+
 
         bpmBusinessConfigMapper.update(dto);
 
@@ -163,11 +168,21 @@ public class BpmBusinessConfigServiceImpl implements BpmBusinessConfigService {
      * 根据菜单和流程业务类型获取流程定义
      */
     @Override
-    public String getProcDefId(Long businessId, String businessTypeCode) {
+    public BpmProcessDefinitionInfoPO getProcDefInfo(Long businessId, String businessTypeCode) {
+        // 业务关联中查询流程定义
         String procDefId = bpmBusinessConfigMapper.getProcDefId(businessId, businessTypeCode);
         if (StringUtils.isEmpty(procDefId)) {
-            throw new BusinessRuntimeException("未查询到有效流程定义");
+            throw new BusinessRuntimeException("业务未关联有效流程定义");
         }
-        return procDefId;
+        // 查询表单字段信息并提取
+        BpmProcessDefinitionInfoPO processDefinitionInfo = processDefinitionService
+                .getProcessDefinitionInfo(procDefId);
+
+        processDefinitionInfo.setFieldList(processDefinitionInfo.getFieldKeys());
+
+        if (processDefinitionInfo == null) {
+            throw new BusinessRuntimeException("流程定义的表单信息不存在");
+        }
+        return processDefinitionInfo;
     }
 }

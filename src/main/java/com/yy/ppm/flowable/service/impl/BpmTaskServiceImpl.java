@@ -15,10 +15,13 @@ import com.yy.framework.flowable.convert.BpmTaskConvert;
 import com.yy.ppm.flowable.bean.dto.*;
 import com.yy.ppm.flowable.bean.po.BpmFormPO;
 import com.yy.ppm.flowable.bean.po.BpmProcessDefinitionInfoPO;
+import com.yy.ppm.flowable.mapper.BpmBusinessInstanceMapper;
 import com.yy.ppm.flowable.service.*;
 import com.yy.ppm.system.bean.dto.SysDeptDTO;
+import com.yy.ppm.system.bean.dto.SysRoleDTO;
 import com.yy.ppm.system.bean.dto.SysUserDTO;
 import com.yy.ppm.system.service.SysDeptService;
+import com.yy.ppm.system.service.SysRoleService;
 import com.yy.ppm.system.service.SysUserService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -32,6 +35,7 @@ import org.flowable.engine.history.HistoricActivityInstance;
 import org.flowable.engine.runtime.ActivityInstance;
 import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.identitylink.api.IdentityLink;
 import org.flowable.task.api.DelegationState;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.TaskInfo;
@@ -45,6 +49,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.yy.common.flowable.constants.BpmnModelConstants.START_USER_NODE_ID;
@@ -90,6 +95,12 @@ public class BpmTaskServiceImpl implements BpmTaskService {
 
     @Resource
     private SysDeptService sysDeptService;
+
+    @Resource
+    private BpmBusinessInstanceMapper bpmBusinessInstanceMapper;
+
+    @Resource
+    private SysRoleService sysRoleService;
 
 
     // ========== Query 查询相关方法 ==========
@@ -1557,6 +1568,86 @@ public class BpmTaskServiceImpl implements BpmTaskService {
             }
 
         });
+
+        // 更新业务中间表（事务提交后执行）（事务同步器TransactionSynchronization）
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    updateBusinessInstanceCurrentInfo(task.getProcessInstanceId());
+                }
+            });
+        } else {
+            // 如果没有事务（理论上不可能），则直接执行
+            updateBusinessInstanceCurrentInfo(task.getProcessInstanceId());
+        }
+    }
+
+    /**
+     * 计算并更新关联表的当前节点信息
+     *
+     */
+    private void updateBusinessInstanceCurrentInfo(String processInstanceId) {
+        // 1. 查询该流程实例下所有“活跃”的任务 (包括当前刚刚创建的这个)
+        List<Task> tasks = taskService.createTaskQuery()
+                .processInstanceId(processInstanceId)
+                .active()
+                .list();
+
+        // 2.. 如果没有活跃任务，说明流程可能结束了（会由 ProcessInstanceListener 处理），直接返回
+        if (CollUtil.isEmpty(tasks)) {
+            return;
+        }
+
+        // 3. 拼接节点名称 (去重)
+        String currentNodeNames = tasks.stream()
+                .map(Task::getName)
+                .filter(StrUtil::isNotBlank)
+                .distinct()
+                .collect(Collectors.joining(","));
+
+        // 4.解析处理人
+        Set<String> approverNameSet = new LinkedHashSet<>();
+
+        for (Task task : tasks) {
+            // 情况 A：有受理人 (Assignee)
+            if (StrUtil.isNotBlank(task.getAssignee())) {
+                SysUserDTO user = sysUserService.getById(NumberUtils.parseLong(task.getAssignee()));
+                if (user != null) {
+                    approverNameSet.add(user.getUserName());
+                }
+            }
+            // 情况 B：无受理人，查找候选关系 (IdentityLinks)
+            else {
+                List<IdentityLink> links = taskService.getIdentityLinksForTask(task.getId());
+                if (CollUtil.isNotEmpty(links)) {
+                    for (IdentityLink link : links) {
+                        // todo 这里可能是岗位也可能是角色，目前只处理了角色
+                        if (StrUtil.isNotBlank(link.getGroupId())) {
+                            SysRoleDTO role = sysRoleService.getById(NumberUtils.parseLong(link.getGroupId()));
+                            if (role != null) {
+                                approverNameSet.add("角色:" + role.getRoleName());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 拼接结果
+        String approverNames = CollUtil.join(approverNameSet, ",");
+
+        // 兜底显示
+        if (StrUtil.isBlank(approverNames)) {
+            approverNames = "待定";
+        }
+
+        // 5. 执行更新 SQL
+        BpmBusinessInstanceDTO bpmBusinessInstanceDTO = new BpmBusinessInstanceDTO();
+        bpmBusinessInstanceDTO.setProcInstId(processInstanceId);
+        bpmBusinessInstanceDTO.setCurrentNodeName(currentNodeNames);
+        bpmBusinessInstanceDTO.setApproverNames(approverNames);
+        bpmBusinessInstanceMapper.updateByProcInstId(bpmBusinessInstanceDTO);
     }
 
     /**
@@ -1609,6 +1700,12 @@ public class BpmTaskServiceImpl implements BpmTaskService {
                 if (ObjectUtil.equal(transactionStatus, TransactionSynchronization.STATUS_UNKNOWN)
                         && getTask(task.getId()) == null) {
                     return;
+                }
+                // 更新业务关联表
+                try {
+                    updateBusinessInstanceCurrentInfo(task.getProcessInstanceId());
+                } catch (Exception e) {
+                    log.error("[processTaskAssigned][更新业务中间表失败，processInstanceId({})]", task.getProcessInstanceId(), e);
                 }
                 if (StrUtil.isEmpty(task.getAssignee())) {
                     log.error("[processTaskAssigned][taskId({}) 没有分配到负责人]", task.getId());

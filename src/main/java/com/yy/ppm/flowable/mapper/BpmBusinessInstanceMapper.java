@@ -6,6 +6,7 @@ import com.yy.framework.annotation.Edit;
 import com.yy.ppm.flowable.bean.dto.BpmBusinessConfigDTO;
 import com.yy.ppm.flowable.bean.dto.BpmBusinessConfigSearchDTO;
 import com.yy.ppm.flowable.bean.dto.BpmBusinessInstanceDTO;
+import com.yy.ppm.flowable.bean.po.BpmBusinessInstancePO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -22,4 +23,23 @@ public interface BpmBusinessInstanceMapper {
      */
     @Edit
     void insert(BpmBusinessInstanceDTO dto);
+
+    /**
+     * 更新节点名称以及审批人信息
+     * @param bpmBusinessInstanceDTO
+     */
+    void updateByProcInstId(BpmBusinessInstanceDTO bpmBusinessInstanceDTO);
+
+    /**
+     * 根据业务ID查询关联关系
+     * @param businessDataId
+     * @return
+     */
+    List<BpmBusinessInstancePO> selectListByBusinessDataId(Long businessDataId);
+
+    /**
+     * 根据业务ID删除关联关系
+     * @param businessDataId
+     */
+    void deleteByBusinessDataId(Long businessDataId);
 }
