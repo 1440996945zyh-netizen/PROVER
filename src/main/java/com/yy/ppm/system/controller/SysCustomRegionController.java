@@ -92,6 +92,33 @@ public class SysCustomRegionController {
         return Response.SUCCESS.newBuilder().out(flag ? "收藏成功~" : "收藏失败").toResult();
 
     }
+    /**
+     * 新建
+     * @param sysCustomRegionDTO
+     * @return
+     */
+    @PostMapping("/saveRegion")
+    public Map<String, Object> addApp(@RequestBody SysCustomRegionDTO sysCustomRegionDTO) {
+
+        boolean flag = sysCustomRegionService.doAppSave(sysCustomRegionDTO);
+
+        return Response.SUCCESS.newBuilder().out(flag ? "收藏成功~" : "收藏失败").toResult();
+
+    }
+
+    /**
+     * 删除
+     * @param
+     * @return
+     */
+    @PostMapping("/delRegion")
+    public Map<String, Object> delRegion(@RequestBody SysCustomRegionDTO sysCustomRegionDTO) {
+
+        boolean flag = sysCustomRegionService.delRegion(sysCustomRegionDTO);
+
+        return Response.SUCCESS.newBuilder().out(flag ? "删除成功" : "删除失败").toResult();
+    }
+
 
     /**
      * 新建

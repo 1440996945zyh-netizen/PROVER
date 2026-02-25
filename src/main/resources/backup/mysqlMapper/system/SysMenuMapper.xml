@@ -182,6 +182,7 @@
             a.status,
             a.data_type,
             a.icon_app,
+            a.APP_TYPE,
             CASE a.status WHEN '1' THEN '正常' ELSE '停用' END AS statusLabel,
             IFNULL(a.perms, '') AS perms,
             a.icon,

@@ -33,4 +33,7 @@ public class SysCustomRegionPO extends BasePO implements Serializable {
     private String menuRouter;
     /**排序号*/
     private Integer sortNum;
+
+
+    private String dataType;
 }

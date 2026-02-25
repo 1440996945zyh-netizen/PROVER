@@ -35,7 +35,15 @@ public enum FileUploadBusinessTypeEnum {
     SUNDRY_ACCESSORY("SUNDRY_ACCESSORY", "", "杂货计划附件"),
     CARGO_REDUCE_PROOF("CARGO_REDUCE_PROOF", "", "票货减免凭证"),
     RELEASE_MANAGE("RELEASE_MANAGE", "", "放货凭证"),
-    ORDER_DELIVERY("ORDER_DELIVERY", "", "提货委托单");
+    ORDER_DELIVERY("ORDER_DELIVERY", "", "提货委托单"),
+    EQUIPMENT_ORIENTATION("EQUIPMENT_ORIENTATION", "", "设备台账方位图"),
+    EQUIPMENT_ACCESSORY("EQUIPMENT_ACCESSORY", "", "设备主要附属物"),
+    MAINT_INFO_IMAGE("MAINT_INFO_IMAGE", "", "设备维保图片"),
+    MAINT_INFO_IMAGE_END("MAINT_INFO_IMAGE_END", "", "设备维修完成图片"),
+    EQUIPMENT_PANORAMA("EQUIPMENT_PANORAMA", "", "设备台账全景图"),
+    EQUIPMENT_TASK("EQUIPMENT_TASK", "", "点检/保养任务"),
+    MATERIAL_WAREHOUSE_IN_FILE("MATERIAL_WAREHOUSE_IN_FILE", "", "物资入库附件"),
+    E_M_EQPT_FILE("E_M_EQPT_FILE", "", "设备资料文件");
 
     FileUploadBusinessTypeEnum(String code, String route, String comment) {
         this.code = code;

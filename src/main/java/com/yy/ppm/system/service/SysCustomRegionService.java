@@ -43,6 +43,17 @@ public interface SysCustomRegionService {
     public boolean doSave(SysCustomRegionDTO sysCustomRegionDTO);
 
     /**
+     * 保存
+     *
+     * @param sysCustomRegionDTO
+     * @return 是否成功
+     */
+    public boolean doAppSave(SysCustomRegionDTO sysCustomRegionDTO);
+
+
+    boolean delRegion(SysCustomRegionDTO dto);
+
+    /**
      * 批量保存
      *
      * @param list

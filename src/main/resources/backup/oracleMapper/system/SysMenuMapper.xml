@@ -179,35 +179,36 @@
 
     <select id="listApp" resultType="com.yy.ppm.system.bean.dto.SysMenuDTO">
         SELECT
-        A.id as menu_id,
-        A.menu_name,
-        A.parent_id,
-        A.order_num,
-        A.path,
-        A.component,
-        A.query,
-        A.is_frame,
-        A.is_cache,
-        A.menu_type,
-        A.visible,
-        A.status,
-        A.data_type,
-        A.icon_app,
-        DECODE( A.status, '1', '正常', '停用') as statusLabel,
-        nvl(perms,'') as perms,
-        A.icon,
-        A.create_time,
-        A.LINK
+            A.id as menu_id,
+            A.menu_name,
+            A.parent_id,
+            A.order_num,
+            A.path,
+            A.component,
+            A.query,
+            A.is_frame,
+            A.is_cache,
+            A.menu_type,
+            A.visible,
+            A.status,
+            A.data_type,
+            A.icon_app,
+            A.APP_TYPE,
+            DECODE( A.status, '1', '正常', '停用') as statusLabel,
+            nvl(perms,'') as perms,
+            A.icon,
+            A.create_time,
+            A.LINK
         FROM
-        SYS_MENU A,
-        SYS_ROLE_MENU B,
-        SYS_ROLE_USER C
+            SYS_MENU A,
+            SYS_ROLE_MENU B,
+            SYS_ROLE_USER C
         where
-        C.USER_ID = #{userId}
-        AND C.ROLE_ID = B.ROLE_ID
-        AND B.MENU_ID = A.ID
-        AND A.DATA_TYPE = 'APP'
-        AND A.status =  0
+            C.USER_ID = #{userId}
+          AND C.ROLE_ID = B.ROLE_ID
+          AND B.MENU_ID = A.ID
+          AND A.DATA_TYPE = 'APP'
+          AND A.status =  0
         order by parent_id, order_num
     </select>
 

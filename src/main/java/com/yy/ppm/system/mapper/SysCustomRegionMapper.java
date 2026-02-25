@@ -49,6 +49,9 @@ public interface SysCustomRegionMapper {
   */
  @Edit
  public int insert(SysCustomRegionDTO sysCustomRegionDTO);
+ public int getCount(SysCustomRegionDTO sysCustomRegionDTO);
+
+
 
  /**
   * 批量新增

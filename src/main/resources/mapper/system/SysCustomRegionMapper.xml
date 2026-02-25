@@ -100,6 +100,7 @@
             MENU_ID,
             MENU_ROUTER,
             SORT_NUM,
+            DATA_TYPE,
             CREATE_BY,
             CREATE_BY_NAME,
             CREATE_TIME
@@ -111,6 +112,7 @@
                     #{menuId, jdbcType=VARCHAR},
                     #{menuRouter, jdbcType=VARCHAR},
                     #{sortNum, jdbcType=VARCHAR},
+                    #{dataType, jdbcType=VARCHAR},
                     #{loginUserId, jdbcType=BIGINT},
                     #{loginUserName, jdbcType=VARCHAR},
                     #{now}
@@ -182,5 +184,14 @@
             USER_ID = #{userId,jdbcType=VARCHAR}
             AND MENU_ID = #{menuId,jdbcType=VARCHAR}
     </delete>
+    <select id="getCount" parameterType="com.yy.ppm.system.bean.dto.SysCustomRegionDTO">
+        SELECT COUNT(*)  FROM
+            sys_custom_region
+        WHERE
+            USER_ID = #{userId,jdbcType=VARCHAR}
+          AND MENU_ID = #{menuId,jdbcType=VARCHAR}
+          AND DATA_TYPE = #{dataType,jdbcType=VARCHAR}
+    </select>
+
 </mapper>
 
