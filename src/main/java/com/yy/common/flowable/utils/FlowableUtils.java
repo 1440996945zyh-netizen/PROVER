@@ -1,7 +1,9 @@
 package com.yy.common.flowable.utils;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.yy.common.flowable.common.KeyValue;
 import com.yy.common.flowable.constants.BpmnVariableConstants;
@@ -242,13 +244,11 @@ public class FlowableUtils {
             return null;
         }
 
-        // 解析表单配置
+        // 递归提取所有嵌套字段
         Map<String, BpmFormFieldDTO> formFieldsMap = new HashMap<>();
         processDefinitionInfo.getFormFields().forEach(formFieldStr -> {
-            BpmFormFieldDTO formField = JsonUtils.parseObject(formFieldStr, BpmFormFieldDTO.class);
-            if (formField != null) {
-                formFieldsMap.put(formField.getField(), formField);
-            }
+            BpmFormFieldDTO rootField = JsonUtils.parseObject(formFieldStr, BpmFormFieldDTO.class);
+            flattenFields(rootField, formFieldsMap); // 调用递归
         });
 
         // 情况一：当自定义了摘要
@@ -270,6 +270,25 @@ public class FlowableUtils {
                 .map(entry -> new KeyValue<>(entry.getValue().getTitle(),
                         MapUtil.getStr(processVariables, entry.getValue().getField(), "")))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 递归辅助方法
+     */
+    private static void flattenFields(BpmFormFieldDTO field, Map<String, BpmFormFieldDTO> map) {
+        if (field == null) return;
+
+        // 如果有 field 标识，存入 map
+        if (StrUtil.isNotBlank(field.getField())) {
+            map.put(field.getField(), field);
+        }
+
+        // 递归处理子节点
+        if (CollUtil.isNotEmpty(field.getChildren())) {
+            for (BpmFormFieldDTO child : field.getChildren()) {
+                flattenFields(child, map);
+            }
+        }
     }
 
     // ========== Task 相关的工具方法 ==========

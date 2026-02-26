@@ -147,7 +147,14 @@
             i.PROC_INST_ID,
             i.PROC_DEF_ID
         FROM BPM_APPLICATION_EXAMPLE b
-            LEFT JOIN BPM_BUSINESS_INSTANCE i ON b.ID = i.BUSINESS_DATA_ID
+            LEFT JOIN (
+            SELECT
+                PROC_INST_ID,
+                PROC_DEF_ID,
+                BUSINESS_DATA_ID,
+                ROW_NUMBER() OVER (PARTITION BY BUSINESS_DATA_ID ORDER BY ID DESC) as rn
+            FROM BPM_BUSINESS_INSTANCE
+        ) i ON b.ID = i.BUSINESS_DATA_ID AND i.rn = 1
         WHERE b.ID = #{id, jdbcType=NUMERIC}
     </select>
 
