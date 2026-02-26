@@ -228,8 +228,27 @@ public class BpmProcessDefinitionInfoPO extends BasePO implements Serializable {
      */
     public List<String> getFieldKeys() {
         if (this.formFields == null) return new ArrayList<>();
-        return this.formFields.stream()
-                .map(json -> JSONPath.read(json, "$.field").toString())
-                .collect(Collectors.toList());
+
+        List<String> allFields = new ArrayList<>();
+        for (String jsonStr : this.formFields) {
+            try {
+                // 递归获取 JSON 中所有层级的 field 属性值
+                Object readResult = JSONPath.read(jsonStr, "$..field");
+
+                if (readResult instanceof List<?> fields) {
+                    // 如果找到多个字段，会返回一个 List
+                    for (Object field : fields) {
+                        if (field != null) {
+                            allFields.add(field.toString());
+                        }
+                    }
+                } else if (readResult != null) {
+                    // 如果只找到一个字段
+                    allFields.add(readResult.toString());
+                }
+            } catch (Exception ignored) {}
+        }
+
+        return allFields.stream().distinct().collect(Collectors.toList());
     }
 }
