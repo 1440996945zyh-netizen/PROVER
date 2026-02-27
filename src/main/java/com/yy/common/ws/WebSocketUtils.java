@@ -5,6 +5,7 @@ import com.yy.common.enums.CommonEnum;
 import com.yy.common.enums.Response;
 import com.yy.common.enums.WebsocketEnum;
 import com.yy.common.util.JSONUtils;
+import com.yy.ppm.flowable.bean.dto.BpmMessageTemplateDTO;
 import com.yy.ppm.middleware.bean.po.WsOfflineMessagePO;
 import com.yy.ppm.middleware.service.WsMessageService;
 import jakarta.websocket.Session;
@@ -113,5 +114,28 @@ public class WebSocketUtils {
         } catch (IOException e) {
             offlineMessageService.add(wsOfflineMessagePO);
         }
+    }
+
+    /**
+     * 专门针对 BpmMessageTemplateDTO 的推送方法
+     * @param receiverAccount 接收人
+     * @param template 模板常量
+     * @param args 替换 {} 的参数列表
+     */
+    public static void sendTemplateNotification(String receiverAccount, BpmMessageTemplateDTO template, Object... args) {
+        // 格式化标题和内容
+        String finalTitle = cn.hutool.core.util.StrUtil.format(template.getTitle(), args);
+        String finalContent = cn.hutool.core.util.StrUtil.format(template.getContent(), args);
+
+        // 构造messageMap
+        Map<String, Object> messageMap = new HashMap<>();
+        messageMap.put("contentType", com.yy.common.enums.WebsocketEnum.PERSONAL_TYPE.getCode());
+        messageMap.put("receiverAccount", receiverAccount);
+        messageMap.put("senderAccount", "SYSTEM");
+        messageMap.put("content", finalContent);
+        // 使用模板中定义的显示类型
+        messageMap.put("mesShowType", template.getMesShowType());
+        // 此处直接调用您原有的核心发送逻辑
+        sendMessage(messageMap);
     }
 }
