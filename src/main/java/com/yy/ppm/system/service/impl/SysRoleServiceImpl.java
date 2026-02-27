@@ -380,4 +380,9 @@ public class SysRoleServiceImpl implements SysRoleService {
         return sysRoleMapper.getUserIdListByRoleIds(roleIds);
     }
 
+    @Override
+    public List<SysUserDTO> getUsersByRoleId(Long roleId) {
+        return sysRoleMapper.getUsersByRoleId(roleId);
+    }
+
 }
