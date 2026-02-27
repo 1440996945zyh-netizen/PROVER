@@ -68,7 +68,7 @@
             JOIN SYS_FILE_BUSINESS SFB ON SF.ID = SFB.FILE_ID
         <where>
             <if test="id != null">
-                and SFB.FILE_ID = #{id}
+                and SF.ID = #{id}
             </if>
             <if test="businessId != '' and businessId != null">
                 and SF.BUSINESS_ID = #{businessId}
@@ -144,7 +144,7 @@
     </delete>
 
     <!--删除文件信息-->
-    <delete id="deleteRelationByBusinessId" parameterType="java.lang.Long">
+    <delete id="deleteRelationByBusinessId" parameterType="java.lang.String">
         DELETE FROM SYS_FILE_BUSINESS WHERE BUSINESS_ID = #{businessId}
     </delete>
 

@@ -134,7 +134,7 @@ public class SysFileServiceImpl implements SysFileService {
         // 附件id为空 且业务主键不为空
         if(null == fileId && null != businessId){
             // 根据业务主键查询附件id
-            filesIdList = sysFileMapper.selectFileIdListByBusinessId(businessId);
+            filesIdList = sysFileMapper.selectFileIdListByBusinessId(businessId.toString());
         }else{
             filesIdList.add(fileId);
         }
@@ -219,7 +219,7 @@ public class SysFileServiceImpl implements SysFileService {
      * @param businessId
      */
     @Override
-    public void saveFileBusRelation(List<Long> fileIds, Long businessId) {
+    public void saveFileBusRelation(List<Long> fileIds, String businessId) {
 
         // 先删除
         sysFileMapper.deleteRelationByBusinessId(businessId);

@@ -18,6 +18,9 @@ import com.yy.framework.flowable.convert.BpmProcessInstanceConvert;
 import com.yy.framework.flowable.event.BpmProcessInstanceEventPublisher;
 import com.yy.framework.flowable.redis.BpmProcessIdRedisDAO;
 import com.yy.framework.flowable.strategy.BpmTaskCandidateInvoker;
+import com.yy.ppm.common.bean.dto.SysFileDTO;
+import com.yy.ppm.common.mapper.SysFileMapper;
+import com.yy.ppm.common.service.SysFileService;
 import com.yy.ppm.flowable.bean.dto.*;
 import com.yy.ppm.flowable.bean.po.BpmBusinessInstancePO;
 import com.yy.ppm.flowable.bean.po.BpmProcessDefinitionInfoPO;
@@ -126,6 +129,8 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
     @Resource
     private SysRoleService sysRoleService;
 
+    @Resource
+    private SysFileMapper sysFileMapper;
 
 
     @Autowired
@@ -228,6 +233,12 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
             activities = bpmTaskService.getActivityListByProcessInstanceId(reqVO.getProcessInstanceId());
             List<HistoricTaskInstance> tasks = bpmTaskService.getTaskListByProcessInstanceId(reqVO.getProcessInstanceId(),
                     true);
+
+            for (HistoricTaskInstance task : tasks) {
+                String businessId = task.getTaskDefinitionKey();
+                List<Long> fileIds = sysFileMapper.selectFileIdListByBusinessId(businessId);
+
+            }
             endActivityNodes = getEndActivityNodeList(startUserId, bpmnModel, processDefinitionInfo,
                     historicProcessInstance, processInstanceStatus, activities, tasks);
             runActivityNodes = getRunApproveNodeList(startUserId, bpmnModel, processDefinition, processVariables,

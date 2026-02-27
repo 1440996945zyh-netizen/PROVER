@@ -95,7 +95,7 @@ public class SysVersionControlServiceImpl implements SysVersionControlService {
 			if (sysVersionControlDTO != null) {
 
 		        // 先删除
-		        sysFileMapper.deleteRelationByBusinessId(id);
+		        sysFileMapper.deleteRelationByBusinessId(id.toString());
 
 				count = baseMapper.deleteById("SYS_VERSION_CONTROL", id);
 			}
@@ -117,12 +117,12 @@ public class SysVersionControlServiceImpl implements SysVersionControlService {
 			count = sysVersionControlMapper.insert(sysVersionControlPO);
 		} else {
 	        // 先删除
-	        sysFileMapper.deleteRelationByBusinessId(sysVersionControlPO.getId());
+	        sysFileMapper.deleteRelationByBusinessId(sysVersionControlPO.getId().toString());
 			count = sysVersionControlMapper.update(sysVersionControlPO);
 		}
 
         if (sysVersionControlPO.getId() != null && sysVersionControlPO.getFileId() != null) {
-        	sysFileMapper.insertFileBusiness(sysVersionControlPO.getFileId(), sysVersionControlPO.getId());
+        	sysFileMapper.insertFileBusiness(sysVersionControlPO.getFileId(), sysVersionControlPO.getId().toString());
         }
 
 		LOGGER.exit(methodName, StringUtils.EMPTY);

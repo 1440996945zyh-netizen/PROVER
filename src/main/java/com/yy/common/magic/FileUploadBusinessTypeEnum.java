@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 @Getter
 public enum FileUploadBusinessTypeEnum {
 
+    ELECTRIC_SIGN("ELECTRIC_SIGN","","电子签名"),
     BUSINESS_0001("0001", "", ""),
     BUSINESS_CONTRACT_01("BUSINESS_CONTRACT_01", "", "合同资料"),
     BUSINESS_CONTRACT_02("BUSINESS_CONTRACT_02", "", "合同附件"),

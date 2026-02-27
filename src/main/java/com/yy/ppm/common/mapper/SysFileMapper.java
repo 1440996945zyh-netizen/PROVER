@@ -67,7 +67,7 @@ public interface SysFileMapper {
      * @param businessId businessId
      * @return 影响行数
      */
-    int deleteRelationByBusinessId(Long businessId);
+    int deleteRelationByBusinessId(String businessId);
 
     /**
      * 删除文件信息
@@ -86,7 +86,7 @@ public interface SysFileMapper {
      * @param businessId
      * @return
      */
-    List<Long> selectFileIdListByBusinessId(@Param("businessId") Long businessId);
+    List<Long> selectFileIdListByBusinessId(@Param("businessId") String businessId);
 
     /**
      * 新增 业务附件中间表
@@ -103,5 +103,5 @@ public interface SysFileMapper {
      * @param fileId
      * @return
      */
-    int insertFileBusiness(@Param("fileId") Long fileId, @Param("businessId") Long businessId);
+    int insertFileBusiness(@Param("fileId") Long fileId, @Param("businessId") String businessId);
 }

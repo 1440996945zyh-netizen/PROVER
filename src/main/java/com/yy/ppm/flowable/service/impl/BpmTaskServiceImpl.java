@@ -12,6 +12,7 @@ import com.yy.common.page.Pages;
 import com.yy.common.util.PageConverterUtils;
 import com.yy.common.util.SecurityUtils;
 import com.yy.framework.flowable.convert.BpmTaskConvert;
+import com.yy.ppm.common.service.SysFileService;
 import com.yy.ppm.flowable.bean.dto.*;
 import com.yy.ppm.flowable.bean.po.BpmFormPO;
 import com.yy.ppm.flowable.bean.po.BpmProcessDefinitionInfoPO;
@@ -101,6 +102,9 @@ public class BpmTaskServiceImpl implements BpmTaskService {
 
     @Resource
     private SysRoleService sysRoleService;
+
+    @Resource
+    private SysFileService sysFileService;
 
 
     // ========== Query 查询相关方法 ==========
@@ -696,6 +700,8 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         updateTaskStatusAndReason(task.getId(), BpmTaskStatusEnum.APPROVE.getStatus(), reqVO.getReason());
         if (signEnable) {
             taskService.setVariableLocal(task.getId(), BpmnVariableConstants.TASK_SIGN_PIC_URL, reqVO.getSignPicUrl());
+            String businessId = task.getTaskDefinitionKey();
+            sysFileService.saveFileBusRelation(reqVO.getFileIds(),businessId);
         }
         // 2.2 添加评论
         taskService.addComment(task.getId(), task.getProcessInstanceId(), BpmCommentTypeEnum.APPROVE.getType(),

@@ -143,7 +143,7 @@
     </delete>
 
     <!--删除文件信息-->
-    <delete id="deleteRelationByBusinessId" parameterType="java.lang.Long">
+    <delete id="deleteRelationByBusinessId" parameterType="java.lang.String">
         DELETE FROM SYS_FILE_BUSINESS WHERE BUSINESS_ID = #{businessId}
     </delete>
 
