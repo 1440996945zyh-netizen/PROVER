@@ -224,6 +224,18 @@
         </foreach>
     </select>
 
+
+    <select id="getUsersByRoleId" resultType="com.yy.ppm.system.bean.dto.SysUserDTO">
+        SELECT
+            A.ID,
+            A.USER_ACCOUNT,
+            A.USER_NAME
+        FROM
+            SYS_USER A
+                LEFT JOIN  SYS_ROLE_USER B ON A.ID = B.USER_ID
+        WHERE B.ROLE_ID = #{roleId,jdbcType=BIGINT}
+    </select>
+
     <!-- 新增 -->
     <insert id="insert" parameterType="com.yy.ppm.system.bean.dto.SysRoleDTO">
         INSERT INTO sys_role(

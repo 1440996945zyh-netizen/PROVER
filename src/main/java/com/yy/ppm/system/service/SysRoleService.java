@@ -107,4 +107,11 @@ public interface SysRoleService {
      * @return
      */
     Set<Long> getUserIdListByRoleIds(Set<Long> roleIds);
+
+    /**
+     * 根据角色id查询用户信息
+     * @param aLong
+     * @return
+     */
+    List<SysUserDTO> getUsersByRoleId(Long aLong);
 }
