@@ -4,11 +4,14 @@ import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.util.StrUtil;
 import com.yy.common.enums.CommonEnum;
 import com.yy.common.enums.Response;
+import com.yy.common.enums.SysParameterEnum;
 import com.yy.common.enums.WebsocketEnum;
 import com.yy.common.util.JSONUtils;
 import com.yy.ppm.flowable.bean.dto.BpmMessageTemplateDTO;
 import com.yy.ppm.middleware.bean.po.WsOfflineMessagePO;
 import com.yy.ppm.middleware.service.WsMessageService;
+import com.yy.ppm.system.bean.dto.SysParameterDTO;
+import com.yy.ppm.system.service.SysParameterService;
 import jakarta.websocket.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,7 +28,7 @@ import java.util.*;
 public class WebSocketUtils {
     private static Snowflake snowflake;
     private static WsMessageService offlineMessageService;
-
+    private static SysParameterService sysParameterService;
 
     @Autowired
     public void setOfflineMessageService(WsMessageService offlineMessageService) {
@@ -35,6 +38,11 @@ public class WebSocketUtils {
     @Autowired
     public void setSnowflake(Snowflake snowflake) {
         WebSocketUtils.snowflake = snowflake;
+    }
+
+    @Autowired
+    public void setSysParameterService(SysParameterService sysParameterService) {
+        WebSocketUtils.sysParameterService = sysParameterService;
     }
 
     public static void sendMessage(Map<String, Object> messageMap) {
@@ -124,6 +132,9 @@ public class WebSocketUtils {
      * @param args 替换 {} 的参数列表
      */
     public static void sendTemplateNotification(String receiverAccount, BpmMessageTemplateDTO template, Object... args) {
+        if (!isWebSocketPushEnabled()) {
+            return;
+        }
         // 格式化标题和内容
         String finalTitle = StrUtil.format(template.getTitle(), args);
         String finalContent = StrUtil.format(template.getContent(), args);
@@ -138,5 +149,25 @@ public class WebSocketUtils {
         messageMap.put("mesShowType", template.getMesShowType());
         // 此处直接调用您原有的核心发送逻辑
         sendMessage(messageMap);
+    }
+
+    /**
+     * 校验 WebSocket 消息推送总开关
+     * @return true: 允许推送, false: 拒绝推送
+     */
+    private static boolean isWebSocketPushEnabled() {
+        try {
+            if (sysParameterService != null) {
+                SysParameterDTO config = sysParameterService.getConfig(SysParameterEnum.WEBSOCKET_MESSAGE_SWITCH.getCode());
+
+                String paramVal = config != null ? config.getParamVal() : SysParameterEnum.WEBSOCKET_MESSAGE_SWITCH.getDefaultValue();
+
+                // 如果值为 N，则拦截推送
+                if ("N".equalsIgnoreCase(paramVal)) {
+                    return false;
+                }
+            }
+        } catch (Exception ignored) {}
+        return true;
     }
 }
