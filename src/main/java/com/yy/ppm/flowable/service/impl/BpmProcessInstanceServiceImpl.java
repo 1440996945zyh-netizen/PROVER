@@ -233,12 +233,12 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
             activities = bpmTaskService.getActivityListByProcessInstanceId(reqVO.getProcessInstanceId());
             List<HistoricTaskInstance> tasks = bpmTaskService.getTaskListByProcessInstanceId(reqVO.getProcessInstanceId(),
                     true);
-
-            for (HistoricTaskInstance task : tasks) {
-                String businessId = task.getTaskDefinitionKey();
-                List<Long> fileIds = sysFileMapper.selectFileIdListByBusinessId(businessId);
-
-            }
+//
+//            for (HistoricTaskInstance task : tasks) {
+//                String businessId = task.getTaskDefinitionKey();
+//                List<Long> fileIds = sysFileMapper.selectFileIdListByBusinessId(businessId);
+//
+//            }
             endActivityNodes = getEndActivityNodeList(startUserId, bpmnModel, processDefinitionInfo,
                     historicProcessInstance, processInstanceStatus, activities, tasks);
             runActivityNodes = getRunApproveNodeList(startUserId, bpmnModel, processDefinition, processVariables,
