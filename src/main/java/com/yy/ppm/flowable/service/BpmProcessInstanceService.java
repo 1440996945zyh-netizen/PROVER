@@ -191,4 +191,12 @@ public interface BpmProcessInstanceService {
      * @param deleteReason 删除原因
      */
     void deleteProcessInstanceByBusinessDataId(Long businessDataId, String deleteReason);
+
+
+    /**
+     * 获取电子签
+     * @param
+     * @return
+     */
+    Long getPersonalSign();
 }

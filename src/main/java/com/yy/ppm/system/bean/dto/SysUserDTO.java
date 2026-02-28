@@ -50,5 +50,6 @@ public class SysUserDTO extends SysUserPO implements Serializable {
 
     private Long workPlanId;
 
-
+    /**文件id*/
+    private List<Long> fileIds;
 }
