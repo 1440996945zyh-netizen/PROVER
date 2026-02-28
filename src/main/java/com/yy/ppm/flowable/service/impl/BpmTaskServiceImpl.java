@@ -1127,9 +1127,12 @@ public class BpmTaskServiceImpl implements BpmTaskService {
                 // 设置流程变量（local）节点退回标记, 用于退回到节点，不执行 BpmUserTaskAssignStartUserHandlerTypeEnum 策略，导致自动通过
                 .localVariable(reqVO.getTargetTaskDefinitionKey(),
                         String.format(BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_RETURN_FLAG, reqVO.getTargetTaskDefinitionKey()), Boolean.TRUE)
+                .localVariable(reqVO.getTargetTaskDefinitionKey(), "SKIP_DEFAULT_NOTIFY", true)
                 .changeState();
 
         // 5. 发送【退回】消息给被退回的接收人
+        // 判断【退回到的目标节点】是否配置了强制推送
+        boolean forcePush = isForcePushNode(currentTask.getProcessDefinitionId(), reqVO.getTargetTaskDefinitionKey());
         try {
             // 5.1 获取操作人姓名（也就是当前执行退回操作的人）
             SysUserDTO currentUser = sysUserService.getById(userId);
@@ -1168,12 +1171,12 @@ public class BpmTaskServiceImpl implements BpmTaskService {
 
             // 5.3 执行 WebSocket 模板推送
             if (StrUtil.isNotBlank(receiverAccount)) {
+                Object[] args = new Object[]{ operatorName, currentTask.getName(), StrUtil.blankToDefault(reqVO.getReason(), "无") };
                 WebSocketUtils.sendTemplateNotification(
                         receiverAccount,
                         BpmMessageConstants.TASK_RETURN,
-                        operatorName,
-                        currentTask.getName(),
-                        StrUtil.blankToDefault(reqVO.getReason(), "无")
+                        forcePush,
+                        args
                 );
             }
         } catch (Exception e) {
@@ -1239,6 +1242,8 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         if (StrUtil.isEmpty(task.getOwner())) {
             taskService.setOwner(taskId, task.getAssignee());
         }
+        // 判断当前节点是否需要强推
+        boolean forcePush = isForcePushNode(task.getProcessDefinitionId(), task.getTaskDefinitionKey());
         // 省略调默认消息推送
         taskService.setVariableLocal(taskId, "SKIP_DEFAULT_NOTIFY", true);
         // 3.2 执行委派，将任务委派给 delegateUser
@@ -1247,11 +1252,12 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         // 3.3 发送消息提醒
         SysUserDTO delegateUserDto = sysUserService.getById(reqVO.getDelegateUserId());
         if (delegateUserDto != null && StrUtil.isNotBlank(delegateUserDto.getUserAccount())) {
+            Object[] args = new Object[]{ currentUser.getUserName(), task.getName() };
             WebSocketUtils.sendTemplateNotification(
                     delegateUserDto.getUserAccount(),
                     BpmMessageConstants.TASK_DELEGATE,
-                    currentUser.getUserName(),
-                    task.getName()
+                    forcePush,
+                    args
             );
         }
     }
@@ -1287,6 +1293,8 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         if (StrUtil.isEmpty(task.getOwner())) {
             taskService.setOwner(taskId, task.getAssignee());
         }
+        // 判断当前节点是否需要强推
+        boolean forcePush = isForcePushNode(task.getProcessDefinitionId(), task.getTaskDefinitionKey());
         // 省略调默认消息推送
         taskService.setVariableLocal(taskId, "SKIP_DEFAULT_NOTIFY", true);
         // 3.2 执行转派（审批人），将任务转派给 assigneeUser
@@ -1294,11 +1302,12 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         taskService.setAssignee(taskId, reqVO.getAssigneeUserId().toString());
         // 3.3 发送消息提醒
         if (StrUtil.isNotBlank(assigneeUser.getUserAccount())) {
+            Object[] args = new Object[]{ currentUser.getUserName(), task.getName() };
             WebSocketUtils.sendTemplateNotification(
                     assigneeUser.getUserAccount(),
                     BpmMessageConstants.TASK_TRANSFER,
-                    currentUser.getUserName(),
-                    task.getName()
+                    forcePush,
+                    args
             );
         }
     }
@@ -2164,6 +2173,26 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         } catch (Exception e) {
             log.error("[WebSocket推送] 待办任务消息发送失败, taskId: {}", task.getId(), e);
         }
+    }
+
+    /**
+     * 判断某个节点是否配置了自定义的 WebSocket 强制推送监听器
+     */
+    private boolean isForcePushNode(String processDefinitionId, String taskDefinitionKey) {
+        BpmnModel bpmnModel = modelService.getBpmnModelByDefinitionId(processDefinitionId);
+        if (bpmnModel == null) return false;
+
+        FlowElement element = BpmnModelUtils.getFlowElementById(bpmnModel, taskDefinitionKey);
+        if (element instanceof UserTask) {
+            List<FlowableListener> listeners = ((UserTask) element).getTaskListeners();
+            for (FlowableListener listener : listeners) {
+                // 只要找到了配置的消息推送监听器，就返回 true
+                if ("${WebsocketNotifyTaskListener}".equals(listener.getImplementation())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }

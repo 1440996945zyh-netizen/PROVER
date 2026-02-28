@@ -127,28 +127,39 @@ public class WebSocketUtils {
 
     /**
      * 专门针对 BpmMessageTemplateDTO 的推送方法
+     *
      * @param receiverAccount 接收人
      * @param template 模板常量
+     * @param forcePush 是否强制推送 (如果为true，将无视系统全局开关，强行发送)
      * @param args 替换 {} 的参数列表
      */
-    public static void sendTemplateNotification(String receiverAccount, BpmMessageTemplateDTO template, Object... args) {
-        if (!isWebSocketPushEnabled()) {
-            return;
+    public static void sendTemplateNotification(String receiverAccount, BpmMessageTemplateDTO template, boolean forcePush, Object... args) {
+
+        // 只有在 不是强制推送 且 全局开关关闭 的情况下，才拦截
+        if (!forcePush && !isWebSocketPushEnabled()) {
+            return; // 开关为 N，且未声明强制发送，中止
         }
+
         // 格式化标题和内容
-        String finalTitle = StrUtil.format(template.getTitle(), args);
-        String finalContent = StrUtil.format(template.getContent(), args);
+        String finalTitle = cn.hutool.core.util.StrUtil.format(template.getTitle(), args);
+        String finalContent = cn.hutool.core.util.StrUtil.format(template.getContent(), args);
 
         // 构造messageMap
         Map<String, Object> messageMap = new HashMap<>();
-        messageMap.put("contentType", WebsocketEnum.PERSONAL_TYPE.getCode());
+        messageMap.put("contentType", com.yy.common.enums.WebsocketEnum.PERSONAL_TYPE.getCode());
         messageMap.put("receiverAccount", receiverAccount);
         messageMap.put("senderAccount", "SYSTEM");
         messageMap.put("content", finalContent);
-        // 使用模板中定义的显示类型
         messageMap.put("mesShowType", template.getMesShowType());
-        // 此处直接调用您原有的核心发送逻辑
+
         sendMessage(messageMap);
+    }
+
+    /**
+     * 重载方法
+     */
+    public static void sendTemplateNotification(String receiverAccount, BpmMessageTemplateDTO template, Object... args) {
+        sendTemplateNotification(receiverAccount, template, false, args);
     }
 
     /**
