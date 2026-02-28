@@ -141,12 +141,12 @@ public class WebSocketUtils {
         }
 
         // 格式化标题和内容
-        String finalTitle = cn.hutool.core.util.StrUtil.format(template.getTitle(), args);
-        String finalContent = cn.hutool.core.util.StrUtil.format(template.getContent(), args);
+        String finalTitle = StrUtil.format(template.getTitle(), args);
+        String finalContent = StrUtil.format(template.getContent(), args);
 
         // 构造messageMap
         Map<String, Object> messageMap = new HashMap<>();
-        messageMap.put("contentType", com.yy.common.enums.WebsocketEnum.PERSONAL_TYPE.getCode());
+        messageMap.put("contentType", WebsocketEnum.PERSONAL_TYPE.getCode());
         messageMap.put("receiverAccount", receiverAccount);
         messageMap.put("senderAccount", "SYSTEM");
         messageMap.put("content", finalContent);
