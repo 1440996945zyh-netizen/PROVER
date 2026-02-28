@@ -1290,9 +1290,10 @@ public class BpmTaskServiceImpl implements BpmTaskService {
 
         // 3.1 设置任务所有人 (owner) 为原任务的处理人 (assignee)
         // 特殊：如果已经被转派（owner 非空），则不需要更新 owner：https://gitee.com/zhijiantianya/yudao-cloud/issues/ICJ153
-        if (StrUtil.isEmpty(task.getOwner())) {
-            taskService.setOwner(taskId, task.getAssignee());
-        }
+        // TODO 注释掉下面代码 因为下面代码导致了 转办之后委派后出现的bug
+        //if (StrUtil.isEmpty(task.getOwner())) {
+        //    taskService.setOwner(taskId, task.getAssignee());
+        //}
         // 判断当前节点是否需要强推
         boolean forcePush = isForcePushNode(task.getProcessDefinitionId(), task.getTaskDefinitionKey());
         // 省略调默认消息推送
