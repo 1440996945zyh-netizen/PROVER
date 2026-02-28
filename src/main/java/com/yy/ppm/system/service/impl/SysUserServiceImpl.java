@@ -8,6 +8,8 @@ import java.util.Map;
 import cn.hutool.core.collection.CollUtil;
 import com.yy.common.flowable.enums.CommonStatusEnum;
 import com.yy.common.flowable.utils.CollectionUtils;
+import com.yy.framework.exception.BusinessRuntimeException;
+import com.yy.ppm.common.service.SysFileService;
 import jakarta.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
@@ -76,6 +78,8 @@ public class SysUserServiceImpl implements SysUserService {
 
 	@Autowired
 	private CommonService baseService;
+	@Resource
+	private SysFileService sysFileService;
 
 	@Override
 	public Pages<SysUserDTO> getList(SysUserSearchDTO sysUserSearchDTO) {
@@ -130,6 +134,9 @@ public class SysUserServiceImpl implements SysUserService {
 		if(sysUserDTO.getSortNum() == null){
 			sysUserDTO.setSortNum(Long.valueOf(baseService.getNextValue("sys_user","sort_num",null)));
 		}
+		if(sysUserDTO.getFileIds().size()>1){
+			throw new BusinessRuntimeException("只能上传一个签名文件");
+		}
 
 		int count = 0;
 
@@ -163,6 +170,8 @@ public class SysUserServiceImpl implements SysUserService {
 		if (CommonEnum.IsUsed.UNUSED.getCode().equals(sysUserDTO.getStatus())) {
 			userCacheService.cleanCacheByAccNo(sysUserDTO.getUserAccount());
 		}
+
+		sysFileService.saveFileBusRelation(sysUserDTO.getFileIds(),sysUserDTO.getId().toString());
 
 		LOGGER.exit(methodName, StringUtils.EMPTY);
 		return count;

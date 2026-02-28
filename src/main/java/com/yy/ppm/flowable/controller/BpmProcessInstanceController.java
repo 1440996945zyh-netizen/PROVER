@@ -207,6 +207,17 @@ public class BpmProcessInstanceController {
     }
 
     /**
+     * 获取电子签
+     * @param
+     * @return
+     */
+    @GetMapping("/getPersonalSign")
+    public Map<String,Object> getPersonalSign() {
+        Long fileId = processInstanceService.getPersonalSign();
+        return Response.SUCCESS.newBuilder().toResult(fileId);
+    }
+
+    /**
      * 获取下一个执行的流程节点
      * @param reqVO
      * @return

@@ -12,8 +12,12 @@ import com.yy.common.flowable.constants.BpmnVariableConstants;
 import com.yy.common.flowable.constants.ErrorCodeConstants;
 import com.yy.common.flowable.enums.*;
 import com.yy.common.flowable.utils.*;
+import com.yy.common.magic.FileUploadBusinessTypeEnum;
 import com.yy.common.page.Pages;
 import com.yy.common.util.PageConverterUtils;
+import com.yy.common.util.SecurityUtils;
+import com.yy.common.util.str.StringUtil;
+import com.yy.framework.exception.BusinessRuntimeException;
 import com.yy.framework.flowable.convert.BpmProcessInstanceConvert;
 import com.yy.framework.flowable.event.BpmProcessInstanceEventPublisher;
 import com.yy.framework.flowable.redis.BpmProcessIdRedisDAO;
@@ -1304,6 +1308,22 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         // 4. 删除业务关联中间表数据
         bpmBusinessInstanceMapper.deleteByBusinessDataId(businessDataId);
         log.info("[删除业务流程] 成功清理中间表关联记录，业务ID: {}", businessDataId);
+    }
+
+
+    /**
+     * 获取电子签
+     * @param
+     * @return
+     */
+    @Override
+    public Long getPersonalSign() {
+        Long loginUserId = SecurityUtils.getLoginUserId();
+        List<SysFileDTO> fileDTOS = sysFileMapper.getBusFiles(loginUserId, FileUploadBusinessTypeEnum.PERSONAL_SIGN.getCode());
+        if(StringUtil.isEmpty(fileDTOS)){
+            throw new BusinessRuntimeException("未维护个人电子签名");
+        }
+        return fileDTOS.get(0).getId();
     }
 
 }
