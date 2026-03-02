@@ -14,10 +14,9 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -71,13 +70,153 @@ public class MEquipmentTypeServiceImpl implements MEquipmentTypeService {
         // 构建树形结构
         return buildTree(allList, null);
     }
+
     /**
-     * 查询设备类型分类树形列表
+     * 查询设备零部件树形列表（设备小类 -> 设备机构 -> 设备部件）
      */
     @Override
     public List<MEquipmentTypeDTO> partsTree(MEquipmentTypeDTO mEquipmentTypeDTO) {
-        List<MEquipmentTypeDTO> allList = mapper.partsTree(mEquipmentTypeDTO);
-        return buildTree(allList, null);
+        // 关键字
+        String keyword = mEquipmentTypeDTO == null ? null : mEquipmentTypeDTO.getTypeName();
+        keyword = (keyword == null) ? "" : keyword.trim();
+        final String kw = keyword;
+
+        // 1) 取全量(当前模块为3级：小类/机构/部件)，用于“父链/子树”裁剪
+        List<MEquipmentTypeDTO> allRaw = mapper.partsTree(new MEquipmentTypeDTO());
+
+        // 2) 防止 children 残留：拷贝节点并清空 children
+        List<MEquipmentTypeDTO> allList = allRaw.stream()
+                .map(this::copyNodeWithoutChildren)
+                .collect(Collectors.toList());
+
+        if (kw.isEmpty()) {
+            return buildTreeClean(allList);
+        }
+
+        // 3) 建索引：id->node / parent->children
+        Map<Long, MEquipmentTypeDTO> byId = allList.stream()
+                .filter(x -> x.getId() != null)
+                .collect(Collectors.toMap(MEquipmentTypeDTO::getId, a -> a, (a, b) -> a));
+
+        Map<Long, List<MEquipmentTypeDTO>> childrenMap = allList.stream()
+                .collect(Collectors.groupingBy(x -> {
+                    Long pid = x.getParentId();
+                    return (pid == null ? 0L : pid);
+                }));
+
+        // 4) 先精确匹配，精确无结果再模糊匹配；最终只取“最优的一个命中”
+        List<MEquipmentTypeDTO> exact = allList.stream()
+                .filter(n -> n.getTypeName() != null && n.getTypeName().trim().equals(kw))
+                .collect(Collectors.toList());
+
+        MEquipmentTypeDTO bestHit = null;
+
+        if (!exact.isEmpty()) {
+            // 多个精确命中时，选一个（按id最小，保证稳定）
+            bestHit = exact.stream()
+                    .filter(x -> x.getId() != null)
+                    .min(Comparator.comparing(MEquipmentTypeDTO::getId))
+                    .orElse(exact.get(0));
+        } else {
+            List<MEquipmentTypeDTO> fuzzy = allList.stream()
+                    .filter(n -> n.getTypeName() != null && n.getTypeName().contains(kw))
+                    .collect(Collectors.toList());
+            if (!fuzzy.isEmpty()) {
+                // 模糊命中：优先“名称最短且更接近关键字”的那条
+                bestHit = fuzzy.stream()
+                        .min(Comparator.comparingInt((MEquipmentTypeDTO n) -> n.getTypeName().length())
+                                .thenComparing(n -> n.getId() == null ? Long.MAX_VALUE : n.getId()))
+                        .orElse(fuzzy.get(0));
+            }
+        }
+
+        if (bestHit == null || bestHit.getId() == null) {
+            return new ArrayList<>();
+        }
+
+        // 5) 计算要保留的节点ID：命中节点 + 父链 +
+        //    规则：
+        //    - 命中“设备部件”(最后一级) => 只保留父链 + 自身
+        //    - 命中“设备小类/设备机构”(非最后一级) => 额外保留其所有子级
+        Set<Long> keepIds = new HashSet<>();
+        keepIds.add(bestHit.getId());
+
+        // 父链（一直到根：parentId=null/0）
+        Long pid = bestHit.getParentId();
+        while (pid != null && pid != 0) {
+            keepIds.add(pid);
+            MEquipmentTypeDTO p = byId.get(pid);
+            if (p == null) {
+                break;
+            }
+            pid = p.getParentId();
+        }
+
+        // 判断是否最后一级：如果它还有孩子，就认为不是最后一级；否则视为末级（设备部件）
+        boolean hasChildren = childrenMap.containsKey(bestHit.getId()) && childrenMap.get(bestHit.getId()) != null
+                && !childrenMap.get(bestHit.getId()).isEmpty();
+        if (hasChildren) {
+            collectDescendants(bestHit.getId(), childrenMap, keepIds);
+        }
+
+        // 6) 只用 keepIds 子集构树（保证不会带出兄弟节点）
+        List<MEquipmentTypeDTO> subset = allList.stream()
+                .filter(n -> n.getId() != null && keepIds.contains(n.getId()))
+                .map(this::copyNodeWithoutChildren) // 再次清 children，杜绝任何残留
+                .collect(Collectors.toList());
+
+        return buildTreeClean(subset);
+    }
+
+    /**
+     * 深拷贝并清 children，避免历史 children 残留导致“带出其他子节点”
+     */
+    private MEquipmentTypeDTO copyNodeWithoutChildren(MEquipmentTypeDTO src) {
+        MEquipmentTypeDTO t = new MEquipmentTypeDTO();
+        BeanUtils.copyProperties(src, t);
+        t.setChildren(null);
+        return t;
+    }
+
+    /**
+     * 收集某节点的全部后代ID（命中父级时返回完整子树）
+     */
+    private void collectDescendants(Long id, Map<Long, List<MEquipmentTypeDTO>> childrenMap, Set<Long> keepIds) {
+        List<MEquipmentTypeDTO> cs = childrenMap.get(id);
+        if (cs == null || cs.isEmpty()) {
+            return;
+        }
+        for (MEquipmentTypeDTO c : cs) {
+            if (c.getId() == null) {
+                continue;
+            }
+            if (keepIds.add(c.getId())) {
+                collectDescendants(c.getId(), childrenMap, keepIds);
+            }
+        }
+    }
+
+    /**
+     * 构树：每次都重新生成 children（不复用旧对象 children）
+     */
+    private List<MEquipmentTypeDTO> buildTreeClean(List<MEquipmentTypeDTO> nodes) {
+        Map<Long, List<MEquipmentTypeDTO>> byParent = nodes.stream()
+                .collect(Collectors.groupingBy(x -> {
+                    Long pid = x.getParentId();
+                    return (pid == null ? 0L : pid);
+                }));
+
+        Function<Long, List<MEquipmentTypeDTO>> build = new Function<>() {
+            @Override
+            public List<MEquipmentTypeDTO> apply(Long pid) {
+                List<MEquipmentTypeDTO> list = byParent.getOrDefault(pid, new ArrayList<>());
+                for (MEquipmentTypeDTO n : list) {
+                    n.setChildren(apply(n.getId()));
+                }
+                return list;
+            }
+        };
+        return build.apply(0L);
     }
 
     /**
@@ -101,7 +240,7 @@ public class MEquipmentTypeServiceImpl implements MEquipmentTypeService {
         for (MEquipmentTypeDTO item : allList) {
             Long itemParentId = item.getParentId();
             if ((parentId == null && (itemParentId == null || itemParentId == 0)) ||
-                (parentId != null && parentId.equals(itemParentId))) {
+                    (parentId != null && parentId.equals(itemParentId))) {
                 item.setChildren(buildTree(allList, item.getId()));
                 result.add(item);
             }
@@ -149,9 +288,9 @@ public class MEquipmentTypeServiceImpl implements MEquipmentTypeService {
 
         // 验证同级下名称不能重复
         int count = mapper.countByNameAndParent(
-            dto.getTypeName(),
-            dto.getParentId(),
-            dto.getId()
+                dto.getTypeName(),
+                dto.getParentId(),
+                dto.getId()
         );
         if (count > 0) {
             throw new BusinessRuntimeException("同级下已存在相同的设备类型名称");
@@ -179,8 +318,9 @@ public class MEquipmentTypeServiceImpl implements MEquipmentTypeService {
             mapper.update(po);
         }
     }
+
     /**
-     * 新增或修改设备类型分类
+     * 新增或修改设备零部件分类（3~5）
      */
     @Override
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
@@ -211,9 +351,9 @@ public class MEquipmentTypeServiceImpl implements MEquipmentTypeService {
 
         // 验证同级下名称不能重复
         int count = mapper.countByNameAndParent(
-            dto.getTypeName(),
-            dto.getParentId(),
-            dto.getId()
+                dto.getTypeName(),
+                dto.getParentId(),
+                dto.getId()
         );
         if (count > 0) {
             throw new BusinessRuntimeException("同级下已存在相同的设备类型名称");
@@ -233,10 +373,10 @@ public class MEquipmentTypeServiceImpl implements MEquipmentTypeService {
             // 修改
             // 检查是否有子级，如果有子级，不能修改分类级别
             if (dto.getCategoryLevel() != null) {
-               int childCount = mapper.countByParentId(dto.getId());
-               if (childCount > 0) {
-                   throw new BusinessRuntimeException("该分类下存在子级，不能修改分类级别");
-               }
+                int childCount = mapper.countByParentId(dto.getId());
+                if (childCount > 0) {
+                    throw new BusinessRuntimeException("该分类下存在子级，不能修改分类级别");
+                }
             }
             mapper.update(po);
         }
@@ -319,4 +459,3 @@ public class MEquipmentTypeServiceImpl implements MEquipmentTypeService {
         return pathDTO;
     }
 }
-
