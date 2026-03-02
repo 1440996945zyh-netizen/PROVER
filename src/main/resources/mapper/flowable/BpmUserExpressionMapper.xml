@@ -89,13 +89,13 @@
     </select>
 
     <!-- selectSimpleList: 获取审批弹窗的精简列表 -->
-    <select id="selectSimpleList" parameterType="long" resultMap="BpmUserExpressionResultMap">
+    <select id="selectSimpleList" parameterType="com.yy.ppm.flowable.bean.dto.BpmUserExpressionSearchDTO" resultMap="BpmUserExpressionResultMap">
         SELECT
-        ID, CONTENT, EXPRESSION_TYPE, SORT
+        ID, CONTENT, EXPRESSION_TYPE, SORT, EXPRESSION_TYPE_NAME
         FROM BPM_USER_EXPRESSION
         WHERE
         <!-- 核心逻辑：查询当前用户的，或者全局的 -->
-        (USER_ID = #{loginUserId} OR USER_ID IS NULL)
+        (USER_ID = #{userId} OR USER_ID IS NULL)
         <!-- 必须是启用状态 -->
         AND STATUS = 0
         <!-- 排序，保证前端显示顺序稳定 -->

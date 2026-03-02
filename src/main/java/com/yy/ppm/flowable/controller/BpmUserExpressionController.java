@@ -86,4 +86,17 @@ public class BpmUserExpressionController {
         return Response.SUCCESS.newBuilder().toResult(expression);
     }
 
+
+    /**
+     * 获取常用审批语精简列表
+     * @param loginUserId 当前登录用户编号
+     * @return 常用审批语精简列表
+     *
+     */
+     @GetMapping("/getSimpleList")
+    @PreAuthorize("@ss.hasPermission('bpm:processLanguage:query')")
+    public Map<String, Object> getSimpleList(@Valid BpmUserExpressionSearchDTO searchDTO) {
+            List<BpmUserExpressionPO> expressionList = userExpressionService.selectSimpleList(searchDTO);
+        return Response.SUCCESS.newBuilder().toResult(expressionList);
+    }
 }

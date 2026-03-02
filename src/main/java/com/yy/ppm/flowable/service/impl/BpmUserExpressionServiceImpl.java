@@ -115,6 +115,18 @@ public class BpmUserExpressionServiceImpl implements BpmUserExpressionService {
     }
 
 
+    /**
+     * 获取常用审批语精简列表
+     * @param searchDTO 查询参数
+     * @return 常用审批语精简列表
+     */
+    @Override
+    public List<BpmUserExpressionPO> selectSimpleList(BpmUserExpressionSearchDTO searchDTO) {
+        Long loginUserId = securityUtils.getLoginUserId(); // TODO: 获取当前登录用户ID
+        searchDTO.setUserId(loginUserId);
+        return userExpressionMapper.selectSimpleList(searchDTO);
+    }
+
 
     /**
      * 校验常用审批语是否存在，并且当前用户有权操作
@@ -141,4 +153,7 @@ public class BpmUserExpressionServiceImpl implements BpmUserExpressionService {
 
         return expression;
     }
+
+
+
 }

@@ -47,5 +47,10 @@ public interface BpmUserExpressionService {
     Pages<BpmUserExpressionPO> getList(BpmUserExpressionSearchDTO searchDTO);
 
 
-
+    /**
+     * 获取常用审批语精简列表
+     * @param searchDTO 查询参数
+     * @return 常用审批语精简列表
+     */
+     List<BpmUserExpressionPO> selectSimpleList(BpmUserExpressionSearchDTO searchDTO);
 }
