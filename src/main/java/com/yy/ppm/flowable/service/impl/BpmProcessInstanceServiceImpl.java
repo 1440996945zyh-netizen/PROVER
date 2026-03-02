@@ -1215,7 +1215,12 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         // 3. 执行更新
         bpmBusinessInstanceMapper.updateByProcInstId(bpmBusinessInstanceDTO);
 
-
+        // ================= 在此处添加测试异常 =================
+    // 模拟业务回调报错，测试是否会影响 Flowable 引擎的状态提交
+//            if (true) {
+//                throw new RuntimeException("测试：业务回调异常，验证流程状态是否回滚");
+//            }
+// ===================================================
 
         // 3. 发送流程实例的状态事件
         processInstanceEventPublisher.sendProcessInstanceResultEvent(
