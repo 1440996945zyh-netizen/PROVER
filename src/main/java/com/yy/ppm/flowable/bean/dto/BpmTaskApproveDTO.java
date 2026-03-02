@@ -40,4 +40,6 @@ public class BpmTaskApproveDTO {
      */
     private Map<String, List<Long>> nextAssignees; // 为什么是 Map，而不是 List 呢？因为下一个节点可能是多个，例如说并行网关的情况
 
+    /**文件id*/
+    private List<Long> fileIds;
 }

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.flowable.mapper.BpmUserExpressionMapper">
+    <!-- 结果集映射：将数据库下划线命名映射到 Java 驼峰命名 -->
+    <resultMap id="BpmUserExpressionResultMap" type="com.yy.ppm.flowable.bean.po.BpmUserExpressionPO">
+        <id property="id" column="ID"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="content" column="CONTENT"/>
+        <result property="expressionType" column="EXPRESSION_TYPE"/>
+        <result property="expressionTypeName" column="EXPRESSION_TYPE_NAME"/>
+        <result property="sort" column="SORT"/>
+        <result property="status" column="STATUS"/>
+        <result property="createBy" column="CREATE_BY"/>
+        <result property="createByName" column="CREATE_BY_NAME"/>
+        <result property="createTime" column="CREATE_TIME"/>
+        <result property="updateBy" column="UPDATE_BY"/>
+        <result property="updateByName" column="UPDATE_BY_NAME"/>
+        <result property="updateTime" column="UPDATE_TIME"/>
+    </resultMap>
+
+    <!-- insert: 插入一条记录 -->
+    <insert id="insert" parameterType="com.yy.ppm.flowable.bean.po.BpmUserExpressionPO">
+        INSERT INTO BPM_USER_EXPRESSION (
+            ID, USER_ID, CONTENT, EXPRESSION_TYPE,EXPRESSION_TYPE_NAME, SORT, STATUS,
+            CREATE_BY, CREATE_BY_NAME, CREATE_TIME
+        ) VALUES (
+                     #{id}, #{loginUserId}, #{content}, #{expressionType}, #{expressionTypeName}, #{sort}, #{status},
+                     #{loginUserId}, #{loginUserName}, #{now}
+                 )
+    </insert>
+
+    <!-- updateById: 根据ID更新记录 -->
+    <update id="updateById" parameterType="com.yy.ppm.flowable.bean.po.BpmUserExpressionPO">
+        UPDATE BPM_USER_EXPRESSION
+        <set>
+            <if test="content != null and content != ''">
+                CONTENT = #{content},
+            </if>
+            <if test="expressionType != null">
+                EXPRESSION_TYPE = #{expressionType},
+            </if>
+            <if test="expressionTypeName != null">
+                EXPRESSION_TYPE_NAME = #{expressionTypeName},
+            </if>
+            <if test="sort != null">
+                SORT = #{sort},
+            </if>
+            <if test="status != null">
+                STATUS = #{status},
+            </if>
+            update_by = #{loginUserId},
+            update_by_name = #{loginUserName},
+            update_time = #{now}
+        </set>
+        WHERE ID = #{id}
+    </update>
+
+    <!-- deleteById: 根据ID删除记录 -->
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM BPM_USER_EXPRESSION WHERE ID = #{id}
+    </delete>
+
+    <!-- selectById: 根据ID查询单条记录 -->
+    <select id="selectById" parameterType="long" resultMap="BpmUserExpressionResultMap">
+        SELECT * FROM BPM_USER_EXPRESSION WHERE ID = #{id}
+    </select>
+
+    <!-- getList: 分页查询 -->
+    <select id="getList" parameterType="com.yy.ppm.flowable.bean.dto.BpmUserExpressionSearchDTO" resultMap="BpmUserExpressionResultMap">
+        SELECT *
+        FROM BPM_USER_EXPRESSION
+        <where>
+            <!-- 动态查询条件 -->
+            <if test="content != null and content != ''">
+                <!-- Oracle 模糊查询语法 -->
+                AND CONTENT LIKE '%' || #{content} || '%'
+            </if>
+            <if test="expressionType != null">
+                AND EXPRESSION_TYPE = #{expressionType}
+            </if>
+            <if test="status != null">
+                AND STATUS = #{status}
+            </if>
+            <!-- 核心逻辑：查询当前用户的，或者全局的（USER_ID IS NULL） -->
+            AND (USER_ID = #{userId} OR USER_ID IS NULL)
+        </where>
+        <!-- 默认排序：按用户自定义排序号升序，创建时间降序 -->
+        ORDER BY SORT ASC, CREATE_TIME DESC
+    </select>
+
+    <!-- selectSimpleList: 获取审批弹窗的精简列表 -->
+    <select id="selectSimpleList" parameterType="com.yy.ppm.flowable.bean.dto.BpmUserExpressionSearchDTO" resultMap="BpmUserExpressionResultMap">
+        SELECT
+        ID, CONTENT, EXPRESSION_TYPE, SORT, EXPRESSION_TYPE_NAME
+        FROM BPM_USER_EXPRESSION
+        WHERE
+        <!-- 核心逻辑：查询当前用户的，或者全局的 -->
+        (USER_ID = #{userId} OR USER_ID IS NULL)
+        <!-- 必须是启用状态 -->
+        AND STATUS = 0
+        <!-- 排序，保证前端显示顺序稳定 -->
+        ORDER BY SORT ASC, CREATE_TIME DESC
+    </select>
+</mapper>

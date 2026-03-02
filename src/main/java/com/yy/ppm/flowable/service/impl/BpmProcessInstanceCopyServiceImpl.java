@@ -1,10 +1,15 @@
 package com.yy.ppm.flowable.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import com.yy.common.enums.WebsocketEnum;
+import com.yy.common.flowable.constants.BpmMessageConstants;
 import com.yy.common.flowable.constants.ErrorCodeConstants;
 import com.yy.common.page.Pages;
 import com.yy.common.util.PageHelperUtils;
+import com.yy.common.ws.WebSocketUtils;
 import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceCopySearchDTO;
 import com.yy.ppm.flowable.bean.po.BpmFormPO;
 import com.yy.ppm.flowable.bean.po.BpmProcessInstanceCopyPO;
@@ -13,6 +18,8 @@ import com.yy.ppm.flowable.service.BpmProcessDefinitionService;
 import com.yy.ppm.flowable.service.BpmProcessInstanceCopyService;
 import com.yy.ppm.flowable.service.BpmProcessInstanceService;
 import com.yy.ppm.flowable.service.BpmTaskService;
+import com.yy.ppm.system.bean.dto.SysUserDTO;
+import com.yy.ppm.system.service.SysUserService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.bpmn.model.FlowNode;
@@ -24,7 +31,9 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.yy.common.flowable.utils.CollectionUtils.convertList;
 import static com.yy.common.flowable.utils.ServiceExceptionUtil.exception;
@@ -52,6 +61,8 @@ public class BpmProcessInstanceCopyServiceImpl implements BpmProcessInstanceCopy
     @Resource
     @Lazy // 延迟加载，避免循环依赖
     private BpmProcessDefinitionService processDefinitionService;
+    @Autowired
+    private SysUserService sysUserService;
     @Autowired
     private Snowflake snowflake;
 
@@ -108,6 +119,47 @@ public class BpmProcessInstanceCopyServiceImpl implements BpmProcessInstanceCopy
                 .setActivityId(activityId).setActivityName(activityName)
                 .setProcessDefinitionId(processInstance.getProcessDefinitionId()));
         processInstanceCopyMapper.insertBatch(copyList);
+
+        // 3. 发送 WebSocket 抄送通知
+        pushWebSocketCopyNotification(userIds, processInstance, activityName, reason);
+    }
+
+    /**
+     * 发送 WebSocket 抄送通知
+     */
+    private void pushWebSocketCopyNotification(Collection<Long> userIds, ProcessInstance processInstance,
+                                               String activityName, String reason) {
+        if (CollUtil.isEmpty(userIds)) {
+            return;
+        }
+
+        try {
+            // 获取操作人/发起人姓名
+            String startUserName = "系统";
+            if (StrUtil.isNotBlank(processInstance.getStartUserId())) {
+                SysUserDTO startUser = sysUserService.getById(Long.valueOf(processInstance.getStartUserId()));
+                if (startUser != null) {
+                    startUserName = startUser.getUserName();
+                }
+            }
+
+            // 批量查询并执行推送
+            List<SysUserDTO> copyUsers = sysUserService.getUserList(userIds);
+            if (CollUtil.isNotEmpty(copyUsers)) {
+                for (SysUserDTO user : copyUsers) {
+                    if (StrUtil.isNotBlank(user.getUserAccount())) {
+                        WebSocketUtils.sendTemplateNotification(
+                                user.getUserAccount(),
+                                BpmMessageConstants.TASK_COPY,
+                                startUserName
+                        );
+                        log.info("[WebSocket推送] 抄送通知已推送给账号: {}", user.getUserAccount());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("[WebSocket推送] 抄送通知发送失败, processInstanceId: {}", processInstance.getId(), e);
+        }
     }
 
     /**

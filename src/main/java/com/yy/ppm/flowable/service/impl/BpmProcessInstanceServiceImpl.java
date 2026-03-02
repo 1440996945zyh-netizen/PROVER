@@ -12,12 +12,19 @@ import com.yy.common.flowable.constants.BpmnVariableConstants;
 import com.yy.common.flowable.constants.ErrorCodeConstants;
 import com.yy.common.flowable.enums.*;
 import com.yy.common.flowable.utils.*;
+import com.yy.common.magic.FileUploadBusinessTypeEnum;
 import com.yy.common.page.Pages;
 import com.yy.common.util.PageConverterUtils;
+import com.yy.common.util.SecurityUtils;
+import com.yy.common.util.str.StringUtil;
+import com.yy.framework.exception.BusinessRuntimeException;
 import com.yy.framework.flowable.convert.BpmProcessInstanceConvert;
 import com.yy.framework.flowable.event.BpmProcessInstanceEventPublisher;
 import com.yy.framework.flowable.redis.BpmProcessIdRedisDAO;
 import com.yy.framework.flowable.strategy.BpmTaskCandidateInvoker;
+import com.yy.ppm.common.bean.dto.SysFileDTO;
+import com.yy.ppm.common.mapper.SysFileMapper;
+import com.yy.ppm.common.service.SysFileService;
 import com.yy.ppm.flowable.bean.dto.*;
 import com.yy.ppm.flowable.bean.po.BpmBusinessInstancePO;
 import com.yy.ppm.flowable.bean.po.BpmProcessDefinitionInfoPO;
@@ -126,6 +133,8 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
     @Resource
     private SysRoleService sysRoleService;
 
+    @Resource
+    private SysFileMapper sysFileMapper;
 
 
     @Autowired
@@ -228,6 +237,12 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
             activities = bpmTaskService.getActivityListByProcessInstanceId(reqVO.getProcessInstanceId());
             List<HistoricTaskInstance> tasks = bpmTaskService.getTaskListByProcessInstanceId(reqVO.getProcessInstanceId(),
                     true);
+//
+//            for (HistoricTaskInstance task : tasks) {
+//                String businessId = task.getTaskDefinitionKey();
+//                List<Long> fileIds = sysFileMapper.selectFileIdListByBusinessId(businessId);
+//
+//            }
             endActivityNodes = getEndActivityNodeList(startUserId, bpmnModel, processDefinitionInfo,
                     historicProcessInstance, processInstanceStatus, activities, tasks);
             runActivityNodes = getRunApproveNodeList(startUserId, bpmnModel, processDefinition, processVariables,
@@ -585,13 +600,28 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
             if (BpmnModelUtils.isSequentialUserTask(flowNode)) {
                 List<Long> candidateUserIds = getTaskCandidateUserList(bpmnModel, flowNode.getId(),
                         startUserId, processDefinition.getId(), processVariables);
-                // 截取当前审批人位置后面的候选人，不包含当前审批人
-                BpmApprovalDetailDTO.ActivityNodeTask approvalTaskInfo = CollUtil.getFirst(activityNode.getTasks());
-                Assert.notNull(approvalTaskInfo, "任务不能为空");
-                int index = CollUtil.indexOf(candidateUserIds,
-                        userId -> ObjectUtils.equalsAny(userId, approvalTaskInfo.getOwner(),
-                                approvalTaskInfo.getAssignee())); // 委派或者向前加签情况，需要先比较 owner
-                activityNode.setCandidateUserIds(CollUtil.sub(candidateUserIds, index + 1, candidateUserIds.size()));
+                int currentLoopIndex = 0;
+                HistoricTaskInstance currentTask = taskMap.get(firstActivity.getTaskId());
+
+                if (currentTask != null && StrUtil.isNotBlank(currentTask.getExecutionId())) {
+                    try {
+                        // 从历史变量表中获取当前执行实例的 loopCounter (多实例轮次)
+                        HistoricVariableInstance loopCounterVar = historyService.createHistoricVariableInstanceQuery()
+                                .executionId(currentTask.getExecutionId())
+                                .variableName("loopCounter")
+                                .singleResult();
+                        if (loopCounterVar != null && loopCounterVar.getValue() != null) {
+                            currentLoopIndex = (Integer) loopCounterVar.getValue();
+                        }
+                    } catch (Exception e) {
+                        log.warn("获取多实例 loopCounter 失败, executionId: {}", currentTask.getExecutionId());
+                    }
+                }
+                if (currentLoopIndex >= 0 && currentLoopIndex < candidateUserIds.size()) {
+                    activityNode.setCandidateUserIds(CollUtil.sub(candidateUserIds, currentLoopIndex + 1, candidateUserIds.size()));
+                } else {
+                    activityNode.setCandidateUserIds(new ArrayList<>());
+                }
             }
             if (BpmSimpleModelNodeTypeEnum.CHILD_PROCESS.getType().equals(activityNode.getNodeType())) {
                 activityNode.setProcessInstanceId(firstActivity.getCalledProcessInstanceId());
@@ -1185,7 +1215,12 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         // 3. 执行更新
         bpmBusinessInstanceMapper.updateByProcInstId(bpmBusinessInstanceDTO);
 
-
+        // ================= 在此处添加测试异常 =================
+    // 模拟业务回调报错，测试是否会影响 Flowable 引擎的状态提交
+//            if (true) {
+//                throw new RuntimeException("测试：业务回调异常，验证流程状态是否回滚");
+//            }
+// ===================================================
 
         // 3. 发送流程实例的状态事件
         processInstanceEventPublisher.sendProcessInstanceResultEvent(
@@ -1293,6 +1328,22 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         // 4. 删除业务关联中间表数据
         bpmBusinessInstanceMapper.deleteByBusinessDataId(businessDataId);
         log.info("[删除业务流程] 成功清理中间表关联记录，业务ID: {}", businessDataId);
+    }
+
+
+    /**
+     * 获取电子签
+     * @param
+     * @return
+     */
+    @Override
+    public Long getPersonalSign() {
+        Long loginUserId = SecurityUtils.getLoginUserId();
+        List<SysFileDTO> fileDTOS = sysFileMapper.getBusFiles(loginUserId, FileUploadBusinessTypeEnum.PERSONAL_SIGN.getCode());
+        if(StringUtil.isEmpty(fileDTOS)){
+            throw new BusinessRuntimeException("未维护个人电子签名");
+        }
+        return fileDTOS.get(0).getId();
     }
 
 }

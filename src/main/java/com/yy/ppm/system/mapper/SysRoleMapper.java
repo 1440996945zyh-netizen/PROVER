@@ -102,5 +102,12 @@ public interface SysRoleMapper {
      * @return
      */
     Set<Long> getUserIdListByRoleIds(@Param("list") Set<Long> roleIds);
+
+    /**
+     * 根据角色Id查询用户信息
+     * @param roleId
+     * @return
+     */
+    List<SysUserDTO> getUsersByRoleId(@Param("roleId") Long roleId);
 }
 
