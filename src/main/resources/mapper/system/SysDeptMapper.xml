@@ -335,5 +335,13 @@
         </where>
         order by d.order_no, d.dept_name
     </select>
+    <select id="selectDeptListByParentId" parameterType="Long" resultType="com.yy.ppm.system.bean.dto.SysDeptDTO">
+        <include refid="selectDeptVo"/>
+        <where>
+            AND d.PARENT_ID = #{parentId}
+            AND d.STATUS = '1'
+        </where>
+        order by d.order_no, d.dept_name
+    </select>
 
 </mapper>
