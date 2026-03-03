@@ -24,7 +24,8 @@
     UNIT_NAME,
     COMPANY_ID,
     USER_ORG_ID,
-    SERVICE_COMPANIES
+    SERVICE_COMPANIES,
+    TYPE
     FROM E_M_EQUIP_REPAIR_CONTRACT
     where
     1=1
@@ -59,7 +60,8 @@
         UNIT_NAME,
         COMPANY_ID,
         USER_ORG_ID,
-        SERVICE_COMPANIES
+        SERVICE_COMPANIES,
+        TYPE
     FROM E_M_EQUIP_REPAIR_CONTRACT
     where
     ID = #{id}
@@ -82,7 +84,8 @@
         UNIT_NAME,
         COMPANY_ID,
         USER_ORG_ID,
-        SERVICE_COMPANIES
+        SERVICE_COMPANIES,
+        TYPE
     ) values
     (#{id},
      #{externalCompanyId},
@@ -99,7 +102,8 @@
       #{unitName},
       #{companyId},
       #{userOrgId},
-      #{serviceCompanies}
+      #{serviceCompanies},
+      #{type}
 
     )
 </insert>
@@ -121,7 +125,8 @@
     UNIT_NAME= #{unitName},
     COMPANY_ID= #{companyId},
     USER_ORG_ID= #{userOrgId},
-    SERVICE_COMPANIES= #{serviceCompanies}
+    SERVICE_COMPANIES= #{serviceCompanies},
+    TYPE= #{type}
     where
     ID = #{id}
 </update>

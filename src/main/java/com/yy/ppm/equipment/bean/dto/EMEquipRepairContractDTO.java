@@ -77,5 +77,11 @@ public class EMEquipRepairContractDTO implements Serializable {
     private Date contractDateEnd;
 
 
+    private Long companyId;
+    private Long userOrgId;
+
     private String serviceCompanies;  // 服务公司ids
+
+    //1:企业  2:个人
+    private String type;
 }
