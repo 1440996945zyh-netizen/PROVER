@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EEquipScrapMapper">
+
+    <resultMap id="BaseResultMap" type="com.yy.ppm.equipment.bean.po.EEquipScrapPO">
+        <id column="ID" property="id" jdbcType="BIGINT"/>
+        <result column="SCRAP_CODE" property="scrapCode" jdbcType="VARCHAR"/>
+        <result column="TITLE" property="title" jdbcType="VARCHAR"/>
+        <result column="USE_COMPANY_ID" property="useCompanyId" jdbcType="BIGINT"/>
+        <result column="USE_ORG_ID" property="useOrgId" jdbcType="BIGINT"/>
+        <result column="APPLY_USER" property="applyUser" jdbcType="BIGINT"/>
+        <result column="APPLY_REASON" property="applyReason" jdbcType="VARCHAR"/>
+        <result column="EXECUTE_USER" property="executeUser" jdbcType="BIGINT"/>
+        <result column="EXECUTE_FULFIL_TIME" property="executeFulfilTime" jdbcType="TIMESTAMP"/>
+        <result column="STATUS" property="status" jdbcType="BIGINT"/>
+        <result column="DELETED" property="deleted" jdbcType="BIGINT"/>
+        <result column="CREATED_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="CREATED_USER" property="createBy" jdbcType="BIGINT"/>
+        <result column="MODIFIED_TIME" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="MODIFIED_USER" property="updateBy" jdbcType="BIGINT"/>
+        <result column="FLOW_ID" property="flowId" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="DTOResultMap" type="com.yy.ppm.equipment.bean.dto.EEquipScrapDTO" extends="BaseResultMap">
+        <result column="USE_COMPANY_NAME" property="useCompanyName" jdbcType="VARCHAR"/>
+        <result column="USE_ORG_NAME" property="useOrgName" jdbcType="VARCHAR"/>
+        <result column="APPLY_USER_NAME" property="applyUserName" jdbcType="VARCHAR"/>
+        <result column="STATUS_NAME" property="statusName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 查询设备报废列表 -->
+    <select id="getList" resultMap="DTOResultMap">
+        SELECT
+            s.ID,
+            s.SCRAP_CODE,
+            s.TITLE,
+            s.USE_COMPANY_ID,
+            s.USE_ORG_ID,
+            s.APPLY_USER,
+            s.APPLY_REASON,
+            s.EXECUTE_USER,
+            s.EXECUTE_FULFIL_TIME,
+            s.STATUS,
+            s.DELETED,
+            s.CREATED_TIME,
+            s.CREATED_USER,
+            s.MODIFIED_TIME,
+            s.MODIFIED_USER,
+            s.FLOW_ID,
+            d.DEPT_NAME as USE_COMPANY_NAME,
+            u.DEPT_NAME as USE_ORG_NAME,
+            su.USER_NAME as APPLY_USER_NAME,
+            CASE s.STATUS
+                WHEN 1 THEN '审批中'
+                WHEN 2 THEN '审批成功'
+                WHEN 3 THEN '审批未通过'
+                ELSE '未知'
+            END as STATUS_NAME
+        FROM E_M_EQUIP_SCRAP s
+        LEFT JOIN SYS_DEPT d ON s.USE_COMPANY_ID = d.ID
+        LEFT JOIN SYS_DEPT u ON s.USE_ORG_ID = u.ID
+        LEFT JOIN SYS_USER su ON s.APPLY_USER = su.ID AND su.STATUS != 0
+        <where>
+            s.DELETED = 0
+            <if test="title != null and title != ''">
+                <bind name="titlePattern" value="'%' + title + '%'"/>
+                AND s.TITLE LIKE #{titlePattern}
+            </if>
+            <if test="useCompanyId != null and useCompanyId != ''">
+                AND s.USE_COMPANY_ID = #{useCompanyId}
+            </if>
+            <if test="useOrgId != null and useOrgId != ''">
+                AND s.USE_ORG_ID = #{useOrgId}
+            </if>
+            <if test="status != null and status != ''">
+                AND s.STATUS = #{status}
+            </if>
+            <if test="scrapCode != null and scrapCode != ''">
+                <bind name="scrapCodePattern" value="'%' + scrapCode + '%'"/>
+                AND s.SCRAP_CODE LIKE #{scrapCodePattern}
+                </if>
+        </where>
+        ORDER BY s.CREATED_TIME DESC
+    </select>
+
+    <!-- 根据ID查询设备报废 -->
+    <select id="getById" resultMap="DTOResultMap">
+        SELECT
+            s.ID,
+            s.SCRAP_CODE,
+            s.TITLE,
+            s.USE_COMPANY_ID,
+            s.USE_ORG_ID,
+            s.APPLY_USER,
+            s.APPLY_REASON,
+            s.EXECUTE_USER,
+            s.EXECUTE_FULFIL_TIME,
+            s.STATUS,
+            s.DELETED,
+            s.CREATED_TIME,
+            s.CREATED_USER,
+            s.MODIFIED_TIME,
+            s.MODIFIED_USER,
+            s.FLOW_ID,
+            d.DEPT_NAME as USE_COMPANY_NAME,
+            u.DEPT_NAME as USE_ORG_NAME,
+            su.USER_NAME as APPLY_USER_NAME,
+            CASE s.STATUS
+                WHEN 1 THEN '审批中'
+                WHEN 2 THEN '审批成功'
+                WHEN 3 THEN '审批未通过'
+                ELSE '未知'
+            END as STATUS_NAME
+        FROM E_M_EQUIP_SCRAP s
+        LEFT JOIN SYS_DEPT d ON s.USE_COMPANY_ID = d.ID
+        LEFT JOIN SYS_DEPT u ON s.USE_ORG_ID = u.ID
+        LEFT JOIN SYS_USER su ON s.APPLY_USER = su.ID AND su.STATUS != 0
+        WHERE s.ID = #{id} AND s.DELETED = 0
+    </select>
+
+    <!-- 查询设备报废列表（导出用，不分页） -->
+    <select id="getListForExport" resultMap="DTOResultMap">
+        SELECT
+            s.ID,
+            s.SCRAP_CODE,
+            s.TITLE,
+            s.USE_COMPANY_ID,
+            s.USE_ORG_ID,
+            s.APPLY_USER,
+            s.APPLY_REASON,
+            s.EXECUTE_USER,
+            s.EXECUTE_FULFIL_TIME,
+            s.STATUS,
+            s.DELETED,
+            s.CREATED_TIME,
+            s.CREATED_USER,
+            s.MODIFIED_TIME,
+            s.MODIFIED_USER,
+            s.FLOW_ID,
+            d.DEPT_NAME as USE_COMPANY_NAME,
+            u.DEPT_NAME as USE_ORG_NAME,
+            su.USER_NAME as APPLY_USER_NAME,
+            CASE s.STATUS
+                WHEN 1 THEN '审批中'
+                WHEN 2 THEN '审批成功'
+                WHEN 3 THEN '审批未通过'
+                ELSE '未知'
+            END as STATUS_NAME
+        FROM E_M_EQUIP_SCRAP s
+        LEFT JOIN SYS_DEPT d ON s.USE_COMPANY_ID = d.ID
+        LEFT JOIN SYS_DEPT u ON s.USE_ORG_ID = u.ID
+        LEFT JOIN SYS_USER su ON s.APPLY_USER = su.ID AND su.STATUS != 0
+        <where>
+            s.DELETED = 0
+            <if test="scrapCode != null and scrapCode != ''">
+                <bind name="scrapCodePattern" value="'%' + scrapCode + '%'"/>
+                AND s.SCRAP_CODE LIKE #{scrapCodePattern}
+            </if>
+            <if test="title != null and title != ''">
+                <bind name="titlePattern" value="'%' + title + '%'"/>
+                AND s.TITLE LIKE #{titlePattern}
+            </if>
+            <if test="useCompanyId != null">
+                AND s.USE_COMPANY_ID = #{useCompanyId}
+            </if>
+            <if test="useOrgId != null">
+                AND s.USE_ORG_ID = #{useOrgId}
+            </if>
+            <if test="status != null">
+                AND s.STATUS = #{status}
+            </if>
+        </where>
+        ORDER BY s.CREATED_TIME DESC
+    </select>
+
+    <!-- 新增设备报废 -->
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.EEquipScrapPO">
+        INSERT INTO E_M_EQUIP_SCRAP (
+            ID, SCRAP_CODE, TITLE, USE_COMPANY_ID, USE_ORG_ID,
+            APPLY_USER, APPLY_REASON, STATUS, DELETED,
+            CREATED_TIME, CREATED_USER, FLOW_ID
+        ) VALUES (
+            #{id}, #{scrapCode}, #{title}, #{useCompanyId}, #{useOrgId},
+            #{applyUser}, #{applyReason}, #{status}, #{deleted},
+            #{createTime}, #{createBy}, #{flowId}
+        )
+    </insert>
+
+    <!-- 修改设备报废 -->
+    <update id="update" parameterType="com.yy.ppm.equipment.bean.po.EEquipScrapPO">
+        UPDATE E_M_EQUIP_SCRAP
+        <set>
+            SCRAP_CODE = #{scrapCode},
+            TITLE = #{title},
+            USE_COMPANY_ID = #{useCompanyId},
+            USE_ORG_ID = #{useOrgId},
+            APPLY_USER = #{applyUser},
+            APPLY_REASON = #{applyReason},
+            STATUS = #{status},
+            MODIFIED_TIME = #{updateTime},
+            MODIFIED_USER = #{updateBy},
+            FLOW_ID = #{flowId}
+        </set>
+        WHERE ID = #{id}
+    </update>
+
+    <!-- 修改设备报废状态 -->
+    <update id="updateStatus" parameterType="com.yy.ppm.equipment.bean.po.EEquipScrapPO">
+        UPDATE E_M_EQUIP_SCRAP
+        <set>
+            STATUS = #{status},
+            EXECUTE_USER = #{executeUser},
+            EXECUTE_FULFIL_TIME = #{executeFulfilTime},
+            MODIFIED_TIME = #{updateTime},
+            MODIFIED_USER = #{updateBy}
+        </set>
+        WHERE ID = #{id}
+    </update>
+
+    <!-- 根据流程ID查询设备报废 -->
+    <select id="getByFlowId" resultMap="BaseResultMap">
+        SELECT
+            ID, SCRAP_CODE, TITLE, USE_COMPANY_ID, USE_ORG_ID,
+            APPLY_USER, APPLY_REASON, EXECUTE_USER, EXECUTE_FULFIL_TIME,
+            STATUS, DELETED, CREATED_TIME, CREATED_USER,
+            MODIFIED_TIME, MODIFIED_USER, FLOW_ID
+        FROM E_M_EQUIP_SCRAP
+        WHERE FLOW_ID = #{flowId} AND DELETED = 0
+    </select>
+
+    <!-- 根据ID查询设备报废 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+            ID, SCRAP_CODE, TITLE, USE_COMPANY_ID, USE_ORG_ID,
+            APPLY_USER, APPLY_REASON, EXECUTE_USER, EXECUTE_FULFIL_TIME,
+            STATUS, DELETED, CREATED_TIME, CREATED_USER,
+            MODIFIED_TIME, MODIFIED_USER, FLOW_ID
+        FROM E_M_EQUIP_SCRAP
+        WHERE ID = #{id} AND DELETED = 0
+    </select>
+
+    <!-- 查询可报废设备列表 -->
+    <select id="scrapEquipList" resultType="com.yy.ppm.equipment.bean.dto.ScrapEquipDTO">
+        SELECT
+            e.ID as equipId,
+            e.EQUIP_CODE as equipCode,
+            e.EQUIP_NAME as equipName,
+            e.SPECIFIC_CODE as equipSpecification,
+            e.MODEL_NUMBER as modelNumber,
+            e.EQUIP_BIG_CATEGORY_NAME as equipBigCategoryName,
+            e.EQUIP_MIDDLE_CATEGORY_NAME as equipMiddleCategoryName,
+            e.EQUIP_SMALL_CATEGORY_NAME as equipSmallCategoryName,
+            <!-- d.DEPT_NAME as useCompanyName, -->
+            u.DEPT_NAME as useOrgName,
+            u.ID as useOrgId,
+            (SELECT ID FROM SYS_DEPT WHERE ID = u.PARENT_ID) as useCompanyId,
+            (SELECT DEPT_NAME FROM SYS_DEPT WHERE ID = u.PARENT_ID) as useCompanyName,
+            e.EQUIP_STATE as equipState,
+            e.EQUIP_STATE_NAME as equipStateName,
+            f.PRICE as price,
+            f.NET_VALUE as netValue
+        FROM E_M_EQPT_INFO e
+        LEFT JOIN E_M_EQPT_FINANCE f ON e.ID = f.EQUIP_ID
+        LEFT JOIN SYS_DEPT d ON e.USE_COMPANY_ID = d.ID
+        LEFT JOIN SYS_DEPT u ON e.USE_ORG_ID = u.ID
+        <where>
+            e.DEL_FLAG = 0
+            AND e.EQUIP_STATE != '04'
+            <if test="equipBigCategoryId != null and equipBigCategoryId != ''">
+                AND e.EQUIP_BIG_CATEGORY_ID = #{equipBigCategoryId}
+            </if>
+            <if test="equipMiddleCategoryId != null and equipMiddleCategoryId != ''">
+                AND e.EQUIP_MIDDLE_CATEGORY_ID = #{equipMiddleCategoryId}
+            </if>
+            <if test="equipSmallCategoryId != null and equipSmallCategoryId != ''">
+                AND e.EQUIP_SMALL_CATEGORY_ID = #{equipSmallCategoryId}
+            </if>
+            <if test="equipName != null and equipName != ''">
+                <bind name="equipNamePattern" value="'%' + equipName + '%'"/>
+                AND e.EQUIP_NAME LIKE #{equipNamePattern}
+            </if>
+            <if test="equipCode != null and equipCode != ''">
+                <bind name="equipCodePattern" value="'%' + equipCode + '%'"/>
+                AND e.EQUIP_CODE LIKE #{equipCodePattern}
+            </if>
+            <if test="useCompanyId != null and useCompanyId != ''">
+                AND e.USE_COMPANY_ID = #{useCompanyId}
+            </if>
+            <if test="useOrgId != null and useOrgId != ''">
+                AND e.USE_ORG_ID = #{useOrgId}
+            </if>
+            <if test="_databaseId == 'oracle'">
+                AND NOT EXISTS (
+                    SELECT 1 FROM E_M_EQUIP_SCRAP_HISTORY h
+                    INNER JOIN E_M_EQUIP_SCRAP s ON h.ORDER_ID = s.ID
+                    WHERE h.EQUIP_ID = e.ID
+                    AND h.DELETED = 0 AND s.DELETED = 0 AND s.STATUS = 1
+                )
+            </if>
+        </where>
+        ORDER BY e.CREATE_TIME DESC
+    </select>
+
+</mapper>

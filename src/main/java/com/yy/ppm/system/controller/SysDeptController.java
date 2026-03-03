@@ -94,4 +94,19 @@ public class SysDeptController {
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
     }
+
+    /**
+     * 根据下属部门
+     */
+    @GetMapping("/getListByParentId")
+    @PreAuthorize("hasAuthority('system:dept:query')")
+    public Map<String, Object> getListByParentId(@RequestParam("parentId") Long parentId) {
+        final String methodName = "SysDeptController:getListByParentId";
+        LOGGER.enter(methodName + "[start]", "parentId:" + parentId);
+
+        List<SysDeptDTO> result = deptService.selectDeptListByParentId(parentId);
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
+    }
 }

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMEquipRepairContractMapper">
+
+<select id="getList" resultType="com.yy.ppm.equipment.bean.dto.EMEquipRepairContractDTO">
+    SELECT
+    ID,
+    EXTERNAL_COMPANY_ID,
+    PRINCIPAL,
+    PHONE,
+    REPAIR_TYPE,
+    REMARK,
+    CONTRACT_DATE_START,
+    CONTRACT_DATE_END,
+    DELETED,
+    CREATED_USER,
+    CREATED_TIME,
+    MODIFIED_USER,
+    MODIFIED_TIME,
+    EXTERNAL_COMPANY_CODE,
+    UNIT_NAME,
+    COMPANY_ID,
+    USER_ORG_ID,
+    SERVICE_COMPANIES,
+    TYPE
+    FROM E_M_EQUIP_REPAIR_CONTRACT
+    where
+    1=1
+    <if test="principal != null and principal != ''">
+        <bind name="principalLike" value="'%'+principal+'%'"/>
+        and PRINCIPAL like #{equipNameLike}
+    </if>
+    <if test="externalCompanyId != null and externalCompanyId != ''">
+        and EXTERNAL_COMPANY_ID =#{externalCompanyId}
+    </if>
+    order by
+    CREATE_TIME DESC
+</select>
+
+<select id="getById" resultType="com.yy.ppm.equipment.bean.dto.EMEquipRepairContractDTO">
+    SELECT
+        ID,
+        EXTERNAL_COMPANY_ID,
+        PRINCIPAL,
+        PHONE,
+        REPAIR_TYPE,
+        REMARK,
+        CONTRACT_DATE_START,
+        CONTRACT_DATE_END,
+        DELETED,
+        CREATED_USER,
+        CREATED_TIME,
+        MODIFIED_USER,
+        MODIFIED_TIME,
+        EXTERNAL_COMPANY_CODE,
+        UNIT_NAME,
+        COMPANY_ID,
+        USER_ORG_ID,
+        SERVICE_COMPANIES,
+        TYPE
+    FROM E_M_EQUIP_REPAIR_CONTRACT
+    where
+    ID = #{id}
+</select>
+
+<insert id="insert">
+    INSERT INTO E_M_EQUIP_REPAIR_CONTRACT (
+        ID,
+        EXTERNAL_COMPANY_ID,
+        PRINCIPAL,
+        PHONE,
+        REPAIR_TYPE,
+        REMARK,
+        CONTRACT_DATE_START,
+        CONTRACT_DATE_END,
+        CREATED_USER,
+        CREATED_TIME,
+        EXTERNAL_COMPANY_CODE,
+        UNIT_NAME,
+        COMPANY_ID,
+        USER_ORG_ID,
+        SERVICE_COMPANIES,
+        TYPE
+    ) values
+    (#{id},
+     #{externalCompanyId},
+      #{principal},
+      #{phone},
+      #{repairType},
+      #{remark},
+      #{contractDateStart},
+      #{contractDateEnd},
+      #{loginUserId,jdbcType=NUMERIC},
+      #{now,jdbcType=TIMESTAMP},
+      #{externalCompanyCode},
+      #{unitName},
+      #{companyId},
+      #{userOrgId},
+      #{serviceCompanies},
+      #{type}
+
+    )
+</insert>
+
+<update id="update">
+    update E_M_EQUIP_REPAIR_CONTRACT
+    set
+    EXTERNAL_COMPANY_ID=#{externalCompanyId},
+    PRINCIPAL= #{principal},
+    PHONE= #{phone},
+    REPAIR_TYPE= #{repairType},
+    REMARK= #{remark},
+    CONTRACT_DATE_START= #{contractDateStart},
+    CONTRACT_DATE_END= #{contractDateEnd},
+    MODIFIED_USER= #{loginUserId,jdbcType=NUMERIC},
+    MODIFIED_TIME= #{now,jdbcType=TIMESTAMP},
+    EXTERNAL_COMPANY_CODE= #{externalCompanyCode},
+    UNIT_NAME= #{unitName},
+    COMPANY_ID= #{companyId},
+    USER_ORG_ID= #{userOrgId},
+    SERVICE_COMPANIES= #{serviceCompanies},
+    TYPE= #{type}
+    where
+    ID = #{id}
+</update>
+
+<update id="deleteById">
+    update E_M_EQUIP_REPAIR_CONTRACT
+    set deleted = 1
+    where
+        ID = #{id}
+</update>
+</mapper>
+

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EEquipScrapHistoryMapper">
+
+    <resultMap id="BaseResultMap" type="com.yy.ppm.equipment.bean.po.EEquipScrapHistoryPO">
+        <id column="ID" property="id" jdbcType="BIGINT"/>
+        <result column="ORDER_ID" property="orderId" jdbcType="BIGINT"/>
+        <result column="EQUIP_ID" property="equipId" jdbcType="BIGINT"/>
+        <result column="LAST_CHANGE_INFO" property="lastChangeInfo" jdbcType="VARCHAR"/>
+        <result column="DELETED" property="deleted" jdbcType="BIGINT"/>
+        <result column="CREATED_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="CREATED_USER" property="createBy" jdbcType="BIGINT"/>
+        <result column="MODIFIED_TIME" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="MODIFIED_USER" property="updateBy" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <!-- 根据报废单ID查询历史记录 -->
+    <select id="getHistoryByOrderId" resultMap="BaseResultMap">
+        SELECT
+            ID,
+            ORDER_ID,
+            EQUIP_ID,
+            LAST_CHANGE_INFO,
+            DELETED,
+            CREATED_TIME,
+            CREATED_USER,
+            MODIFIED_TIME,
+            MODIFIED_USER
+        FROM E_M_EQUIP_SCRAP_HISTORY
+        WHERE ORDER_ID = #{orderId} AND DELETED = 0
+        ORDER BY CREATED_TIME DESC
+    </select>
+
+    <!-- 新增报废历史记录 -->
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.EEquipScrapHistoryPO">
+        INSERT INTO E_M_EQUIP_SCRAP_HISTORY (
+            ID, ORDER_ID, EQUIP_ID, LAST_CHANGE_INFO,
+            DELETED, CREATED_TIME, CREATED_USER
+        ) VALUES (
+            #{id}, #{orderId}, #{equipId}, #{lastChangeInfo},
+            #{deleted}, #{createTime}, #{createBy}
+        )
+    </insert>
+
+
+
+</mapper>

@@ -14,6 +14,8 @@ public enum OperateTypeEnum {
 
     UPDATE("UPDATE", "修改"),
 
+    EXPORT("EXPORT", "导出"),
+
     DELETE("DELETE", "删除");
 
     private String code;
