@@ -13,6 +13,7 @@ import com.yy.ppm.equipment.bean.po.MEquipmentOperationPO;
 import com.yy.ppm.equipment.service.EMEquipRepairContractService;
 import com.yy.ppm.equipment.service.MEquipmentOperationService;
 import jakarta.annotation.Resource;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -36,6 +37,7 @@ public class EMEquipRepairContractController {
      * 查询维修单位（分页）
      */
     @GetMapping("/getList")
+    @PreAuthorize("hasAuthority('equipment:emequiprepaircontract:query')")
     public Map<String, Object> getList(EMEquipRepairContractDTO searchDTO, PageParameter parameter) {
         final String methodName = "MEquipmentOperationController:getList";
         LOGGER.enter(methodName + "[start]", "searchDTO:" + searchDTO);
@@ -50,6 +52,7 @@ public class EMEquipRepairContractController {
      * 根据ID查询维修单位
      */
     @GetMapping("/getById")
+    @PreAuthorize("hasAuthority('equipment:emequiprepaircontract:getById')")
     public Map<String, Object> getById(EMEquipRepairContractDTO searchDTO) {
         final String methodName = "MEquipmentOperationController:getById";
         LOGGER.enter(methodName + "[start]", "searchDTO:" + searchDTO);
@@ -65,6 +68,7 @@ public class EMEquipRepairContractController {
      */
     @PostMapping("/add")
     @Log(title = "新增维修单位", value = OperateTypeEnum.INSERT)
+    @PreAuthorize("hasAuthority('equipment:emequiprepaircontract:add')")
     public Map<String, Object> add(@RequestBody EMEquipRepairContractDTO po) {
         final String methodName = "MEquipmentOperationController:add";
         LOGGER.enter(methodName + "[start]", "po:" + po);
@@ -79,6 +83,7 @@ public class EMEquipRepairContractController {
      * 新增
      */
     @PutMapping("/update")
+    @PreAuthorize("hasAuthority('equipment:emequiprepaircontract:update')")
     @Log(title = "修改维修单位", value = OperateTypeEnum.UPDATE)
     public Map<String, Object> update(@RequestBody EMEquipRepairContractDTO po) {
         final String methodName = "MEquipmentOperationController:add";
@@ -94,6 +99,7 @@ public class EMEquipRepairContractController {
      * 删除维修单位
      */
     @DeleteMapping("/delete")
+    @PreAuthorize("hasAuthority('equipment:emequiprepaircontract:delete')")
     @Log(title = "删除维修单位", value = OperateTypeEnum.DELETE)
     public Map<String, Object> delete(@RequestParam("id") Long id) {
         final String methodName = "MEquipmentOperationController:delete";
