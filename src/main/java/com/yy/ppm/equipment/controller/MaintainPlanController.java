@@ -7,6 +7,7 @@ import com.yy.common.log.MicroLogger;
 import com.yy.common.page.PageParameter;
 import com.yy.common.page.Pages;
 import com.yy.framework.annotation.Log;
+import com.yy.ppm.equipment.bean.dto.EquipSmallCategorySelectDTO;
 import com.yy.ppm.equipment.bean.dto.MaintainPlanDTO;
 import com.yy.ppm.equipment.bean.po.MEquipmentInfoPO;
 import com.yy.ppm.equipment.bean.po.MaintainPlanPO;
@@ -116,7 +117,6 @@ public class MaintainPlanController {
     }
 
 
-
     /**
      * 提报润滑保养计划
      */
@@ -132,4 +132,17 @@ public class MaintainPlanController {
         return Response.SUCCESS.newBuilder().out("提报成功").toResult();
     }
 
+    /**
+     * 查询设备小类下拉列表（来源：设备类别管理）
+     */
+    @GetMapping("/getEquipSmallCategoryList")
+    public Map<String, Object> getEquipSmallCategoryList(@RequestParam(value = "keyword", required = false) String keyword) {
+        final String methodName = "MaintainPlanController:getEquipSmallCategoryList";
+        LOGGER.enter(methodName + "[start]", "keyword:" + keyword);
+
+        List<EquipSmallCategorySelectDTO> result = maintainPlanService.getEquipSmallCategoryList(keyword);
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
+    }
 }

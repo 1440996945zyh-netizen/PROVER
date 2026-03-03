@@ -81,7 +81,7 @@ public class MEquipmentTypeServiceImpl implements MEquipmentTypeService {
         keyword = (keyword == null) ? "" : keyword.trim();
         final String kw = keyword;
 
-        // 1) 取全量(当前模块为3级：小类/机构/部件)，用于“父链/子树”裁剪
+        // 1) 永远先取全量(当前模块为3级：小类/机构/部件)，用于“父链/子树”裁剪
         List<MEquipmentTypeDTO> allRaw = mapper.partsTree(new MEquipmentTypeDTO());
 
         // 2) 防止 children 残留：拷贝节点并清空 children
@@ -89,8 +89,25 @@ public class MEquipmentTypeServiceImpl implements MEquipmentTypeService {
                 .map(this::copyNodeWithoutChildren)
                 .collect(Collectors.toList());
 
+        // 原始名称映射（用于搜索匹配，避免后续展示名称被拼接后影响搜索）
+        Map<Long, String> origNameMap = allList.stream()
+                .filter(x -> x.getId() != null)
+                .collect(Collectors.toMap(MEquipmentTypeDTO::getId,
+                        x -> x.getTypeName() == null ? "" : x.getTypeName(),
+                        (a, b) -> a));
+
+        // 设备类别管理（设备大类/设备中类/设备小类）名称映射，用于拼接展示：大类/中类/小类
+        List<MEquipmentTypeDTO> categoryList = mapper.selectEquipmentTypeTree(null);
+        Map<Long, MEquipmentTypeDTO> categoryMap = categoryList == null ? new HashMap<>() :
+                categoryList.stream()
+                        .filter(x -> x.getId() != null)
+                        .collect(Collectors.toMap(MEquipmentTypeDTO::getId, x -> x, (a, b) -> a));
+
+        // 无关键字：直接整树
         if (kw.isEmpty()) {
-            return buildTreeClean(allList);
+            List<MEquipmentTypeDTO> tree = buildTreeClean(allList);
+            applyCategoryDisplayName(tree, categoryMap);
+            return tree;
         }
 
         // 3) 建索引：id->node / parent->children
@@ -106,7 +123,10 @@ public class MEquipmentTypeServiceImpl implements MEquipmentTypeService {
 
         // 4) 先精确匹配，精确无结果再模糊匹配；最终只取“最优的一个命中”
         List<MEquipmentTypeDTO> exact = allList.stream()
-                .filter(n -> n.getTypeName() != null && n.getTypeName().trim().equals(kw))
+                .filter(n -> {
+                    String name = origNameMap.getOrDefault(n.getId(), n.getTypeName());
+                    return name != null && name.trim().equals(kw);
+                })
                 .collect(Collectors.toList());
 
         MEquipmentTypeDTO bestHit = null;
@@ -119,12 +139,18 @@ public class MEquipmentTypeServiceImpl implements MEquipmentTypeService {
                     .orElse(exact.get(0));
         } else {
             List<MEquipmentTypeDTO> fuzzy = allList.stream()
-                    .filter(n -> n.getTypeName() != null && n.getTypeName().contains(kw))
+                    .filter(n -> {
+                        String name = origNameMap.getOrDefault(n.getId(), n.getTypeName());
+                        return name != null && name.contains(kw);
+                    })
                     .collect(Collectors.toList());
             if (!fuzzy.isEmpty()) {
                 // 模糊命中：优先“名称最短且更接近关键字”的那条
                 bestHit = fuzzy.stream()
-                        .min(Comparator.comparingInt((MEquipmentTypeDTO n) -> n.getTypeName().length())
+                        .min(Comparator.comparingInt((MEquipmentTypeDTO n) -> {
+                                    String name = origNameMap.getOrDefault(n.getId(), n.getTypeName());
+                                    return name == null ? Integer.MAX_VALUE : name.length();
+                                })
                                 .thenComparing(n -> n.getId() == null ? Long.MAX_VALUE : n.getId()))
                         .orElse(fuzzy.get(0));
             }
@@ -134,10 +160,10 @@ public class MEquipmentTypeServiceImpl implements MEquipmentTypeService {
             return new ArrayList<>();
         }
 
-        // 5) 计算要保留的节点ID：命中节点 + 父链 +
+        // 5) 计算要保留的节点ID：命中节点 + 父链 + (命中节点的子树)
         //    规则：
-        //    - 命中“设备部件”(最后一级) => 只保留父链 + 自身
-        //    - 命中“设备小类/设备机构”(非最后一级) => 额外保留其所有子级
+        //    - 命中“设备部件”(最后一级) => 只保留父链 + 自身（不带兄弟）
+        //    - 命中“设备小类/设备机构”(非最后一级) => 额外保留其所有子级（完整子树）
         Set<Long> keepIds = new HashSet<>();
         keepIds.add(bestHit.getId());
 
@@ -159,14 +185,84 @@ public class MEquipmentTypeServiceImpl implements MEquipmentTypeService {
             collectDescendants(bestHit.getId(), childrenMap, keepIds);
         }
 
-        // 6) 只用 keepIds 子集构树（保证不会带出兄弟节点）
+        // 6) 只用 keepIds 子集构树（保证不会带出其他节点）
         List<MEquipmentTypeDTO> subset = allList.stream()
                 .filter(n -> n.getId() != null && keepIds.contains(n.getId()))
                 .map(this::copyNodeWithoutChildren) // 再次清 children，杜绝任何残留
                 .collect(Collectors.toList());
 
-        return buildTreeClean(subset);
+        List<MEquipmentTypeDTO> tree = buildTreeClean(subset);
+
+        // 7) 拼接展示名称：仅对“设备小类”,显示为“大类/中类/小类”
+        applyCategoryDisplayName(tree, categoryMap);
+        return tree;
     }
+
+    /**
+     * 对树中的“设备小类”节点拼接展示名称：设备大类/设备中类/设备小类
+     * 数据来源：设备类别管理
+     */
+    private void applyCategoryDisplayName(List<MEquipmentTypeDTO> tree, Map<Long, MEquipmentTypeDTO> categoryMap) {
+        if (tree == null || tree.isEmpty() || categoryMap == null || categoryMap.isEmpty()) {
+            return;
+        }
+        Deque<MEquipmentTypeDTO> stack = new ArrayDeque<>(tree);
+        while (!stack.isEmpty()) {
+            MEquipmentTypeDTO node = stack.pop();
+            if (node == null) {
+                continue;
+            }
+            // 仅处理设备小类（在零部件树中为根节点，categoryLevel=3）
+            if (node.getCategoryLevel() != null && node.getCategoryLevel() == 3 && node.getId() != null) {
+                String fullName = buildCategoryFullName(node.getId(), categoryMap);
+                if (fullName != null && !fullName.isBlank()) {
+                    node.setTypeName(fullName);
+                }
+            }
+            if (node.getChildren() != null && !node.getChildren().isEmpty()) {
+                for (MEquipmentTypeDTO c : node.getChildren()) {
+                    stack.push(c);
+                }
+            }
+        }
+    }
+
+    /**
+     * 根据设备小类ID拼接“大类/中类/小类”，若缺失父级则尽量降级返回已有名称
+     */
+    private String buildCategoryFullName(Long smallId, Map<Long, MEquipmentTypeDTO> categoryMap) {
+        MEquipmentTypeDTO small = categoryMap.get(smallId);
+        if (small == null) {
+            return null;
+        }
+        String smallName = small.getTypeName();
+
+        MEquipmentTypeDTO mid = null;
+        if (small.getParentId() != null && small.getParentId() != 0) {
+            mid = categoryMap.get(small.getParentId());
+        }
+        String midName = mid == null ? null : mid.getTypeName();
+
+        MEquipmentTypeDTO big = null;
+        if (mid != null && mid.getParentId() != null && mid.getParentId() != 0) {
+            big = categoryMap.get(mid.getParentId());
+        }
+        String bigName = big == null ? null : big.getTypeName();
+
+        // 拼接：大类/中类/小类（存在什么拼什么）
+        List<String> parts = new ArrayList<>();
+        if (bigName != null && !bigName.isBlank()) {
+            parts.add(bigName);
+        }
+        if (midName != null && !midName.isBlank()) {
+            parts.add(midName);
+        }
+        if (smallName != null && !smallName.isBlank()) {
+            parts.add(smallName);
+        }
+        return String.join("/", parts);
+    }
+
 
     /**
      * 深拷贝并清 children，避免历史 children 残留导致“带出其他子节点”

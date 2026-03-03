@@ -8,6 +8,7 @@ import com.yy.common.page.Pages;
 import com.yy.common.util.DateUtils;
 import com.yy.common.util.PageHelperUtils;
 import com.yy.framework.exception.BusinessRuntimeException;
+import com.yy.ppm.equipment.bean.dto.EquipSmallCategorySelectDTO;
 import com.yy.ppm.equipment.bean.dto.MaintainPlanDTO;
 import com.yy.ppm.equipment.bean.po.*;
 import com.yy.ppm.equipment.mapper.MaintainPlanMapper;
@@ -154,6 +155,14 @@ public class MaintainPlanServiceImpl implements MaintainPlanService {
     public List<MEquipmentInfoPO> getEquipListById(Long id) {
         List<MEquipmentInfoPO> list = mapper.getEquipListById(id);
         return list;
+    }
+
+    /**
+     * 查询设备小类下拉列表（来源：设备类别管理）
+     */
+    @Override
+    public List<EquipSmallCategorySelectDTO> getEquipSmallCategoryList(String keyword) {
+        return mapper.getEquipSmallCategoryList(keyword);
     }
 
     @Override

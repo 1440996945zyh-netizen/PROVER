@@ -2,6 +2,7 @@ package com.yy.ppm.equipment.mapper;
 
 import com.github.pagehelper.Page;
 import com.yy.framework.annotation.Edit;
+import com.yy.ppm.equipment.bean.dto.EquipSmallCategorySelectDTO;
 import com.yy.ppm.equipment.bean.dto.InspectionPlanTaskDTO;
 import com.yy.ppm.equipment.bean.dto.MaintainPlanDTO;
 import com.yy.ppm.equipment.bean.po.*;
@@ -57,4 +58,9 @@ public interface MaintainPlanMapper {
 
     @Edit
     void updateById(MaintainPlanPO po);
+
+    /**
+     * 查询设备小类下拉列表（来源：设备类别管理）
+     */
+    List<EquipSmallCategorySelectDTO> getEquipSmallCategoryList(String keyword);
 }
