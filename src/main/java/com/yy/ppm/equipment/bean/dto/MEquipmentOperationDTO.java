@@ -51,4 +51,12 @@ public class MEquipmentOperationDTO extends BasePO {
      * 耗电量
      */
     private BigDecimal powerConsume;
+
+
+    //运行率（%）
+    private BigDecimal runRate;
+    //故障率（%）
+    private BigDecimal faultRate;
+    //完好率（%）
+    private BigDecimal intactRate;
 }
