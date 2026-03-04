@@ -71,17 +71,16 @@
         PHONE,
         CREATE_BY,
         CREATE_BY_NAME,
-        CREATED_TIME
+        CREATE_TIME
     ) values
-    (#{id},
+    (#{id,jdbcType=BIGINT},
      #{repairContarctId},
      #{repairName},
      #{idCard},
      #{phone},
-     #{loginUserId,jdbcType=NUMERIC},
+     #{loginUserId,jdbcType=BIGINT},
      #{loginUserName},
      #{now,jdbcType=TIMESTAMP}
-
     )
 </insert>
     <insert id="insertUserDetail">
@@ -103,7 +102,7 @@
          #{item.certificateTime},
          #{item.loginUserId,jdbcType=NUMERIC},
          #{item.loginUserName},
-         #{now,jdbcType=TIMESTAMP}
+         SYSDATE
         )
     </foreach>
     </insert>
