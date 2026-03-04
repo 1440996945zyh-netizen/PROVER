@@ -48,7 +48,7 @@ public class EMEquipRepairUserServiceImpl implements EMEquipRepairUserService {
         EMEquipRepairUserDTO po = mapper.getById(searchDTO);
         po.setList(mapper.getUserDetailList(po.getId()));
         po.getList().forEach(item -> {
-            item.setFileList(sysFileMapper.getBusFiles(item.getId(), FileUploadBusinessTypeEnum.PERSONAL_SIGN.getCode()));
+            item.setFileList(sysFileMapper.getBusFiles(item.getId(), FileUploadBusinessTypeEnum.E_M_EQUIP_REPAIR_USER.getCode()));
         });
         return po;
     }
