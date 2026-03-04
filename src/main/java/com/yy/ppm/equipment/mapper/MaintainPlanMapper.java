@@ -58,9 +58,4 @@ public interface MaintainPlanMapper {
 
     @Edit
     void updateById(MaintainPlanPO po);
-
-    /**
-     * 查询设备小类下拉列表（来源：设备类别管理）
-     */
-    List<EquipSmallCategorySelectDTO> getEquipSmallCategoryList(String keyword);
 }

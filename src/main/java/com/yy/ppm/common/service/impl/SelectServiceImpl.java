@@ -139,8 +139,15 @@ public class SelectServiceImpl implements SelectService {
                             SelectEnum.USER.getLabelName(),
                             null);
                 }
-
                 break;
+
+            // 设备类型
+            case "EQUIP_TYPE" :
+                String categoryLevel = StringUtil.getString(params.get("categoryLevel"));
+                String parentId = StringUtil.getString(params.get("parentId"));
+                res = selectMapper.getEqptType(categoryLevel,parentId);
+                break;
+
             // 按组织架构级别查询组织架构
             case "DEPT_LEVEL" :
 
