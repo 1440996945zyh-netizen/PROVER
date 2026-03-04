@@ -175,7 +175,30 @@
     </if>
 </select>
 
-<insert id="insertPlanTask">
+    <!-- 查询设备小类下拉列表（来源：设备类别管理） -->
+    <select id="getEquipSmallCategoryList" resultType="com.yy.ppm.equipment.bean.dto.EquipSmallCategorySelectDTO">
+        SELECT
+        t.ID AS id,
+        t.TYPE_NAME AS name,
+        t.TYPE_NAME AS label,
+        t.ID AS value
+        FROM
+        E_M_EQPT_TYPE t
+        WHERE
+        t.DEL_FLAG = 0
+        AND t.CATEGORY_LEVEL = 3
+
+        <if test="keyword != null and keyword != ''">
+            <bind name="kwLike" value="'%'+keyword+'%'"/>
+            AND t.TYPE_NAME LIKE #{kwLike}
+        </if>
+        ORDER BY
+        NVL(t.SORT_ORDER,0),
+        t.CREATE_TIME DESC
+    </select>
+
+
+    <insert id="insertPlanTask">
     INSERT INTO E_PM_MAINTAIN_TASK
     (
     ID,
