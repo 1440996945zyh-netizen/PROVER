@@ -1,6 +1,7 @@
 package com.yy.ppm.equipment.bean.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.yy.ppm.common.bean.po.BasePO;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -15,7 +16,7 @@ import java.util.Date;
  * @description 描述
  **/
 @Data
-public class EMEquipRepairContractDTO implements Serializable {
+public class EMEquipRepairContractDTO extends BasePO implements Serializable {
 
     /**
      * 主键id

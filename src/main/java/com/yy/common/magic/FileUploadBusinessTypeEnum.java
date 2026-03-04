@@ -45,7 +45,8 @@ public enum FileUploadBusinessTypeEnum {
     EQUIPMENT_PANORAMA("EQUIPMENT_PANORAMA", "", "设备台账全景图"),
     EQUIPMENT_TASK("EQUIPMENT_TASK", "", "点检/保养任务"),
     MATERIAL_WAREHOUSE_IN_FILE("MATERIAL_WAREHOUSE_IN_FILE", "", "物资入库附件"),
-    E_M_EQPT_FILE("E_M_EQPT_FILE", "", "设备资料文件");
+    E_M_EQPT_FILE("E_M_EQPT_FILE", "", "设备资料文件"),
+    E_M_EQUIP_REPAIR_USER("E_M_EQUIP_REPAIR_USER", "", "设备维修人员证书");
 
     FileUploadBusinessTypeEnum(String code, String route, String comment) {
         this.code = code;

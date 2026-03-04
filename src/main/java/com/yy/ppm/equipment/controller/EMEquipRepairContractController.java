@@ -16,6 +16,7 @@ import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -58,6 +59,21 @@ public class EMEquipRepairContractController {
         LOGGER.enter(methodName + "[start]", "searchDTO:" + searchDTO);
 
         EMEquipRepairContractDTO result = emEquipRepairContractService.getById(searchDTO);
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
+    }
+
+    /**
+     * 维修单位名称
+     */
+    @GetMapping("/queryUnitName")
+    @PreAuthorize("hasAuthority('equipment:emequiprepaircontract:queryUnitName')")
+    public Map<String, Object> queryUnitName(EMEquipRepairContractDTO searchDTO) {
+        final String methodName = "MEquipmentOperationController:getById";
+        LOGGER.enter(methodName + "[start]", "searchDTO:" + searchDTO);
+
+        List<EMEquipRepairContractDTO> result = emEquipRepairContractService.queryUnitName(searchDTO);
 
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
