@@ -28,15 +28,16 @@
     FROM E_M_EQUIP_REPAIR_CONTRACT
     where
     1=1
-    <if test="principal != null and principal != ''">
-        <bind name="principalLike" value="'%'+principal+'%'"/>
-        and PRINCIPAL like #{equipNameLike}
+    <if test="externalCompanyCode != null and externalCompanyCode != ''">
+        <bind name="externalCompanyCodeLike" value="'%'+externalCompanyCode+'%'"/>
+        and EXTERNAL_COMPANY_CODE like #{externalCompanyCodeLike}
     </if>
-    <if test="externalCompanyId != null and externalCompanyId != ''">
-        and EXTERNAL_COMPANY_ID =#{externalCompanyId}
+    <if test="unitName != null and unitName != ''">
+        <bind name="unitNameLike" value="'%'+unitName+'%'"/>
+        and UNIT_NAME like #{unitNameLike}
     </if>
     order by
-    CREATE_TIME DESC
+    CREATED_TIME DESC
 </select>
 
 <select id="getById" resultType="com.yy.ppm.equipment.bean.dto.EMEquipRepairContractDTO">
