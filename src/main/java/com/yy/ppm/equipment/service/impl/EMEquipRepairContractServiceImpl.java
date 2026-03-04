@@ -17,6 +17,8 @@ import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class EMEquipRepairContractServiceImpl implements EMEquipRepairContractService {
 
@@ -37,6 +39,13 @@ public class EMEquipRepairContractServiceImpl implements EMEquipRepairContractSe
     public EMEquipRepairContractDTO getById(EMEquipRepairContractDTO searchDTO) {
         EMEquipRepairContractDTO po = mapper.getById(searchDTO);
         return po;
+    }
+
+    @Override
+    public List<EMEquipRepairContractDTO> queryUnitName(EMEquipRepairContractDTO searchDTO) {
+
+        List<EMEquipRepairContractDTO> list = mapper.queryUnitName(searchDTO);
+        return list;
     }
 
     @Override

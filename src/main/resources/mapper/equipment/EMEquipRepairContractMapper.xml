@@ -65,8 +65,20 @@
     where
     ID = #{id}
 </select>
+    <select id="queryUnitName" resultType="com.yy.ppm.equipment.bean.dto.EMEquipRepairContractDTO">
+        SELECT
+        ID,
+        UNIT_NAME
+        FROM E_M_EQUIP_REPAIR_CONTRACT
+        where
+            deleted = 0
+        <if test="unitName != null and unitName != ''">
+            <bind name="unitNameLike" value="'%'+unitName+'%'"/>
+            and UNIT_NAME like #{unitNameLike}
+        </if>
+    </select>
 
-<insert id="insert">
+    <insert id="insert">
     INSERT INTO E_M_EQUIP_REPAIR_CONTRACT (
         ID,
         EXTERNAL_COMPANY_ID,

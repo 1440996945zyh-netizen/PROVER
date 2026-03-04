@@ -7,6 +7,8 @@ import com.yy.ppm.equipment.bean.dto.MEquipmentOperationDTO;
 import com.yy.ppm.equipment.bean.po.MEquipmentOperationPO;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 public interface EMEquipRepairContractMapper {
 
     <T> Page<T> getList(EMEquipRepairContractDTO searchDTO);
@@ -20,4 +22,6 @@ public interface EMEquipRepairContractMapper {
     void update(EMEquipRepairContractDTO po);
 
     void deleteById(@Param("id") Long id);
+
+    List<EMEquipRepairContractDTO> queryUnitName(EMEquipRepairContractDTO searchDTO);
 }

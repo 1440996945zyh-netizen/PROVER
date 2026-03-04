@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMEquipRepairUserMapper">
+    <delete id="deleteUserDetail">
+        DELETE FROM E_M_EQUIP_REPAIR_USER_DETAIL WHERE REPAIR_USER_ID = #{id}
+    </delete>
+
+    <select id="getList" resultType="com.yy.ppm.equipment.bean.dto.EMEquipRepairUserDTO">
+    SELECT
+        t1.ID,
+        t1.REPAIR_CONTARCT_ID,
+        t1.REPAIR_NAME,
+        t1.ID_CARD,
+        t1.PHONE,
+        t1.CREATE_BY,
+        t1.CREATE_BY_NAME,
+        t2.unit_name repairContarctName
+    FROM E_M_EQUIP_REPAIR_USER t1
+    LEFT JOIN E_M_EQUIP_REPAIR_CONTRACT t2 on t1.REPAIR_CONTARCT_ID = t2.ID
+    where
+        t2.deleted = 0
+    <if test="repairName != null and repairName != ''">
+        <bind name="repairNameLike" value="'%'+repairName+'%'"/>
+        and REPAIR_NAME like #{repairNameLike}
+    </if>
+    <if test="repairContarctId != null and repairContarctId != ''">
+        and REPAIR_CONTARCT_ID =#{repairContarctId}
+    </if>
+    order by
+    CREATED_TIME DESC
+</select>
+
+<select id="getById" resultType="com.yy.ppm.equipment.bean.dto.EMEquipRepairUserDTO">
+    SELECT
+        t1.ID,
+        t1.REPAIR_CONTARCT_ID,
+        t1.REPAIR_NAME,
+        t1.ID_CARD,
+        t1.PHONE,
+        t1.CREATE_BY,
+        t1.CREATE_BY_NAME,
+        t2.unit_name repairContarctName
+    FROM E_M_EQUIP_REPAIR_USER t1
+             LEFT JOIN E_M_EQUIP_REPAIR_CONTRACT t2 on t1.REPAIR_CONTARCT_ID = t2.ID
+    where
+        t2.deleted = 0
+
+     and t1.ID = #{id}
+</select>
+    <select id="getUserDetailList" resultType="com.yy.ppm.equipment.bean.dto.EMEquipRepairUserDetailDTO">
+        SELECT
+            ID,
+            REPAIR_USER_ID,
+            CERTIFICATE_TYPE,
+            CERTIFICATE_NAME,
+            CERTIFICATE_TIME
+        FROM
+            E_M_EQUIP_REPAIR_USER_DETAIL
+        WHERE
+            REPAIR_USER_ID = #{id}
+    </select>
+
+    <insert id="insert">
+    INSERT INTO E_M_EQUIP_REPAIR_USER (
+        ID,
+        REPAIR_CONTARCT_ID,
+        REPAIR_NAME,
+        ID_CARD,
+        PHONE,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATED_TIME
+    ) values
+    (#{id},
+     #{repairContarctId},
+     #{repairName},
+     #{idCard},
+     #{phone},
+     #{loginUserId,jdbcType=NUMERIC},
+     #{loginUserName},
+     #{now,jdbcType=TIMESTAMP}
+
+    )
+</insert>
+    <insert id="insertUserDetail">
+        INSERT INTO E_M_EQUIP_REPAIR_USER_DETAIL (
+        ID,
+        REPAIR_USER_ID,
+        CERTIFICATE_TYPE,
+        CERTIFICATE_NAME,
+        CERTIFICATE_TIME,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME
+    ) values
+    <foreach collection="list" item="item" index="index"  separator=",">
+        (#{item.id},
+         #{item.repairUserId},
+         #{item.certificateType},
+         #{item.certificateName},
+         #{item.certificateTime},
+         #{item.loginUserId,jdbcType=NUMERIC},
+         #{item.loginUserName},
+         #{now,jdbcType=TIMESTAMP}
+        )
+    </foreach>
+    </insert>
+
+    <update id="update">
+    update E_M_EQUIP_REPAIR_USER
+    set
+        REPAIR_CONTARCT_ID = #{repairContarctId},
+        REPAIR_NAME = #{repairName},
+        ID_CARD = #{idCard},
+        PHONE = #{phone},
+        UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
+        UPDATE_BY_NAME = #{loginUserName},
+        UPDATED_TIME = #{now,jdbcType=TIMESTAMP}
+    where
+    ID = #{id}
+</update>
+
+<update id="deleteById">
+    DELETE FROM E_M_EQUIP_REPAIR_USER WHERE ID = #{id}
+</update>
+</mapper>
+
