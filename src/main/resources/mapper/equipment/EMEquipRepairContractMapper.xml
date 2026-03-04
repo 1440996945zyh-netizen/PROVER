@@ -27,7 +27,7 @@
     TYPE
     FROM E_M_EQUIP_REPAIR_CONTRACT
     where
-    1=1
+    deleted = 0
     <if test="externalCompanyCode != null and externalCompanyCode != ''">
         <bind name="externalCompanyCodeLike" value="'%'+externalCompanyCode+'%'"/>
         and EXTERNAL_COMPANY_CODE like #{externalCompanyCodeLike}
