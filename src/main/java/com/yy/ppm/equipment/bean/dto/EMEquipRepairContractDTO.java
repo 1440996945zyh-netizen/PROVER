@@ -84,7 +84,7 @@ public class EMEquipRepairContractDTO extends BasePO implements Serializable {
     private String serviceCompanies;  // 服务公司ids
 
     //1:企业  2:个人
-    private String type;
+    private String  entityType;
     //1:内部  2:外部
     private String outType;
 }

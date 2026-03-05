@@ -24,7 +24,7 @@
     COMPANY_ID,
     USER_ORG_ID,
     SERVICE_COMPANIES,
-    TYPE,
+    ENTITY_TYPE,
     OUT_TYPE
     FROM E_M_EQUIP_REPAIR_CONTRACT
     where
@@ -61,7 +61,7 @@
         COMPANY_ID,
         USER_ORG_ID,
         SERVICE_COMPANIES,
-        TYPE,
+        ENTITY_TYPE,
         OUT_TYPE
     FROM E_M_EQUIP_REPAIR_CONTRACT
     where
@@ -97,7 +97,7 @@
         COMPANY_ID,
         USER_ORG_ID,
         SERVICE_COMPANIES,
-        TYPE,
+        ENTITY_TYPE,
         OUT_TYPE
     ) values
     (#{id},
@@ -115,7 +115,7 @@
       #{companyId},
       #{userOrgId},
       #{serviceCompanies},
-      #{type},
+      #{entityType},
       #{outType}
 
     )
@@ -138,7 +138,7 @@
     COMPANY_ID= #{companyId},
     USER_ORG_ID= #{userOrgId},
     SERVICE_COMPANIES= #{serviceCompanies},
-    TYPE= #{type},
+    ENTITY_TYPE= #{entityType},
     OUT_TYPE= #{outType}
     where
     ID = #{id}
