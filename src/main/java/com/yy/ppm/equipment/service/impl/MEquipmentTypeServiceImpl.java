@@ -92,9 +92,11 @@ public class MEquipmentTypeServiceImpl implements MEquipmentTypeService {
         // 原始名称映射（用于搜索匹配，避免后续展示名称被拼接后影响搜索）
         Map<Long, String> origNameMap = allList.stream()
                 .filter(x -> x.getId() != null)
-                .collect(Collectors.toMap(MEquipmentTypeDTO::getId,
+                .collect(Collectors.toMap(
+                        MEquipmentTypeDTO::getId,
                         x -> x.getTypeName() == null ? "" : x.getTypeName(),
-                        (a, b) -> a));
+                        (a, b) -> a
+                ));
 
         // 设备类别管理（设备大类/设备中类/设备小类）名称映射，用于拼接展示：大类/中类/小类
         List<MEquipmentTypeDTO> categoryList = mapper.selectEquipmentTypeTree(null);
@@ -121,74 +123,66 @@ public class MEquipmentTypeServiceImpl implements MEquipmentTypeService {
                     return (pid == null ? 0L : pid);
                 }));
 
-        // 4) 先精确匹配，精确无结果再模糊匹配；最终只取“最优的一个命中”
-        List<MEquipmentTypeDTO> exact = allList.stream()
+        // 4) 先精确匹配；如果没有精确匹配，再走模糊匹配
+        List<MEquipmentTypeDTO> matched = allList.stream()
                 .filter(n -> {
                     String name = origNameMap.getOrDefault(n.getId(), n.getTypeName());
                     return name != null && name.trim().equals(kw);
                 })
                 .collect(Collectors.toList());
 
-        MEquipmentTypeDTO bestHit = null;
-
-        if (!exact.isEmpty()) {
-            // 多个精确命中时，选一个（按id最小，保证稳定）
-            bestHit = exact.stream()
-                    .filter(x -> x.getId() != null)
-                    .min(Comparator.comparing(MEquipmentTypeDTO::getId))
-                    .orElse(exact.get(0));
-        } else {
-            List<MEquipmentTypeDTO> fuzzy = allList.stream()
+        if (matched.isEmpty()) {
+            matched = allList.stream()
                     .filter(n -> {
                         String name = origNameMap.getOrDefault(n.getId(), n.getTypeName());
                         return name != null && name.contains(kw);
                     })
                     .collect(Collectors.toList());
-            if (!fuzzy.isEmpty()) {
-                // 模糊命中：优先“名称最短且更接近关键字”的那条
-                bestHit = fuzzy.stream()
-                        .min(Comparator.comparingInt((MEquipmentTypeDTO n) -> {
-                                    String name = origNameMap.getOrDefault(n.getId(), n.getTypeName());
-                                    return name == null ? Integer.MAX_VALUE : name.length();
-                                })
-                                .thenComparing(n -> n.getId() == null ? Long.MAX_VALUE : n.getId()))
-                        .orElse(fuzzy.get(0));
-            }
         }
 
-        if (bestHit == null || bestHit.getId() == null) {
+        if (matched.isEmpty()) {
             return new ArrayList<>();
         }
 
-        // 5) 计算要保留的节点ID：命中节点 + 父链 + (命中节点的子树)
+        // 5) 计算所有命中节点需要保留的节点ID：命中节点 + 父链 + (命中节点的子树)
         //    规则：
-        //    - 命中“设备部件”(最后一级) => 只保留父链 + 自身（不带兄弟）
+        //    - 命中“设备部件”(最后一级) => 保留父链 + 自身
         //    - 命中“设备小类/设备机构”(非最后一级) => 额外保留其所有子级（完整子树）
         Set<Long> keepIds = new HashSet<>();
-        keepIds.add(bestHit.getId());
 
-        // 父链（一直到根：parentId=null/0）
-        Long pid = bestHit.getParentId();
-        while (pid != null && pid != 0) {
-            keepIds.add(pid);
-            MEquipmentTypeDTO p = byId.get(pid);
-            if (p == null) {
-                break;
+        for (MEquipmentTypeDTO hit : matched) {
+            if (hit == null || hit.getId() == null) {
+                continue;
             }
-            pid = p.getParentId();
+
+            // 保留命中节点本身
+            keepIds.add(hit.getId());
+
+            // 保留父链（一直到根：parentId = null / 0）
+            Long pid = hit.getParentId();
+            while (pid != null && pid != 0) {
+                keepIds.add(pid);
+                MEquipmentTypeDTO p = byId.get(pid);
+                if (p == null) {
+                    break;
+                }
+                pid = p.getParentId();
+            }
+
+            // 如果命中节点有子节点，则保留整棵子树
+            boolean hasChildren = childrenMap.containsKey(hit.getId())
+                    && childrenMap.get(hit.getId()) != null
+                    && !childrenMap.get(hit.getId()).isEmpty();
+
+            if (hasChildren) {
+                collectDescendants(hit.getId(), childrenMap, keepIds);
+            }
         }
 
-        // 判断是否最后一级：如果它还有孩子，就认为不是最后一级；否则视为末级（设备部件）
-        boolean hasChildren = childrenMap.containsKey(bestHit.getId()) && childrenMap.get(bestHit.getId()) != null
-                && !childrenMap.get(bestHit.getId()).isEmpty();
-        if (hasChildren) {
-            collectDescendants(bestHit.getId(), childrenMap, keepIds);
-        }
-
-        // 6) 只用 keepIds 子集构树（保证不会带出其他节点）
+        // 6) 只用 keepIds 子集构树（这样多个匹配项都会显示）
         List<MEquipmentTypeDTO> subset = allList.stream()
                 .filter(n -> n.getId() != null && keepIds.contains(n.getId()))
-                .map(this::copyNodeWithoutChildren) // 再次清 children，杜绝任何残留
+                .map(this::copyNodeWithoutChildren)
                 .collect(Collectors.toList());
 
         List<MEquipmentTypeDTO> tree = buildTreeClean(subset);
