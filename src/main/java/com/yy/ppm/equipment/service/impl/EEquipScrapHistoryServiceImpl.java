@@ -3,6 +3,7 @@ package com.yy.ppm.equipment.service.impl;
 import cn.hutool.core.lang.Snowflake;
 import com.alibaba.fastjson2.JSON;
 import com.yy.common.log.MicroLogger;
+import com.yy.common.util.SecurityUtils;
 import com.yy.ppm.equipment.bean.dto.ScrapEquipDTO;
 import com.yy.ppm.equipment.bean.po.EEquipScrapHistoryPO;
 import com.yy.ppm.equipment.mapper.EEquipScrapHistoryMapper;
@@ -73,6 +74,7 @@ public class EEquipScrapHistoryServiceImpl implements EEquipScrapHistoryService 
 		LOGGER.enter(methodName, "创建报废历史记录");
 
 		Date now = new Date();
+		String userName = SecurityUtils.getLoginUserName();
 
 		for (ScrapEquipDTO equip : equipList) {
 			EEquipScrapHistoryPO historyPO = new EEquipScrapHistoryPO();
@@ -82,9 +84,10 @@ public class EEquipScrapHistoryServiceImpl implements EEquipScrapHistoryService 
 
 			historyPO.setLastChangeInfo(equip.getLastChangeInfo());
 
-			historyPO.setDeleted(0L);
+			historyPO.setDelFlag(0L);
 			historyPO.setCreateTime(now);
 			historyPO.setCreateBy(userId);
+			historyPO.setCreateByName(userName);
 
 			scrapHistoryMapper.insert(historyPO);
 		}

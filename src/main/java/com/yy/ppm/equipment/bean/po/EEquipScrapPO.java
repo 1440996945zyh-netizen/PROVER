@@ -77,7 +77,7 @@ public class EEquipScrapPO extends BasePO implements Serializable {
     /**
      * 是否删除（0否，1是）
      */
-    private Long deleted;
+    private Long delFlag;
 
     /**
      * 流程ID（预留）

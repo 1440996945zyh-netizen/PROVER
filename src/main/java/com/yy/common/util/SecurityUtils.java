@@ -18,7 +18,7 @@ public class SecurityUtils {
         return userAuthorizeInfo.getUserIno().getUserAccount();
     }
 
-    public String getLoginUserName() {
+    public static String getLoginUserName() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserAuthorizeInfo userAuthorizeInfo = (UserAuthorizeInfo) authentication.getPrincipal();
         return userAuthorizeInfo.getUserIno().getUserName();

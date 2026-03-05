@@ -6,7 +6,11 @@ import com.yy.ppm.common.bean.dto.SelecSearchDTO;
 import com.yy.ppm.common.enums.SelectEnum;
 import com.yy.ppm.common.mapper.SelectMapper;
 import com.yy.ppm.common.service.SelectService;
+import com.yy.ppm.equipment.bean.dto.EquipmentSelectDTO;
+
+import com.yy.ppm.equipment.service.MEquipmentInfoService;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
@@ -27,6 +31,9 @@ public class SelectServiceImpl implements SelectService {
 
     @Resource
     public SelectMapper selectMapper;
+    @Autowired
+    private MEquipmentInfoService mEquipmentInfoService;
+
 
 
     /**
@@ -289,6 +296,20 @@ public class SelectServiceImpl implements SelectService {
                         SelectEnum.BPM_MODEL.getValueName(),
                         SelectEnum.BPM_MODEL.getLabelName(),
                         "");
+                break;
+                        // 设备
+            case "EQUIPMENT" :
+                String keyword = StringUtil.getString(params.get("keyword"));
+                List<EquipmentSelectDTO> equipmentList = mEquipmentInfoService.getEquipmentSelectList(keyword);
+                // 转换为 Map 格式
+                res = new ArrayList<>();
+                for (EquipmentSelectDTO equipment : equipmentList) {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("value", equipment.getValue());
+                    map.put("label", equipment.getLabel());
+                    res.add(map);
+                }
+                break;
             default:
                 break;
         }
