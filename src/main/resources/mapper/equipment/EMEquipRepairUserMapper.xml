@@ -23,10 +23,10 @@
         t2.deleted = 0
     <if test="repairName != null and repairName != ''">
         <bind name="repairNameLike" value="'%'+repairName+'%'"/>
-        and REPAIR_NAME like #{repairNameLike}
+        and t1.REPAIR_NAME like #{repairNameLike}
     </if>
     <if test="repairContarctId != null and repairContarctId != ''">
-        and REPAIR_CONTARCT_ID =#{repairContarctId}
+        and t1.REPAIR_CONTARCT_ID =#{repairContarctId}
     </if>
     order by
     CREATED_TIME DESC
@@ -83,29 +83,33 @@
      #{now,jdbcType=TIMESTAMP}
     )
 </insert>
-    <insert id="insertUserDetail">
-        INSERT INTO E_M_EQUIP_REPAIR_USER_DETAIL (
-        ID,
-        REPAIR_USER_ID,
-        CERTIFICATE_TYPE,
-        CERTIFICATE_NAME,
-        CERTIFICATE_TIME,
-        CREATE_BY,
-        CREATE_BY_NAME,
-        CREATE_TIME
-    ) values
-    <foreach collection="list" item="item" index="index"  separator=",">
-        (#{item.id},
-         #{item.repairUserId},
-         #{item.certificateType},
-         #{item.certificateName},
-         #{item.certificateTime},
-         #{item.loginUserId,jdbcType=NUMERIC},
-         #{item.loginUserName},
-         SYSDATE
-        )
-    </foreach>
+    <!-- 批量插入设备维修人员证书详情 -->
+    <insert id="insertUserDetail" parameterType="java.util.List">
+        INSERT ALL
+        <foreach collection="list" item="item" index="index">
+            INTO E_M_EQUIP_REPAIR_USER_DETAIL (
+            ID,
+            REPAIR_USER_ID,
+            CERTIFICATE_TYPE,
+            CERTIFICATE_NAME,
+            CERTIFICATE_TIME,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+            ) VALUES (
+            #{item.id},
+            #{item.repairUserId},
+            #{item.certificateType},
+            #{item.certificateName},
+            #{item.certificateTime},
+            #{item.loginUserId,jdbcType=NUMERIC},
+            #{item.loginUserName},
+            SYSDATE
+            )
+        </foreach>
+        SELECT 1 FROM DUAL
     </insert>
+
 
     <update id="update">
     update E_M_EQUIP_REPAIR_USER
@@ -116,7 +120,7 @@
         PHONE = #{phone},
         UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
         UPDATE_BY_NAME = #{loginUserName},
-        UPDATED_TIME = #{now,jdbcType=TIMESTAMP}
+        UPDATE_TIME = #{now,jdbcType=TIMESTAMP}
     where
     ID = #{id}
 </update>

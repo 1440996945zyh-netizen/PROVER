@@ -24,7 +24,8 @@
     COMPANY_ID,
     USER_ORG_ID,
     SERVICE_COMPANIES,
-    TYPE
+    ENTITY_TYPE,
+    OUT_TYPE
     FROM E_M_EQUIP_REPAIR_CONTRACT
     where
     deleted = 0
@@ -60,7 +61,8 @@
         COMPANY_ID,
         USER_ORG_ID,
         SERVICE_COMPANIES,
-        TYPE
+        ENTITY_TYPE,
+        OUT_TYPE
     FROM E_M_EQUIP_REPAIR_CONTRACT
     where
     ID = #{id}
@@ -95,7 +97,8 @@
         COMPANY_ID,
         USER_ORG_ID,
         SERVICE_COMPANIES,
-        TYPE
+        ENTITY_TYPE,
+        OUT_TYPE
     ) values
     (#{id},
      #{externalCompanyId},
@@ -112,7 +115,8 @@
       #{companyId},
       #{userOrgId},
       #{serviceCompanies},
-      #{type}
+      #{entityType},
+      #{outType}
 
     )
 </insert>
@@ -134,7 +138,8 @@
     COMPANY_ID= #{companyId},
     USER_ORG_ID= #{userOrgId},
     SERVICE_COMPANIES= #{serviceCompanies},
-    TYPE= #{type}
+    ENTITY_TYPE= #{entityType},
+    OUT_TYPE= #{outType}
     where
     ID = #{id}
 </update>

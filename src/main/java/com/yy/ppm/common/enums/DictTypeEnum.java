@@ -129,7 +129,8 @@ public enum DictTypeEnum {
     BPM_LISTENER_TASK_EVENT("BPM_LISTENER_TASK_EVENT", "任务监听器事件"),
     BPM_LISTENER_EXECUTION_EVENT("BPM_LISTENER_EXECUTION_EVENT", "执行监听器事件"),
     COMMON_PHRASES_TYPE("COMMON_PHRASES_TYPE", "常用审批语类型"),
-    MODEL_TYPE("MODEL_TYPE", "模板类型");
+    MODEL_TYPE("MODEL_TYPE", "模板类型"),
+    CERTIFICATE_TYPE("CERTIFICATE_TYPE", "证件类型"),;
 
 
     private final String type;

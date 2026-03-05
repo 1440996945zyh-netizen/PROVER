@@ -7,6 +7,7 @@ import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -44,7 +45,7 @@ public class EMEquipRepairUserDetailPO extends BasePO implements Serializable {
      */
     @JsonFormat(timezone="GMT+8",pattern="yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private String certificateTime;
+    private Date certificateTime;
 
 
 }
