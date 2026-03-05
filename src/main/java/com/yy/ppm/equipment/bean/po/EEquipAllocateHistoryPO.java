@@ -8,39 +8,43 @@ import lombok.ToString;
 import java.io.Serializable;
 
 /**
- * @Author: fanxianjin
- * @Desc: 设备报废历史PO
- * @Date: 2026/2/28 14:27
+ * 设备调拨历史记录PO
+ * @author system
  */
 @Getter
 @Setter
 @ToString
-public class EEquipScrapHistoryPO extends BasePO implements Serializable {
+public class EEquipAllocateHistoryPO extends BasePO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * 主键ID
+     * 主键id
      */
     private Long id;
 
     /**
-     * 报废申请ID
+     * 工单id（对应调拨工单主键id）
      */
     private Long orderId;
 
     /**
-     * 设备ID
+     * 设备id
      */
     private Long equipId;
 
     /**
-     * 变更历史记录（JSON数据）
+     * 调拨变更前历史记录（json形式存储）
      */
     private String lastChangeInfo;
 
     /**
-     * 是否删除（0否，1是）
+     * 备注
+     */
+    private String remark;
+
+    /**
+     * 是否删除（0.否，1.是）
      */
     private Long delFlag;
 

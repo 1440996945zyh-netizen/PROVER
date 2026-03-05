@@ -157,14 +157,6 @@ public class MaintainPlanServiceImpl implements MaintainPlanService {
         return list;
     }
 
-    /**
-     * 查询设备小类下拉列表（来源：设备类别管理）
-     */
-    @Override
-    public List<EquipSmallCategorySelectDTO> getEquipSmallCategoryList(String keyword) {
-        return mapper.getEquipSmallCategoryList(keyword);
-    }
-
     @Override
     @Transactional(rollbackFor = Exception.class,isolation = Isolation.READ_COMMITTED)
     public void report(MaintainPlanPO dto) {

@@ -121,6 +121,7 @@ public class EEquipScrapServiceImpl implements EEquipScrapService {
 		}
 
 		Long userId = SecurityUtils.getLoginUserId();
+		String userName = SecurityUtils.getLoginUserName();
 		Date now = new Date();
 
 		EEquipScrapPO po = new EEquipScrapPO();
@@ -134,9 +135,10 @@ public class EEquipScrapServiceImpl implements EEquipScrapService {
 		po.setScrapCode(UUIDUtils.getScrapCode(userId));
 		po.setStatus(1L);
 		po.setApplyUser(userId);
-		po.setDeleted(0L);
+		po.setDelFlag(0L);
 		po.setCreateTime(now);
 		po.setCreateBy(userId);
+		po.setCreateByName(userName);
 		po.setFlowId("");
 
 		int count = scrapMapper.insert(po);
@@ -194,6 +196,7 @@ public class EEquipScrapServiceImpl implements EEquipScrapService {
 		}
 
 		Long userId = SecurityUtils.getLoginUserId();
+		String userName = SecurityUtils.getLoginUserName();
 		Date now = new Date();
 
 		EEquipScrapPO updatePO = new EEquipScrapPO();
@@ -203,6 +206,7 @@ public class EEquipScrapServiceImpl implements EEquipScrapService {
 		updatePO.setExecuteFulfilTime(now);
 		updatePO.setUpdateTime(now);
 		updatePO.setUpdateBy(userId);
+		updatePO.setUpdateByName(userName);
 
 		int count = scrapMapper.updateStatus(updatePO);
 

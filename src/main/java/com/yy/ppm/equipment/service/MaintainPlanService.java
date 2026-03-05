@@ -24,10 +24,6 @@ public interface MaintainPlanService {
 
     List<MEquipmentInfoPO> getEquipListById(Long id);
 
-    /**
-     * 查询设备小类下拉列表（来源：设备类别管理）
-     */
-    List<EquipSmallCategorySelectDTO> getEquipSmallCategoryList(String keyword);
 
     void report(MaintainPlanPO dto);
 }

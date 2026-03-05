@@ -13,11 +13,13 @@
         <result column="EXECUTE_USER" property="executeUser" jdbcType="BIGINT"/>
         <result column="EXECUTE_FULFIL_TIME" property="executeFulfilTime" jdbcType="TIMESTAMP"/>
         <result column="STATUS" property="status" jdbcType="BIGINT"/>
-        <result column="DELETED" property="deleted" jdbcType="BIGINT"/>
-        <result column="CREATED_TIME" property="createTime" jdbcType="TIMESTAMP"/>
-        <result column="CREATED_USER" property="createBy" jdbcType="BIGINT"/>
-        <result column="MODIFIED_TIME" property="updateTime" jdbcType="TIMESTAMP"/>
-        <result column="MODIFIED_USER" property="updateBy" jdbcType="BIGINT"/>
+        <result column="DEL_FLAG" property="delFlag" jdbcType="BIGINT"/>
+        <result column="CREATE_BY" property="createBy" jdbcType="BIGINT"/>
+        <result column="CREATE_BY_NAME" property="createByName" jdbcType="VARCHAR"/>
+        <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="UPDATE_BY" property="updateBy" jdbcType="BIGINT"/>
+        <result column="UPDATE_BY_NAME" property="updateByName" jdbcType="VARCHAR"/>
+        <result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP"/>
         <result column="FLOW_ID" property="flowId" jdbcType="VARCHAR"/>
     </resultMap>
 
@@ -41,11 +43,13 @@
             s.EXECUTE_USER,
             s.EXECUTE_FULFIL_TIME,
             s.STATUS,
-            s.DELETED,
-            s.CREATED_TIME,
-            s.CREATED_USER,
-            s.MODIFIED_TIME,
-            s.MODIFIED_USER,
+            s.DEL_FLAG,
+            s.CREATE_BY,
+            s.CREATE_BY_NAME,
+            s.CREATE_TIME,
+            s.UPDATE_BY,
+            s.UPDATE_BY_NAME,
+            s.UPDATE_TIME,
             s.FLOW_ID,
             d.DEPT_NAME as USE_COMPANY_NAME,
             u.DEPT_NAME as USE_ORG_NAME,
@@ -61,7 +65,7 @@
         LEFT JOIN SYS_DEPT u ON s.USE_ORG_ID = u.ID
         LEFT JOIN SYS_USER su ON s.APPLY_USER = su.ID AND su.STATUS != 0
         <where>
-            s.DELETED = 0
+            s.DEL_FLAG = 0
             <if test="title != null and title != ''">
                 <bind name="titlePattern" value="'%' + title + '%'"/>
                 AND s.TITLE LIKE #{titlePattern}
@@ -80,7 +84,7 @@
                 AND s.SCRAP_CODE LIKE #{scrapCodePattern}
                 </if>
         </where>
-        ORDER BY s.CREATED_TIME DESC
+        ORDER BY s.CREATE_TIME DESC
     </select>
 
     <!-- 根据ID查询设备报废 -->
@@ -96,11 +100,13 @@
             s.EXECUTE_USER,
             s.EXECUTE_FULFIL_TIME,
             s.STATUS,
-            s.DELETED,
-            s.CREATED_TIME,
-            s.CREATED_USER,
-            s.MODIFIED_TIME,
-            s.MODIFIED_USER,
+            s.DEL_FLAG,
+            s.CREATE_BY,
+            s.CREATE_BY_NAME,
+            s.CREATE_TIME,
+            s.UPDATE_BY,
+            s.UPDATE_BY_NAME,
+            s.UPDATE_TIME,
             s.FLOW_ID,
             d.DEPT_NAME as USE_COMPANY_NAME,
             u.DEPT_NAME as USE_ORG_NAME,
@@ -115,7 +121,7 @@
         LEFT JOIN SYS_DEPT d ON s.USE_COMPANY_ID = d.ID
         LEFT JOIN SYS_DEPT u ON s.USE_ORG_ID = u.ID
         LEFT JOIN SYS_USER su ON s.APPLY_USER = su.ID AND su.STATUS != 0
-        WHERE s.ID = #{id} AND s.DELETED = 0
+        WHERE s.ID = #{id} AND s.DEL_FLAG = 0
     </select>
 
     <!-- 查询设备报废列表（导出用，不分页） -->
@@ -131,11 +137,13 @@
             s.EXECUTE_USER,
             s.EXECUTE_FULFIL_TIME,
             s.STATUS,
-            s.DELETED,
-            s.CREATED_TIME,
-            s.CREATED_USER,
-            s.MODIFIED_TIME,
-            s.MODIFIED_USER,
+            s.DEL_FLAG,
+            s.CREATE_BY,
+            s.CREATE_BY_NAME,
+            s.CREATE_TIME,
+            s.UPDATE_BY,
+            s.UPDATE_BY_NAME,
+            s.UPDATE_TIME,
             s.FLOW_ID,
             d.DEPT_NAME as USE_COMPANY_NAME,
             u.DEPT_NAME as USE_ORG_NAME,
@@ -151,7 +159,7 @@
         LEFT JOIN SYS_DEPT u ON s.USE_ORG_ID = u.ID
         LEFT JOIN SYS_USER su ON s.APPLY_USER = su.ID AND su.STATUS != 0
         <where>
-            s.DELETED = 0
+            s.DEL_FLAG = 0
             <if test="scrapCode != null and scrapCode != ''">
                 <bind name="scrapCodePattern" value="'%' + scrapCode + '%'"/>
                 AND s.SCRAP_CODE LIKE #{scrapCodePattern}
@@ -170,19 +178,19 @@
                 AND s.STATUS = #{status}
             </if>
         </where>
-        ORDER BY s.CREATED_TIME DESC
+        ORDER BY s.CREATE_TIME DESC
     </select>
 
     <!-- 新增设备报废 -->
     <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.EEquipScrapPO">
         INSERT INTO E_M_EQUIP_SCRAP (
             ID, SCRAP_CODE, TITLE, USE_COMPANY_ID, USE_ORG_ID,
-            APPLY_USER, APPLY_REASON, STATUS, DELETED,
-            CREATED_TIME, CREATED_USER, FLOW_ID
+            APPLY_USER, APPLY_REASON, STATUS, DEL_FLAG,
+            CREATE_BY, CREATE_BY_NAME, CREATE_TIME, FLOW_ID
         ) VALUES (
             #{id}, #{scrapCode}, #{title}, #{useCompanyId}, #{useOrgId},
-            #{applyUser}, #{applyReason}, #{status}, #{deleted},
-            #{createTime}, #{createBy}, #{flowId}
+            #{applyUser}, #{applyReason}, #{status}, #{delFlag},
+            #{createBy}, #{createByName}, #{createTime}, #{flowId}
         )
     </insert>
 
@@ -197,8 +205,9 @@
             APPLY_USER = #{applyUser},
             APPLY_REASON = #{applyReason},
             STATUS = #{status},
-            MODIFIED_TIME = #{updateTime},
-            MODIFIED_USER = #{updateBy},
+            UPDATE_BY = #{updateBy},
+            UPDATE_BY_NAME = #{updateByName},
+            UPDATE_TIME = #{updateTime},
             FLOW_ID = #{flowId}
         </set>
         WHERE ID = #{id}
@@ -211,8 +220,9 @@
             STATUS = #{status},
             EXECUTE_USER = #{executeUser},
             EXECUTE_FULFIL_TIME = #{executeFulfilTime},
-            MODIFIED_TIME = #{updateTime},
-            MODIFIED_USER = #{updateBy}
+            UPDATE_BY = #{updateBy},
+            UPDATE_BY_NAME = #{updateByName},
+            UPDATE_TIME = #{updateTime}
         </set>
         WHERE ID = #{id}
     </update>
@@ -222,10 +232,10 @@
         SELECT
             ID, SCRAP_CODE, TITLE, USE_COMPANY_ID, USE_ORG_ID,
             APPLY_USER, APPLY_REASON, EXECUTE_USER, EXECUTE_FULFIL_TIME,
-            STATUS, DELETED, CREATED_TIME, CREATED_USER,
-            MODIFIED_TIME, MODIFIED_USER, FLOW_ID
+            STATUS, DEL_FLAG, CREATE_BY, CREATE_BY_NAME, CREATE_TIME,
+            UPDATE_BY, UPDATE_BY_NAME, UPDATE_TIME, FLOW_ID
         FROM E_M_EQUIP_SCRAP
-        WHERE FLOW_ID = #{flowId} AND DELETED = 0
+        WHERE FLOW_ID = #{flowId} AND DEL_FLAG = 0
     </select>
 
     <!-- 根据ID查询设备报废 -->
@@ -233,10 +243,10 @@
         SELECT
             ID, SCRAP_CODE, TITLE, USE_COMPANY_ID, USE_ORG_ID,
             APPLY_USER, APPLY_REASON, EXECUTE_USER, EXECUTE_FULFIL_TIME,
-            STATUS, DELETED, CREATED_TIME, CREATED_USER,
-            MODIFIED_TIME, MODIFIED_USER, FLOW_ID
+            STATUS, DEL_FLAG, CREATE_BY, CREATE_BY_NAME, CREATE_TIME,
+            UPDATE_BY, UPDATE_BY_NAME, UPDATE_TIME, FLOW_ID
         FROM E_M_EQUIP_SCRAP
-        WHERE ID = #{id} AND DELETED = 0
+        WHERE ID = #{id} AND DEL_FLAG = 0
     </select>
 
     <!-- 查询可报废设备列表 -->
@@ -294,7 +304,7 @@
                     SELECT 1 FROM E_M_EQUIP_SCRAP_HISTORY h
                     INNER JOIN E_M_EQUIP_SCRAP s ON h.ORDER_ID = s.ID
                     WHERE h.EQUIP_ID = e.ID
-                    AND h.DELETED = 0 AND s.DELETED = 0 AND s.STATUS = 1
+                    AND h.DEL_FLAG = 0 AND s.DEL_FLAG = 0 AND s.STATUS = 1
                 )
             </if>
         </where>

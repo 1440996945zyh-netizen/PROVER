@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EEquipAllocateMapper">
+
+    <resultMap id="BaseResultMap" type="com.yy.ppm.equipment.bean.po.EEquipAllocatePO">
+        <id column="ID" property="id"/>
+        <result column="ALLOCATE_CODE" property="allocateCode"/>
+        <result column="TITLE" property="title"/>
+        <result column="TO_COMPANY_ID" property="toCompanyId"/>
+        <result column="TO_ORG_ID" property="toOrgId"/>
+        <result column="STATUS" property="status"/>
+        <result column="ALLOCATE_TIME" property="allocateTime"/>
+        <result column="APPLY_USER" property="applyUser"/>
+        <result column="APPLY_REASON" property="applyReason"/>
+        <result column="EXECUTE_USER" property="executeUser"/>
+        <result column="ALLOCATE_FULFIL_TIME" property="allocateFulfilTime"/>
+        <result column="DEL_FLAG" property="delFlag"/>
+        <result column="CREATE_BY" property="createBy"/>
+        <result column="CREATE_BY_NAME" property="createByName"/>
+        <result column="CREATE_TIME" property="createTime"/>
+        <result column="UPDATE_BY" property="updateBy"/>
+        <result column="UPDATE_BY_NAME" property="updateByName"/>
+        <result column="UPDATE_TIME" property="updateTime"/>
+        <result column="FLOW_ID" property="flowId"/>
+    </resultMap>
+
+    <resultMap id="DTOResultMap" type="com.yy.ppm.equipment.bean.dto.EEquipAllocateDTO" extends="BaseResultMap">
+        <result column="TO_COMPANY_NAME" property="toCompanyName"/>
+        <result column="TO_ORG_NAME" property="toOrgName"/>
+        <result column="APPLY_USER_NAME" property="applyUserName"/>
+        <result column="STATUS_NAME" property="statusName"/>
+    </resultMap>
+
+    <resultMap id="EquipResultMap" type="com.yy.ppm.equipment.bean.dto.AllocateEquipDTO">
+        <id column="equipId" property="equipId"/>
+        <result column="equipCode" property="equipCode"/>
+        <result column="equipName" property="equipName"/>
+        <result column="equipSpecification" property="equipSpecification"/>
+        <result column="modelNumber" property="modelNumber"/>
+        <result column="equipBigCategoryName" property="equipBigCategoryName"/>
+        <result column="equipMiddleCategoryName" property="equipMiddleCategoryName"/>
+        <result column="equipSmallCategoryName" property="equipSmallCategoryName"/>
+        <result column="useCompanyId" property="useCompanyId"/>
+        <result column="useCompanyName" property="useCompanyName"/>
+        <result column="useOrgId" property="useOrgId"/>
+        <result column="useOrgName" property="useOrgName"/>
+        <result column="equipAssetsCode" property="equipAssetsCode"/>
+        <result column="depreciationLimit" property="depreciationLimit"/>
+        <result column="alreadyLimit" property="alreadyLimit"/>
+        <result column="netValue" property="netValue"/>
+        <result column="price" property="price"/>
+        <result column="equipBuyDate" property="equipBuyDate"/>
+        <result column="equipState" property="equipState"/>
+        <result column="equipStateName" property="equipStateName"/>
+    </resultMap>
+
+    <!-- 查询设备调拨列表（分页） -->
+    <select id="getList" resultMap="DTOResultMap">
+        SELECT
+            a.ID, a.ALLOCATE_CODE, a.TITLE, a.TO_COMPANY_ID, a.TO_ORG_ID,
+            a.STATUS, a.ALLOCATE_TIME, a.APPLY_USER, a.APPLY_REASON,
+            a.EXECUTE_USER, a.ALLOCATE_FULFIL_TIME, a.DEL_FLAG,
+            a.CREATE_BY, a.CREATE_BY_NAME, a.CREATE_TIME,
+            a.UPDATE_BY, a.UPDATE_BY_NAME, a.UPDATE_TIME, a.FLOW_ID,
+            d.DEPT_NAME as TO_COMPANY_NAME,
+            u.DEPT_NAME as TO_ORG_NAME,
+            su.USER_NAME as APPLY_USER_NAME,
+            CASE a.STATUS
+                WHEN 1 THEN '审批中'
+                WHEN 2 THEN '审批成功'
+                WHEN 3 THEN '审批未通过'
+                ELSE '未知'
+            END as STATUS_NAME
+        FROM E_M_EQUIP_ALLOCATE a
+        LEFT JOIN SYS_DEPT d ON a.TO_COMPANY_ID = d.ID
+        LEFT JOIN SYS_DEPT u ON a.TO_ORG_ID = u.ID
+        LEFT JOIN SYS_USER su ON a.APPLY_USER = su.ID AND su.STATUS != 0
+        <where>
+            a.DEL_FLAG = 0
+            <if test="allocateCode != null and allocateCode != ''">
+                <bind name="allocateCodePattern" value="'%' + allocateCode + '%'"/>
+                AND a.ALLOCATE_CODE LIKE #{allocateCodePattern}
+            </if>
+            <if test="title != null and title != ''">
+                <bind name="titlePattern" value="'%' + title + '%'"/>
+                AND a.TITLE LIKE #{titlePattern}
+            </if>
+            <if test="toCompanyId != null">
+                AND a.TO_COMPANY_ID = #{toCompanyId}
+            </if>
+            <if test="toOrgId != null">
+                AND a.TO_ORG_ID = #{toOrgId}
+            </if>
+            <if test="status != null">
+                AND a.STATUS = #{status}
+            </if>
+        </where>
+        ORDER BY a.CREATE_TIME DESC
+    </select>
+
+    <!-- 查询可调拨设备列表（分页） -->
+    <select id="allocateEquipList" resultMap="EquipResultMap">
+        SELECT
+            e.ID as equipId,
+            e.EQUIP_CODE as equipCode,
+            e.EQUIP_NAME as equipName,
+            e.MODEL_NUMBER as modelNumber,
+            ebc.TYPE_NAME as equipBigCategoryName,
+            emc.TYPE_NAME as equipMiddleCategoryName,
+            esc.TYPE_NAME as equipSmallCategoryName,
+--             d.DEPT_NAME as useCompanyName,
+            (SELECT ID FROM SYS_DEPT WHERE ID = u.PARENT_ID) as useCompanyId,
+            (SELECT DEPT_NAME FROM SYS_DEPT WHERE ID = u.PARENT_ID) as useCompanyName,
+            u.DEPT_ID as useOrgId,
+            u.DEPT_NAME as useOrgName,
+            e.EQUIP_STATE as equipState,
+            e.EQUIP_STATE_NAME as equipStateName,
+            efi.EQUIP_ASSETS_CODE as equipAssetsCode,
+            efi.DEPRECIATION_LIMIT as depreciationLimit,
+            efi.ALREADY_LIMIT as alreadyLimit,
+            efi.NET_VALUE as netValue,
+            efi.PRICE as price,
+            esi.EQUIP_BUY_DATE as equipBuyDate
+        FROM E_M_EQPT_INFO e
+        LEFT JOIN E_M_EQPT_TYPE ebc ON e.EQUIP_BIG_CATEGORY_ID = ebc.ID
+        LEFT JOIN E_M_EQPT_TYPE emc ON e.EQUIP_MIDDLE_CATEGORY_ID = emc.ID
+        LEFT JOIN E_M_EQPT_TYPE esc ON e.EQUIP_SMALL_CATEGORY_ID = esc.ID
+        LEFT JOIN SYS_DEPT d ON e.USE_COMPANY_ID = d.ID
+        LEFT JOIN SYS_DEPT u ON e.USE_ORG_ID = u.ID
+        LEFT JOIN E_M_EQPT_FINANCE efi ON e.ID = efi.EQUIP_ID AND efi.DEL_FLAG = 0
+        LEFT JOIN E_M_EQPT_SUPPLY esi ON e.ID = esi.EQUIP_ID AND esi.DEL_FLAG = 0
+        <where>
+            e.DEL_FLAG = 0
+            AND e.EQUIP_STATE NOT IN ('03', '04')
+            <if test="equipBigCategoryId != null">
+                AND e.EQUIP_BIG_CATEGORY_ID = #{equipBigCategoryId}
+            </if>
+            <if test="equipMiddleCategoryId != null">
+                AND e.EQUIP_MIDDLE_CATEGORY_ID = #{equipMiddleCategoryId}
+            </if>
+            <if test="equipSmallCategoryId != null">
+                AND e.EQUIP_SMALL_CATEGORY_ID = #{equipSmallCategoryId}
+            </if>
+            <if test="equipName != null and equipName != ''">
+                <bind name="equipNamePattern" value="'%' + equipName + '%'"/>
+                AND e.EQUIP_NAME LIKE #{equipNamePattern}
+            </if>
+            <if test="equipCode != null and equipCode != ''">
+                <bind name="equipCodePattern" value="'%' + equipCode + '%'"/>
+                AND e.EQUIP_CODE LIKE #{equipCodePattern}
+            </if>
+            <if test="useCompanyId != null">
+                AND u.PARENT_ID = #{useCompanyId}
+            </if>
+            <if test="useOrgId != null">
+                AND e.USE_ORG_ID = #{useOrgId}
+            </if>
+        </where>
+        ORDER BY e.CREATE_TIME DESC
+    </select>
+
+    <!-- 根据ID查询设备调拨 -->
+    <select id="getById" resultMap="DTOResultMap">
+        SELECT
+            a.ID, a.ALLOCATE_CODE, a.TITLE, a.TO_COMPANY_ID, a.TO_ORG_ID,
+            a.STATUS, a.ALLOCATE_TIME, a.APPLY_USER, a.APPLY_REASON,
+            a.EXECUTE_USER, a.ALLOCATE_FULFIL_TIME, a.DEL_FLAG,
+            a.CREATE_BY, a.CREATE_BY_NAME, a.CREATE_TIME,
+            a.UPDATE_BY, a.UPDATE_BY_NAME, a.UPDATE_TIME, a.FLOW_ID,
+            d.DEPT_NAME as TO_COMPANY_NAME,
+            u.DEPT_NAME as TO_ORG_NAME,
+            su.USER_NAME as APPLY_USER_NAME,
+            CASE a.STATUS
+                WHEN 1 THEN '审批中'
+                WHEN 2 THEN '审批成功'
+                WHEN 3 THEN '审批未通过'
+                ELSE '未知'
+            END as STATUS_NAME
+        FROM E_M_EQUIP_ALLOCATE a
+        LEFT JOIN SYS_DEPT d ON a.TO_COMPANY_ID = d.ID
+        LEFT JOIN SYS_DEPT u ON a.TO_ORG_ID = u.ID
+        LEFT JOIN SYS_USER su ON a.APPLY_USER = su.ID AND su.STATUS != 0
+        WHERE a.ID = #{id} AND a.DEL_FLAG = 0
+    </select>
+
+    <!-- 根据流程ID查询设备调拨 -->
+    <select id="getByFlowId" resultMap="BaseResultMap">
+        SELECT
+            ID, ALLOCATE_CODE, TITLE, TO_COMPANY_ID, TO_ORG_ID, STATUS,
+            ALLOCATE_TIME, APPLY_USER, APPLY_REASON, EXECUTE_USER, ALLOCATE_FULFIL_TIME,
+            DEL_FLAG, CREATE_BY, CREATE_BY_NAME, CREATE_TIME,
+            UPDATE_BY, UPDATE_BY_NAME, UPDATE_TIME, FLOW_ID
+        FROM E_M_EQUIP_ALLOCATE
+        WHERE FLOW_ID = #{flowId} AND DEL_FLAG = 0
+    </select>
+
+    <!-- 新增设备调拨 -->
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.EEquipAllocatePO">
+        INSERT INTO E_M_EQUIP_ALLOCATE (
+            ID, ALLOCATE_CODE, TITLE, TO_COMPANY_ID, TO_ORG_ID, STATUS,
+            ALLOCATE_TIME, APPLY_USER, APPLY_REASON, DEL_FLAG,
+            CREATE_BY, CREATE_BY_NAME, CREATE_TIME, FLOW_ID
+        ) VALUES (
+            #{id}, #{allocateCode}, #{title}, #{toCompanyId}, #{toOrgId}, #{status},
+            #{allocateTime}, #{applyUser}, #{applyReason}, #{delFlag},
+            #{createBy}, #{createByName}, #{createTime}, #{flowId}
+        )
+    </insert>
+
+    <!-- 更新设备调拨 -->
+    <update id="update" parameterType="com.yy.ppm.equipment.bean.po.EEquipAllocatePO">
+        UPDATE E_M_EQUIP_ALLOCATE
+        <set>
+            <if test="title != null">TITLE = #{title},</if>
+            <if test="toCompanyId != null">TO_COMPANY_ID = #{toCompanyId},</if>
+            <if test="toOrgId != null">TO_ORG_ID = #{toOrgId},</if>
+            <if test="status != null">STATUS = #{status},</if>
+            <if test="allocateTime != null">ALLOCATE_TIME = #{allocateTime},</if>
+            <if test="applyReason != null">APPLY_REASON = #{applyReason},</if>
+            <if test="executeUser != null">EXECUTE_USER = #{executeUser},</if>
+            <if test="allocateFulfilTime != null">ALLOCATE_FULFIL_TIME = #{allocateFulfilTime},</if>
+            <if test="flowId != null">FLOW_ID = #{flowId},</if>
+            UPDATE_BY = #{updateBy},
+            UPDATE_BY_NAME = #{updateByName},
+            UPDATE_TIME = #{updateTime}
+        </set>
+        WHERE ID = #{id}
+    </update>
+
+    <!-- 更新设备调拨状态 -->
+    <update id="updateStatus" parameterType="com.yy.ppm.equipment.bean.po.EEquipAllocatePO">
+        UPDATE E_M_EQUIP_ALLOCATE
+        <set>
+            <if test="status != null">STATUS = #{status},</if>
+            <if test="executeUser != null">EXECUTE_USER = #{executeUser},</if>
+            <if test="allocateFulfilTime != null">ALLOCATE_FULFIL_TIME = #{allocateFulfilTime},</if>
+            UPDATE_BY = #{updateBy},
+            UPDATE_BY_NAME = #{updateByName},
+            UPDATE_TIME = #{updateTime}
+        </set>
+        WHERE ID = #{id}
+    </update>
+
+    <!-- 根据ID查询设备调拨 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+            ID, ALLOCATE_CODE, TITLE, TO_COMPANY_ID, TO_ORG_ID, STATUS,
+            ALLOCATE_TIME, APPLY_USER, APPLY_REASON, EXECUTE_USER, ALLOCATE_FULFIL_TIME,
+            DEL_FLAG, CREATE_BY, CREATE_BY_NAME, CREATE_TIME,
+            UPDATE_BY, UPDATE_BY_NAME, UPDATE_TIME, FLOW_ID
+        FROM E_M_EQUIP_ALLOCATE
+        WHERE ID = #{id} AND DEL_FLAG = 0
+    </select>
+
+    <!-- 查询设备调拨列表（导出用，不分页） -->
+    <select id="getListForExport" resultMap="DTOResultMap">
+        SELECT
+            a.ID, a.ALLOCATE_CODE, a.TITLE, a.TO_COMPANY_ID, a.TO_ORG_ID,
+            a.STATUS, a.ALLOCATE_TIME, a.APPLY_USER, a.APPLY_REASON,
+            a.EXECUTE_USER, a.ALLOCATE_FULFIL_TIME, a.DEL_FLAG,
+            a.CREATE_BY, a.CREATE_BY_NAME, a.CREATE_TIME,
+            a.UPDATE_BY, a.UPDATE_BY_NAME, a.UPDATE_TIME, a.FLOW_ID,
+            d.DEPT_NAME as TO_COMPANY_NAME,
+            u.DEPT_NAME as TO_ORG_NAME,
+            su.USER_NAME as APPLY_USER_NAME,
+            CASE a.STATUS
+                WHEN 1 THEN '审批中'
+                WHEN 2 THEN '审批成功'
+                WHEN 3 THEN '审批未通过'
+                ELSE '未知'
+            END as STATUS_NAME
+        FROM E_M_EQUIP_ALLOCATE a
+        LEFT JOIN SYS_DEPT d ON a.TO_COMPANY_ID = d.ID
+        LEFT JOIN SYS_DEPT u ON a.TO_ORG_ID = u.ID
+        LEFT JOIN SYS_USER su ON a.APPLY_USER = su.ID AND su.STATUS != 0
+        <where>
+            a.DEL_FLAG = 0
+            <if test="allocateCode != null and allocateCode != ''">
+                <bind name="allocateCodePattern" value="'%' + allocateCode + '%'"/>
+                AND a.ALLOCATE_CODE LIKE #{allocateCodePattern}
+            </if>
+            <if test="title != null and title != ''">
+                <bind name="titlePattern" value="'%' + title + '%'"/>
+                AND a.TITLE LIKE #{titlePattern}
+            </if>
+            <if test="toCompanyId != null">
+                AND a.TO_COMPANY_ID = #{toCompanyId}
+            </if>
+            <if test="toOrgId != null">
+                AND a.TO_ORG_ID = #{toOrgId}
+            </if>
+            <if test="status != null">
+                AND a.STATUS = #{status}
+            </if>
+        </where>
+        ORDER BY a.CREATE_TIME DESC
+    </select>
+
+</mapper>
