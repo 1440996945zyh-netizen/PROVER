@@ -24,4 +24,9 @@ public interface EMEquipRepairContractMapper {
     void deleteById(@Param("id") Long id);
 
     List<EMEquipRepairContractDTO> queryUnitName(EMEquipRepairContractDTO searchDTO);
+
+    /**
+     * 根据所属单位ID和outType查询维修单位列表
+     */
+    List<EMEquipRepairContractDTO> getByCompanyIdAndOutType(@Param("useCompanyId") Long useCompanyId, @Param("outType") String outType);
 }

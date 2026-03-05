@@ -103,6 +103,11 @@ public class EMaintInfoPO extends BasePO {
     private String maintLeaderName;
 
     /**
+     * 维修负责人手机号
+     */
+    private String maintLeaderMobile;
+
+    /**
      * 派工人ID
      */
     private Long dispatcherId;

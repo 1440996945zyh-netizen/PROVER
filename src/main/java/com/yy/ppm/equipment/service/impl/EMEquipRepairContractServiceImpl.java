@@ -7,9 +7,11 @@ import com.yy.common.page.Pages;
 import com.yy.common.util.PageHelperUtils;
 import com.yy.framework.exception.BusinessRuntimeException;
 import com.yy.ppm.equipment.bean.dto.EMEquipRepairContractDTO;
+import com.yy.ppm.equipment.bean.dto.MEquipmentInfoDTO;
 import com.yy.ppm.equipment.bean.dto.MEquipmentOperationDTO;
 import com.yy.ppm.equipment.bean.po.MEquipmentOperationPO;
 import com.yy.ppm.equipment.mapper.EMEquipRepairContractMapper;
+import com.yy.ppm.equipment.mapper.MEquipmentInfoMapper;
 import com.yy.ppm.equipment.mapper.MEquipmentOperationMapper;
 import com.yy.ppm.equipment.service.EMEquipRepairContractService;
 import com.yy.ppm.equipment.service.MEquipmentOperationService;
@@ -24,6 +26,10 @@ public class EMEquipRepairContractServiceImpl implements EMEquipRepairContractSe
 
     @Autowired
     private EMEquipRepairContractMapper mapper;
+
+    @Resource
+    private MEquipmentInfoMapper mEquipmentInfoMapper;
+
     @Resource
     private Snowflake snowflake;
 
@@ -65,5 +71,21 @@ public class EMEquipRepairContractServiceImpl implements EMEquipRepairContractSe
             throw new BusinessRuntimeException("请选择一条数据删除");
         }
         mapper.deleteById(id);
+    }
+
+    @Override
+    public List<EMEquipRepairContractDTO> getRepairContractByEquipId(Long equipId, String outType) {
+        // 1. 查询设备表获取使用单位ID
+        MEquipmentInfoDTO equipmentInfo = mEquipmentInfoMapper.selectById(equipId);
+        if (equipmentInfo == null) {
+            throw new BusinessRuntimeException("设备不存在");
+        }
+        Long useCompanyId = equipmentInfo.getUseCompanyId();
+        if (useCompanyId == null) {
+            throw new BusinessRuntimeException("设备未配置使用单位");
+        }
+
+        // 2. 根据所属单位ID和outType查询维修单位列表
+        return mapper.getByCompanyIdAndOutType(useCompanyId, outType);
     }
 }

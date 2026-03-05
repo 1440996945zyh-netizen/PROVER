@@ -23,6 +23,7 @@
             m.MAINT_ORG_NAME,
             m.MAINT_LEADER_ID,
             m.MAINT_LEADER_NAME,
+            m.MAINT_LEADER_MOBILE,
             m.DISPATCHER_ID,
             m.DISPATCHER_NAME,
             m.DISPATCH_TIME,
@@ -48,7 +49,9 @@
             m.DEL_FLAG,
             e.EQUIP_NAME,
             e.EQUIP_CODE,
-            -- 维修时长(小时)：维修结束时间 - 维修开始时间
+            e.EQUIP_SMALL_CATEGORY_NAME,
+            u.DEPT_NAME as useOrgName,
+        -- 维修时长(小时)：维修结束时间 - 维修开始时间
             CASE
                 WHEN m.MAINT_START_TIME IS NOT NULL AND m.MAINT_END_TIME IS NOT NULL
                 THEN ROUND((m.MAINT_END_TIME - m.MAINT_START_TIME) * 24, 2)
@@ -65,6 +68,7 @@
         FROM
             E_MAINT_INFO m
         LEFT JOIN E_M_EQPT_INFO e ON m.EQUIP_ID = e.ID AND e.DEL_FLAG = 0
+        LEFT JOIN SYS_DEPT u ON e.USE_ORG_ID = u.ID
         <where>
             m.DEL_FLAG = 0
             <if test="equipId != null">
@@ -124,6 +128,7 @@
             m.MAINT_ORG_NAME,
             m.MAINT_LEADER_ID,
             m.MAINT_LEADER_NAME,
+            m.MAINT_LEADER_MOBILE,
             m.DISPATCHER_ID,
             m.DISPATCHER_NAME,
             m.DISPATCH_TIME,
@@ -212,6 +217,7 @@
             MAINT_ORG_NAME,
             MAINT_LEADER_ID,
             MAINT_LEADER_NAME,
+            MAINT_LEADER_MOBILE,
             DISPATCHER_ID,
             DISPATCHER_NAME,
             DISPATCH_TIME,
@@ -250,6 +256,7 @@
             #{maintOrgName,jdbcType=VARCHAR},
             #{maintLeaderId,jdbcType=NUMERIC},
             #{maintLeaderName,jdbcType=VARCHAR},
+            #{maintLeaderMobile,jdbcType=VARCHAR},
             #{dispatcherId,jdbcType=NUMERIC},
             #{dispatcherName,jdbcType=VARCHAR},
             #{dispatchTime,jdbcType=TIMESTAMP},
@@ -272,7 +279,6 @@
             #{sourceItemId}
         )
     </insert>
-
     <!-- 修改设备维修派工信息 -->
     <update id="update" parameterType="com.yy.ppm.equipment.bean.po.EMaintInfoPO">
         UPDATE E_MAINT_INFO
@@ -321,6 +327,9 @@
             </if>
             <if test="maintLeaderName != null">
                 MAINT_LEADER_NAME = #{maintLeaderName,jdbcType=VARCHAR},
+            </if>
+            <if test="maintLeaderMobile != null">
+                MAINT_LEADER_MOBILE = #{maintLeaderMobile,jdbcType=VARCHAR},
             </if>
             <if test="dispatcherId != null">
                 DISPATCHER_ID = #{dispatcherId,jdbcType=NUMERIC},

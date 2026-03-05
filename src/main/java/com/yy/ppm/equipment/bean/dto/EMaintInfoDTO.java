@@ -43,5 +43,16 @@ public class EMaintInfoDTO extends EMaintInfoPO {
      * 配件更换列表
      */
     private java.util.List<EMaintPartReplaceDTO> partReplaceList;
+
+    /**
+     * 设备小类名称
+     */
+    private String equipSmallCategoryName;
+
+    /**
+     * 使用部门名称
+     */
+    private String useOrgName;
+
 }
 

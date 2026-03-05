@@ -17,4 +17,12 @@ public interface EMEquipRepairContractService {
     void save(EMEquipRepairContractDTO po);
 
     void delete(Long id);
+
+    /**
+     * 根据设备ID和outType查询维修单位列表
+     * @param equipId 设备ID
+     * @param outType 类型（1:内部 2:外部）
+     * @return 维修单位列表（包含EXTERNAL_COMPANY_ID和UNIT_NAME）
+     */
+    List<EMEquipRepairContractDTO> getRepairContractByEquipId(Long equipId, String outType);
 }

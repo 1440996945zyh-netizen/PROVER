@@ -126,4 +126,20 @@ public class EMEquipRepairContractController {
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("删除成功").toResult();
     }
+
+    /**
+     * 根据设备ID和outType查询维修单位列表
+     */
+    @GetMapping("/getRepairContractByEquipId")
+    @PreAuthorize("hasAuthority('equipment:emequiprepaircontract:query')")
+    public Map<String, Object> getRepairContractByEquipId(@RequestParam("equipId") Long equipId,
+                                                          @RequestParam("outType") String outType) {
+        final String methodName = "EMEquipRepairContractController:getRepairContractByEquipId";
+        LOGGER.enter(methodName + "[start]", "equipId:" + equipId + ", outType:" + outType);
+
+        List<EMEquipRepairContractDTO> result = emEquipRepairContractService.getRepairContractByEquipId(equipId, outType);
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
+    }
 }

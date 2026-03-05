@@ -138,8 +138,12 @@ public class SelectServiceImpl implements SelectService {
                     // 按作业班组
                 } else if (!StringUtil.isEmpty(StringUtil.getString(params.get("workClass")))) {
                     res = selectMapper.getUserByWorkClass(StringUtil.getString(params.get("WorkClass")));
+                    // 按部门查询
+                } else if (params.get("deptId") != null) {
+                    Long deptId = Long.parseLong(StringUtil.getString(params.get("deptId")));
+                    res = selectMapper.getUserByDept(deptId);
 
-                } else {
+                }else {
                     res = selectMapper.getLocalSelect(
                             SelectEnum.USER.getTableName(),
                             SelectEnum.USER.getValueName(),

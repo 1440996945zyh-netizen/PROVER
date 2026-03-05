@@ -128,7 +128,7 @@ public class EEquipAllocateServiceImpl implements EEquipAllocateService {
 		BeanUtils.copyProperties(dto, po);
 
 		Long id = snowflake.nextId();
-		String allocateCode = "DB" + UUIDUtils.getScrapCode(userId);
+		String allocateCode = UUIDUtils.getDbOrderCode(userId);
 
 		po.setId(id);
 		po.setAllocateCode(allocateCode);
