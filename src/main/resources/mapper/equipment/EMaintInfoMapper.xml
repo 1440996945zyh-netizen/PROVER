@@ -158,6 +158,8 @@
             m.WORK_ORDER_NO,
             e.EQUIP_NAME,
             e.EQUIP_CODE,
+            e.EQUIP_SMALL_CATEGORY_ID,
+            e.EQUIP_SMALL_CATEGORY_NAME,
             -- 维修时长(小时)：维修结束时间 - 维修开始时间
             CASE
                 WHEN m.MAINT_START_TIME IS NOT NULL AND m.MAINT_END_TIME IS NOT NULL
