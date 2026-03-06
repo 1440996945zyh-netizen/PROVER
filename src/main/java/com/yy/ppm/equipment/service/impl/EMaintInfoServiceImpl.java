@@ -9,13 +9,16 @@ import com.yy.ppm.auth.bean.dto.UserInfo;
 import com.yy.ppm.common.enums.SerialNumberPrefixEnum;
 import com.yy.ppm.common.service.impl.CommonServiceImpl;
 import com.yy.ppm.equipment.bean.dto.EMaintInfoDTO;
+import com.yy.ppm.equipment.bean.dto.EMaintInfoPartItemDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintInfoSearchDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintInfoBatchUpdateDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintPartReplaceDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintPartReplaceQueryDTO;
 import com.yy.ppm.equipment.bean.po.EMaintInfoPO;
+import com.yy.ppm.equipment.bean.po.EMaintInfoPartItemPO;
 import com.yy.ppm.equipment.bean.po.EMaintPartReplacePO;
 import com.yy.ppm.equipment.mapper.EMaintInfoMapper;
+import com.yy.ppm.equipment.mapper.EMaintInfoPartItemMapper;
 import com.yy.ppm.equipment.mapper.EMaintPartReplaceMapper;
 import com.yy.ppm.equipment.service.EMaintInfoService;
 import com.yy.ppm.common.service.SysFileService;
@@ -30,7 +33,9 @@ import org.springframework.transaction.annotation.Transactional;
 import jakarta.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -55,6 +60,9 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
 
     @Resource
     private EMaintPartReplaceMapper partReplaceMapper;
+
+    @Resource
+    private EMaintInfoPartItemMapper partItemMapper;
 
     /**
      * 查询设备维修信息列表（分页）
@@ -134,6 +142,9 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
     @Override
     public EMaintInfoDTO getById(Long id) {
         EMaintInfoDTO dto = mapper.selectById(id);
+        if (dto != null && dto.getId() != null) {
+            dto.setItemList(partItemMapper.selectListByMaintInfoId(dto.getId()));
+        }
         return dto;
     }
 
@@ -178,6 +189,8 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
                 }
             }
             mapper.insert(po);
+            // 保存派工部位部件子表
+            syncPartItemList(id, dto.getItemList());
             if (dto.getFaultImageIds() != null && !dto.getFaultImageIds().isEmpty()) {
                 sysFileService.saveFileBusRelation(dto.getFaultImageIds(), id);
             }
@@ -206,6 +219,10 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
             }
             po.setStatus(null);
             mapper.update(po);
+            // 仅当前端显式传入 itemList 时同步子表（避免未传时误清空）
+            if (dto.getItemList() != null) {
+                syncPartItemList(dto.getId(), dto.getItemList());
+            }
             if (dto.getFaultImageIds() != null && !dto.getFaultImageIds().isEmpty()) {
                 sysFileService.saveFileBusRelation(dto.getFaultImageIds(), dto.getId());
             }
@@ -334,6 +351,9 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
         po.setDispatchTime(new Date());
 
         mapper.update(po);
+        if (dto.getItemList() != null) {
+            syncPartItemList(dto.getId(), dto.getItemList());
+        }
     }
 
     /**
@@ -520,6 +540,56 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
         po.setAcceptanceTime(now);
         po.setAcceptanceRemark(acceptanceRemark);
         mapper.update(po);
+    }
+
+    /**
+     * 新增部位部件子表
+     */
+    private void syncPartItemList(Long maintInfoId, List<EMaintInfoPartItemDTO> itemList) {
+        if (maintInfoId == null) {
+            return;
+        }
+        Date now = new Date();
+        Long loginUserId = securityUtils.getLoginUserId();
+        String loginUserName = securityUtils.getUserInfo() == null ? null : securityUtils.getUserInfo().getUserName();
+
+        EMaintInfoPartItemPO deletePO = new EMaintInfoPartItemPO();
+        deletePO.setMaintInfoId(maintInfoId);
+        deletePO.setNow(now);
+        deletePO.setLoginUserId(loginUserId);
+        deletePO.setLoginUserName(loginUserName);
+        partItemMapper.logicDeleteByMaintInfoId(deletePO);
+
+        if (itemList == null || itemList.isEmpty()) {
+            return;
+        }
+
+        Map<Long, EMaintInfoPartItemDTO> distinctMap = new LinkedHashMap<>();
+        for (EMaintInfoPartItemDTO item : itemList) {
+            if (item == null || item.getEquipUnitId() == null || item.getEquipInstitutionId() == null) {
+                continue;
+            }
+            distinctMap.put(item.getEquipUnitId(), item);
+        }
+
+        List<EMaintInfoPartItemPO> saveList = new ArrayList<>();
+        int sortNum = 1;
+        for (EMaintInfoPartItemDTO item : distinctMap.values()) {
+            EMaintInfoPartItemPO po = new EMaintInfoPartItemPO();
+            BeanUtils.copyProperties(item, po);
+            po.setId(snowflake.nextId());
+            po.setMaintInfoId(maintInfoId);
+            po.setSortOrder(item.getSortOrder() == null ? sortNum : item.getSortOrder());
+            po.setNow(now);
+            po.setLoginUserId(loginUserId);
+            po.setLoginUserName(loginUserName);
+            saveList.add(po);
+            sortNum++;
+        }
+
+        if (!saveList.isEmpty()) {
+            partItemMapper.insertBatch(saveList);
+        }
     }
 
     /**

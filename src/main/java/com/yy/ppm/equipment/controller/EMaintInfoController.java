@@ -8,7 +8,9 @@ import com.yy.ppm.equipment.bean.dto.EMaintInfoDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintInfoSearchDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintPartReplaceDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintPartReplaceQueryDTO;
+import com.yy.ppm.equipment.bean.dto.MEquipmentTypeDTO;
 import com.yy.ppm.equipment.service.EMaintInfoService;
+import com.yy.ppm.equipment.service.MEquipmentTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -33,6 +35,10 @@ public class EMaintInfoController {
 
     @Autowired
     private EMaintInfoService service;
+
+
+    @Autowired
+    private MEquipmentTypeService equipmentTypeService;
 
     /**
      * 查询设备维修信息列表（分页）
@@ -257,6 +263,26 @@ public class EMaintInfoController {
 
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("验收成功").toResult();
+    }
+
+    /**
+     * 根据设备小类ID查询设备零部件树（设备小类 -> 设备机构 -> 设备部件）
+     */
+    @GetMapping("/getPartsTreeBySmallCategoryId")
+    @PreAuthorize("hasAuthority('equipment:maintInfo:query')")
+    public Map<String, Object> getPartsTreeBySmallCategoryId(@RequestParam("smallCategoryId") Long smallCategoryId) {
+        final String methodName = "EMaintInfoController:getPartsTreeBySmallCategoryId";
+        LOGGER.enter(methodName + "[start]", "smallCategoryId:" + smallCategoryId);
+
+        List<MEquipmentTypeDTO> allTree = equipmentTypeService.partsTree(new MEquipmentTypeDTO());
+        List<MEquipmentTypeDTO> result = allTree.stream()
+                .filter(item -> smallCategoryId.equals(item.getId()))
+                .findFirst()
+                .map(MEquipmentTypeDTO::getChildren)
+                .orElseGet(java.util.ArrayList::new);
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
     }
 }
 

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMaintInfoPartItemMapper">
+
+    <!-- 根据维保主表ID查询部位部件子表 -->
+    <select id="selectListByMaintInfoId" resultType="com.yy.ppm.equipment.bean.dto.EMaintInfoPartItemDTO">
+        SELECT
+            ID,
+            MAINT_INFO_ID,
+            EQUIP_SMALL_CATEGORY_ID,
+            EQUIP_SMALL_CATEGORY_NAME,
+            EQUIP_INSTITUTION_ID,
+            EQUIP_INSTITUTION_NAME,
+            EQUIP_UNIT_ID,
+            EQUIP_UNIT_NAME,
+            SORT_ORDER,
+            DEL_FLAG,
+            DELETE_BY,
+            DELETE_BY_NAME,
+            DELETE_TIME,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME
+        FROM
+            E_MAINT_INFO_PART_ITEM
+        WHERE
+            MAINT_INFO_ID = #{maintInfoId}
+            AND DEL_FLAG = 0
+        ORDER BY NVL(SORT_ORDER, 0), CREATE_TIME, ID
+    </select>
+
+    <!-- 批量新增部位部件子表 -->
+    <insert id="insertBatch">
+        INSERT INTO E_MAINT_INFO_PART_ITEM
+        (
+            ID,
+            MAINT_INFO_ID,
+            EQUIP_SMALL_CATEGORY_ID,
+            EQUIP_SMALL_CATEGORY_NAME,
+            EQUIP_INSTITUTION_ID,
+            EQUIP_INSTITUTION_NAME,
+            EQUIP_UNIT_ID,
+            EQUIP_UNIT_NAME,
+            SORT_ORDER,
+            DEL_FLAG,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )
+        (
+        <foreach collection="list" item="item" separator="union all">
+            SELECT
+                #{item.id,jdbcType=NUMERIC},
+                #{item.maintInfoId,jdbcType=NUMERIC},
+                #{item.equipSmallCategoryId,jdbcType=NUMERIC},
+                #{item.equipSmallCategoryName,jdbcType=VARCHAR},
+                #{item.equipInstitutionId,jdbcType=NUMERIC},
+                #{item.equipInstitutionName,jdbcType=VARCHAR},
+                #{item.equipUnitId,jdbcType=NUMERIC},
+                #{item.equipUnitName,jdbcType=VARCHAR},
+                #{item.sortOrder,jdbcType=NUMERIC},
+                0,
+                #{item.loginUserId,jdbcType=NUMERIC},
+                #{item.loginUserName,jdbcType=VARCHAR},
+                #{item.now,jdbcType=TIMESTAMP}
+            FROM dual
+        </foreach>
+        )
+    </insert>
+
+    <!-- 根据维保主表ID逻辑删除子表 -->
+    <update id="logicDeleteByMaintInfoId" parameterType="com.yy.ppm.equipment.bean.po.EMaintInfoPartItemPO">
+        UPDATE E_MAINT_INFO_PART_ITEM
+        SET
+            DEL_FLAG = 1,
+            DELETE_BY = #{loginUserId,jdbcType=NUMERIC},
+            DELETE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            DELETE_TIME = #{now,jdbcType=TIMESTAMP},
+            UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
+            UPDATE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            UPDATE_TIME = #{now,jdbcType=TIMESTAMP}
+        WHERE
+            MAINT_INFO_ID = #{maintInfoId,jdbcType=NUMERIC}
+            AND DEL_FLAG = 0
+    </update>
+
+</mapper>
+

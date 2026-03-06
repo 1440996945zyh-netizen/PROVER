@@ -3,6 +3,8 @@ package com.yy.ppm.equipment.bean.dto;
 import com.yy.ppm.equipment.bean.po.EMaintInfoPO;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * 设备维修派工信息DTO
  * @author system
@@ -58,5 +60,8 @@ public class EMaintInfoDTO extends EMaintInfoPO {
      */
     private String useOrgName;
 
+    /**
+     * 派工部位部件子表
+     */
+    private List<EMaintInfoPartItemDTO> itemList;
 }
-
