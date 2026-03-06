@@ -48,6 +48,10 @@ public class EMaintInfoDTO extends EMaintInfoPO {
      * 设备小类名称
      */
     private String equipSmallCategoryName;
+    /**
+     * 设备小类id
+     */
+    private String equipSmallCategoryId;
 
     /**
      * 使用部门名称
