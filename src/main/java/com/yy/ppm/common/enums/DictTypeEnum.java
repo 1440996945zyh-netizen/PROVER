@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 @Getter
 public enum DictTypeEnum {
 
+    SPECIAL_OPERATION("SPECIAL_OPERATION", "特殊作业情况"),
     SOURCE_TARGET_TYPE("SOURCE_TARGET_TYPE", "源 目的"),
     UNIT("UNIT", "计量单位"),
     DNBILLTYPE("DNBILLTYPE", "借方票据类型"),
