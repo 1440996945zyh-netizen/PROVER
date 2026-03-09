@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMaintenanceProjectQuotaMapper">
+
+<!--
+根据ID查询维修定额项目
+-->
+<select id="selectById" resultType="com.yy.ppm.equipment.bean.dto.EMaintenanceProjectQuotaDTO">
+
+SELECT *
+FROM E_M_TENANCE_PROJECT_QUOTA
+WHERE id = #{id}
+
+</select>
+
+
+<!--
+查询维修定额项目列表
+按创建时间倒序
+-->
+<select id="selectList" resultType="com.yy.ppm.equipment.bean.dto.EMaintenanceProjectQuotaDTO">
+
+SELECT *
+FROM E_M_TENANCE_PROJECT_QUOTA
+ORDER BY create_time DESC
+
+</select>
+
+
+<!--
+新增维修定额项目
+-->
+<insert id="insert">
+INSERT INTO E_M_TENANCE_PROJECT_QUOTA
+(quota_code, project_name, project_content, unit, amount)
+
+VALUES
+(#{quotaCode}, #{projectName}, #{projectContent}, #{unit}, #{amount})
+
+</insert>
+
+
+<!--
+修改维修定额项目
+-->
+<update id="update">
+UPDATE E_M_TENANCE_PROJECT_QUOTA
+
+SET
+project_name = #{projectName},
+project_content = #{projectContent},
+unit = #{unit},
+amount = #{amount}
+WHERE id = #{id}
+
+</update>
+
+
+<!--
+删除维修定额项目
+-->
+<delete id="delete">
+
+DELETE FROM E_M_TENANCE_PROJECT_QUOTA
+WHERE id = #{id}
+
+</delete>
+
+
+<!--
+查询当天最大的定额编号
+用于生成新编号
+
+示例：
+DE-2026-03-09-0005
+-->
+<select id="selectMaxCodeToday" resultType="String">
+
+SELECT quota_code
+FROM E_M_TENANCE_PROJECT_QUOTA
+WHERE DATE(create_time)=CURDATE()
+ORDER BY quota_code DESC
+LIMIT 1
+
+</select>
+
+</mapper>
