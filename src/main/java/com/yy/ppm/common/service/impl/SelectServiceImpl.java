@@ -143,6 +143,10 @@ public class SelectServiceImpl implements SelectService {
                     Long deptId = Long.parseLong(StringUtil.getString(params.get("deptId")));
                     res = selectMapper.getUserByDept(deptId);
 
+                } else if (params.get("companyId") != null) {
+                    Long companyId = Long.parseLong(StringUtil.getString(params.get("companyId")));
+                    res = selectMapper.getUserByCompany(companyId);
+
                 }else {
                     res = selectMapper.getLocalSelect(
                             SelectEnum.USER.getTableName(),

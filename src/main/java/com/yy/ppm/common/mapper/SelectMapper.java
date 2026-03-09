@@ -97,4 +97,11 @@ public interface SelectMapper {
      * @return
      */
     List<Map<String, Object>> getUserByDept(@Param("deptId") Long deptId);
+
+    /**
+     * 按公司查询人员
+     * @param companyId 公司ID
+     * @return
+     */
+    List<Map<String, Object>> getUserByCompany(@Param("companyId") Long companyId);
 }
