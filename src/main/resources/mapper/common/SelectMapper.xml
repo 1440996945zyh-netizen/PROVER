@@ -336,7 +336,8 @@
         from
             SYS_USER S1
         where
-            S1.DEPT_ID IN (SELECT DEPT_ID FROM SYS_DEPT WHERE PARENT_ID = #{companyId})
+            (S1.DEPT_ID IN (SELECT DEPT_ID FROM SYS_DEPT WHERE PARENT_ID = #{companyId})
+          OR S1.DEPT_ID = #{companyId})
           AND S1.STATUS = '1'
         order by S1.SORT_NUM
     </select>
