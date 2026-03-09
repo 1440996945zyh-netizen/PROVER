@@ -704,7 +704,7 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         updateTaskStatusAndReason(task.getId(), BpmTaskStatusEnum.APPROVE.getStatus(), reqVO.getReason());
         if (signEnable) {
             taskService.setVariableLocal(task.getId(), BpmnVariableConstants.TASK_SIGN_PIC_URL, reqVO.getSignPicUrl());
-            String businessId = task.getTaskDefinitionKey();
+            String businessId = task.getId();
             sysFileService.saveFileBusRelation(reqVO.getFileIds(),businessId);
         }
         // 2.2 添加评论
