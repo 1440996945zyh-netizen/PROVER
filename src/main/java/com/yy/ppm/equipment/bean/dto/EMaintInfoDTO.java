@@ -6,62 +6,43 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * 设备维修派工信息DTO
+ * 设备维修派工信息 DTO
+ *
  * @author system
  * @version 1.0.0
- * @Description
  */
 @Data
 public class EMaintInfoDTO extends EMaintInfoPO {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 设备名称（关联查询）
-     */
+    /** 设备名称 */
     private String equipName;
 
-    /**
-     * 设备编码（关联查询）
-     */
+    /** 设备编码 */
     private String equipCode;
 
-    /**
-     * 故障图片文件ID列表
-     */
+    /** 故障图片文件ID列表 */
     private java.util.List<Long> faultImageIds;
 
-    /**
-     * 维修时长(小时)
-     */
+    /** 维修时长（小时） */
     private java.math.BigDecimal maintDuration;
 
-    /**
-     * 故障时长(小时)
-     */
+    /** 故障时长（小时） */
     private java.math.BigDecimal faultDuration;
 
-    /**
-     * 配件更换列表
-     */
+    /** 配件更换列表 */
     private java.util.List<EMaintPartReplaceDTO> partReplaceList;
 
-    /**
-     * 设备小类名称
-     */
+    /** 设备小类名称 */
     private String equipSmallCategoryName;
-    /**
-     * 设备小类id
-     */
+
+    /** 设备小类ID */
     private String equipSmallCategoryId;
 
-    /**
-     * 使用部门名称
-     */
+    /** 使用部门名称 */
     private String useOrgName;
 
-    /**
-     * 派工部位部件子表
-     */
+    /** 派工部位部件列表 */
     private List<EMaintInfoPartItemDTO> itemList;
 }

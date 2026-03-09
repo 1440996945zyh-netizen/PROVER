@@ -6,12 +6,14 @@ import com.yy.common.util.PageHelperUtils;
 import com.yy.common.util.SecurityUtils;
 import com.yy.framework.exception.BusinessRuntimeException;
 import com.yy.ppm.auth.bean.dto.UserInfo;
+import com.yy.ppm.common.bean.dto.SysFileDTO;
 import com.yy.ppm.common.enums.SerialNumberPrefixEnum;
+import com.yy.ppm.common.service.SysFileService;
 import com.yy.ppm.common.service.impl.CommonServiceImpl;
+import com.yy.ppm.equipment.bean.dto.EMaintInfoBatchUpdateDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintInfoDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintInfoPartItemDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintInfoSearchDTO;
-import com.yy.ppm.equipment.bean.dto.EMaintInfoBatchUpdateDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintPartReplaceDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintPartReplaceQueryDTO;
 import com.yy.ppm.equipment.bean.po.EMaintInfoPO;
@@ -21,8 +23,7 @@ import com.yy.ppm.equipment.mapper.EMaintInfoMapper;
 import com.yy.ppm.equipment.mapper.EMaintInfoPartItemMapper;
 import com.yy.ppm.equipment.mapper.EMaintPartReplaceMapper;
 import com.yy.ppm.equipment.service.EMaintInfoService;
-import com.yy.ppm.common.service.SysFileService;
-import com.yy.ppm.common.bean.dto.SysFileDTO;
+import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -39,7 +39,8 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * 设备维修派工信息Service业务层处理
+ * 设备维修派工信息 Service 实现类
+ *
  * @author system
  */
 @RequiredArgsConstructor
@@ -64,23 +65,20 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
     @Resource
     private EMaintInfoPartItemMapper partItemMapper;
 
+    @Autowired
+    private CommonServiceImpl commonService;
+
     /**
-     * 查询设备维修信息列表（分页）
+     * 查询设备维修信息列表
      */
     @Override
     public Pages<EMaintInfoDTO> getList(EMaintInfoSearchDTO searchDTO) {
-        // 权限控制：如果不是超级管理员且没有EQPT_MAINT_DIS角色，只能查看自己创建或负责的记录
+        // 非派工角色仅能查看自己创建或负责的记录
         UserInfo userInfo = securityUtils.getUserInfo();
         if (userInfo != null) {
-            // 判断是否为超级管理员
             boolean isAdmin = "1".equals(userInfo.getIsSuperadmin());
-            // 判断是否有EQPT_MAINT_DIS角色
-            boolean hasMaintDisRole = false;
-            if (userInfo.getRoles() != null) {
-                hasMaintDisRole = userInfo.getRoles().contains("EQPT_MAINT_DIS");
-            }
-
-            // 如果不是超级管理员且没有EQPT_MAINT_DIS角色，添加权限过滤
+            boolean hasMaintDisRole = userInfo.getRoles() != null
+                    && userInfo.getRoles().contains("EQPT_MAINT_DIS");
             if (!isAdmin && !hasMaintDisRole) {
                 Long loginUserId = securityUtils.getLoginUserId();
                 searchDTO.setCreateBy(loginUserId);
@@ -88,29 +86,20 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
             }
         }
 
-        Pages<EMaintInfoDTO> pages = PageHelperUtils.limit(searchDTO, () -> {
-            return mapper.selectList(searchDTO);
-        });
-        return pages;
+        return PageHelperUtils.limit(searchDTO, () -> mapper.selectList(searchDTO));
     }
 
     /**
-     * 查询设备维修提报信息列表（分页）
+     * 查询设备维修提报信息列表
      */
     @Override
     public Pages<EMaintInfoDTO> listReport(EMaintInfoSearchDTO searchDTO) {
-        // 权限控制：如果不是超级管理员且没有EQPT_MAINT_DIS角色，只能查看自己创建或负责的记录
+        // 非派工角色仅能查看自己创建或负责的记录
         UserInfo userInfo = securityUtils.getUserInfo();
         if (userInfo != null) {
-            // 判断是否为超级管理员
             boolean isAdmin = "1".equals(userInfo.getIsSuperadmin());
-            // 判断是否有EQPT_MAINT_DIS角色
-            boolean hasMaintDisRole = false;
-            if (userInfo.getRoles() != null) {
-                hasMaintDisRole = userInfo.getRoles().contains("EQPT_MAINT_DIS");
-            }
-
-            // 如果不是超级管理员且没有EQPT_MAINT_DIS角色，添加权限过滤
+            boolean hasMaintDisRole = userInfo.getRoles() != null
+                    && userInfo.getRoles().contains("EQPT_MAINT_DIS");
             if (!isAdmin && !hasMaintDisRole) {
                 Long loginUserId = securityUtils.getLoginUserId();
                 searchDTO.setCreateBy(loginUserId);
@@ -118,29 +107,23 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
             }
         }
 
-        Pages<EMaintInfoDTO> pages = PageHelperUtils.limit(searchDTO, () -> {
-            return mapper.selectList(searchDTO);
-        });
-        return pages;
+        return PageHelperUtils.limit(searchDTO, () -> mapper.selectList(searchDTO));
     }
 
     /**
-     * 查询设备维修派工信息列表（分页）
+     * 查询设备维修派工信息列表
      */
     @Override
     public Pages<EMaintInfoDTO> listWork(EMaintInfoSearchDTO searchDTO) {
-
-        Pages<EMaintInfoDTO> pages = PageHelperUtils.limit(searchDTO, () -> {
-            return mapper.selectList(searchDTO);
-        });
-        return pages;
+        return PageHelperUtils.limit(searchDTO, () -> mapper.selectList(searchDTO));
     }
 
     /**
-     * 根据ID查询设备维修派工信息
+     * 根据主键查询设备维修派工信息
      */
     @Override
     public EMaintInfoDTO getById(Long id) {
+        // 校验记录状态
         EMaintInfoDTO dto = mapper.selectById(id);
         if (dto != null && dto.getId() != null) {
             dto.setItemList(partItemMapper.selectListByMaintInfoId(dto.getId()));
@@ -148,16 +131,12 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
         return dto;
     }
 
-    @Autowired
-    CommonServiceImpl commonService;
-
     /**
      * 新增或修改设备维修派工信息
      */
     @Override
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
     public void save(EMaintInfoDTO dto) {
-        // 验证必填字段
         if (dto.getEquipId() == null) {
             throw new BusinessRuntimeException("设备ID不能为空");
         }
@@ -169,94 +148,58 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
         BeanUtils.copyProperties(dto, po);
 
         if (dto.getId() == null) {
-            // 新增
             Long id = snowflake.nextId();
             po.setId(id);
             po.setNow(new Date());
-            // 生成工单号：PPM + 时间戳 + 随机6位数字
-            String workOrderNo = commonService.generateSerialNumber(SerialNumberPrefixEnum.REPAIR);
-            po.setWorkOrderNo(workOrderNo);
-            // 根据status设置：如果status为1（已派工），自动设置派工人和派工时间；如果status为0（提报），不设置
+            po.setWorkOrderNo(commonService.generateSerialNumber(SerialNumberPrefixEnum.REPAIR));
+            // 派工状态下自动回填派工人和派工时间
             if (dto.getStatus() != null && dto.getStatus() == 1) {
-                // 派工模式：自动设置派工人和派工时间
                 po.setDispatcherId(securityUtils.getLoginUserId());
                 po.setDispatcherName(securityUtils.getUserInfo().getUserName());
                 po.setDispatchTime(new Date());
-            } else {
-                // 新增模式：状态为0（提报），不设置派工人和派工时间
-                if (dto.getStatus() == null) {
-                    po.setStatus(0); // 默认状态为0（提报）
-                }
+            } else if (dto.getStatus() == null) {
+                po.setStatus(0);
             }
             mapper.insert(po);
-            // 保存派工部位部件子表
             syncPartItemList(id, dto.getItemList());
             if (dto.getFaultImageIds() != null && !dto.getFaultImageIds().isEmpty()) {
                 sysFileService.saveFileBusRelation(dto.getFaultImageIds(), id);
             }
-        } else {
-            // 修改
-            // 先查询原记录状态，判断是否允许修改
-            EMaintInfoDTO existingDto = mapper.selectById(dto.getId());
-            if (existingDto == null) {
-                throw new BusinessRuntimeException("记录不存在");
+            return;
+        }
+
+        // 修改前先校验记录是否存在以及当前状态
+        EMaintInfoDTO existingDto = mapper.selectById(dto.getId());
+        if (existingDto == null) {
+            throw new BusinessRuntimeException("记录不存在");
+        }
+        Integer status = existingDto.getStatus();
+        if (status != null) {
+            if (status == 2) {
+                throw new BusinessRuntimeException("维修中的记录不允许修改");
             }
-            // 如果状态是维修中(2)、维修完成(4)、验收通过(5)或作废(7)，不允许修改
-            Integer status = existingDto.getStatus();
-            if (status != null) {
-                if (status == 2) {
-                    throw new BusinessRuntimeException("维修中的记录不允许修改");
-                }
-                if (status == 4) {
-                    throw new BusinessRuntimeException("维修完成的记录不允许修改");
-                }
-                if (status == 5) {
-                    throw new BusinessRuntimeException("验收通过的记录不允许修改");
-                }
-                if (status == 7) {
-                    throw new BusinessRuntimeException("已作废的记录不允许修改");
-                }
+            if (status == 4) {
+                throw new BusinessRuntimeException("维修完成的记录不允许修改");
             }
-            po.setStatus(null);
-            mapper.update(po);
-            // 仅当前端显式传入 itemList 时同步子表（避免未传时误清空）
-            if (dto.getItemList() != null) {
-                syncPartItemList(dto.getId(), dto.getItemList());
+            if (status == 5) {
+                throw new BusinessRuntimeException("验收通过的记录不允许修改");
             }
-            if (dto.getFaultImageIds() != null && !dto.getFaultImageIds().isEmpty()) {
-                sysFileService.saveFileBusRelation(dto.getFaultImageIds(), dto.getId());
+            if (status == 7) {
+                throw new BusinessRuntimeException("已作废的记录不允许修改");
             }
-            // 保存故障图片文件关联关系
-//            if (dto.getFaultImageIds() != null && !dto.getFaultImageIds().isEmpty()) {
-//                sysFileService.saveFileBusRelation(dto.getFaultImageIds(), dto.getId());
-//                // 先查询已有的其他业务类型的图片（维修完成图片）
-//                List<SysFileDTO> existingEndImages = sysFileService.getBusFiles(dto.getId(), "MAINT_INFO_IMAGE_END");
-//                List<Long> allFileIds = new ArrayList<>(dto.getFaultImageIds());
-//                // 合并维修完成图片ID
-//                if (existingEndImages != null && !existingEndImages.isEmpty()) {
-//                    for (SysFileDTO file : existingEndImages) {
-//                        allFileIds.add(file.getId());
-//                    }
-//                }
-//                sysFileService.saveFileBusRelation(allFileIds, dto.getId());
-//            } else {
-//                // 如果图片ID列表为空，只删除故障图片，保留维修完成图片
-//                // 先查询已有的维修完成图片
-//                List<SysFileDTO> existingEndImages = sysFileService.getBusFiles(dto.getId(), "MAINT_INFO_IMAGE_END");
-//                List<Long> allFileIds = new ArrayList<>();
-//                // 只保留维修完成图片ID
-//                if (existingEndImages != null && !existingEndImages.isEmpty()) {
-//                    for (SysFileDTO file : existingEndImages) {
-//                        allFileIds.add(file.getId());
-//                    }
-//                }
-//                sysFileService.saveFileBusRelation(allFileIds, dto.getId());
-//            }
+        }
+        po.setStatus(null);
+        mapper.update(po);
+        if (dto.getItemList() != null) {
+            syncPartItemList(dto.getId(), dto.getItemList());
+        }
+        if (dto.getFaultImageIds() != null && !dto.getFaultImageIds().isEmpty()) {
+            sysFileService.saveFileBusRelation(dto.getFaultImageIds(), dto.getId());
         }
     }
 
     /**
-     * 根据设备ID查询可用的出库单和申领单明细（用于配件更换选择）
+     * 根据设备ID查询可用的出库单和申领单明细
      */
     @Override
     public List<EMaintPartReplaceQueryDTO> getAvailableDetailsByEquipId(Long equipId) {
@@ -278,7 +221,7 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
     }
 
     /**
-     * 删除设备维修派工信息
+     * 删除单条设备维修派工信息
      */
     @Override
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
@@ -307,7 +250,7 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
     }
 
     /**
-     * 更新派工信息（只更新派工相关字段）
+     * 更新派工信息，仅更新派工相关字段
      */
     @Override
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
@@ -320,7 +263,6 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
         po.setId(dto.getId());
         po.setNow(new Date());
 
-        // 只更新派工相关字段
         if (dto.getDispatchTypeCode() != null) {
             po.setDispatchTypeCode(dto.getDispatchTypeCode());
         }
@@ -339,13 +281,21 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
         if (dto.getMaintLeaderName() != null) {
             po.setMaintLeaderName(dto.getMaintLeaderName());
         }
-        // 更新状态为1（已派工）
-        if (dto.getStatus() != null) {
-            po.setStatus(dto.getStatus());
-        } else {
-            po.setStatus(1);
+        if (dto.getMaintLeaderMobile() != null) {
+            po.setMaintLeaderMobile(dto.getMaintLeaderMobile());
         }
-        // 自动设置派工人和派工时间
+        if (dto.getIsSpecialJob() != null) {
+            po.setIsSpecialJob(dto.getIsSpecialJob());
+            if ("1".equals(dto.getIsSpecialJob())) {
+                po.setSpecialJobCode(dto.getSpecialJobCode());
+                po.setSpecialJobName(dto.getSpecialJobName());
+            } else {
+                po.setSpecialJobCode("");
+                po.setSpecialJobName("");
+            }
+        }
+        // 派工后状态默认置为已派工
+        po.setStatus(dto.getStatus() != null ? dto.getStatus() : 1);
         po.setDispatcherId(securityUtils.getLoginUserId());
         po.setDispatcherName(securityUtils.getUserInfo().getUserName());
         po.setDispatchTime(new Date());
@@ -357,7 +307,7 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
     }
 
     /**
-     * 作废工单（批量）
+     * 批量作废工单
      */
     @Override
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
@@ -366,12 +316,9 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
             throw new BusinessRuntimeException("ID列表不能为空");
         }
 
-        // 批量查询所有记录的状态和工单号
+        // 先校验记录是否存在
         List<EMaintInfoDTO> records = mapper.selectByIds(ids);
-
-        // 检查是否有记录不存在
         if (records.size() < ids.size()) {
-            // 找出不存在的ID
             List<Long> foundIds = records.stream()
                     .map(EMaintInfoDTO::getId)
                     .collect(java.util.stream.Collectors.toList());
@@ -381,40 +328,34 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
             throw new BusinessRuntimeException("以下ID的记录不存在：" + notFoundIds);
         }
 
-        // 检查是否有已作废的记录
+        // 区分已作废和可继续处理的工单
         List<String> alreadyCanceledWorkOrders = new ArrayList<>();
         List<Long> validIds = new ArrayList<>();
-
         for (EMaintInfoDTO dto : records) {
-            // 检查是否已经作废（状态为7）
             if (dto.getStatus() != null && dto.getStatus() == 7) {
-                // 收集已作废的工单号
                 if (dto.getWorkOrderNo() != null && !dto.getWorkOrderNo().isEmpty()) {
                     alreadyCanceledWorkOrders.add(dto.getWorkOrderNo());
                 } else {
                     alreadyCanceledWorkOrders.add("ID:" + dto.getId());
                 }
             } else {
-                // 收集未作废的记录ID
                 validIds.add(dto.getId());
             }
         }
 
-        // 如果有已作废的记录，抛出异常提示
         if (!alreadyCanceledWorkOrders.isEmpty()) {
             String workOrderList = String.join("、", alreadyCanceledWorkOrders);
             throw new BusinessRuntimeException("以下工单已经作废，不能重复作废：" + workOrderList);
         }
 
-        // 批量更新未作废的记录
+        // 执行批量作废
         if (!validIds.isEmpty()) {
             EMaintInfoBatchUpdateDTO updateDTO = new EMaintInfoBatchUpdateDTO();
             updateDTO.setIds(validIds);
             updateDTO.setStatus(7);
-            // 设置作废人和作废时间
             updateDTO.setLoginUserId(securityUtils.getLoginUserId());
             updateDTO.setLoginUserName(securityUtils.getUserInfo().getUserName());
-            updateDTO.setNow(new Date()); // Set current time for CANCEL_TIME and UPDATE_TIME
+            updateDTO.setNow(new Date());
             updateDTO.setCancelRemark(cancelRemark);
             mapper.batchUpdateStatusToCanceled(updateDTO);
         }
@@ -433,7 +374,7 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
             throw new BusinessRuntimeException("维修开始时间不能为空");
         }
 
-        // 查询记录
+        // 校验记录状态
         EMaintInfoDTO dto = mapper.selectById(id);
         if (dto == null) {
             throw new BusinessRuntimeException("记录不存在");
@@ -441,10 +382,10 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
         if (dto.getStatus() == null || dto.getStatus() != 1) {
             throw new BusinessRuntimeException("只有已派工状态的记录才能开始维修");
         }
-        // 更新状态为维修中（2），并设置维修开始时间
+
         EMaintInfoPO po = new EMaintInfoPO();
         po.setId(id);
-        po.setStatus(2); // 维修中
+        po.setStatus(2);
         po.setMaintStartTime(maintStartTime);
         mapper.update(po);
     }
@@ -454,7 +395,8 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
-    public void endMaintenance(Long id, Date maintEndTime, List<Long> imageIds, String maintRemark, List<EMaintPartReplaceDTO> partReplaceList) {
+    public void endMaintenance(Long id, Date maintEndTime, List<Long> imageIds, String maintRemark,
+                               List<EMaintPartReplaceDTO> partReplaceList) {
         if (id == null) {
             throw new BusinessRuntimeException("ID不能为空");
         }
@@ -462,7 +404,7 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
             throw new BusinessRuntimeException("结束维修时间不能为空");
         }
 
-        // 查询记录
+        // 校验记录状态
         EMaintInfoDTO dto = mapper.selectById(id);
         if (dto == null) {
             throw new BusinessRuntimeException("记录不存在");
@@ -471,21 +413,19 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
             throw new BusinessRuntimeException("只有维修中状态的记录才能结束维修");
         }
 
-        // 更新状态为维修完成（4），并设置维修结束时间和维修说明
         EMaintInfoPO po = new EMaintInfoPO();
         po.setId(id);
-        po.setStatus(4); // 维修完成
-        po.setMaintEndTime(maintEndTime); // 使用前端传递的结束维修时间
-        po.setMaintRemark(maintRemark); // 维修说明
+        po.setStatus(4);
+        po.setMaintEndTime(maintEndTime);
+        po.setMaintRemark(maintRemark);
         mapper.update(po);
 
-        // 保存配件更换列表
-        // 先删除该维修信息下的旧配件更换记录（物理删除）
+        // 先清空旧的配件更换记录，再保存新的记录
         partReplaceMapper.deleteByMaintInfoId(id);
-        // 如果有新的配件更换记录，则保存
         if (partReplaceList != null && !partReplaceList.isEmpty()) {
             for (EMaintPartReplaceDTO partReplaceDTO : partReplaceList) {
-                if (partReplaceDTO.getUsedQuantity() != null && partReplaceDTO.getUsedQuantity().compareTo(java.math.BigDecimal.ZERO) > 0) {
+                if (partReplaceDTO.getUsedQuantity() != null
+                        && partReplaceDTO.getUsedQuantity().compareTo(java.math.BigDecimal.ZERO) > 0) {
                     EMaintPartReplacePO partReplacePO = new EMaintPartReplacePO();
                     BeanUtils.copyProperties(partReplaceDTO, partReplacePO);
                     partReplacePO.setId(snowflake.nextId());
@@ -496,12 +436,10 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
             }
         }
 
-        // 保存维修完成图片
+        // 合并故障图片和维修完成图片的文件关联
         if (imageIds != null && !imageIds.isEmpty()) {
-            // 先查询已有的其他业务类型的图片（故障图片）
             List<SysFileDTO> existingFaultImages = sysFileService.getBusFiles(id, "MAINT_INFO_IMAGE");
             List<Long> allFileIds = new ArrayList<>(imageIds);
-            // 合并故障图片ID
             if (existingFaultImages != null && !existingFaultImages.isEmpty()) {
                 for (SysFileDTO file : existingFaultImages) {
                     allFileIds.add(file.getId());
@@ -521,7 +459,7 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
             throw new BusinessRuntimeException("ID不能为空");
         }
 
-        // 查询记录
+        // 校验记录状态
         EMaintInfoDTO dto = mapper.selectById(id);
         if (dto == null) {
             throw new BusinessRuntimeException("记录不存在");
@@ -530,11 +468,10 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
             throw new BusinessRuntimeException("只有维修完成状态的记录才能验收");
         }
 
-        // 更新状态为验收通过（5），并设置验收人、验收时间和验收备注
         Date now = new Date();
         EMaintInfoPO po = new EMaintInfoPO();
         po.setId(id);
-        po.setStatus(5); // 验收通过
+        po.setStatus(5);
         po.setAccepterId(securityUtils.getLoginUserId());
         po.setAccepterName(securityUtils.getUserInfo().getUserName());
         po.setAcceptanceTime(now);
@@ -543,16 +480,18 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
     }
 
     /**
-     * 新增部位部件子表
+     * 同步派工部位部件明细
      */
     private void syncPartItemList(Long maintInfoId, List<EMaintInfoPartItemDTO> itemList) {
         if (maintInfoId == null) {
             return;
         }
+
         Date now = new Date();
         Long loginUserId = securityUtils.getLoginUserId();
         String loginUserName = securityUtils.getUserInfo() == null ? null : securityUtils.getUserInfo().getUserName();
 
+        // 先逻辑删除旧明细
         EMaintInfoPartItemPO deletePO = new EMaintInfoPartItemPO();
         deletePO.setMaintInfoId(maintInfoId);
         deletePO.setNow(now);
@@ -564,6 +503,7 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
             return;
         }
 
+        // 以部件ID去重后重新插入
         Map<Long, EMaintInfoPartItemDTO> distinctMap = new LinkedHashMap<>();
         for (EMaintInfoPartItemDTO item : itemList) {
             if (item == null || item.getEquipUnitId() == null || item.getEquipInstitutionId() == null) {
@@ -606,4 +546,3 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
         return "PPM" + timestamp + randomNum;
     }
 }
-
