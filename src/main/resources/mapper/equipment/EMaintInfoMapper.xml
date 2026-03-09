@@ -24,6 +24,9 @@
             m.MAINT_LEADER_ID,
             m.MAINT_LEADER_NAME,
             m.MAINT_LEADER_MOBILE,
+            m.IS_SPECIAL_JOB,
+            m.SPECIAL_JOB_CODE,
+            m.SPECIAL_JOB_NAME,
             m.DISPATCHER_ID,
             m.DISPATCHER_NAME,
             m.DISPATCH_TIME,
@@ -51,13 +54,13 @@
             e.EQUIP_CODE,
             e.EQUIP_SMALL_CATEGORY_NAME,
             u.DEPT_NAME as useOrgName,
-        -- 维修时长(小时)：维修结束时间 - 维修开始时间
+            -- 维修时长（小时）：维修结束时间 - 维修开始时间
             CASE
                 WHEN m.MAINT_START_TIME IS NOT NULL AND m.MAINT_END_TIME IS NOT NULL
                 THEN ROUND((m.MAINT_END_TIME - m.MAINT_START_TIME) * 24, 2)
                 ELSE NULL
             END AS MAINT_DURATION,
-            -- 故障时长(小时)：如果有维修结束时间，用结束时间-故障发现时间；否则用当前时间-故障发现时间
+            -- 故障时长（小时）：优先取维修结束时间，否则取当前时间
             CASE
                 WHEN m.FAULT_FIND_TIME IS NOT NULL AND m.MAINT_END_TIME IS NOT NULL
                 THEN ROUND((m.MAINT_END_TIME - m.FAULT_FIND_TIME) * 24, 2)
@@ -101,15 +104,14 @@
             <if test="status != null">
                 AND m.STATUS = #{status}
             </if>
-            <!-- 权限过滤：如果不是超级管理员且没有EQPT_MAINT_DIS角色，只能查看自己创建或负责的记录 -->
             <if test="createBy != null or maintLeaderId != null">
-                AND ( m.CREATE_BY = #{createBy} OR  m.MAINT_LEADER_ID = #{maintLeaderId} )
+                AND (m.CREATE_BY = #{createBy} OR m.MAINT_LEADER_ID = #{maintLeaderId})
             </if>
         </where>
         ORDER BY m.CREATE_TIME DESC
     </select>
 
-    <!-- 根据ID查询设备维修派工信息 -->
+    <!-- 根据主键查询设备维修派工信息 -->
     <select id="selectById" resultType="com.yy.ppm.equipment.bean.dto.EMaintInfoDTO">
         SELECT
             m.ID,
@@ -129,6 +131,9 @@
             m.MAINT_LEADER_ID,
             m.MAINT_LEADER_NAME,
             m.MAINT_LEADER_MOBILE,
+            m.IS_SPECIAL_JOB,
+            m.SPECIAL_JOB_CODE,
+            m.SPECIAL_JOB_NAME,
             m.DISPATCHER_ID,
             m.DISPATCHER_NAME,
             m.DISPATCH_TIME,
@@ -160,20 +165,20 @@
             e.EQUIP_CODE,
             e.EQUIP_SMALL_CATEGORY_ID,
             e.EQUIP_SMALL_CATEGORY_NAME,
-            -- 维修时长(小时)：维修结束时间 - 维修开始时间
+            -- 维修时长（小时）：维修结束时间 - 维修开始时间
             CASE
                 WHEN m.MAINT_START_TIME IS NOT NULL AND m.MAINT_END_TIME IS NOT NULL
                     THEN ROUND((m.MAINT_END_TIME - m.MAINT_START_TIME) * 24, 2)
                 ELSE NULL
-                END AS MAINT_DURATION,
-            -- 故障时长(小时)：如果有维修结束时间，用结束时间-故障发现时间；否则用当前时间-故障发现时间
+            END AS MAINT_DURATION,
+            -- 故障时长（小时）：优先取维修结束时间，否则取当前时间
             CASE
                 WHEN m.FAULT_FIND_TIME IS NOT NULL AND m.MAINT_END_TIME IS NOT NULL
                     THEN ROUND((m.MAINT_END_TIME - m.FAULT_FIND_TIME) * 24, 2)
                 WHEN m.FAULT_FIND_TIME IS NOT NULL
                     THEN ROUND((SYSDATE - m.FAULT_FIND_TIME) * 24, 2)
                 ELSE NULL
-                END AS FAULT_DURATION
+            END AS FAULT_DURATION
         FROM
             E_MAINT_INFO m
         LEFT JOIN E_M_EQPT_INFO e ON m.EQUIP_ID = e.ID AND e.DEL_FLAG = 0
@@ -182,7 +187,7 @@
             AND m.DEL_FLAG = 0
     </select>
 
-    <!-- 批量根据ID查询设备维修派工信息（用于校验） -->
+    <!-- 批量根据ID查询设备维修派工信息 -->
     <select id="selectByIds" resultType="com.yy.ppm.equipment.bean.dto.EMaintInfoDTO">
         SELECT
             m.ID,
@@ -220,6 +225,9 @@
             MAINT_LEADER_ID,
             MAINT_LEADER_NAME,
             MAINT_LEADER_MOBILE,
+            IS_SPECIAL_JOB,
+            SPECIAL_JOB_CODE,
+            SPECIAL_JOB_NAME,
             DISPATCHER_ID,
             DISPATCHER_NAME,
             DISPATCH_TIME,
@@ -259,6 +267,9 @@
             #{maintLeaderId,jdbcType=NUMERIC},
             #{maintLeaderName,jdbcType=VARCHAR},
             #{maintLeaderMobile,jdbcType=VARCHAR},
+            #{isSpecialJob,jdbcType=VARCHAR},
+            #{specialJobCode,jdbcType=VARCHAR},
+            #{specialJobName,jdbcType=VARCHAR},
             #{dispatcherId,jdbcType=NUMERIC},
             #{dispatcherName,jdbcType=VARCHAR},
             #{dispatchTime,jdbcType=TIMESTAMP},
@@ -281,6 +292,7 @@
             #{sourceItemId}
         )
     </insert>
+
     <!-- 修改设备维修派工信息 -->
     <update id="update" parameterType="com.yy.ppm.equipment.bean.po.EMaintInfoPO">
         UPDATE E_MAINT_INFO
@@ -333,6 +345,15 @@
             <if test="maintLeaderMobile != null">
                 MAINT_LEADER_MOBILE = #{maintLeaderMobile,jdbcType=VARCHAR},
             </if>
+            <if test="isSpecialJob != null">
+                IS_SPECIAL_JOB = #{isSpecialJob,jdbcType=VARCHAR},
+            </if>
+            <if test="specialJobCode != null">
+                SPECIAL_JOB_CODE = #{specialJobCode,jdbcType=VARCHAR},
+            </if>
+            <if test="specialJobName != null">
+                SPECIAL_JOB_NAME = #{specialJobName,jdbcType=VARCHAR},
+            </if>
             <if test="dispatcherId != null">
                 DISPATCHER_ID = #{dispatcherId,jdbcType=NUMERIC},
             </if>
@@ -382,7 +403,7 @@
         WHERE ID = #{id}
     </update>
 
-    <!-- 批量更新设备维修派工信息状态为作废 -->
+    <!-- 批量更新设备维修派工信息为作废状态 -->
     <update id="batchUpdateStatusToCanceled" parameterType="com.yy.ppm.equipment.bean.dto.EMaintInfoBatchUpdateDTO">
         UPDATE E_MAINT_INFO
         SET
@@ -401,7 +422,7 @@
             </if>
     </update>
 
-    <!-- 删除设备维修派工信息（逻辑删除） -->
+    <!-- 逻辑删除单条设备维修派工信息 -->
     <update id="deleteById" parameterType="com.yy.ppm.equipment.bean.po.EMaintInfoPO">
         UPDATE E_MAINT_INFO
         SET
@@ -412,6 +433,7 @@
         WHERE ID = #{id}
     </update>
 
+    <!-- 逻辑批量删除设备维修派工信息 -->
     <update id="deleteByIds" parameterType="com.yy.ppm.equipment.bean.po.EMaintInfoPO">
         UPDATE E_MAINT_INFO
         SET
@@ -430,4 +452,3 @@
     </update>
 
 </mapper>
-

@@ -14,13 +14,22 @@ import com.yy.ppm.equipment.service.MEquipmentTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * 设备维修派工信息Controller
+ * 设备维修派工信息 Controller
+ *
  * @author system
  */
 @Validated
@@ -35,7 +44,6 @@ public class EMaintInfoController {
 
     @Autowired
     private EMaintInfoService service;
-
 
     @Autowired
     private MEquipmentTypeService equipmentTypeService;
@@ -86,7 +94,7 @@ public class EMaintInfoController {
     }
 
     /**
-     * 根据ID查询设备维修派工信息
+     * 根据主键查询设备维修派工信息
      */
     @GetMapping("/getById")
     @PreAuthorize("hasAuthority('equipment:maintInfo:query')")
@@ -161,7 +169,7 @@ public class EMaintInfoController {
     }
 
     /**
-     * 更新派工信息（只更新派工相关字段）
+     * 更新派工信息，仅更新派工相关字段
      */
     @PutMapping("/updateDispatch")
     @PreAuthorize("hasAuthority('equipment:maintInfo:dispatch')")
@@ -176,7 +184,7 @@ public class EMaintInfoController {
     }
 
     /**
-     * 作废工单（批量）
+     * 批量作废工单
      */
     @PutMapping("/cancel")
     @PreAuthorize("hasAuthority('equipment:maintInfo:cancel')")
@@ -214,14 +222,15 @@ public class EMaintInfoController {
         final String methodName = "EMaintInfoController:endMaintenance";
         LOGGER.enter(methodName + "[start]", "dto:" + dto);
 
-        service.endMaintenance(dto.getId(), dto.getMaintEndTime(), dto.getFaultImageIds(), dto.getMaintRemark(), dto.getPartReplaceList());
+        service.endMaintenance(dto.getId(), dto.getMaintEndTime(), dto.getFaultImageIds(), dto.getMaintRemark(),
+                dto.getPartReplaceList());
 
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("结束维修成功").toResult();
     }
 
     /**
-     * 根据设备ID查询可用的出库单和申领单明细（用于配件更换选择）
+     * 根据设备ID查询可用的出库单和申领单明细
      */
     @GetMapping("/getAvailableDetailsByEquipId")
     @PreAuthorize("hasAuthority('equipment:maintInfo:query')")
@@ -266,7 +275,7 @@ public class EMaintInfoController {
     }
 
     /**
-     * 根据设备小类ID查询设备零部件树（设备小类 -> 设备机构 -> 设备部件）
+     * 根据设备小类ID查询部位部件树
      */
     @GetMapping("/getPartsTreeBySmallCategoryId")
     @PreAuthorize("hasAuthority('equipment:maintInfo:query')")
@@ -285,4 +294,3 @@ public class EMaintInfoController {
         return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
     }
 }
-
