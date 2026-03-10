@@ -1,39 +1,21 @@
 package com.yy.ppm.equipment.service;
 
-
+import com.yy.common.page.PageParameter;
+import com.yy.common.page.Pages;
 import com.yy.ppm.equipment.bean.dto.EMaintenanceProjectQuotaDTO;
-import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-/**
- * 维修定额项目 Service接口
- * 业务逻辑层
- */
 public interface EMaintenanceProjectQuotaService {
 
-    /**
-     * 查询列表
-     */
-    List<EMaintenanceProjectQuotaDTO> list();
+    /** 查询维修定额项目（分页） */
+    Pages<EMaintenanceProjectQuotaDTO> getList(EMaintenanceProjectQuotaDTO searchDTO, PageParameter parameter);
 
-    /**
-     * 根据ID查询
-     */
-    EMaintenanceProjectQuotaDTO get(Long id);
+    /** 根据ID查询维修定额项目 */
+    EMaintenanceProjectQuotaDTO getById(Long id);
 
-    /**
-     * 新增
-     */
-    int add(EMaintenanceProjectQuotaDTO quota);
+    /** 新增/修改维修定额项目 */
+    void save(EMaintenanceProjectQuotaDTO dto);
 
-    /**
-     * 修改
-     */
-    int update(EMaintenanceProjectQuotaDTO quota);
-
-    /**
-     * 删除
-     */
-    int delete(Long id);
+    /** 删除维修定额项目（逻辑删除） */
+    void delete(Long id);
 }
+

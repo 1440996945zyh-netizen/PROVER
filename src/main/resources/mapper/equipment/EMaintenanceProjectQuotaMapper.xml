@@ -2,88 +2,98 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.yy.ppm.equipment.mapper.EMaintenanceProjectQuotaMapper">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMaintenanceProjectQuotaDTO">
 
-<!--
-根据ID查询维修定额项目
--->
-<select id="selectById" resultType="com.yy.ppm.equipment.bean.dto.EMaintenanceProjectQuotaDTO">
+    <!-- 查询维修定额项目列表（分页） -->
+    <select id="getList" resultType="com.yy.ppm.equipment.bean.dto.EMaintenanceProjectQuotaDTO">
+        SELECT
+        ID,
+        QUOTA_NO        AS quotaNo,
+        PROJECT_NAME    AS projectName,
+        PROJECT_CONTENT AS projectContent,
+        UNIT            AS unit,
+        AMOUNT          AS amount,
+        CREATE_BY       AS createBy,
+        CREATE_TIME     AS createTime,
+        UPDATE_BY       AS updateBy,
+        UPDATE_TIME     AS updateTime
+        FROM E_IC_MAINT_PROJECT_QUOTA
+        WHERE 1 = 1
+        <if test="quotaNo != null and quotaNo != ''">
+            <bind name="quotaNoLike" value="'%' + quotaNo + '%'"/>
+            AND QUOTA_NO LIKE #{quotaNoLike}
+        </if>
+        <if test="projectName != null and projectName != ''">
+            <bind name="projectNameLike" value="'%' + projectName + '%'"/>
+            AND PROJECT_NAME LIKE #{projectNameLike}
+        </if>
+        ORDER BY CREATE_TIME DESC
+    </select>
 
-SELECT *
-FROM E_M_TENANCE_PROJECT_QUOTA
-WHERE id = #{id}
+    <!-- 根据ID查询 -->
+    <select id="getById" resultType="com.yy.ppm.equipment.bean.dto.EMaintenanceProjectQuotaDTO">
+        SELECT
+            ID,
+            QUOTA_NO        AS quotaNo,
+            PROJECT_NAME    AS projectName,
+            PROJECT_CONTENT AS projectContent,
+            UNIT            AS unit,
+            AMOUNT          AS amount,
+            CREATE_BY       AS createBy,
+            CREATE_TIME     AS createTime,
+            UPDATE_BY       AS updateBy,
+            UPDATE_TIME     AS updateTime
+        FROM E_IC_MAINT_PROJECT_QUOTA
+        WHERE ID = #{id}
+    </select>
 
-</select>
+    <!-- 新增 -->
+    <insert id="insert">
+        INSERT INTO E_IC_MAINT_PROJECT_QUOTA (
+            ID,
+            QUOTA_NO,
+            PROJECT_NAME,
+            PROJECT_CONTENT,
+            UNIT,
+            AMOUNT,
+            CREATE_BY,
+            CREATE_TIME
+        ) VALUES (
+                     #{id},
+                     #{quotaNo},
+                     #{projectName},
+                     #{projectContent},
+                     #{unit},
+                     #{amount},
+                     #{loginUserId},
+                     #{now}
+                 )
+    </insert>
 
+    <!-- 修改 -->
+    <update id="update">
+        UPDATE E_IC_MAINT_PROJECT_QUOTA
+        SET
+            PROJECT_NAME = #{projectName},
+            PROJECT_CONTENT = #{projectContent},
+            UNIT = #{unit},
+            AMOUNT = #{amount},
+            UPDATE_BY = #{loginUserId},
+            UPDATE_TIME = #{now}
+        WHERE ID = #{id}
+    </update>
 
-<!--
-查询维修定额项目列表
-按创建时间倒序
--->
-<select id="selectList" resultType="com.yy.ppm.equipment.bean.dto.EMaintenanceProjectQuotaDTO">
+    <!-- 删除 -->
+    <delete id="deleteById">
+        DELETE FROM E_IC_MAINT_PROJECT_QUOTA
+        WHERE ID = #{id}
+    </delete>
 
-SELECT *
-FROM E_M_TENANCE_PROJECT_QUOTA
-ORDER BY create_time DESC
-
-</select>
-
-
-<!--
-新增维修定额项目
--->
-<insert id="insert">
-INSERT INTO E_M_TENANCE_PROJECT_QUOTA
-(quota_code, project_name, project_content, unit, amount)
-
-VALUES
-(#{quotaCode}, #{projectName}, #{projectContent}, #{unit}, #{amount})
-
-</insert>
-
-
-<!--
-修改维修定额项目
--->
-<update id="update">
-UPDATE E_M_TENANCE_PROJECT_QUOTA
-
-SET
-project_name = #{projectName},
-project_content = #{projectContent},
-unit = #{unit},
-amount = #{amount}
-WHERE id = #{id}
-
-</update>
-
-
-<!--
-删除维修定额项目
--->
-<delete id="delete">
-
-DELETE FROM E_M_TENANCE_PROJECT_QUOTA
-WHERE id = #{id}
-
-</delete>
-
-
-<!--
-查询当天最大的定额编号
-用于生成新编号
-
-示例：
-DE-2026-03-09-0005
--->
-<select id="selectMaxCodeToday" resultType="String">
-
-SELECT quota_code
-FROM E_M_TENANCE_PROJECT_QUOTA
-WHERE DATE(create_time)=CURDATE()
-ORDER BY quota_code DESC
-LIMIT 1
-
-</select>
+    <!-- 查询当天最大定额编号 -->
+    <select id="getMaxQuotaNo" resultType="java.lang.String">
+        SELECT MAX(QUOTA_NO)
+        FROM E_IC_MAINT_PROJECT_QUOTA
+        WHERE QUOTA_NO LIKE (#{prefix} || '%')
+    </select>
 
 </mapper>

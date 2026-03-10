@@ -1,70 +1,40 @@
 package com.yy.ppm.equipment.mapper;
 
+import com.github.pagehelper.Page;
+import com.yy.framework.annotation.Edit;
 import com.yy.ppm.equipment.bean.dto.EMaintenanceProjectQuotaDTO;
-
-import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 /**
- * 维修定额项目 Mapper
+ * 维修定额项目Mapper
  *
- * 作用：
- * 负责数据库的 CRUD 操作
+ * @author system
+ */
+/**
+ * 维修定额项目Mapper
  *
- * Service层通过该接口调用数据库
+ * @author system
  */
 public interface EMaintenanceProjectQuotaMapper {
 
-    /**
-     * 根据ID查询维修定额项目
-     *
-     * @param id 主键ID
-     * @return DTO对象
-     */
-    EMaintenanceProjectQuotaDTO selectById(Long id);
+    /** 查询列表（分页） */
+    Page<EMaintenanceProjectQuotaDTO> getList(EMaintenanceProjectQuotaDTO searchDTO);
+
+    /** 根据ID查询 */
+    EMaintenanceProjectQuotaDTO getById(@Param("id") Long id);
+
+    /** 新增 */
+    @Edit
+    void insert(EMaintenanceProjectQuotaDTO dto);
+
+    /** 修改 */
+    @Edit
+    void update(EMaintenanceProjectQuotaDTO dto);
+
+    /** 删除（物理删除） */
+    void deleteById(@Param("id") Long id);
 
 
-    /**
-     * 查询维修定额项目列表
-     *
-     * @return 定额项目集合
-     */
-    List<EMaintenanceProjectQuotaDTO> selectList();
-
-
-    /**
-     * 新增维修定额项目
-     *
-     * @param quota DTO对象
-     * @return 影响行数
-     */
-    int insert(EMaintenanceProjectQuotaDTO quota);
-
-
-    /**
-     * 修改维修定额项目
-     *
-     * @param quota DTO对象
-     * @return 影响行数
-     */
-    int update(EMaintenanceProjectQuotaDTO quota);
-
-
-    /**
-     * 删除维修定额项目
-     *
-     * @param id 主键ID
-     * @return 影响行数
-     */
-    int delete(Long id);
-
-
-    /**
-     * 查询当天最大的定额编号
-     *
-     * 用于生成新的定额编号
-     *
-     * 示例：
-     * DE-2026-03-09-0003
-     */
-    String selectMaxCodeToday();
+    /** 查询当天最新的定额编号（用于生成下一号） */
+    String getMaxQuotaNo(@Param("prefix") String prefix);
 }
