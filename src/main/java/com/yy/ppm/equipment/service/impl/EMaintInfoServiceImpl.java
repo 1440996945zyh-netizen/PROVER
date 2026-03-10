@@ -12,16 +12,21 @@ import com.yy.ppm.common.service.SysFileService;
 import com.yy.ppm.common.service.impl.CommonServiceImpl;
 import com.yy.ppm.equipment.bean.dto.EMaintInfoBatchUpdateDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintInfoDTO;
+import com.yy.ppm.equipment.bean.dto.EMaintHourFeedbackDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintInfoPartItemDTO;
+import com.yy.ppm.equipment.bean.dto.EMaintRepairUserOptionDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintInfoSearchDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintPartReplaceDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintPartReplaceQueryDTO;
 import com.yy.ppm.equipment.bean.po.EMaintInfoPO;
+import com.yy.ppm.equipment.bean.po.EMaintHourFeedbackPO;
 import com.yy.ppm.equipment.bean.po.EMaintInfoPartItemPO;
 import com.yy.ppm.equipment.bean.po.EMaintPartReplacePO;
+import com.yy.ppm.equipment.mapper.EMaintHourFeedbackMapper;
 import com.yy.ppm.equipment.mapper.EMaintInfoMapper;
 import com.yy.ppm.equipment.mapper.EMaintInfoPartItemMapper;
 import com.yy.ppm.equipment.mapper.EMaintPartReplaceMapper;
+import com.yy.ppm.equipment.mapper.EMEquipRepairUserMapper;
 import com.yy.ppm.equipment.service.EMaintInfoService;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +37,8 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -64,6 +71,12 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
 
     @Resource
     private EMaintInfoPartItemMapper partItemMapper;
+
+    @Resource
+    private EMaintHourFeedbackMapper hourFeedbackMapper;
+
+    @Resource
+    private EMEquipRepairUserMapper repairUserMapper;
 
     @Autowired
     private CommonServiceImpl commonService;
@@ -127,6 +140,7 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
         EMaintInfoDTO dto = mapper.selectById(id);
         if (dto != null && dto.getId() != null) {
             dto.setItemList(partItemMapper.selectListByMaintInfoId(dto.getId()));
+            dto.setHourFeedbackList(hourFeedbackMapper.selectListByMaintInfoId(dto.getId()));
         }
         return dto;
     }
@@ -207,6 +221,17 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
             throw new BusinessRuntimeException("设备ID不能为空");
         }
         return partReplaceMapper.selectAvailableDetailsByEquipId(equipId);
+    }
+
+    /**
+     * 根据承修单位ID查询维修人员下拉列表
+     */
+    @Override
+    public List<EMaintRepairUserOptionDTO> getRepairUserListByMaintOrgId(Long maintOrgId) {
+        if (maintOrgId == null) {
+            throw new BusinessRuntimeException("承修单位ID不能为空");
+        }
+        return repairUserMapper.getRepairUserListByMaintOrgId(maintOrgId);
     }
 
     /**
@@ -396,7 +421,8 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
     @Override
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
     public void endMaintenance(Long id, Date maintEndTime, List<Long> imageIds, String maintRemark,
-                               List<EMaintPartReplaceDTO> partReplaceList) {
+                               List<EMaintPartReplaceDTO> partReplaceList,
+                               List<EMaintHourFeedbackDTO> hourFeedbackList) {
         if (id == null) {
             throw new BusinessRuntimeException("ID不能为空");
         }
@@ -435,6 +461,9 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
                 }
             }
         }
+
+        // 先逻辑删除旧的作业工时反馈，再保存新的记录
+        syncHourFeedbackList(id, hourFeedbackList);
 
         // 合并故障图片和维修完成图片的文件关联
         if (imageIds != null && !imageIds.isEmpty()) {
@@ -530,6 +559,77 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
         if (!saveList.isEmpty()) {
             partItemMapper.insertBatch(saveList);
         }
+    }
+
+    /**
+     * 同步作业工时反馈明细
+     */
+    private void syncHourFeedbackList(Long maintInfoId, List<EMaintHourFeedbackDTO> hourFeedbackList) {
+        if (maintInfoId == null) {
+            return;
+        }
+
+        Date now = new Date();
+        Long loginUserId = securityUtils.getLoginUserId();
+        String loginUserName = securityUtils.getUserInfo() == null ? null : securityUtils.getUserInfo().getUserName();
+
+        // 先逻辑删除旧明细
+        EMaintHourFeedbackPO deletePO = new EMaintHourFeedbackPO();
+        deletePO.setMaintInfoId(maintInfoId);
+        deletePO.setNow(now);
+        deletePO.setLoginUserId(loginUserId);
+        deletePO.setLoginUserName(loginUserName);
+        hourFeedbackMapper.logicDeleteByMaintInfoId(deletePO);
+
+        if (hourFeedbackList == null || hourFeedbackList.isEmpty()) {
+            return;
+        }
+
+        List<EMaintHourFeedbackPO> saveList = new ArrayList<>();
+        for (EMaintHourFeedbackDTO item : hourFeedbackList) {
+            if (item == null || item.getMaintUserId() == null) {
+                continue;
+            }
+            if (item.getStartTime() != null && item.getEndTime() != null
+                    && item.getEndTime().before(item.getStartTime())) {
+                throw new BusinessRuntimeException("作业工时反馈结束时间不能早于开始时间");
+            }
+            if (item.getWorkHour() != null && item.getWorkHour().compareTo(BigDecimal.ZERO) < 0) {
+                throw new BusinessRuntimeException("作业工时不能小于0");
+            }
+
+            EMaintHourFeedbackPO po = new EMaintHourFeedbackPO();
+            BeanUtils.copyProperties(item, po);
+            po.setId(snowflake.nextId());
+            po.setMaintInfoId(maintInfoId);
+            po.setWorkHour(calculateWorkHour(item.getStartTime(), item.getEndTime(), item.getWorkHour()));
+            po.setNow(now);
+            po.setLoginUserId(loginUserId);
+            po.setLoginUserName(loginUserName);
+            saveList.add(po);
+        }
+
+        if (!saveList.isEmpty()) {
+            hourFeedbackMapper.insertBatch(saveList);
+        }
+    }
+
+    /**
+     * 计算作业工时
+     */
+    private BigDecimal calculateWorkHour(Date startTime, Date endTime, BigDecimal workHour) {
+        if (workHour != null) {
+            return workHour;
+        }
+        if (startTime == null || endTime == null) {
+            return null;
+        }
+        long diffMillis = endTime.getTime() - startTime.getTime();
+        if (diffMillis < 0) {
+            throw new BusinessRuntimeException("作业工时反馈结束时间不能早于开始时间");
+        }
+        return BigDecimal.valueOf(diffMillis)
+                .divide(BigDecimal.valueOf(1000 * 60 * 60), 2, RoundingMode.HALF_UP);
     }
 
     /**

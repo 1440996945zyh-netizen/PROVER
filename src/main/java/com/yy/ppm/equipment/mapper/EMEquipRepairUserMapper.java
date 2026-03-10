@@ -3,6 +3,7 @@ package com.yy.ppm.equipment.mapper;
 import com.github.pagehelper.Page;
 import com.yy.framework.annotation.Edit;
 import com.yy.ppm.equipment.bean.dto.EMEquipRepairContractDTO;
+import com.yy.ppm.equipment.bean.dto.EMaintRepairUserOptionDTO;
 import com.yy.ppm.equipment.bean.dto.EMEquipRepairUserDTO;
 import com.yy.ppm.equipment.bean.dto.EMEquipRepairUserDetailDTO;
 import org.apache.ibatis.annotations.Param;
@@ -24,6 +25,8 @@ public interface EMEquipRepairUserMapper {
     void deleteById(@Param("id") Long id);
 
     List<EMEquipRepairUserDetailDTO> getUserDetailList(Long id);
+
+    List<EMaintRepairUserOptionDTO> getRepairUserListByMaintOrgId(@Param("maintOrgId") Long maintOrgId);
 
 
     @Edit

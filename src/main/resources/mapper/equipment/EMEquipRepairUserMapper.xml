@@ -62,6 +62,20 @@
             REPAIR_USER_ID = #{id}
     </select>
 
+    <select id="getRepairUserListByMaintOrgId" resultType="com.yy.ppm.equipment.bean.dto.EMaintRepairUserOptionDTO">
+        SELECT
+            t1.ID AS repairId,
+            t1.REPAIR_NAME AS repairName
+        FROM
+            E_M_EQUIP_REPAIR_USER t1
+        LEFT JOIN E_M_EQUIP_REPAIR_CONTRACT t2 on t1.REPAIR_CONTARCT_ID = t2.ID
+        WHERE
+            t2.deleted = 0
+        AND t2.EXTERNAL_COMPANY_ID = #{maintOrgId}
+        ORDER BY
+            t1.REPAIR_NAME ASC
+    </select>
+
     <insert id="insert">
     INSERT INTO E_M_EQUIP_REPAIR_USER (
         ID,

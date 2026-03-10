@@ -1,7 +1,9 @@
 package com.yy.ppm.equipment.service;
 
 import com.yy.common.page.Pages;
+import com.yy.ppm.equipment.bean.dto.EMaintHourFeedbackDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintInfoDTO;
+import com.yy.ppm.equipment.bean.dto.EMaintRepairUserOptionDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintInfoSearchDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintPartReplaceDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintPartReplaceQueryDTO;
@@ -48,10 +50,14 @@ public interface EMaintInfoService {
 
     /** 结束维修 */
     void endMaintenance(Long id, Date maintEndTime, List<Long> imageIds, String maintRemark,
-                        List<EMaintPartReplaceDTO> partReplaceList);
+                        List<EMaintPartReplaceDTO> partReplaceList,
+                        List<EMaintHourFeedbackDTO> hourFeedbackList);
 
     /** 根据设备ID查询可用明细 */
     List<EMaintPartReplaceQueryDTO> getAvailableDetailsByEquipId(Long equipId);
+
+    /** 根据承修单位ID查询维修人员下拉列表 */
+    List<EMaintRepairUserOptionDTO> getRepairUserListByMaintOrgId(Long maintOrgId);
 
     /** 根据维修信息ID查询配件更换列表 */
     List<EMaintPartReplaceDTO> getPartReplaceListByMaintInfoId(Long maintInfoId);
