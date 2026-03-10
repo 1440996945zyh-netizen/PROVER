@@ -8,6 +8,8 @@ import com.yy.ppm.common.mapper.SelectMapper;
 import com.yy.ppm.common.service.SelectService;
 import com.yy.ppm.equipment.bean.dto.EquipmentSelectDTO;
 
+import com.yy.ppm.equipment.bean.dto.MaintProjApplyDTO;
+import com.yy.ppm.equipment.service.EMaintInfoService;
 import com.yy.ppm.equipment.service.MEquipmentInfoService;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,9 @@ public class SelectServiceImpl implements SelectService {
     public SelectMapper selectMapper;
     @Autowired
     private MEquipmentInfoService mEquipmentInfoService;
+
+    @Autowired
+    private EMaintInfoService eMaintInfoService;
 
 
 
@@ -315,6 +320,22 @@ public class SelectServiceImpl implements SelectService {
                     Map<String, Object> map = new HashMap<>();
                     map.put("value", equipment.getValue());
                     map.put("label", equipment.getLabel());
+                    res.add(map);
+                }
+                break;
+            // 维修项目申请单
+            case "MAINT_PROJ_APPLY" :
+                String equipId = StringUtil.getString(params.get("equipId"));
+                String appType = StringUtil.getString(params.get("appType"));
+                String appNumber = StringUtil.getString(params.get("appNumber"));
+                String maintInfoId = StringUtil.getString(params.get("maintInfoId"));
+                List<MaintProjApplyDTO> maintProjSelectList = eMaintInfoService.getMaintProjSelectList(equipId,appType,appNumber,maintInfoId);
+                // 转换为 Map 格式
+                res = new ArrayList<>();
+                for (MaintProjApplyDTO maintProjApplyDTO : maintProjSelectList) {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("value", maintProjApplyDTO.getAppNumber());
+                    map.put("label", maintProjApplyDTO.getAppUnitName());
                     res.add(map);
                 }
                 break;

@@ -117,6 +117,9 @@ public class EMaintInfoPO extends BasePO {
     /** 验收备注 */
     private String acceptanceRemark;
 
+    /** 是否通过验收（0-否，1-是） */
+    private Integer isAccepted;
+
     /** 维修说明 */
     private String maintRemark;
 
@@ -165,4 +168,7 @@ public class EMaintInfoPO extends BasePO {
 
     /** 来源子表ID */
     private Long sourceItemId;
+
+    /** 维修项目申请单号 */
+    private String mantAppNumber;
 }

@@ -1,12 +1,7 @@
 package com.yy.ppm.equipment.service;
 
 import com.yy.common.page.Pages;
-import com.yy.ppm.equipment.bean.dto.EMaintHourFeedbackDTO;
-import com.yy.ppm.equipment.bean.dto.EMaintInfoDTO;
-import com.yy.ppm.equipment.bean.dto.EMaintRepairUserOptionDTO;
-import com.yy.ppm.equipment.bean.dto.EMaintInfoSearchDTO;
-import com.yy.ppm.equipment.bean.dto.EMaintPartReplaceDTO;
-import com.yy.ppm.equipment.bean.dto.EMaintPartReplaceQueryDTO;
+import com.yy.ppm.equipment.bean.dto.*;
 
 import java.util.Date;
 import java.util.List;
@@ -62,6 +57,13 @@ public interface EMaintInfoService {
     /** 根据维修信息ID查询配件更换列表 */
     List<EMaintPartReplaceDTO> getPartReplaceListByMaintInfoId(Long maintInfoId);
 
-    /** 验收通过 */
-    void acceptMaintenance(Long id, String acceptanceRemark);
+    /** 验收处理 */
+    void acceptMaintenance(Long id, Integer isAccepted, Integer returnStatus, Integer status, String acceptanceRemark);
+
+    List<MaintProjApplyDTO> getMaintProjSelectList(String equipId, String appType, String appNumber,String maintInfoId);
+
+    /**
+     * 根据申请单号查询维修项目申请表获取维修单位
+     */
+    MaintProjApplyDTO getMaintProjApplyByAppNumber(String appNumber);
 }

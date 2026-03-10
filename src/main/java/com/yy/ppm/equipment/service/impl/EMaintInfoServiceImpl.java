@@ -10,14 +10,7 @@ import com.yy.ppm.common.bean.dto.SysFileDTO;
 import com.yy.ppm.common.enums.SerialNumberPrefixEnum;
 import com.yy.ppm.common.service.SysFileService;
 import com.yy.ppm.common.service.impl.CommonServiceImpl;
-import com.yy.ppm.equipment.bean.dto.EMaintInfoBatchUpdateDTO;
-import com.yy.ppm.equipment.bean.dto.EMaintInfoDTO;
-import com.yy.ppm.equipment.bean.dto.EMaintHourFeedbackDTO;
-import com.yy.ppm.equipment.bean.dto.EMaintInfoPartItemDTO;
-import com.yy.ppm.equipment.bean.dto.EMaintRepairUserOptionDTO;
-import com.yy.ppm.equipment.bean.dto.EMaintInfoSearchDTO;
-import com.yy.ppm.equipment.bean.dto.EMaintPartReplaceDTO;
-import com.yy.ppm.equipment.bean.dto.EMaintPartReplaceQueryDTO;
+import com.yy.ppm.equipment.bean.dto.*;
 import com.yy.ppm.equipment.bean.po.EMaintInfoPO;
 import com.yy.ppm.equipment.bean.po.EMaintHourFeedbackPO;
 import com.yy.ppm.equipment.bean.po.EMaintInfoPartItemPO;
@@ -483,9 +476,15 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
-    public void acceptMaintenance(Long id, String acceptanceRemark) {
+    public void acceptMaintenance(Long id, Integer isAccepted, Integer returnStatus, Integer status, String acceptanceRemark) {
         if (id == null) {
             throw new BusinessRuntimeException("ID不能为空");
+        }
+        if (isAccepted == null || (isAccepted != 0 && isAccepted != 1)) {
+            throw new BusinessRuntimeException("验收结果参数错误");
+        }
+        if (acceptanceRemark == null || acceptanceRemark.trim().isEmpty()) {
+            throw new BusinessRuntimeException("验收原因不能为空");
         }
 
         // 校验记录状态
@@ -500,11 +499,31 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
         Date now = new Date();
         EMaintInfoPO po = new EMaintInfoPO();
         po.setId(id);
-        po.setStatus(5);
+        if (isAccepted == 1) {
+            Integer finalStatus = status == null ? 5 : status;
+            if (!Integer.valueOf(5).equals(finalStatus)) {
+                throw new BusinessRuntimeException("验收通过时状态必须为5");
+            }
+            po.setStatus(5);
+        } else {
+            if (returnStatus == null) {
+                throw new BusinessRuntimeException("验收不通过时退回状态不能为空");
+            }
+            if (returnStatus != 0 && returnStatus != 1 && returnStatus != 2) {
+                throw new BusinessRuntimeException("退回状态只能是提报、已派工或维修中");
+            }
+            if (status != null && !status.equals(returnStatus)) {
+                throw new BusinessRuntimeException("状态与退回状态不一致");
+            }
+            po.setStatus(returnStatus);
+        }
         po.setAccepterId(securityUtils.getLoginUserId());
         po.setAccepterName(securityUtils.getUserInfo().getUserName());
         po.setAcceptanceTime(now);
-        po.setAcceptanceRemark(acceptanceRemark);
+        po.setAcceptanceRemark(acceptanceRemark.trim());
+        po.setNow(now);
+        po.setLoginUserId(securityUtils.getLoginUserId());
+        po.setLoginUserName(securityUtils.getLoginUserName());
         mapper.update(po);
     }
 
@@ -630,6 +649,25 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
         }
         return BigDecimal.valueOf(diffMillis)
                 .divide(BigDecimal.valueOf(1000 * 60 * 60), 2, RoundingMode.HALF_UP);
+    }
+
+
+
+        /**
+     * 功能描述: 根据设备ID、申请类型、申请单号查询维修项目申请列表
+     * @param equipId 设备ID
+     * @param appType 申请类型
+     * @param appNumber 申请单号
+     * @return : java.util.List<com.yy.ppm.equipment.bean.dto.MaintProjApplyDTO>
+     */
+    @Override
+    public List<MaintProjApplyDTO> getMaintProjSelectList(String equipId, String appType, String appNumber,String maintInfoId) {
+        return mapper.getMaintProjSelectList(equipId, appType, appNumber,maintInfoId);
+    }
+
+    @Override
+    public MaintProjApplyDTO getMaintProjApplyByAppNumber(String appNumber) {
+        return mapper.getMaintProjApplyByAppNumber(appNumber);
     }
 
     /**

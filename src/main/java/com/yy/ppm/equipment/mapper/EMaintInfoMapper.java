@@ -5,8 +5,11 @@ import com.yy.framework.annotation.Edit;
 import com.yy.ppm.equipment.bean.dto.EMaintInfoBatchUpdateDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintInfoDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintInfoSearchDTO;
+import com.yy.ppm.equipment.bean.dto.MaintProjApplyDTO;
 import com.yy.ppm.equipment.bean.po.EMaintInfoPO;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * 设备维修派工信息Mapper接口
@@ -58,5 +61,21 @@ public interface EMaintInfoMapper {
      */
     @Edit
     void deleteByIds(EMaintInfoPO po);
+
+    /**
+     * 功能描述:  根据设备ID、申请类型、申请单号查询维修项目申请列表
+     * @param equipId
+     * @param appType
+     * @param appNumber
+     * @return : java.util.List<com.yy.ppm.equipment.bean.dto.MaintProjApplyDTO>
+     */
+    List<MaintProjApplyDTO> getMaintProjSelectList(@Param("equipId")String equipId, @Param("appType")String appType, @Param("appNumber")String appNumber,@Param("maintInfoId")String maintInfoId);
+
+    /**
+     * 功能描述: 根据申请单号查询维修项目申请表获取维修单位
+     * @param appNumber
+     * @return : com.yy.ppm.equipment.bean.dto.MaintProjApplyDTO
+     */
+    MaintProjApplyDTO getMaintProjApplyByAppNumber(@Param("appNumber")String appNumber);
 }
 

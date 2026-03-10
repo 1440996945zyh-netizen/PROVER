@@ -3,13 +3,7 @@ package com.yy.ppm.equipment.controller;
 import com.yy.common.enums.Response;
 import com.yy.common.log.MicroLogger;
 import com.yy.common.page.Pages;
-import com.yy.ppm.equipment.bean.dto.EMaintInfoCancelDTO;
-import com.yy.ppm.equipment.bean.dto.EMaintInfoDTO;
-import com.yy.ppm.equipment.bean.dto.EMaintInfoSearchDTO;
-import com.yy.ppm.equipment.bean.dto.EMaintPartReplaceDTO;
-import com.yy.ppm.equipment.bean.dto.EMaintPartReplaceQueryDTO;
-import com.yy.ppm.equipment.bean.dto.EMaintRepairUserOptionDTO;
-import com.yy.ppm.equipment.bean.dto.MEquipmentTypeDTO;
+import com.yy.ppm.equipment.bean.dto.*;
 import com.yy.ppm.equipment.service.EMaintInfoService;
 import com.yy.ppm.equipment.service.MEquipmentTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -275,7 +269,7 @@ public class EMaintInfoController {
     }
 
     /**
-     * 验收通过
+     * 验收处理
      */
     @PutMapping("/acceptMaintenance")
     @PreAuthorize("hasAuthority('equipment:maintInfo:accept')")
@@ -283,7 +277,7 @@ public class EMaintInfoController {
         final String methodName = "EMaintInfoController:acceptMaintenance";
         LOGGER.enter(methodName + "[start]", "dto:" + dto);
 
-        service.acceptMaintenance(dto.getId(), dto.getAcceptanceRemark());
+        service.acceptMaintenance(dto.getId(), dto.getIsAccepted(), dto.getReturnStatus(), dto.getStatus(), dto.getAcceptanceRemark());
 
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("验收成功").toResult();
@@ -304,6 +298,20 @@ public class EMaintInfoController {
                 .findFirst()
                 .map(MEquipmentTypeDTO::getChildren)
                 .orElseGet(java.util.ArrayList::new);
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
+    }
+
+    /**
+     * 根据申请单号查询维修项目申请表获取维修单位
+     */
+    @GetMapping("/getMaintProjApplyByAppNumber")
+    public Map<String, Object> getMaintProjApplyByAppNumber(@RequestParam("appNumber") String appNumber) {
+        final String methodName = "EMaintInfoController:getMaintProjApplyByAppNumber";
+        LOGGER.enter(methodName + "[start]", "appNumber:" + appNumber);
+
+        MaintProjApplyDTO result = service.getMaintProjApplyByAppNumber(appNumber);
 
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);

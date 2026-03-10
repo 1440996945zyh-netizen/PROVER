@@ -43,6 +43,7 @@
             m.CANCEL_BY_NAME,
             m.CANCEL_TIME,
             m.CANCEL_REMARK,
+            m.MANT_APP_NUMBER,
             m.CREATE_BY,
             m.CREATE_BY_NAME,
             m.CREATE_TIME,
@@ -150,6 +151,7 @@
             m.CANCEL_BY_NAME,
             m.CANCEL_TIME,
             m.CANCEL_REMARK,
+            m.MANT_APP_NUMBER,
             m.CREATE_BY,
             m.CREATE_BY_NAME,
             m.CREATE_TIME,
@@ -247,7 +249,8 @@
             DEL_FLAG,
             SOURCE,
             SOURCE_ID,
-            SOURCE_ITEM_ID
+            SOURCE_ITEM_ID,
+            MANT_APP_NUMBER
         )
         VALUES (
             #{id,jdbcType=NUMERIC},
@@ -289,7 +292,8 @@
             0,
             #{source},
             #{sourceId},
-            #{sourceItemId}
+            #{sourceItemId},
+            #{mantAppNumber,jdbcType=VARCHAR}
         )
     </insert>
 
@@ -387,6 +391,9 @@
             <if test="cancelRemark != null">
                 CANCEL_REMARK = #{cancelRemark,jdbcType=VARCHAR},
             </if>
+            <if test="mantAppNumber != null">
+                MANT_APP_NUMBER = #{mantAppNumber,jdbcType=VARCHAR},
+            </if>
             <if test="status != null">
                 STATUS = #{status,jdbcType=NUMERIC},
             </if>
@@ -451,4 +458,33 @@
             </if>
     </update>
 
+    <select id="getMaintProjSelectList" resultType="com.yy.ppm.equipment.bean.dto.MaintProjApplyDTO">
+        SELECT
+        a.APP_NUMBER,
+        a.APP_NUMBER || '-' || a.MAINTENANCE_UNIT_NAME AS APP_UNIT_NAME
+        FROM E_IC_MAINT_PROJ_APPLY a
+        WHERE a.EQUIP_ID = #{equipId}
+        AND a.APP_TYPE = #{appType}
+        <if test="appNumber != null and appNumber != ''">
+            <bind name="appNumberPattern" value="'%' + appNumber + '%'" />
+            AND a.APP_NUMBER LIKE #{appNumberPattern}
+        </if>
+        AND NOT EXISTS (
+        SELECT 1
+        FROM E_MAINT_INFO b
+        WHERE b.MANT_APP_NUMBER = a.APP_NUMBER
+        AND b.DEL_FLAG = 0
+        AND b.STATUS != 7
+        <if test="maintInfoId != null and maintInfoId != ''">
+            AND b.ID != #{maintInfoId}
+        </if>
+        )
+    </select>
+
+    <select id="getMaintProjApplyByAppNumber" resultType="com.yy.ppm.equipment.bean.dto.MaintProjApplyDTO">
+        SELECT MAINTENANCE_UNIT_ID,
+               MAINTENANCE_UNIT_NAME
+        FROM E_IC_MAINT_PROJ_APPLY
+        WHERE APP_NUMBER = #{appNumber}
+    </select>
 </mapper>

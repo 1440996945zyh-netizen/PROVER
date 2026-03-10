@@ -48,4 +48,7 @@ public class EMaintInfoDTO extends EMaintInfoPO {
 
     /** 派工部位部件列表 */
     private List<EMaintInfoPartItemDTO> itemList;
+
+    /** 退回状态 */
+    private Integer returnStatus;
 }
