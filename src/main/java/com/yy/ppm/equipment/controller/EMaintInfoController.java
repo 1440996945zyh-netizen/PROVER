@@ -8,6 +8,7 @@ import com.yy.ppm.equipment.bean.dto.EMaintInfoDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintInfoSearchDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintPartReplaceDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintPartReplaceQueryDTO;
+import com.yy.ppm.equipment.bean.dto.EMaintRepairUserOptionDTO;
 import com.yy.ppm.equipment.bean.dto.MEquipmentTypeDTO;
 import com.yy.ppm.equipment.service.EMaintInfoService;
 import com.yy.ppm.equipment.service.MEquipmentTypeService;
@@ -223,7 +224,7 @@ public class EMaintInfoController {
         LOGGER.enter(methodName + "[start]", "dto:" + dto);
 
         service.endMaintenance(dto.getId(), dto.getMaintEndTime(), dto.getFaultImageIds(), dto.getMaintRemark(),
-                dto.getPartReplaceList());
+                dto.getPartReplaceList(), dto.getHourFeedbackList());
 
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("结束维修成功").toResult();
@@ -239,6 +240,20 @@ public class EMaintInfoController {
         LOGGER.enter(methodName + "[start]", "equipId:" + equipId);
 
         List<EMaintPartReplaceQueryDTO> result = service.getAvailableDetailsByEquipId(equipId);
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
+    }
+
+    /**
+     * 根据承修单位ID查询维修人员下拉列表
+     */
+    @GetMapping("/getRepairUserListByMaintOrgId")
+    public Map<String, Object> getRepairUserListByMaintOrgId(@RequestParam("maintOrgId") Long maintOrgId) {
+        final String methodName = "EMaintInfoController:getRepairUserListByMaintOrgId";
+        LOGGER.enter(methodName + "[start]", "maintOrgId:" + maintOrgId);
+
+        List<EMaintRepairUserOptionDTO> result = service.getRepairUserListByMaintOrgId(maintOrgId);
 
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
