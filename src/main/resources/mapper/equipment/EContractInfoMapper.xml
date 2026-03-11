@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EContractInfoMapper">
+
+<select id="getList" resultType="com.yy.ppm.equipment.bean.dto.EContractInfoDTO">
+    SELECT
+        ID,
+        CONTRACT_NAME,
+        CONTRACT_CODE,
+        CONTRACT_AMOUNT,
+        START_DATE,
+        END_DATE,
+        APPLY_SCOPE,
+        STATUS
+
+    FROM E_COST_CONTRACT_INFO
+    where
+    1 = 1
+    <if test="externalCompanyCode != null and externalCompanyCode != ''">
+        <bind name="externalCompanyCodeLike" value="'%'+externalCompanyCode+'%'"/>
+        and EXTERNAL_COMPANY_CODE like #{externalCompanyCodeLike}
+    </if>
+    <if test="unitName != null and unitName != ''">
+        <bind name="unitNameLike" value="'%'+unitName+'%'"/>
+        and UNIT_NAME like #{unitNameLike}
+    </if>
+    order by
+    CREATED_TIME DESC
+</select>
+
+<select id="getById" resultType="com.yy.ppm.equipment.bean.dto.EContractInfoDTO">
+    SELECT
+        ID,
+        CONTRACT_NAME,
+        CONTRACT_CODE,
+        CONTRACT_AMOUNT,
+        START_DATE,
+        END_DATE,
+        APPLY_SCOPE,
+        STATUS
+
+    FROM E_COST_CONTRACT_INFO
+    where
+    ID = #{id}
+</select>
+
+    <insert id="insert">
+    INSERT INTO E_COST_CONTRACT_INFO
+    (
+        ID,
+        CONTRACT_NAME,
+        CONTRACT_CODE,
+        CONTRACT_AMOUNT,
+        START_DATE,
+        END_DATE,
+        APPLY_SCOPE,
+        STATUS,
+        CERATED_USER,
+        CREATED_TIME)
+    VALUES
+    (
+        #{id},
+        #{contractName},
+        #{contractCode},
+        #{contractAmount},
+        #{startDate},
+        #{endDate},
+        #{applyScope},
+        #{status},
+        #{loginUserId,jdbcType=DECIMAL},
+        #{now,jdbcType=TIMESTAMP})
+</insert>
+
+<update id="update">
+    UPDATE E_COST_CONTRACT_INFO
+    SET
+        CONTRACT_NAME = #{contractName},
+        CONTRACT_CODE = #{contractCode},
+        CONTRACT_AMOUNT = #{contractAmount},
+        START_DATE = #{startDate},
+        END_DATE = #{endDate},
+        APPLY_SCOPE = #{applyScope},
+        STATUS = #{status},
+        UPDATE_USER = #{loginUserId,jdbcType=DECIMAL},
+        UPDATE_TIME = #{now,jdbcType=TIMESTAMP}
+        WHERE
+            ID = #{id}
+</update>
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM
+            E_COST_CONTRACT_INFO
+        WHERE
+            ID = #{id}
+    </delete>
+
+
+</mapper>
+

@@ -141,30 +141,6 @@
             PARENT_ID = #{id}
     </delete>
 
-    <select id="getByCompanyIdAndOutType" resultType="com.yy.ppm.equipment.bean.dto.EMEquipRepairContractDTO">
-        SELECT
-            ID,
-            EXTERNAL_COMPANY_ID,
-            UNIT_NAME,
-            PRINCIPAL,
-            PHONE,
-            REPAIR_TYPE,
-            REMARK,
-            CONTRACT_DATE_START,
-            CONTRACT_DATE_END,
-            EXTERNAL_COMPANY_CODE,
-            COMPANY_ID,
-            USER_ORG_ID,
-            SERVICE_COMPANIES,
-            ENTITY_TYPE,
-            OUT_TYPE
-        FROM E_M_EQUIP_REPAIR_CONTRACT
-        WHERE DELETED = 0
-          AND ENTITY_TYPE = 1
-          AND SERVICE_COMPANIES LIKE '%' || #{useCompanyId, jdbcType=VARCHAR} || '%'
-          AND OUT_TYPE = #{outType, jdbcType=VARCHAR}
-        ORDER BY CREATED_TIME DESC
-    </select>
     <select id="getApplyQuataList" resultType="com.yy.ppm.equipment.bean.po.EMaintProjApplyQuotaPO">
         SELECT
         ID,
