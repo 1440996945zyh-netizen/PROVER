@@ -132,7 +132,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
             // 用户在线状态更新(查询在线用户使用）
             redisTemplate.opsForZSet().add(applicationName + ":" +
-                            (LoginTypeEnum.APP.getCode().equals(bean.getLoginType()) ? RedisEnum.ONLINE_ACCOUNTS_PC.getCode() : RedisEnum.ONLINE_ACCOUNTS_APP.getCode()),
+                            (LoginTypeEnum.APP.getCode().equals(bean.getLoginType()) ? RedisEnum.ONLINE_ACCOUNTS_APP.getCode() : RedisEnum.ONLINE_ACCOUNTS_PC.getCode()),
                     bean.getAccount(),
                     System.currentTimeMillis());
 
