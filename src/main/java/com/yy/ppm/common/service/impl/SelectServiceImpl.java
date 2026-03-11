@@ -8,7 +8,7 @@ import com.yy.ppm.common.mapper.SelectMapper;
 import com.yy.ppm.common.service.SelectService;
 import com.yy.ppm.equipment.bean.dto.EquipmentSelectDTO;
 
-import com.yy.ppm.equipment.bean.dto.MaintProjApplyDTO;
+import com.yy.ppm.equipment.bean.dto.EMaintProjApplyDTO;
 import com.yy.ppm.equipment.service.EMaintInfoService;
 import com.yy.ppm.equipment.service.MEquipmentInfoService;
 import lombok.Getter;
@@ -329,13 +329,13 @@ public class SelectServiceImpl implements SelectService {
                 String appType = StringUtil.getString(params.get("appType"));
                 String appNumber = StringUtil.getString(params.get("appNumber"));
                 String maintInfoId = StringUtil.getString(params.get("maintInfoId"));
-                List<MaintProjApplyDTO> maintProjSelectList = eMaintInfoService.getMaintProjSelectList(equipId,appType,appNumber,maintInfoId);
+                List<EMaintProjApplyDTO> maintProjSelectList = eMaintInfoService.getMaintProjSelectList(equipId,appType,appNumber,maintInfoId);
                 // 转换为 Map 格式
                 res = new ArrayList<>();
-                for (MaintProjApplyDTO maintProjApplyDTO : maintProjSelectList) {
+                for (EMaintProjApplyDTO EMaintProjApplyDTO : maintProjSelectList) {
                     Map<String, Object> map = new HashMap<>();
-                    map.put("value", maintProjApplyDTO.getAppNumber());
-                    map.put("label", maintProjApplyDTO.getAppUnitName());
+                    map.put("value", EMaintProjApplyDTO.getAppNumber());
+                    map.put("label", EMaintProjApplyDTO.getAppUnitName());
                     res.add(map);
                 }
                 break;

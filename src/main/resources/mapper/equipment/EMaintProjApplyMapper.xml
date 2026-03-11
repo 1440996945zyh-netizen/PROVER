@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMaintProjApplyMapper">
+
+<select id="getList" resultType="com.yy.ppm.equipment.bean.dto.EMaintProjApplyDTO">
+    SELECT
+    ID,
+    USING_DEPT_ID,
+    USING_DEPT_NAME,
+    EQUIP_TYPE_ID,
+    EQUIP_ID,
+    EQUIP_NAME,
+    APP_NUMBER,
+    APP_TYPE,
+    APP_CONTENT,
+    MAINTENANCE_UNIT_ID,
+    MAINTENANCE_UNIT_NAME,
+    BUDGET_AMOUNT,
+    REMARK,
+    CREATED_USER,
+    CREATED_TIME,
+    UPDATE_USER,
+    UPDATE_TIME
+    FROM E_IC_MAINT_PROJ_APPLY
+    WHERE 1 = 1
+    <if test="externalCompanyCode != null and externalCompanyCode != ''">
+        <bind name="externalCompanyCodeLike" value="'%'+externalCompanyCode+'%'"/>
+        and EXTERNAL_COMPANY_CODE like #{externalCompanyCodeLike}
+    </if>
+    <if test="unitName != null and unitName != ''">
+        <bind name="unitNameLike" value="'%'+unitName+'%'"/>
+        and UNIT_NAME like #{unitNameLike}
+    </if>
+    order by
+    CREATED_TIME DESC
+</select>
+
+<select id="getById" resultType="com.yy.ppm.equipment.bean.dto.EMaintProjApplyDTO">
+    SELECT
+        ID,
+        USING_DEPT_ID,
+        USING_DEPT_NAME,
+        EQUIP_TYPE_ID,
+        EQUIP_ID,
+        EQUIP_NAME,
+        APP_NUMBER,
+        APP_TYPE,
+        APP_CONTENT,
+        MAINTENANCE_UNIT_ID,
+        MAINTENANCE_UNIT_NAME,
+        BUDGET_AMOUNT,
+        REMARK,
+        CREATED_USER,
+        CREATED_TIME,
+        UPDATE_USER,
+        UPDATE_TIME
+    FROM E_IC_MAINT_PROJ_APPLY
+    where
+    ID = #{id}
+</select>
+    <insert id="insert">
+    INSERT INTO E_IC_MAINT_PROJ_APPLY (
+        ID,
+        USING_DEPT_ID,
+                                       USING_DEPT_NAME,
+                                       EQUIP_TYPE_ID,
+                                        EQUIP_ID,
+                                       EQUIP_NAME,
+                                        APP_NUMBER,
+                                       APP_TYPE,
+                                       APP_CONTENT,
+                                       MAINTENANCE_UNIT_ID,
+                                       MAINTENANCE_UNIT_NAME,
+                                       BUDGET_AMOUNT,
+                                       REMARK,
+                                       CREATED_USER,
+                                       CREATED_TIME
+
+
+    ) values
+    (#{id,jdbcType=DECIMAL},
+     #{usingDeptId},
+      #{usingDeptName},
+      #{equipTypeId},
+      #{equipId},
+      #{equipName},
+      #{appNumber},
+      #{appType},
+      #{appContent},
+      #{maintenanceUnitId},
+      #{maintenanceUnitName},
+      #{budgetAmount},
+      #{remark},
+      #{loginUserId,jdbcType=NUMERIC},
+      #{now,jdbcType=TIMESTAMP}
+    )
+</insert>
+    <insert id="insertApplyQuata">
+        insert into E_IC_MAINT_PROJ_APPLY_QUOTA (
+        ID,
+        PARENT_ID,
+        QUOTA_CODE,
+        PROJECT_NAME,
+        PROJECT_CONTENT,
+        UNIT,
+        AMOUNT_EXCLUDING_TAX,
+        TAX_RATE,
+        AMOUNT_INCLUDING_TAX,
+        CREATED_USER,
+        CREATED_TIME
+        ) values
+        (#{id,jdbcType=DECIMAL},
+         #{parentId},
+          #{quotaCode},
+          #{projectName},
+          #{projectContent},
+          #{unit},
+          #{amountExcludingTax},
+          #{taxRate},
+          #{amountIncludingTax},
+          #{loginUserId},
+          #{now,jdbcType=TIMESTAMP}
+
+         )
+    </insert>
+
+
+    <!-- 删除 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM
+            E_IC_MAINT_PROJ_APPLY
+        WHERE
+            ID = #{id}
+    </delete>
+    <delete id="deleteApplyQuata">
+        DELETE FROM
+            E_IC_MAINT_PROJ_APPLY_QUOTA
+        WHERE
+            PARENT_ID = #{id}
+    </delete>
+
+    <select id="getByCompanyIdAndOutType" resultType="com.yy.ppm.equipment.bean.dto.EMEquipRepairContractDTO">
+        SELECT
+            ID,
+            EXTERNAL_COMPANY_ID,
+            UNIT_NAME,
+            PRINCIPAL,
+            PHONE,
+            REPAIR_TYPE,
+            REMARK,
+            CONTRACT_DATE_START,
+            CONTRACT_DATE_END,
+            EXTERNAL_COMPANY_CODE,
+            COMPANY_ID,
+            USER_ORG_ID,
+            SERVICE_COMPANIES,
+            ENTITY_TYPE,
+            OUT_TYPE
+        FROM E_M_EQUIP_REPAIR_CONTRACT
+        WHERE DELETED = 0
+          AND ENTITY_TYPE = 1
+          AND SERVICE_COMPANIES LIKE '%' || #{useCompanyId, jdbcType=VARCHAR} || '%'
+          AND OUT_TYPE = #{outType, jdbcType=VARCHAR}
+        ORDER BY CREATED_TIME DESC
+    </select>
+    <select id="getApplyQuataList" resultType="com.yy.ppm.equipment.bean.po.EMaintProjApplyQuotaPO">
+        SELECT
+        ID,
+        PARENT_ID,
+        QUOTA_CODE,
+        PROJECT_NAME,
+        PROJECT_CONTENT,
+        UNIT,
+        AMOUNT_EXCLUDING_TAX,
+        TAX_RATE,
+        AMOUNT_INCLUDING_TAX,
+        CREATED_USER,
+        CREATED_TIME,
+        UPDATE_USER,
+        UPDATE_TIME
+        FROM E_IC_MAINT_PROJ_APPLY_QUOTA
+        WHERE
+           PARENT_ID = #{id}
+        ORDER BY CREATED_TIME DESC
+    </select>
+</mapper>
+

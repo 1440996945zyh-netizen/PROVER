@@ -311,7 +311,7 @@ public class EMaintInfoController {
         final String methodName = "EMaintInfoController:getMaintProjApplyByAppNumber";
         LOGGER.enter(methodName + "[start]", "appNumber:" + appNumber);
 
-        MaintProjApplyDTO result = service.getMaintProjApplyByAppNumber(appNumber);
+        EMaintProjApplyDTO result = service.getMaintProjApplyByAppNumber(appNumber);
 
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);

@@ -60,10 +60,10 @@ public interface EMaintInfoService {
     /** 验收处理 */
     void acceptMaintenance(Long id, Integer isAccepted, Integer returnStatus, Integer status, String acceptanceRemark);
 
-    List<MaintProjApplyDTO> getMaintProjSelectList(String equipId, String appType, String appNumber,String maintInfoId);
+    List<EMaintProjApplyDTO> getMaintProjSelectList(String equipId, String appType, String appNumber, String maintInfoId);
 
     /**
      * 根据申请单号查询维修项目申请表获取维修单位
      */
-    MaintProjApplyDTO getMaintProjApplyByAppNumber(String appNumber);
+    EMaintProjApplyDTO getMaintProjApplyByAppNumber(String appNumber);
 }

@@ -5,7 +5,7 @@ import com.yy.framework.annotation.Edit;
 import com.yy.ppm.equipment.bean.dto.EMaintInfoBatchUpdateDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintInfoDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintInfoSearchDTO;
-import com.yy.ppm.equipment.bean.dto.MaintProjApplyDTO;
+import com.yy.ppm.equipment.bean.dto.EMaintProjApplyDTO;
 import com.yy.ppm.equipment.bean.po.EMaintInfoPO;
 import org.apache.ibatis.annotations.Param;
 
@@ -69,13 +69,13 @@ public interface EMaintInfoMapper {
      * @param appNumber
      * @return : java.util.List<com.yy.ppm.equipment.bean.dto.MaintProjApplyDTO>
      */
-    List<MaintProjApplyDTO> getMaintProjSelectList(@Param("equipId")String equipId, @Param("appType")String appType, @Param("appNumber")String appNumber,@Param("maintInfoId")String maintInfoId);
+    List<EMaintProjApplyDTO> getMaintProjSelectList(@Param("equipId")String equipId, @Param("appType")String appType, @Param("appNumber")String appNumber, @Param("maintInfoId")String maintInfoId);
 
     /**
      * 功能描述: 根据申请单号查询维修项目申请表获取维修单位
      * @param appNumber
      * @return : com.yy.ppm.equipment.bean.dto.MaintProjApplyDTO
      */
-    MaintProjApplyDTO getMaintProjApplyByAppNumber(@Param("appNumber")String appNumber);
+    EMaintProjApplyDTO getMaintProjApplyByAppNumber(@Param("appNumber")String appNumber);
 }
 

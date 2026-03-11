@@ -661,12 +661,12 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
      * @return : java.util.List<com.yy.ppm.equipment.bean.dto.MaintProjApplyDTO>
      */
     @Override
-    public List<MaintProjApplyDTO> getMaintProjSelectList(String equipId, String appType, String appNumber,String maintInfoId) {
+    public List<EMaintProjApplyDTO> getMaintProjSelectList(String equipId, String appType, String appNumber, String maintInfoId) {
         return mapper.getMaintProjSelectList(equipId, appType, appNumber,maintInfoId);
     }
 
     @Override
-    public MaintProjApplyDTO getMaintProjApplyByAppNumber(String appNumber) {
+    public EMaintProjApplyDTO getMaintProjApplyByAppNumber(String appNumber) {
         return mapper.getMaintProjApplyByAppNumber(appNumber);
     }
 

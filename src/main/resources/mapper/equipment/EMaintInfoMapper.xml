@@ -458,7 +458,7 @@
             </if>
     </update>
 
-    <select id="getMaintProjSelectList" resultType="com.yy.ppm.equipment.bean.dto.MaintProjApplyDTO">
+    <select id="getMaintProjSelectList" resultType="com.yy.ppm.equipment.bean.dto.EMaintProjApplyDTO">
         SELECT
         a.APP_NUMBER,
         a.APP_NUMBER || '-' || a.MAINTENANCE_UNIT_NAME AS APP_UNIT_NAME
@@ -481,7 +481,7 @@
         )
     </select>
 
-    <select id="getMaintProjApplyByAppNumber" resultType="com.yy.ppm.equipment.bean.dto.MaintProjApplyDTO">
+    <select id="getMaintProjApplyByAppNumber" resultType="com.yy.ppm.equipment.bean.dto.EMaintProjApplyDTO">
         SELECT MAINTENANCE_UNIT_ID,
                MAINTENANCE_UNIT_NAME
         FROM E_IC_MAINT_PROJ_APPLY

@@ -1,20 +1,27 @@
-package com.yy.ppm.equipment.bean.dto;
+package com.yy.ppm.equipment.bean.po;
 
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.yy.ppm.common.bean.po.BasePO;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.Date;
 
 /**
- * 维修项目申请DTO
+ * 设备调拨PO
  * @author system
  */
-@Data
-public class MaintProjApplyDTO implements Serializable {
+@Getter
+@Setter
+@ToString
+public class EMaintProjApplyPO extends BasePO implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
     /**
      * 主键ID
      */
@@ -88,21 +95,16 @@ public class MaintProjApplyDTO implements Serializable {
     /**
      * 创建时间
      */
-    private Timestamp createdTime;
+    private Date createdTime;
 
     /**
      * 修改人
      */
-    private String updateUser;
+    private Long updateUser;
 
     /**
      * 修改时间
      */
-    private Timestamp updateTime;
+    private Date updateTime;
 
-    // ========== 扩展字段（适配你之前的查询需求） ==========
-    /**
-     * 申请单号+维修单位名称拼接字段（APP_NUMBER + 维修单位名称）
-     */
-    private String appUnitName;
 }
