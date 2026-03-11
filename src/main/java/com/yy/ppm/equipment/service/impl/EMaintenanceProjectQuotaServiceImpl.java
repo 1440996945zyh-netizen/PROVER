@@ -10,88 +10,87 @@ import com.yy.ppm.equipment.service.EMaintenanceProjectQuotaService;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.github.pagehelper.Page;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.text.SimpleDateFormat;
 
-import static io.micrometer.common.util.StringUtils.isBlank;
+
+import java.util.Date;
 
 
 /**
- * 维修定额项目 Service实现类
+ * 维修定额项目Service实现
+ * 说明：
+ * 1) getList 使用 PageHelperUtils.limit 做分页封装，返回 Pages
+ * 2) save 新增时自动生成定额编号：DE-YYYY-MM-DD-0001，并自动写入创建/更新信息
  */
+
+@RequiredArgsConstructor
 @Service
 public class EMaintenanceProjectQuotaServiceImpl implements EMaintenanceProjectQuotaService {
-
     @Resource
     private EMaintenanceProjectQuotaMapper mapper;
-
     @Resource
     private Snowflake snowflake;
-
     @Override
-    public Pages<EMaintenanceProjectQuotaDTO> getList(EMaintenanceProjectQuotaDTO searchDTO, PageParameter parameter) {
-        return PageHelperUtils.limit(parameter, () -> mapper.getList(searchDTO));
+    public Pages<EMaintenanceProjectQuotaDTO> list(EMaintenanceProjectQuotaDTO searchDTO, PageParameter parameter) {
+        EMaintenanceProjectQuotaDTO dto = (searchDTO == null ? new EMaintenanceProjectQuotaDTO() : searchDTO);
+        return PageHelperUtils.limit(parameter, () -> (Page<EMaintenanceProjectQuotaDTO>) mapper.selectList(dto));
     }
-
     @Override
     public EMaintenanceProjectQuotaDTO getById(Long id) {
         if (id == null) {
-            throw new BusinessRuntimeException("ID不能为空");
+            throw new BusinessRuntimeException("id不能为空");
         }
-        return mapper.getById(id);
+        return mapper.selectById(id);
     }
-
     @Override
-    public void save(EMaintenanceProjectQuotaDTO dto) {
+    public void add(EMaintenanceProjectQuotaDTO dto) {
         if (dto == null) {
-            throw new BusinessRuntimeException("参数不能为空");
+            throw new BusinessRuntimeException("入参不能为空");
         }
-
-        // 新增
+        if (dto.getProjectName() == null || dto.getProjectName().trim().isEmpty()) {
+            throw new BusinessRuntimeException("维修项目名称不能为空");
+        }
         if (dto.getId() == null) {
             dto.setId(snowflake.nextId());
-            // 定额编号：系统自动生成
-            if (isBlank(dto.getQuotaNo())) {
-                dto.setQuotaNo(generateQuotaNo());
-            }
-            mapper.insert(dto);
-            return;
         }
-
-        // 修改
+        dto.setQuotaCode(generateCode());
+        mapper.insert(dto);
+    }
+    @Override
+    public void update(EMaintenanceProjectQuotaDTO dto) {
+        if (dto == null || dto.getId() == null) {
+            throw new BusinessRuntimeException("id不能为空");
+        }
         mapper.update(dto);
     }
-
     @Override
     public void delete(Long id) {
         if (id == null) {
-            throw new BusinessRuntimeException("请选择一条数据删除");
+            throw new BusinessRuntimeException("id不能为空");
         }
-        mapper.deleteById(id);
+        mapper.delete(id);
     }
-
     /**
      * 生成定额编号：DE-YYYY-MM-DD-0001
-     *
-     * 规则：同一天内序号递增；第二天重新从0001开始。
+     * 规则：取当天最大编号后四位+1
      */
-    private String generateQuotaNo() {
-        String dateStr = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        String prefix = "DE-" + dateStr + "-";
-
-        String maxNo = mapper.getMaxQuotaNo(prefix);
-        int nextSeq = 1;
-        if (!isBlank(maxNo) && maxNo.length() >= 4) {
-            try {
-                String tail = maxNo.substring(maxNo.length() - 4);
-                nextSeq = Integer.parseInt(tail) + 1;
-            } catch (Exception ignored) {
-                // 解析失败则回退到0001，避免阻断业务
-                nextSeq = 1;
+    private String generateCode() {
+        String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        String maxCode = mapper.selectMaxCodeToday();
+        int number = 1;
+        if (maxCode != null && !maxCode.isBlank()) {
+            int idx = maxCode.lastIndexOf('-');
+            if (idx > -1 && idx < maxCode.length() - 1) {
+                String seqStr = maxCode.substring(idx + 1);
+                try {
+                    number = Integer.parseInt(seqStr) + 1;
+                } catch (NumberFormatException ignore) {
+                    number = 1;
+                }
             }
         }
-
-        return prefix + String.format("%04d", nextSeq);
+        return "DE-" + date + "-" + String.format("%04d", number);
     }
 }

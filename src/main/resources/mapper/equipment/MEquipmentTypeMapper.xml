@@ -4,37 +4,25 @@
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yy.ppm.equipment.mapper.MEquipmentTypeMapper">
 
-    <!-- 查询设备类型分类树形列表 -->
+    <!-- 查询设备类别管理树（只到设备小类：1/2/3级） -->
     <select id="selectEquipmentTypeTree" resultType="com.yy.ppm.equipment.bean.dto.MEquipmentTypeDTO">
         SELECT
-            ID,
-            TYPE_NAME,
-            PARENT_ID,
-            CATEGORY_LEVEL,
-            SORT_ORDER,
-            CREATE_BY,
-            CREATE_BY_NAME,
-            CREATE_TIME,
-            UPDATE_BY,
-            UPDATE_BY_NAME,
-            UPDATE_TIME,
-            DEL_FLAG,
-            DELETE_BY,
-            DELETE_BY_NAME,
-            DELETE_TIME
-        FROM
-            E_M_EQPT_TYPE
-        WHERE
-            DEL_FLAG = 0
-            <if test="typeName != null and typeName != ''">
-                <bind name="typeNamePattern" value="'%' + typeName + '%'"/>
-                AND TYPE_NAME LIKE #{typeNamePattern}
-            </if>
-        ORDER BY
-            SORT_ORDER ASC,
-            CATEGORY_LEVEL ASC,
-            CREATE_TIME ASC
+        ID              AS id,
+        TYPE_NAME       AS typeName,
+        PARENT_ID       AS parentId,
+        CATEGORY_LEVEL  AS categoryLevel,
+        SORT_ORDER      AS sortOrder,
+        CREATE_TIME     AS createTime
+        FROM E_M_EQPT_TYPE
+        WHERE DEL_FLAG = 0
+        AND CATEGORY_LEVEL &lt;= 3
+        <if test="typeName != null and typeName != ''">
+            <bind name="kwLike" value="'%' + typeName + '%'" />
+            AND TYPE_NAME LIKE #{kwLike}
+        </if>
+        ORDER BY NVL(SORT_ORDER,0), CREATE_TIME DESC
     </select>
+
     <!-- 查询设备类型分类树形列表 -->
     <select id="partsTree" resultType="com.yy.ppm.equipment.bean.dto.MEquipmentTypeDTO">
         SELECT
