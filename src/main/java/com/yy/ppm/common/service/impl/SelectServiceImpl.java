@@ -332,10 +332,10 @@ public class SelectServiceImpl implements SelectService {
                 List<EMaintProjApplyDTO> maintProjSelectList = eMaintInfoService.getMaintProjSelectList(equipId,appType,appNumber,maintInfoId);
                 // 转换为 Map 格式
                 res = new ArrayList<>();
-                for (EMaintProjApplyDTO EMaintProjApplyDTO : maintProjSelectList) {
+                for (EMaintProjApplyDTO eMaintProjApplyDTO : maintProjSelectList) {
                     Map<String, Object> map = new HashMap<>();
-                    map.put("value", EMaintProjApplyDTO.getAppNumber());
-                    map.put("label", EMaintProjApplyDTO.getAppUnitName());
+                    map.put("value", eMaintProjApplyDTO.getAppNumber());
+                    map.put("label", eMaintProjApplyDTO.getAppUnitName());
                     res.add(map);
                 }
                 break;
