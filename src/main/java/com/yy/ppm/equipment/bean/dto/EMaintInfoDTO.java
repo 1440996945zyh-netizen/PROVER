@@ -37,6 +37,9 @@ public class EMaintInfoDTO extends EMaintInfoPO {
     /** 作业工时反馈列表 */
     private List<EMaintHourFeedbackDTO> hourFeedbackList;
 
+    /** 操作日志列表 */
+    private List<EMaintInfoLogDTO> operateLogList;
+
     /** 设备小类名称 */
     private String equipSmallCategoryName;
 

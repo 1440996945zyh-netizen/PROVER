@@ -45,6 +45,12 @@ public interface EMaintInfoMapper {
     void update(EMaintInfoPO po);
 
     /**
+     * 结束维修并清空当前轮次旧验收信息
+     */
+    @Edit
+    void updateEndMaintenance(EMaintInfoPO po);
+
+    /**
      * 批量更新设备维修派工信息状态为作废
      */
     @Edit

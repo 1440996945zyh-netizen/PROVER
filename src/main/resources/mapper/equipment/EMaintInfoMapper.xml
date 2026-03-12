@@ -410,6 +410,21 @@
         WHERE ID = #{id}
     </update>
 
+    <update id="updateEndMaintenance" parameterType="com.yy.ppm.equipment.bean.po.EMaintInfoPO">
+        UPDATE E_MAINT_INFO
+        SET
+            STATUS = #{status,jdbcType=NUMERIC},
+            MAINT_END_TIME = #{maintEndTime,jdbcType=TIMESTAMP},
+            MAINT_REMARK = #{maintRemark,jdbcType=VARCHAR},
+            ACCEPTANCE_TIME = NULL,
+            ACCEPTANCE_REMARK = NULL,
+            ACCEPTER_ID = NULL,
+            ACCEPTER_NAME = NULL,
+            UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
+            UPDATE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            UPDATE_TIME = #{now,jdbcType=TIMESTAMP}
+        WHERE ID = #{id}
+    </update>
     <!-- 批量更新设备维修派工信息为作废状态 -->
     <update id="batchUpdateStatusToCanceled" parameterType="com.yy.ppm.equipment.bean.dto.EMaintInfoBatchUpdateDTO">
         UPDATE E_MAINT_INFO
