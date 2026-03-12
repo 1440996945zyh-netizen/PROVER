@@ -10,7 +10,6 @@ import com.yy.ppm.equipment.service.EMaintenanceProjectQuotaService;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.github.pagehelper.Page;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +38,6 @@ public class EMaintenanceProjectQuotaServiceImpl implements EMaintenanceProjectQ
 
     /**
      * 查询列表（分页）
-     * 注意：PageHelperUtils.limit 要求 Supplier<Page<T>>，所以 Mapper 的 selectList 必须返回 Page
      */
     @Override
     public Pages<EMaintenanceProjectQuotaDTO> list(EMaintenanceProjectQuotaDTO searchDTO, PageParameter parameter) {
