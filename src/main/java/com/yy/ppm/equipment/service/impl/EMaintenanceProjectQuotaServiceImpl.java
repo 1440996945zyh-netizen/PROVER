@@ -37,12 +37,19 @@ public class EMaintenanceProjectQuotaServiceImpl implements EMaintenanceProjectQ
     @Resource
     private Snowflake snowflake;
 
+    /**
+     * 查询列表（分页）
+     * 注意：PageHelperUtils.limit 要求 Supplier<Page<T>>，所以 Mapper 的 selectList 必须返回 Page
+     */
     @Override
     public Pages<EMaintenanceProjectQuotaDTO> list(EMaintenanceProjectQuotaDTO searchDTO, PageParameter parameter) {
         EMaintenanceProjectQuotaDTO dto = (searchDTO == null) ? new EMaintenanceProjectQuotaDTO() : searchDTO;
         return PageHelperUtils.limit(parameter, () -> mapper.selectList(dto));
     }
 
+    /**
+     * 根据ID查询
+     */
     @Override
     public EMaintenanceProjectQuotaDTO get(Long id) {
         if (id == null) {
@@ -51,6 +58,9 @@ public class EMaintenanceProjectQuotaServiceImpl implements EMaintenanceProjectQ
         return mapper.selectById(id);
     }
 
+    /**
+     * 新增：生成主键ID + 自动生成 定额编号quotaCode
+     */
     @Override
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
     public void add(EMaintenanceProjectQuotaDTO dto) {
@@ -65,6 +75,9 @@ public class EMaintenanceProjectQuotaServiceImpl implements EMaintenanceProjectQ
         mapper.add(dto);
     }
 
+    /**
+     * 修改
+     */
     @Override
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
     public void update(EMaintenanceProjectQuotaDTO dto) {
@@ -74,6 +87,9 @@ public class EMaintenanceProjectQuotaServiceImpl implements EMaintenanceProjectQ
         mapper.update(dto);
     }
 
+    /**
+     * 删除
+     */
     @Override
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
     public void delete(Long id) {
