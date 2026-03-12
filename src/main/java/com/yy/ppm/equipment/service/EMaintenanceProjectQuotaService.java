@@ -38,3 +38,4 @@ public interface EMaintenanceProjectQuotaService {
      * 删除（物理删除）
      */
     int delete(Long id);
+}
