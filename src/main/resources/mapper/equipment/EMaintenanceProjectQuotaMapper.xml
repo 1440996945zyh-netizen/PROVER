@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<!--
-  维修定额项目 Mapper XML
-  对应表：E_IC_TENANCE_PROJECT_QUOTA
--->
 <mapper namespace="com.yy.ppm.equipment.mapper.EMaintenanceProjectQuotaMapper">
 
     <!-- 查询列表（分页） -->
@@ -18,6 +14,7 @@
         t.PROJECT_CONTENT      AS projectContent,
         t.UNIT                 AS unit,
         t.AMOUNT_EXCLUDING_TAX AS amountExcludingTax,
+        t.STATUS               AS status,
         t.CREATE_BY            AS createBy,
         t.CREATE_TIME          AS createTime,
         t.UPDATE_BY            AS updateBy,
@@ -25,11 +22,11 @@
         FROM E_IC_TENANCE_PROJECT_QUOTA t
         WHERE 1 = 1
         <if test="quotaCode != null and quotaCode != ''">
-            <bind name="qcLike" value="'%' + quotaCode + '%'"/>
+            <bind name="qcLike" value="'%' + quotaCode + '%'" />
             AND t.QUOTA_CODE LIKE #{qcLike}
         </if>
         <if test="projectName != null and projectName != ''">
-            <bind name="pnLike" value="'%' + projectName + '%'"/>
+            <bind name="pnLike" value="'%' + projectName + '%'" />
             AND t.PROJECT_NAME LIKE #{pnLike}
         </if>
         ORDER BY t.CREATE_TIME DESC, t.ID DESC
@@ -44,6 +41,7 @@
             t.PROJECT_CONTENT      AS projectContent,
             t.UNIT                 AS unit,
             t.AMOUNT_EXCLUDING_TAX AS amountExcludingTax,
+            t.STATUS               AS status,
             t.CREATE_BY            AS createBy,
             t.CREATE_TIME          AS createTime,
             t.UPDATE_BY            AS updateBy,
@@ -61,6 +59,7 @@
             PROJECT_CONTENT,
             UNIT,
             AMOUNT_EXCLUDING_TAX,
+            STATUS,
             CREATE_BY,
             CREATE_TIME,
             UPDATE_BY,
@@ -72,6 +71,7 @@
                      #{projectContent},
                      #{unit},
                      #{amountExcludingTax},
+                     #{status},
                      #{loginUserId},
                      #{now},
                      #{loginUserId},
@@ -87,6 +87,7 @@
             PROJECT_CONTENT      = #{projectContent},
             UNIT                 = #{unit},
             AMOUNT_EXCLUDING_TAX = #{amountExcludingTax},
+            STATUS               = #{status},
             UPDATE_BY            = #{loginUserId},
             UPDATE_TIME          = #{now}
         WHERE ID = #{id}

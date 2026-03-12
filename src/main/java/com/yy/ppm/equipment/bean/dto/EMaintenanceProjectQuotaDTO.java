@@ -46,5 +46,8 @@ public class EMaintenanceProjectQuotaDTO extends BasePO implements Serializable 
     /** 更新时间 */
     private Date updateTime;
 
+    /** 状态：1-生效，0-失效 */
+    private String status;
+
 
 }
