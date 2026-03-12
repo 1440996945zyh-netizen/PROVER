@@ -87,7 +87,7 @@
             PROJECT_CONTENT      = #{projectContent},
             UNIT                 = #{unit},
             AMOUNT_EXCLUDING_TAX = #{amountExcludingTax},
-            UPDATE_BY            = #{updateBy},
+            UPDATE_BY            = #{loginUserId},
             UPDATE_TIME          = #{now}
         WHERE ID = #{id}
     </update>
