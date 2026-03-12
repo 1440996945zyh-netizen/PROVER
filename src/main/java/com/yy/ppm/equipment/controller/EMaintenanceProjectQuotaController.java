@@ -9,15 +9,10 @@ import com.yy.common.page.Pages;
 import com.yy.framework.annotation.Log;
 import com.yy.ppm.equipment.bean.dto.EMaintenanceProjectQuotaDTO;
 import com.yy.ppm.equipment.service.EMaintenanceProjectQuotaService;
-
 import jakarta.annotation.Resource;
-
-
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-
-import java.util.HashMap;
 import java.util.Map;
 /**
  * 维修定额项目Controller
@@ -35,7 +30,7 @@ public class EMaintenanceProjectQuotaController {
 
     /**
      * 查询维修定额项目列表（分页）
-     * 前端示例：/getList?startPage=1&pageSize=20&projectName=xxx&quotaCode=xxx
+     * 前端请求示例：getList?startPage=1&pageSize=20&projectName=xxx&quotaNo=xxx
      */
     @GetMapping("/getList")
     @PreAuthorize("hasAuthority('equipment:emmaintenanceprojectquota:query')")
@@ -66,7 +61,7 @@ public class EMaintenanceProjectQuotaController {
 
     /**
      * 新增维修定额项目
-     * 说明：定额编号 quotaCode 由后端自动生成（DE-YYYY-MM-DD-0001）
+     * 说明：定额编号 quotaNo 由后端自动生成（DE-YYYY-MM-DD-0001）
      */
     @PostMapping("/add")
     @Log(title = "新增维修定额项目", value = OperateTypeEnum.INSERT)
@@ -83,7 +78,6 @@ public class EMaintenanceProjectQuotaController {
 
     /**
      * 修改维修定额项目
-     * 说明：必须携带id；更新人/更新时间由 @Edit 自动填充
      */
     @PutMapping("/update")
     @Log(title = "修改维修定额项目", value = OperateTypeEnum.UPDATE)

@@ -31,27 +31,18 @@ import java.util.Date;
 @Service
 public class EMaintenanceProjectQuotaServiceImpl implements EMaintenanceProjectQuotaService {
 
-    /** Mapper（MyBatis） */
     @Resource
     private EMaintenanceProjectQuotaMapper mapper;
 
-    /** 雪花算法：生成主键ID */
     @Resource
     private Snowflake snowflake;
 
-    /**
-     * 查询列表（分页）
-     * 注意：PageHelperUtils.limit 要求 Supplier<Page<T>>，所以 Mapper 的 selectList 必须返回 Page
-     */
     @Override
     public Pages<EMaintenanceProjectQuotaDTO> list(EMaintenanceProjectQuotaDTO searchDTO, PageParameter parameter) {
         EMaintenanceProjectQuotaDTO dto = (searchDTO == null) ? new EMaintenanceProjectQuotaDTO() : searchDTO;
         return PageHelperUtils.limit(parameter, () -> mapper.selectList(dto));
     }
 
-    /**
-     * 根据ID查询
-     */
     @Override
     public EMaintenanceProjectQuotaDTO get(Long id) {
         if (id == null) {
@@ -60,45 +51,36 @@ public class EMaintenanceProjectQuotaServiceImpl implements EMaintenanceProjectQ
         return mapper.selectById(id);
     }
 
-    /**
-     * 新增：生成主键ID + 自动生成 quotaCode
-     */
     @Override
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
-    public int add(EMaintenanceProjectQuotaDTO quota) {
-        if (quota == null) {
+    public void add(EMaintenanceProjectQuotaDTO dto) {
+        if (dto == null) {
             throw new BusinessRuntimeException("参数不能为空");
         }
-        if (quota.getId() == null) {
-            quota.setId(snowflake.nextId());
+        if (dto.getId() == null) {
+            dto.setId(snowflake.nextId());
         }
-
-        quota.setQuotaCode(generateCode());
-        return mapper.add(quota);
+        // 由后端自动生成定额编号
+        dto.setQuotaCode(generateCode());
+        mapper.add(dto);
     }
 
-    /**
-     * 修改
-     */
     @Override
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
-    public int update(EMaintenanceProjectQuotaDTO quota) {
-        if (quota == null || quota.getId() == null) {
+    public void update(EMaintenanceProjectQuotaDTO dto) {
+        if (dto == null || dto.getId() == null) {
             throw new BusinessRuntimeException("id不能为空");
         }
-        return mapper.update(quota);
+        mapper.update(dto);
     }
 
-    /**
-     * 删除（物理删除）
-     */
     @Override
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
-    public int delete(Long id) {
+    public void delete(Long id) {
         if (id == null) {
             throw new BusinessRuntimeException("id不能为空");
         }
-        return mapper.delete(id);
+        mapper.delete(id);
     }
 
     /**
@@ -111,7 +93,6 @@ public class EMaintenanceProjectQuotaServiceImpl implements EMaintenanceProjectQ
         String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
         // 2）查询数据库中“当天最大定额编号”
-        //    例如返回：DE-2026-03-12-0008；若当天无记录则可能返回 null
         String maxCode = mapper.selectMaxCodeToday();
 
         // 3）默认序号从 1 开始（对应 0001）
@@ -120,26 +101,24 @@ public class EMaintenanceProjectQuotaServiceImpl implements EMaintenanceProjectQ
         // 4）如果能查到当天最大编号，则尝试解析其末尾序号并 +1
         if (maxCode != null && !maxCode.isBlank()) {
 
-            // 找到最后一个 '-' 的位置（用于截取末尾四位序号）
+            // 找到最后一个 '-' 的位置
             int idx = maxCode.lastIndexOf('-');
 
             // idx 必须合法：不能为 -1，且不能是字符串最后一位
             if (idx > -1 && idx < maxCode.length() - 1) {
 
-                // 截取最后一段序号字符串
+                // 截取最后一段序号字符串，例如 "0008"
                 String seqStr = maxCode.substring(idx + 1);
-
                 try {
                     // 解析为数字并 +1
                     number = Integer.parseInt(seqStr) + 1;
                 } catch (NumberFormatException ignore) {
-                    // 若解析失败（例如末尾不是纯数字），则回退到 1（即 0001）
+                    // 若解析失败（例如末尾不是纯数字），则回退到 1
                     number = 1;
                 }
             }
         }
-
-        // 5）拼装最终编号：DE-2026-03-12-0001（序号固定4位，不足补0）
+        // 5）拼装最终编号：DE-2026-03-12-0009
         return "DE-" + date + "-" + String.format("%04d", number);
     }
 }
