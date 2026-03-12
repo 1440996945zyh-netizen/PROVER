@@ -25,13 +25,13 @@
     UPDATE_TIME
     FROM E_IC_MAINT_PROJ_APPLY
     WHERE 1 = 1
-    <if test="externalCompanyCode != null and externalCompanyCode != ''">
-        <bind name="externalCompanyCodeLike" value="'%'+externalCompanyCode+'%'"/>
-        and EXTERNAL_COMPANY_CODE like #{externalCompanyCodeLike}
+    <if test="usingDeptName != null and usingDeptName != ''">
+        <bind name="usingDeptName" value="'%'+usingDeptName+'%'"/>
+        and USING_DEPT_NAME like #{usingDeptName}
     </if>
-    <if test="unitName != null and unitName != ''">
-        <bind name="unitNameLike" value="'%'+unitName+'%'"/>
-        and UNIT_NAME like #{unitNameLike}
+    <if test="equipName != null and equipName != ''">
+        <bind name="equipName" value="'%'+equipName+'%'"/>
+        and EQUIP_NAME like #{equipName}
     </if>
     order by
     CREATED_TIME DESC
