@@ -1,73 +1,111 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+  维修定额项目 Mapper XML
+  对应表：E_IC_TENANCE_PROJECT_QUOTA
+-->
 <mapper namespace="com.yy.ppm.equipment.mapper.EMaintenanceProjectQuotaMapper">
-    <!-- 查询列表（支持按定额编号、维修项目名称模糊筛选） -->
+
+    <!-- 查询列表（分页） -->
     <select id="selectList"
             parameterType="com.yy.ppm.equipment.bean.dto.EMaintenanceProjectQuotaDTO"
             resultType="com.yy.ppm.equipment.bean.dto.EMaintenanceProjectQuotaDTO">
         SELECT
-        t.ID AS id,
-        t.QUOTA_CODE AS quotaCode,
-        t.PROJECT_NAME AS projectName,
-        t.PROJECT_CONTENT AS projectContent,
-        t.UNIT AS unit,
-        t.AMOUNT_EXCLUDING_TAX AS amount,
-        t.CREATE_TIME AS createTime,
-        t.UPDATE_TIME AS updateTime
+        t.ID                   AS id,
+        t.QUOTA_CODE           AS quotaCode,
+        t.PROJECT_NAME         AS projectName,
+        t.PROJECT_CONTENT      AS projectContent,
+        t.UNIT                 AS unit,
+        t.AMOUNT_EXCLUDING_TAX AS amountExcludingTax,
+        t.CREATE_BY            AS createBy,
+        t.CREATE_TIME          AS createTime,
+        t.UPDATE_BY            AS updateBy,
+        t.UPDATE_TIME          AS updateTime
         FROM E_IC_TENANCE_PROJECT_QUOTA t
-        WHERE 1=1
+        WHERE 1 = 1
+
         <if test="quotaCode != null and quotaCode != ''">
-            AND t.QUOTA_CODE LIKE '%' || #{quotaCode} || '%'
+            <bind name="qcLike" value="'%' + quotaCode + '%'"/>
+            AND t.QUOTA_CODE LIKE #{qcLike}
         </if>
+
         <if test="projectName != null and projectName != ''">
-            AND t.PROJECT_NAME LIKE '%' || #{projectName} || '%'
+            <bind name="pnLike" value="'%' + projectName + '%'"/>
+            AND t.PROJECT_NAME LIKE #{pnLike}
         </if>
+
         ORDER BY t.CREATE_TIME DESC, t.ID DESC
     </select>
-    <!-- 根据ID查询详情 -->
+
+    <!-- 根据ID查询 -->
     <select id="selectById" resultType="com.yy.ppm.equipment.bean.dto.EMaintenanceProjectQuotaDTO">
         SELECT
-            t.ID AS id,
-            t.QUOTA_CODE AS quotaCode,
-            t.PROJECT_NAME AS projectName,
-            t.PROJECT_CONTENT AS projectContent,
-            t.UNIT AS unit,
-            t.AMOUNT_EXCLUDING_TAX AS amount,
-            t.CREATE_TIME AS createTime,
-            t.UPDATE_TIME AS updateTime
+            t.ID                   AS id,
+            t.QUOTA_CODE           AS quotaCode,
+            t.PROJECT_NAME         AS projectName,
+            t.PROJECT_CONTENT      AS projectContent,
+            t.UNIT                 AS unit,
+            t.AMOUNT_EXCLUDING_TAX AS amountExcludingTax,
+            t.CREATE_BY            AS createBy,
+            t.CREATE_TIME          AS createTime,
+            t.UPDATE_BY            AS updateBy,
+            t.UPDATE_TIME          AS updateTime
         FROM E_IC_TENANCE_PROJECT_QUOTA t
         WHERE t.ID = #{id}
     </select>
-    <!-- 新增：金额写入 AMOUNT_EXCLUDING_TAX；创建/更新人时间由 @Edit 注入 loginUserId/now -->
-    <insert id="insert">
+
+    <!-- 新增 -->
+    <insert id="add">
         INSERT INTO E_IC_TENANCE_PROJECT_QUOTA (
-            ID, QUOTA_CODE, PROJECT_NAME, PROJECT_CONTENT, UNIT, AMOUNT_EXCLUDING_TAX,
-            CREATE_BY, CREATE_TIME, UPDATE_BY, UPDATE_TIME
+            ID,
+            QUOTA_CODE,
+            PROJECT_NAME,
+            PROJECT_CONTENT,
+            UNIT,
+            AMOUNT_EXCLUDING_TAX,
+            CREATE_BY,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_TIME
         ) VALUES (
-                     #{id}, #{quotaCode}, #{projectName}, #{projectContent}, #{unit}, #{amount},
-                     #{loginUserId}, #{now}, #{loginUserId}, #{now}
+                     #{id},
+                     #{quotaCode},
+                     #{projectName},
+                     #{projectContent},
+                     #{unit},
+                     #{amountExcludingTax},
+                     #{loginUserId},
+                     #{now},
+                     #{loginUserId},
+                     #{now}
                  )
     </insert>
-    <!-- 修改：金额更新 AMOUNT_EXCLUDING_TAX；更新人时间由 @Edit 注入 loginUserId/now -->
+
+    <!-- 修改 -->
     <update id="update">
         UPDATE E_IC_TENANCE_PROJECT_QUOTA
         SET
-            PROJECT_NAME = #{projectName},
-            PROJECT_CONTENT = #{projectContent},
-            UNIT = #{unit},
-            AMOUNT_EXCLUDING_TAX = #{amount},
-            UPDATE_BY = #{loginUserId},
-            UPDATE_TIME = #{now}
+            PROJECT_NAME         = #{projectName},
+            PROJECT_CONTENT      = #{projectContent},
+            UNIT                 = #{unit},
+            AMOUNT_EXCLUDING_TAX = #{amountExcludingTax},
+            UPDATE_BY            = #{loginUserId},
+            UPDATE_TIME          = #{now}
         WHERE ID = #{id}
     </update>
-    <!-- 删除（物理删除） -->
+
+    <!-- 删除 -->
     <delete id="delete">
-        DELETE FROM E_IC_TENANCE_PROJECT_QUOTA WHERE ID = #{id}
+        DELETE FROM E_IC_TENANCE_PROJECT_QUOTA
+        WHERE ID = #{id}
     </delete>
-    <!-- Oracle：查询当天最大定额编号（用于生成下一条 DE-YYYY-MM-DD-0001） -->
+
+    <!-- 查询当天最大定额编号 -->
     <select id="selectMaxCodeToday" resultType="java.lang.String">
         SELECT MAX(t.QUOTA_CODE)
         FROM E_IC_TENANCE_PROJECT_QUOTA t
         WHERE t.QUOTA_CODE LIKE ('DE-' || TO_CHAR(SYSDATE, 'YYYY-MM-DD') || '-%')
     </select>
+
 </mapper>

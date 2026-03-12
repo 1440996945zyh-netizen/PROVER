@@ -7,64 +7,62 @@ import java.math.BigDecimal;
 
 /**
  * 维修定额项目 DTO
- * 1) 对应表：E_IC_TENANCE_PROJECT_QUOTA
- * 2) 兼容前端字段命名差异：
- *    - 定额编号：quotaCode / quotaNo
- *    - 不含税金额：amountExcludingTax / amount
- *    setter 内做同步，避免出现“入库有值但返回字段为空”的问题
  */
 public class EMaintenanceProjectQuotaDTO extends BasePO implements Serializable {
+
     private static final long serialVersionUID = 1L;
-    /** 主键ID */
+
+    /** 主键ID（对应表字段 ID） */
     private Long id;
-    /** 定额编号（推荐字段，对应 QUOTA_CODE） */
+
+    /** 定额编号（系统生成：DE-YYYY-MM-DD-0001，对应表字段 QUOTA_CODE） */
     private String quotaCode;
-    /** 定额编号（兼容字段：部分前端表格列可能绑定 quotaNo） */
-    private String quotaNo;
-    /** 维修项目名称 */
+
+    /** 维修项目名称（对应表字段 PROJECT_NAME） */
     private String projectName;
-    /** 维修项目内容 */
+
+    /** 维修项目内容（对应表字段 PROJECT_CONTENT） */
     private String projectContent;
-    /** 计量单位 */
+
+    /** 计量单位（对应表字段 UNIT） */
     private String unit;
-    /** 不含税金额（推荐字段，对应 AMOUNT_EXCLUDING_TAX） */
+
+    /** 不含税金额（对应表字段 AMOUNT_EXCLUDING_TAX） */
     private BigDecimal amountExcludingTax;
-    /** 不含税金额（兼容字段：部分前端表格列可能绑定 amount） */
-    private BigDecimal amount;
+
+    /** 获取主键ID */
     public Long getId() { return id; }
+
+    /** 设置主键ID */
     public void setId(Long id) { this.id = id; }
+
+    /** 获取定额编号 */
     public String getQuotaCode() { return quotaCode; }
-    public void setQuotaCode(String quotaCode) {
-        this.quotaCode = quotaCode;
-        if (this.quotaNo == null || this.quotaNo.isBlank()) {
-            this.quotaNo = quotaCode;
-        }
-    }
-    public String getQuotaNo() { return quotaNo; }
-    public void setQuotaNo(String quotaNo) {
-        this.quotaNo = quotaNo;
-        if (this.quotaCode == null || this.quotaCode.isBlank()) {
-            this.quotaCode = quotaNo;
-        }
-    }
+
+    /** 设置定额编号 */
+    public void setQuotaCode(String quotaCode) { this.quotaCode = quotaCode; }
+
+    /** 获取维修项目名称 */
     public String getProjectName() { return projectName; }
+
+    /** 设置维修项目名称 */
     public void setProjectName(String projectName) { this.projectName = projectName; }
+
+    /** 获取维修项目内容 */
     public String getProjectContent() { return projectContent; }
+
+    /** 设置维修项目内容 */
     public void setProjectContent(String projectContent) { this.projectContent = projectContent; }
+
+    /** 获取计量单位 */
     public String getUnit() { return unit; }
+
+    /** 设置计量单位 */
     public void setUnit(String unit) { this.unit = unit; }
+
+    /** 获取不含税金额 */
     public BigDecimal getAmountExcludingTax() { return amountExcludingTax; }
-    public void setAmountExcludingTax(BigDecimal amountExcludingTax) {
-        this.amountExcludingTax = amountExcludingTax;
-        if (this.amount == null) {
-            this.amount = amountExcludingTax;
-        }
-    }
-    public BigDecimal getAmount() { return amount; }
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-        if (this.amountExcludingTax == null) {
-            this.amountExcludingTax = amount;
-        }
-    }
+
+    /** 设置不含税金额 */
+    public void setAmountExcludingTax(BigDecimal amountExcludingTax) { this.amountExcludingTax = amountExcludingTax; }
 }

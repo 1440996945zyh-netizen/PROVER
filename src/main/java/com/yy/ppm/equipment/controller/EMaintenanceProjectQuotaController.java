@@ -27,22 +27,28 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/internal/EMMaintenanceProjectQuota")
 public class EMaintenanceProjectQuotaController {
+
     private static final MicroLogger LOGGER = new MicroLogger(EMaintenanceProjectQuotaController.class);
+
     @Resource
     private EMaintenanceProjectQuotaService service;
+
     /**
      * 查询维修定额项目列表（分页）
-     * 前端请求示例：getList?startPage=1&pageSize=20&projectName=xxx&quotaCode=xxx
+     * 前端示例：/getList?startPage=1&pageSize=20&projectName=xxx&quotaCode=xxx
      */
     @GetMapping("/getList")
     @PreAuthorize("hasAuthority('equipment:emmaintenanceprojectquota:query')")
     public Map<String, Object> getList(EMaintenanceProjectQuotaDTO searchDTO, PageParameter parameter) {
         final String methodName = "EMaintenanceProjectQuotaController:getList";
         LOGGER.enter(methodName + "[start]", "searchDTO:" + searchDTO + ", parameter:" + parameter);
+
         Pages<EMaintenanceProjectQuotaDTO> result = service.list(searchDTO, parameter);
+
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
     }
+
     /**
      * 根据ID查询维修定额项目详情
      */
@@ -51,10 +57,13 @@ public class EMaintenanceProjectQuotaController {
     public Map<String, Object> getById(@RequestParam("id") Long id) {
         final String methodName = "EMaintenanceProjectQuotaController:getById";
         LOGGER.enter(methodName + "[start]", "id:" + id);
-        EMaintenanceProjectQuotaDTO dto = service.getById(id);
+
+        EMaintenanceProjectQuotaDTO result = service.get(id);
+
         LOGGER.exit(methodName + "[end]");
-        return Response.SUCCESS.newBuilder().out("查询成功").toResult(toViewMap(dto));
+        return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
     }
+
     /**
      * 新增维修定额项目
      * 说明：定额编号 quotaCode 由后端自动生成（DE-YYYY-MM-DD-0001）
@@ -65,12 +74,16 @@ public class EMaintenanceProjectQuotaController {
     public Map<String, Object> add(@RequestBody EMaintenanceProjectQuotaDTO dto) {
         final String methodName = "EMaintenanceProjectQuotaController:add";
         LOGGER.enter(methodName + "[start]", "dto:" + dto);
+
         service.add(dto);
+
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("新增成功").toResult();
     }
+
     /**
      * 修改维修定额项目
+     * 说明：必须携带id；更新人/更新时间由 @Edit 自动填充
      */
     @PutMapping("/update")
     @Log(title = "修改维修定额项目", value = OperateTypeEnum.UPDATE)
@@ -78,10 +91,13 @@ public class EMaintenanceProjectQuotaController {
     public Map<String, Object> update(@RequestBody EMaintenanceProjectQuotaDTO dto) {
         final String methodName = "EMaintenanceProjectQuotaController:update";
         LOGGER.enter(methodName + "[start]", "dto:" + dto);
+
         service.update(dto);
+
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("修改成功").toResult();
     }
+
     /**
      * 删除维修定额项目（物理删除）
      */
@@ -91,29 +107,10 @@ public class EMaintenanceProjectQuotaController {
     public Map<String, Object> delete(@RequestParam("id") Long id) {
         final String methodName = "EMaintenanceProjectQuotaController:delete";
         LOGGER.enter(methodName + "[start]", "id:" + id);
+
         service.delete(id);
+
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("删除成功").toResult();
-    }
-    /**
-     * DTO 转 Map（避免 Response.toResult(T) 对 Serializable 的编译限制）
-     * 同时兼容前端可能使用的 quotaNo 字段
-     */
-    private Map<String, Object> toViewMap(EMaintenanceProjectQuotaDTO dto) {
-        Map<String, Object> m = new HashMap<>();
-        if (dto == null) {
-            return m;
-        }
-        m.put("id", dto.getId());
-        m.put("quotaCode", dto.getQuotaCode());
-        m.put("quotaNo", dto.getQuotaCode());
-        m.put("projectName", dto.getProjectName());
-        m.put("projectContent", dto.getProjectContent());
-        m.put("unit", dto.getUnit());
-        m.put("amount", dto.getAmount());
-        m.put("amountExcludingTax", dto.getAmount());
-        m.put("createTime", dto.getCreateTime());
-        m.put("updateTime", dto.getUpdateTime());
-        return m;
     }
 }

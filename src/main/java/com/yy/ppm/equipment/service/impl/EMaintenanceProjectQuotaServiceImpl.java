@@ -11,6 +11,8 @@ import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.github.pagehelper.Page;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
 
@@ -28,69 +30,116 @@ import java.util.Date;
 @RequiredArgsConstructor
 @Service
 public class EMaintenanceProjectQuotaServiceImpl implements EMaintenanceProjectQuotaService {
+
+    /** Mapper（MyBatis） */
     @Resource
     private EMaintenanceProjectQuotaMapper mapper;
+
+    /** 雪花算法：生成主键ID */
     @Resource
     private Snowflake snowflake;
+
+    /**
+     * 查询列表（分页）
+     * 注意：PageHelperUtils.limit 要求 Supplier<Page<T>>，所以 Mapper 的 selectList 必须返回 Page
+     */
     @Override
     public Pages<EMaintenanceProjectQuotaDTO> list(EMaintenanceProjectQuotaDTO searchDTO, PageParameter parameter) {
-        EMaintenanceProjectQuotaDTO dto = (searchDTO == null ? new EMaintenanceProjectQuotaDTO() : searchDTO);
-        return PageHelperUtils.limit(parameter, () -> (Page<EMaintenanceProjectQuotaDTO>) mapper.selectList(dto));
+        EMaintenanceProjectQuotaDTO dto = (searchDTO == null) ? new EMaintenanceProjectQuotaDTO() : searchDTO;
+        return PageHelperUtils.limit(parameter, () -> mapper.selectList(dto));
     }
+
+    /**
+     * 根据ID查询
+     */
     @Override
-    public EMaintenanceProjectQuotaDTO getById(Long id) {
+    public EMaintenanceProjectQuotaDTO get(Long id) {
         if (id == null) {
             throw new BusinessRuntimeException("id不能为空");
         }
         return mapper.selectById(id);
     }
+
+    /**
+     * 新增：生成主键ID + 自动生成 quotaCode
+     */
     @Override
-    public void add(EMaintenanceProjectQuotaDTO dto) {
-        if (dto == null) {
-            throw new BusinessRuntimeException("入参不能为空");
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
+    public int add(EMaintenanceProjectQuotaDTO quota) {
+        if (quota == null) {
+            throw new BusinessRuntimeException("参数不能为空");
         }
-        if (dto.getProjectName() == null || dto.getProjectName().trim().isEmpty()) {
-            throw new BusinessRuntimeException("维修项目名称不能为空");
+        if (quota.getId() == null) {
+            quota.setId(snowflake.nextId());
         }
-        if (dto.getId() == null) {
-            dto.setId(snowflake.nextId());
-        }
-        dto.setQuotaCode(generateCode());
-        mapper.insert(dto);
+
+        quota.setQuotaCode(generateCode());
+        return mapper.add(quota);
     }
+
+    /**
+     * 修改
+     */
     @Override
-    public void update(EMaintenanceProjectQuotaDTO dto) {
-        if (dto == null || dto.getId() == null) {
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
+    public int update(EMaintenanceProjectQuotaDTO quota) {
+        if (quota == null || quota.getId() == null) {
             throw new BusinessRuntimeException("id不能为空");
         }
-        mapper.update(dto);
+        return mapper.update(quota);
     }
+
+    /**
+     * 删除（物理删除）
+     */
     @Override
-    public void delete(Long id) {
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
+    public int delete(Long id) {
         if (id == null) {
             throw new BusinessRuntimeException("id不能为空");
         }
-        mapper.delete(id);
+        return mapper.delete(id);
     }
+
     /**
-     * 生成定额编号：DE-YYYY-MM-DD-0001
-     * 规则：取当天最大编号后四位+1
+     * 自动生成定额编号：DE-YYYY-MM-DD-0001
+     * 规则：查询当天最大 QUOTA_CODE，序号 +1；无则从 0001 开始
      */
     private String generateCode() {
+
+        // 1）获取当天日期字符串
         String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+
+        // 2）查询数据库中“当天最大定额编号”
+        //    例如返回：DE-2026-03-12-0008；若当天无记录则可能返回 null
         String maxCode = mapper.selectMaxCodeToday();
+
+        // 3）默认序号从 1 开始（对应 0001）
         int number = 1;
+
+        // 4）如果能查到当天最大编号，则尝试解析其末尾序号并 +1
         if (maxCode != null && !maxCode.isBlank()) {
+
+            // 找到最后一个 '-' 的位置（用于截取末尾四位序号）
             int idx = maxCode.lastIndexOf('-');
+
+            // idx 必须合法：不能为 -1，且不能是字符串最后一位
             if (idx > -1 && idx < maxCode.length() - 1) {
+
+                // 截取最后一段序号字符串
                 String seqStr = maxCode.substring(idx + 1);
+
                 try {
+                    // 解析为数字并 +1
                     number = Integer.parseInt(seqStr) + 1;
                 } catch (NumberFormatException ignore) {
+                    // 若解析失败（例如末尾不是纯数字），则回退到 1（即 0001）
                     number = 1;
                 }
             }
         }
+
+        // 5）拼装最终编号：DE-2026-03-12-0001（序号固定4位，不足补0）
         return "DE-" + date + "-" + String.format("%04d", number);
     }
 }

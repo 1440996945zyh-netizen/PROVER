@@ -13,24 +13,28 @@ import java.util.List;
  * 功能：列表查询、详情查询、新增、修改、删除
  */
 public interface EMaintenanceProjectQuotaService {
+
     /**
-     * 分页查询
+     * 查询维修定额项目列表（分页）
      */
     Pages<EMaintenanceProjectQuotaDTO> list(EMaintenanceProjectQuotaDTO searchDTO, PageParameter parameter);
+
     /**
-     * 根据ID查询
+     * 根据主键ID查询详情
      */
-    EMaintenanceProjectQuotaDTO getById(Long id);
+    EMaintenanceProjectQuotaDTO get(Long id);
+
     /**
-     * 新增（生成 quotaCode，写入 AMOUNT_EXCLUDING_TAX）
+     * 新增
      */
-    void add(EMaintenanceProjectQuotaDTO dto);
+    int add(EMaintenanceProjectQuotaDTO quota);
+
     /**
-     * 修改
+     * 修改（必须包含 id）
      */
-    void update(EMaintenanceProjectQuotaDTO dto);
+    int update(EMaintenanceProjectQuotaDTO quota);
+
     /**
-     * 删除
+     * 删除（物理删除）
      */
-    void delete(Long id);
-}
+    int delete(Long id);
