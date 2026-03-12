@@ -65,7 +65,7 @@ public class EMaintInfoPO extends BasePO {
     private String maintOrgName;
 
     /** 维修负责人ID */
-    private Long maintLeaderId;
+    private String maintLeaderId;
 
     /** 维修负责人姓名 */
     private String maintLeaderName;

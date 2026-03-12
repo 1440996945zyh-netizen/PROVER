@@ -106,10 +106,48 @@
                 AND m.STATUS = #{status}
             </if>
             <if test="createBy != null or maintLeaderId != null">
-                AND (m.CREATE_BY = #{createBy} OR m.MAINT_LEADER_ID = #{maintLeaderId})
+                AND (m.CREATE_BY = #{createBy}
+                <if test="maintLeaderId != null">
+                    <bind name="maintLeaderIdEq" value="maintLeaderId"/>
+                    <bind name="maintLeaderIdStart" value="maintLeaderId + ',%'"/>
+                    <bind name="maintLeaderIdMiddle" value="'%,' + maintLeaderId + ',%'"/>
+                    <bind name="maintLeaderIdEnd" value="'%,' + maintLeaderId"/>
+                    OR m.MAINT_LEADER_ID = #{maintLeaderIdEq}
+                    OR m.MAINT_LEADER_ID LIKE #{maintLeaderIdStart}
+                    OR m.MAINT_LEADER_ID LIKE #{maintLeaderIdMiddle}
+                    OR m.MAINT_LEADER_ID LIKE #{maintLeaderIdEnd}
+                </if>
+                )
             </if>
         </where>
         ORDER BY m.CREATE_TIME DESC
+    </select>
+
+    <!-- 统计各个状态的数量 -->
+    <select id="selectStatusCount" resultType="java.util.Map">
+        SELECT
+            m.STATUS AS "status",
+            COUNT(1) AS "count"
+        FROM
+            E_MAINT_INFO m
+        <where>
+            m.DEL_FLAG = 0
+            <if test="createBy != null or maintLeaderId != null">
+                AND (m.CREATE_BY = #{createBy}
+                <if test="maintLeaderId != null">
+                    <bind name="maintLeaderIdEq" value="maintLeaderId"/>
+                    <bind name="maintLeaderIdStart" value="maintLeaderId + ',%'"/>
+                    <bind name="maintLeaderIdMiddle" value="'%,' + maintLeaderId + ',%'"/>
+                    <bind name="maintLeaderIdEnd" value="'%,' + maintLeaderId"/>
+                    OR m.MAINT_LEADER_ID = #{maintLeaderIdEq}
+                    OR m.MAINT_LEADER_ID LIKE #{maintLeaderIdStart}
+                    OR m.MAINT_LEADER_ID LIKE #{maintLeaderIdMiddle}
+                    OR m.MAINT_LEADER_ID LIKE #{maintLeaderIdEnd}
+                </if>
+                )
+            </if>
+        </where>
+        GROUP BY m.STATUS
     </select>
 
     <!-- 根据主键查询设备维修派工信息 -->
@@ -267,7 +305,7 @@
             #{dispatchTypeName,jdbcType=VARCHAR},
             #{maintOrgId,jdbcType=NUMERIC},
             #{maintOrgName,jdbcType=VARCHAR},
-            #{maintLeaderId,jdbcType=NUMERIC},
+            #{maintLeaderId,jdbcType=VARCHAR},
             #{maintLeaderName,jdbcType=VARCHAR},
             #{maintLeaderMobile,jdbcType=VARCHAR},
             #{isSpecialJob,jdbcType=VARCHAR},
@@ -341,7 +379,7 @@
                 MAINT_ORG_NAME = #{maintOrgName,jdbcType=VARCHAR},
             </if>
             <if test="maintLeaderId != null">
-                MAINT_LEADER_ID = #{maintLeaderId,jdbcType=NUMERIC},
+                MAINT_LEADER_ID = #{maintLeaderId,jdbcType=VARCHAR},
             </if>
             <if test="maintLeaderName != null">
                 MAINT_LEADER_NAME = #{maintLeaderName,jdbcType=VARCHAR},

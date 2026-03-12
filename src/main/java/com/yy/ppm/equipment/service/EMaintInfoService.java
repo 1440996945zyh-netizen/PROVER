@@ -19,6 +19,9 @@ public interface EMaintInfoService {
     /** 查询设备维修提报信息列表 */
     Pages<EMaintInfoDTO> listReport(EMaintInfoSearchDTO searchDTO);
 
+    /** 统计各个状态的数量 */
+    java.util.Map<String, Object> getStatusCount(EMaintInfoSearchDTO searchDTO);
+
     /** 查询设备维修派工信息列表 */
     Pages<EMaintInfoDTO> listWork(EMaintInfoSearchDTO searchDTO);
 
