@@ -161,6 +161,10 @@ public class BpmApprovalDetailDTO implements Serializable {
          */
         private String signPicUrl;
 
+        /**
+         * 审批签名文件id
+         * */
+        private Long fileId;
     }
 
 }
