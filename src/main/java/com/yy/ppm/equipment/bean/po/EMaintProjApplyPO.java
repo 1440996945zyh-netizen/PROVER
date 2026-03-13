@@ -86,6 +86,8 @@ public class EMaintProjApplyPO extends BasePO implements Serializable {
      * 备注(文本域)
      */
     private String remark;
+    //状态
+    private String status;
 
     /**
      * 创建人
