@@ -1,9 +1,11 @@
 package com.yy.ppm.equipment.bean.po;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.yy.ppm.common.bean.po.BasePO;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -32,9 +34,13 @@ public class EContractInfoPO extends BasePO implements Serializable {
     private BigDecimal contractAmount;
 
     // 合同开始日期
+    @JsonFormat(timezone="GMT+8",pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date startDate;
 
     // 合同截止日期
+    @JsonFormat(timezone="GMT+8",pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date endDate;
 
     // 适用范围(设备ID)，多个以逗号分隔

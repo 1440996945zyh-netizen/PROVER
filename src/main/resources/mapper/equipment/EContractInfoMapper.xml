@@ -49,7 +49,7 @@
         END_DATE,
         APPLY_SCOPE,
         STATUS,
-        CERATED_USER,
+        CREATED_USER,
         CREATED_TIME)
     VALUES
     (
