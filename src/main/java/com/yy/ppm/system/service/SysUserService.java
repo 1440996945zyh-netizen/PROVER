@@ -7,10 +7,7 @@ import com.yy.ppm.system.bean.dto.ProfileDTO;
 import com.yy.ppm.system.bean.dto.SysUserDTO;
 import com.yy.ppm.system.bean.dto.SysUserSearchDTO;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 用户表 系统用户表(UserModule)表服务接口
@@ -113,4 +110,7 @@ public interface SysUserService {
     void validateUserList(Collection<Long> ids);
 
 
+    void validPostList(Set<String> postKeys);
+
+    Set<Long> getUserIdListByPostKeys(Set<String> postKeys);
 }
