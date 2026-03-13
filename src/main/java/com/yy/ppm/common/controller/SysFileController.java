@@ -274,7 +274,7 @@ public class SysFileController {
      */
     @GetMapping("/getBusFiles")
     public Map<String, Object> getBusFiles(
-                                       @RequestParam(required = false, value = "businessId") Long businessId,
+                                       @RequestParam(required = false, value = "businessId") String businessId,
                                        @RequestParam(required = false, value = "businessType") String businessType) {
         final String methodName = "MinioController:getBusfiles";
         LOGGER.enter(methodName, "业务执行");
