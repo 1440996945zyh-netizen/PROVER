@@ -70,7 +70,8 @@
     <select id="queryUnitName" resultType="com.yy.ppm.equipment.bean.dto.EMEquipRepairContractDTO">
         SELECT
         ID,
-        UNIT_NAME
+        UNIT_NAME,
+        EXTERNAL_COMPANY_ID
         FROM E_M_EQUIP_REPAIR_CONTRACT
         where
             deleted = 0
