@@ -29,6 +29,9 @@
             <bind name="pnLike" value="'%' + projectName + '%'" />
             AND t.PROJECT_NAME LIKE #{pnLike}
         </if>
+        <if test="status != null and status != ''">
+            AND t.STATUS =#{status}
+        </if>
         ORDER BY t.CREATE_TIME DESC, t.ID DESC
     </select>
 
