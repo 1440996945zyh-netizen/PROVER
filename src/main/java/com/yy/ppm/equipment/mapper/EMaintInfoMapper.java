@@ -88,5 +88,7 @@ public interface EMaintInfoMapper {
      * @return : com.yy.ppm.equipment.bean.dto.MaintProjApplyDTO
      */
     EMaintProjApplyDTO getMaintProjApplyByAppNumber(@Param("appNumber")String appNumber);
+
+    int getCount(String mantAppNumber);
 }
 

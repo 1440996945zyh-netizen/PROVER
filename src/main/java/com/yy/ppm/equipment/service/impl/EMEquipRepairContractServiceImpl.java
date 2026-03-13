@@ -70,6 +70,10 @@ public class EMEquipRepairContractServiceImpl implements EMEquipRepairContractSe
         if (id == null) {
             throw new BusinessRuntimeException("请选择一条数据删除");
         }
+        int count =mapper.getUser( id);
+        if (count >0) {
+            throw new BusinessRuntimeException("已有维修人员，不可删除");
+        }
         mapper.deleteById(id);
     }
 

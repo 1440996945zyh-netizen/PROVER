@@ -18,14 +18,6 @@
     FROM E_COST_CONTRACT_INFO
     where
     1 = 1
-    <if test="externalCompanyCode != null and externalCompanyCode != ''">
-        <bind name="externalCompanyCodeLike" value="'%'+externalCompanyCode+'%'"/>
-        and EXTERNAL_COMPANY_CODE like #{externalCompanyCodeLike}
-    </if>
-    <if test="unitName != null and unitName != ''">
-        <bind name="unitNameLike" value="'%'+unitName+'%'"/>
-        and UNIT_NAME like #{unitNameLike}
-    </if>
     order by
     CREATED_TIME DESC
 </select>

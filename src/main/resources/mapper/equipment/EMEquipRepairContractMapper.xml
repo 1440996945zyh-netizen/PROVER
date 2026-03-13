@@ -176,5 +176,11 @@
           AND OUT_TYPE = #{outType, jdbcType=VARCHAR}
         ORDER BY CREATED_TIME DESC
     </select>
+    <select id="getUser" resultType="java.lang.Integer">
+        SELECT
+        count(ID)
+        FROM E_M_EQUIP_REPAIR_USER
+        WHERE REPAIR_CONTARCT_ID = #{id}
+    </select>
 </mapper>
 

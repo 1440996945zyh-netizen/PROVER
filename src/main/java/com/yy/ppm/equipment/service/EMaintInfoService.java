@@ -69,4 +69,6 @@ public interface EMaintInfoService {
      * 根据申请单号查询维修项目申请表获取维修单位
      */
     EMaintProjApplyDTO getMaintProjApplyByAppNumber(String appNumber);
+
+    int number(String  mantAppNumber);
 }

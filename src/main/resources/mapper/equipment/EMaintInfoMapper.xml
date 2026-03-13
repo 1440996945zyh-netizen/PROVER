@@ -540,4 +540,9 @@
         FROM E_IC_MAINT_PROJ_APPLY
         WHERE APP_NUMBER = #{appNumber}
     </select>
+    <select id="getCount" resultType="java.lang.Integer">
+        SELECT COUNT(id)
+        FROM E_MAINT_INFO
+        WHERE  MANT_APP_NUMBER =#{mantAppNumber}
+    </select>
 </mapper>

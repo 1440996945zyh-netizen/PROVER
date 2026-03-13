@@ -2,10 +2,13 @@ package com.yy.ppm.equipment.service.impl;
 
 
 import cn.hutool.core.lang.Snowflake;
+import com.yy.common.flowable.enums.ApprovalStatusEnum;
 import com.yy.common.page.PageParameter;
 import com.yy.common.page.Pages;
 import com.yy.common.util.PageHelperUtils;
 import com.yy.framework.exception.BusinessRuntimeException;
+import com.yy.ppm.common.enums.SerialNumberPrefixEnum;
+import com.yy.ppm.common.service.impl.CommonServiceImpl;
 import com.yy.ppm.equipment.bean.dto.EMEquipRepairContractDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintProjApplyDTO;
 import com.yy.ppm.equipment.bean.dto.MEquipmentInfoDTO;
@@ -33,6 +36,11 @@ public class EMaintProjApplyServiceImpl implements EMaintProjApplyService {
     @Resource
     private Snowflake snowflake;
 
+    @Autowired
+    CommonServiceImpl commonService;
+    @Autowired
+    EMaintInfoServiceImpl eMaintInfoServiceImpl;
+
     @Override
     public Pages<EMaintProjApplyDTO> getList(EMaintProjApplyDTO searchDTO, PageParameter parameter) {
         Pages<EMaintProjApplyDTO> pages = PageHelperUtils.limit(parameter, () -> {
@@ -54,6 +62,9 @@ public class EMaintProjApplyServiceImpl implements EMaintProjApplyService {
     public void save(EMaintProjApplyDTO po) {
 
         po.setId(snowflake.nextId());
+        // 自动生成采购单号
+        String appNumber = commonService.generateSerialNumber(SerialNumberPrefixEnum.PROJ_APPLY);
+        po.setAppNumber(appNumber);
 
         mapper.insert(po);
         po.getList().forEach(item -> {
@@ -69,8 +80,16 @@ public class EMaintProjApplyServiceImpl implements EMaintProjApplyService {
         if (id == null) {
             throw new BusinessRuntimeException("请选择一条数据删除");
         }
-        mapper.deleteById(id);
-        mapper.deleteApplyQuata(id);
+        EMaintProjApplyDTO eMaintProjApplyDTO = new EMaintProjApplyDTO();
+        eMaintProjApplyDTO.setId( id);
+        EMaintProjApplyDTO byId = mapper.getById(eMaintProjApplyDTO);
+       int num = eMaintInfoServiceImpl.number(byId.getAppNumber());
+       if(num>0){
+           throw new BusinessRuntimeException("已派工,不可删除");
+       }
+
+        mapper.deleteById(id, ApprovalStatusEnum.FIVE.code());
+
     }
 
 }

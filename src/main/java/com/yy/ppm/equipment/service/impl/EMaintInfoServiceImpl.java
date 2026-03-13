@@ -926,6 +926,18 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
     }
 
     /**
+     * 根据维修项目申请id查询派工单
+     *
+     * @return 根据维修项目申请id查询派工单
+     */
+
+    @Override
+    public int number(String mantAppNumber) {
+       int count=  mapper.getCount(mantAppNumber);
+        return count;
+    }
+
+    /**
      * 生成工单号：PPM + 时间戳 + 随机6位数字
      *
      * @return 工单号

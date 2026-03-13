@@ -6,24 +6,27 @@
 
 <select id="getList" resultType="com.yy.ppm.equipment.bean.dto.EMaintProjApplyDTO">
     SELECT
-    ID,
-    USING_DEPT_ID,
-    USING_DEPT_NAME,
-    EQUIP_TYPE_ID,
-    EQUIP_ID,
-    EQUIP_NAME,
-    APP_NUMBER,
-    APP_TYPE,
-    APP_CONTENT,
-    MAINTENANCE_UNIT_ID,
-    MAINTENANCE_UNIT_NAME,
-    BUDGET_AMOUNT,
-    REMARK,
-    CREATED_USER,
-    CREATED_TIME,
-    UPDATE_USER,
-    UPDATE_TIME
-    FROM E_IC_MAINT_PROJ_APPLY
+    t1.ID,
+    t1.USING_DEPT_ID,
+    t1.USING_DEPT_NAME,
+    t1.EQUIP_TYPE_ID,
+    t1.EQUIP_ID,
+    t1.EQUIP_NAME,
+    t1.APP_NUMBER,
+    t1.APP_TYPE,
+    t1.APP_CONTENT,
+    t1.MAINTENANCE_UNIT_ID,
+    t1.MAINTENANCE_UNIT_NAME,
+    t1.BUDGET_AMOUNT,
+    t1.REMARK,
+    t1.CREATED_USER,
+    t1.CREATED_TIME,
+    t1.UPDATE_USER,
+    t1.UPDATE_TIME,
+    t1.STATUS,
+    t2. DICT_LABEL statusLable
+    FROM E_IC_MAINT_PROJ_APPLY t1
+    LEFT JOIN  M_DICT_DATA t2 ON t2.DICT_VALUE = t1.STATUS  AND t2.DICT_TYPE = 'APPROVAL_STATUS'
     WHERE 1 = 1
     <if test="usingDeptName != null and usingDeptName != ''">
         <bind name="usingDeptName" value="'%'+usingDeptName+'%'"/>
@@ -127,13 +130,11 @@
     </insert>
 
 
-    <!-- 删除 -->
-    <delete id="deleteById" parameterType="java.lang.Long">
-        DELETE FROM
-            E_IC_MAINT_PROJ_APPLY
-        WHERE
-            ID = #{id}
-    </delete>
+    <update id="deleteById">
+        UPDATE E_IC_MAINT_PROJ_APPLY
+        SET STATUS = #{status}
+        WHERE ID = #{id}
+    </update>
     <delete id="deleteApplyQuata">
         DELETE FROM
             E_IC_MAINT_PROJ_APPLY_QUOTA

@@ -16,6 +16,7 @@ public enum ApprovalStatusEnum {
     TWO("2", "审批通过"),
     THREE("3", "审批不通过"),
     FOUR("4", "已办结"),
+    FIVE("5", "作废"),
 
     ;
 

@@ -23,6 +23,7 @@ public class EMaintProjApplyDTO extends EMaintProjApplyPO implements Serializabl
      * 申请单号+维修单位名称拼接字段（APP_NUMBER + 维修单位名称）
      */
     private String appUnitName;
+    private String statusLable;
 
 
     List<EMaintProjApplyQuotaPO> list;

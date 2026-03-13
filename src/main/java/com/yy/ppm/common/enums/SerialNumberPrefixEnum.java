@@ -38,7 +38,12 @@ public enum SerialNumberPrefixEnum {
     /**
      * 盘点
      */
-    STOCK_CHECK("PD", "盘点");
+    STOCK_CHECK("PD", "盘点"),
+
+    /**
+     * 项目维修申请
+     */
+    PROJ_APPLY("XMSQ", "项目维修申请");
 
     /**
      * 前缀代码
