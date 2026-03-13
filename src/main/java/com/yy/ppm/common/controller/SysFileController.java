@@ -1,5 +1,6 @@
 package com.yy.ppm.common.controller;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Snowflake;
 import com.yy.common.enums.Response;
 import com.yy.common.log.MicroLogger;
@@ -9,10 +10,12 @@ import com.yy.common.magic.FileUploadBusinessTypeEnum;
 import com.yy.common.util.str.StringUtil;
 import com.yy.framework.config.MinioConfig;
 import com.yy.framework.exception.BusinessRuntimeException;
+import com.yy.ppm.common.bean.dto.FileRelationDTO;
 import com.yy.ppm.common.bean.dto.SysFileDTO;
 import com.yy.ppm.common.bean.po.SysFilePO;
 import com.yy.ppm.common.service.SysFileService;
 import com.yy.ppm.system.enums.SysEnum;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -449,5 +452,28 @@ public class SysFileController {
         }
         zipOutputStream.flush();
         zipOutputStream.close();
+    }
+
+    /**
+     * 保存文件和业务的关系
+     * @param dto
+     * @return
+     */
+    @PostMapping("/saveFileBusRelation")
+    public Map<String, Object> saveFileBusRelation(@RequestBody FileRelationDTO dto) {
+        final String methodName = "MinioController:saveFileBusRelation";
+        LOGGER.enter(methodName, "业务执行");
+
+        List<Long> fileIds = dto.getFileIds();
+        String businessId = dto.getBusinessId();
+
+        if (CollUtil.isEmpty(fileIds) || StringUtil.isEmpty(businessId)) {
+            throw new BusinessRuntimeException("参数异常~");
+        }
+
+        sysFileService.saveFileBusRelation(fileIds, businessId);
+
+        LOGGER.exit(methodName, StringUtils.EMPTY);
+        return Response.SUCCESS.newBuilder().toResult();
     }
 }

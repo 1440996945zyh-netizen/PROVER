@@ -237,12 +237,6 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
             activities = bpmTaskService.getActivityListByProcessInstanceId(reqVO.getProcessInstanceId());
             List<HistoricTaskInstance> tasks = bpmTaskService.getTaskListByProcessInstanceId(reqVO.getProcessInstanceId(),
                     true);
-//
-//            for (HistoricTaskInstance task : tasks) {
-//                String businessId = task.getTaskDefinitionKey();
-//                List<Long> fileIds = sysFileMapper.selectFileIdListByBusinessId(businessId);
-//
-//            }
             endActivityNodes = getEndActivityNodeList(startUserId, bpmnModel, processDefinitionInfo,
                     historicProcessInstance, processInstanceStatus, activities, tasks);
             runActivityNodes = getRunApproveNodeList(startUserId, bpmnModel, processDefinition, processVariables,
@@ -463,6 +457,14 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         // 为什么不通过 activities 呢？因为，加签场景下，它只存在于 tasks，没有 activities，导致如果遍历 activities 的话，它无法成为一个节点
         List<HistoricTaskInstance> endTasks = filterList(tasks, task -> task.getEndTime() != null);
         List<BpmApprovalDetailDTO.ActivityNode> approvalNodes = convertList(endTasks, task -> {
+
+            //签名文件
+            String businessId = task.getId();
+            List<Long> fileIds = sysFileMapper.selectFileIdListByBusinessId(businessId);
+            Long fileId = null;
+            if(!StringUtil.isEmpty(fileIds)){
+                fileId = fileIds.get(0);
+            }
             FlowElement flowNode = BpmnModelUtils.getFlowElementById(bpmnModel, task.getTaskDefinitionKey());
             BpmApprovalDetailDTO.ActivityNode activityNode = new BpmApprovalDetailDTO.ActivityNode().setId(task.getTaskDefinitionKey()).setName(task.getName())
                     .setNodeType(START_USER_NODE_ID.equals(task.getTaskDefinitionKey())
@@ -473,6 +475,10 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
                     .setCandidateStrategy(BpmnModelUtils.parseCandidateStrategy(flowNode))
                     .setStartTime(task.getCreateTime()).setEndTime(task.getEndTime())
                     .setTasks(singletonList(BpmProcessInstanceConvert.INSTANCE.buildApprovalTaskInfo(task)));
+            //为了赋值fileId
+            BpmApprovalDetailDTO.ActivityNodeTask activityNodeTask = BpmProcessInstanceConvert.INSTANCE.buildApprovalTaskInfo(task);
+            activityNodeTask.setFileId(fileId);
+            activityNode.setTasks(singletonList(activityNodeTask));
             // 如果是取消状态，则跳过
             if (BpmTaskStatusEnum.isCancelStatus(activityNode.getStatus())) {
                 return null;
@@ -941,32 +947,56 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
 
                     // 5.2 解析审批人（指定人、候选角色/岗位）
                     Set<String> approverNameSet = new LinkedHashSet<>(); // 使用 Set 去重
-                    for (Task task : activeTasks) {
-                        // 情况 A：已经有明确的处理人 (Assignee)
-                        if (StrUtil.isNotBlank(task.getAssignee())) {
+                    for (Task task : activeTasks) {  // 使用 flowableTaskService 获取身份链接
+                        List<IdentityLink> links = taskService.getIdentityLinksForTask(task.getId());
+                        Boolean hasRole = Boolean.FALSE;
+                        // 情况 B：没有处理人，查询候选组（角色）或候选用户
+                        if (CollUtil.isNotEmpty(links)) {
+                            for (IdentityLink link : links) {
+                                // 1. 提取候选组 (即角色 ID，Flowable 中 GroupId 通常存角色ID)
+                                if (StrUtil.isNotBlank(link.getGroupId())) {
+                                    // TODO: 这里可能是角色也可能是岗位，目前默认角色
+                                    // 这里默认演示获取角色名称
+                                    SysRoleDTO role = sysRoleService.getById(NumberUtils.parseLong(link.getGroupId()));
+                                    hasRole = Boolean.TRUE;
+                                    if (role != null) {
+                                        approverNameSet.add("角色:" + role.getRoleName());
+                                    }
+                                }
+                            }
+                            // 情况 A：已经有明确的处理人 (Assignee)
+                        }else if(StrUtil.isNotBlank(task.getAssignee()) && hasRole==Boolean.FALSE) {
                             SysUserDTO user = sysUserService.getById(NumberUtils.parseLong(task.getAssignee()));
                             if (user != null) {
                                 approverNameSet.add(user.getUserName());
                             }
                         }
-                        // 情况 B：没有处理人，查询候选组（角色）或候选用户
-                        else {
-                            // 使用 flowableTaskService 获取身份链接
-                            List<IdentityLink> links = taskService.getIdentityLinksForTask(task.getId());
-                            if (CollUtil.isNotEmpty(links)) {
-                                for (IdentityLink link : links) {
-                                    // 1. 提取候选组 (即角色 ID，Flowable 中 GroupId 通常存角色ID)
-                                    if (StrUtil.isNotBlank(link.getGroupId())) {
-                                        // TODO: 这里可能是角色也可能是岗位，目前默认角色
-                                        // 这里默认演示获取角色名称
-                                        SysRoleDTO role = sysRoleService.getById(NumberUtils.parseLong(link.getGroupId()));
-                                        if (role != null) {
-                                            approverNameSet.add("角色:" + role.getRoleName());
-                                        }
-                                    }
-                                }
-                            }
-                        }
+
+//                        // 情况 A：已经有明确的处理人 (Assignee)
+//                        if (StrUtil.isNotBlank(task.getAssignee())) {
+//                            SysUserDTO user = sysUserService.getById(NumberUtils.parseLong(task.getAssignee()));
+//                            if (user != null) {
+//                                approverNameSet.add(user.getUserName());
+//                            }
+//                        }
+//                        // 情况 B：没有处理人，查询候选组（角色）或候选用户
+//                        else {
+//                            // 使用 flowableTaskService 获取身份链接
+//                            List<IdentityLink> links = taskService.getIdentityLinksForTask(task.getId());
+//                            if (CollUtil.isNotEmpty(links)) {
+//                                for (IdentityLink link : links) {
+//                                    // 1. 提取候选组 (即角色 ID，Flowable 中 GroupId 通常存角色ID)
+//                                    if (StrUtil.isNotBlank(link.getGroupId())) {
+//                                        // TODO: 这里可能是角色也可能是岗位，目前默认角色
+//                                        // 这里默认演示获取角色名称
+//                                        SysRoleDTO role = sysRoleService.getById(NumberUtils.parseLong(link.getGroupId()));
+//                                        if (role != null) {
+//                                            approverNameSet.add("角色:" + role.getRoleName());
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
                     }
 
                     // 拼接最终字符串
