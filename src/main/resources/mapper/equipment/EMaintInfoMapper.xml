@@ -130,8 +130,36 @@
             COUNT(1) AS "count"
         FROM
             E_MAINT_INFO m
+        LEFT JOIN E_M_EQPT_INFO e ON m.EQUIP_ID = e.ID AND e.DEL_FLAG = 0
         <where>
             m.DEL_FLAG = 0
+            <if test="equipId != null">
+                AND m.EQUIP_ID = #{equipId}
+            </if>
+            <if test="equipName != null and equipName != ''">
+                <bind name="equipNamePattern" value="'%' + equipName + '%'"/>
+                AND e.EQUIP_NAME LIKE #{equipNamePattern}
+            </if>
+            <if test="equipCode != null and equipCode != ''">
+                <bind name="equipCodePattern" value="'%' + equipCode + '%'"/>
+                AND e.EQUIP_CODE LIKE #{equipCodePattern}
+            </if>
+            <if test="workOrderNo != null and workOrderNo != ''">
+                <bind name="workOrderNoPattern" value="'%' + workOrderNo + '%'"/>
+                AND m.WORK_ORDER_NO LIKE #{workOrderNoPattern}
+            </if>
+            <if test="maintTypeCode != null and maintTypeCode != ''">
+                AND m.MAINT_TYPE_CODE = #{maintTypeCode}
+            </if>
+            <if test="dispatchTypeCode != null and dispatchTypeCode != ''">
+                AND m.DISPATCH_TYPE_CODE = #{dispatchTypeCode}
+            </if>
+            <if test="emergencyLevel != null and emergencyLevel != ''">
+                AND m.EMERGENCY_LEVEL = #{emergencyLevel}
+            </if>
+            <if test="isStopped != null">
+                AND m.IS_STOPPED = #{isStopped}
+            </if>
             <if test="createBy != null or maintLeaderId != null">
                 AND (m.CREATE_BY = #{createBy}
                 <if test="maintLeaderId != null">

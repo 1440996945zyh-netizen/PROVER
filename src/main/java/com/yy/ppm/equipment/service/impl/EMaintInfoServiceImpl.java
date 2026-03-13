@@ -143,10 +143,13 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
         List<Map<String, Object>> list = mapper.selectStatusCount(searchDTO);
 
         Map<String, Object> result = new LinkedHashMap<>();
+        int totalCount = 0;
         int reportCount = 0;
         int dispatchCount = 0;
+        int maintCount = 0;
         int finishCount = 0;
         int acceptCount = 0;
+        int cancelCount = 0;
 
         if (list != null) {
             for (Map<String, Object> map : list) {
@@ -159,23 +162,31 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
                 if (statusObj != null && countObj != null) {
                     int status = Integer.parseInt(statusObj.toString());
                     int count = Integer.parseInt(countObj.toString());
+                    totalCount += count;
                     if (status == 0) {
                         reportCount += count;
                     } else if (status == 1) {
                         dispatchCount += count;
+                    } else if (status == 2) {
+                        maintCount += count;
                     } else if (status == 4) {
                         finishCount += count;
                     } else if (status == 5) {
                         acceptCount += count;
+                    } else if (status == 7) {
+                        cancelCount += count;
                     }
                 }
             }
         }
 
+        result.put("totalCount", totalCount);
         result.put("reportCount", reportCount);
         result.put("dispatchCount", dispatchCount);
+        result.put("maintCount", maintCount);
         result.put("finishCount", finishCount);
         result.put("acceptCount", acceptCount);
+        result.put("cancelCount", cancelCount);
 
         return result;
     }
