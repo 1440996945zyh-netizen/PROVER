@@ -31,4 +31,7 @@ public interface EMEquipRepairContractMapper {
     List<EMEquipRepairContractDTO> getByCompanyIdAndOutType(@Param("useCompanyId") Long useCompanyId, @Param("outType") String outType);
 
     int getUser(Long id);
+
+    EMEquipRepairContractDTO getOutTypeNum();
+
 }

@@ -65,6 +65,21 @@ public class EMEquipRepairContractController {
     }
 
     /**
+     * 根据ID查询维修单位
+     */
+    @GetMapping("/getOutTypeNum")
+    @PreAuthorize("hasAuthority('equipment:emequiprepaircontract:getOutTypeNum')")
+    public Map<String, Object> getOutTypeNum() {
+        final String methodName = "MEquipmentOperationController:getById";
+        LOGGER.enter(methodName + "[start]", "searchDTO:");
+
+        EMEquipRepairContractDTO result = emEquipRepairContractService.getOutTypeNum();
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
+    }
+
+    /**
      * 维修单位名称
      */
     @GetMapping("/queryUnitName")

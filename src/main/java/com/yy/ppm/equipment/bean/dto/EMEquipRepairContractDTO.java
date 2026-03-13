@@ -87,4 +87,12 @@ public class EMEquipRepairContractDTO extends BasePO implements Serializable {
     private String  entityType;
     //1:内部  2:外部
     private String outType;
+
+
+    //总单位数
+    private int unitNameSum;
+    //内部单位数
+    private int inSunm;
+    //外部单位数
+    private int outSum;
 }

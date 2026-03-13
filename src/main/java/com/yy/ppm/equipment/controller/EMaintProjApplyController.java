@@ -77,7 +77,7 @@ public class EMaintProjApplyController {
         eMaintProjApplyService.save(po);
 
         LOGGER.exit(methodName + "[end]");
-        return Response.SUCCESS.newBuilder().out("修改成功").toResult();
+        return Response.SUCCESS.newBuilder().out("新增成功").toResult();
     }
 
 

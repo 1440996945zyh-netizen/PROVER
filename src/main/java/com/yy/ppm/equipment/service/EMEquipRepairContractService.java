@@ -12,6 +12,7 @@ public interface EMEquipRepairContractService {
     Pages<EMEquipRepairContractDTO> getList(EMEquipRepairContractDTO searchDTO, PageParameter parameter);
 
     EMEquipRepairContractDTO getById(EMEquipRepairContractDTO searchDTO);
+    EMEquipRepairContractDTO getOutTypeNum();
     List<EMEquipRepairContractDTO> queryUnitName(EMEquipRepairContractDTO searchDTO);
 
     void save(EMEquipRepairContractDTO po);

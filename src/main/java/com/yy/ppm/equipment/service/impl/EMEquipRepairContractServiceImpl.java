@@ -48,6 +48,12 @@ public class EMEquipRepairContractServiceImpl implements EMEquipRepairContractSe
     }
 
     @Override
+    public EMEquipRepairContractDTO getOutTypeNum() {
+        EMEquipRepairContractDTO po = mapper.getOutTypeNum();
+        return po;
+    }
+
+    @Override
     public List<EMEquipRepairContractDTO> queryUnitName(EMEquipRepairContractDTO searchDTO) {
 
         List<EMEquipRepairContractDTO> list = mapper.queryUnitName(searchDTO);

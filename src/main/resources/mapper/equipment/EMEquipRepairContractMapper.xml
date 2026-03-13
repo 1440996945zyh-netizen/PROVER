@@ -182,5 +182,13 @@
         FROM E_M_EQUIP_REPAIR_USER
         WHERE REPAIR_CONTARCT_ID = #{id}
     </select>
+    <select id="getOutTypeNum" resultType="com.yy.ppm.equipment.bean.dto.EMEquipRepairContractDTO">
+        SELECT
+            COUNT(*) AS unitNameSum,
+            SUM(CASE WHEN OUT_TYPE = '1' THEN 1 ELSE 0 END) AS inSunm ,
+            SUM(CASE WHEN OUT_TYPE = '2' THEN 1 ELSE 0 END) AS outSum
+        FROM E_M_EQUIP_REPAIR_CONTRACT
+        WHERE deleted = 0
+    </select>
 </mapper>
 
