@@ -74,6 +74,21 @@ public class EMaintInfoController {
     }
 
     /**
+     * 查询各状态设备维修信息数量
+     */
+    @GetMapping("/getStatusCount")
+    @PreAuthorize("hasAuthority('equipment:maintInfo:query')")
+    public Map<String, Object> getStatusCount(EMaintInfoSearchDTO searchDTO) {
+        final String methodName = "EMaintInfoController:getStatusCount";
+        LOGGER.enter(methodName + "[start]", "searchDTO:" + searchDTO);
+
+        Map<String, Object> result = service.getStatusCount(searchDTO);
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
+    }
+
+    /**
      * 查询设备维修派工信息列表（分页）
      */
     @GetMapping("/listWork")

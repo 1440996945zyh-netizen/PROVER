@@ -69,6 +69,6 @@ public class EMaintInfoSearchDTO extends PageParameter implements Serializable {
     /**
      * 维修负责人ID（用于权限过滤）
      */
-    private Long maintLeaderId;
+    private String maintLeaderId;
 }
 

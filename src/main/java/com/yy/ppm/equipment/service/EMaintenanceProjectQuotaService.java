@@ -15,27 +15,27 @@ import java.util.List;
 public interface EMaintenanceProjectQuotaService {
 
     /**
-     * 查询维修定额项目列表（分页）
+     * 分页查询
      */
     Pages<EMaintenanceProjectQuotaDTO> list(EMaintenanceProjectQuotaDTO searchDTO, PageParameter parameter);
 
     /**
-     * 根据主键ID查询详情
+     * 根据ID查询
      */
     EMaintenanceProjectQuotaDTO get(Long id);
 
     /**
      * 新增
      */
-    int add(EMaintenanceProjectQuotaDTO quota);
+    void add(EMaintenanceProjectQuotaDTO dto);
 
     /**
-     * 修改（必须包含 id）
+     * 修改
      */
-    int update(EMaintenanceProjectQuotaDTO quota);
+    void update(EMaintenanceProjectQuotaDTO dto);
 
     /**
-     * 删除（物理删除）
+     * 删除
      */
-    int delete(Long id);
+    void delete(Long id);
 }

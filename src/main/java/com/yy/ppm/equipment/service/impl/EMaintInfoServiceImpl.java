@@ -94,7 +94,7 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
             if (!isAdmin && !hasMaintDisRole) {
                 Long loginUserId = securityUtils.getLoginUserId();
                 searchDTO.setCreateBy(loginUserId);
-                searchDTO.setMaintLeaderId(loginUserId);
+                searchDTO.setMaintLeaderId(String.valueOf(loginUserId));
             }
         }
 
@@ -115,11 +115,69 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
             if (!isAdmin && !hasMaintDisRole) {
                 Long loginUserId = securityUtils.getLoginUserId();
                 searchDTO.setCreateBy(loginUserId);
-                searchDTO.setMaintLeaderId(loginUserId);
+                searchDTO.setMaintLeaderId(String.valueOf(loginUserId));
             }
         }
 
         return PageHelperUtils.limit(searchDTO, () -> mapper.selectList(searchDTO));
+    }
+
+    /**
+     * 统计各个状态的数量
+     */
+    @Override
+    public Map<String, Object> getStatusCount(EMaintInfoSearchDTO searchDTO) {
+        // 非派工角色仅能查看自己创建或负责的记录
+        UserInfo userInfo = securityUtils.getUserInfo();
+        if (userInfo != null) {
+            boolean isAdmin = "1".equals(userInfo.getIsSuperadmin());
+            boolean hasMaintDisRole = userInfo.getRoles() != null
+                    && userInfo.getRoles().contains("EQPT_MAINT_DIS");
+            if (!isAdmin && !hasMaintDisRole) {
+                Long loginUserId = securityUtils.getLoginUserId();
+                searchDTO.setCreateBy(loginUserId);
+                searchDTO.setMaintLeaderId(String.valueOf(loginUserId));
+            }
+        }
+
+        List<Map<String, Object>> list = mapper.selectStatusCount(searchDTO);
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        int reportCount = 0;
+        int dispatchCount = 0;
+        int finishCount = 0;
+        int acceptCount = 0;
+
+        if (list != null) {
+            for (Map<String, Object> map : list) {
+                Object statusObj = map.get("status");
+                if (statusObj == null) statusObj = map.get("STATUS");
+
+                Object countObj = map.get("count");
+                if (countObj == null) countObj = map.get("COUNT");
+
+                if (statusObj != null && countObj != null) {
+                    int status = Integer.parseInt(statusObj.toString());
+                    int count = Integer.parseInt(countObj.toString());
+                    if (status == 0) {
+                        reportCount += count;
+                    } else if (status == 1) {
+                        dispatchCount += count;
+                    } else if (status == 4) {
+                        finishCount += count;
+                    } else if (status == 5) {
+                        acceptCount += count;
+                    }
+                }
+            }
+        }
+
+        result.put("reportCount", reportCount);
+        result.put("dispatchCount", dispatchCount);
+        result.put("finishCount", finishCount);
+        result.put("acceptCount", acceptCount);
+
+        return result;
     }
 
     /**

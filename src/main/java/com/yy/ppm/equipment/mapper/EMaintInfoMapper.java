@@ -23,6 +23,11 @@ public interface EMaintInfoMapper {
     Page<EMaintInfoDTO> selectList(EMaintInfoSearchDTO searchDTO);
 
     /**
+     * 统计各个状态的数量
+     */
+    java.util.List<java.util.Map<String, Object>> selectStatusCount(EMaintInfoSearchDTO searchDTO);
+
+    /**
      * 根据ID查询设备维修派工信息
      */
     EMaintInfoDTO selectById(@Param("id") Long id);

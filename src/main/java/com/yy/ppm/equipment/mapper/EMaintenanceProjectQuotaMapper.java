@@ -23,25 +23,25 @@ public interface EMaintenanceProjectQuotaMapper {
     EMaintenanceProjectQuotaDTO selectById(@Param("id") Long id);
 
     /**
-     * 新增（
+     * 新增（@Edit 自动注入 loginUserId/now）
      */
     @Edit
-    int add(EMaintenanceProjectQuotaDTO quota);
+    void add(EMaintenanceProjectQuotaDTO dto);
 
     /**
-     * 修改
+     * 修改（@Edit 自动注入 loginUserId/now）
      */
     @Edit
-    int update(EMaintenanceProjectQuotaDTO quota);
+    void update(EMaintenanceProjectQuotaDTO dto);
 
     /**
-     * 删除
+     * 删除（物理删除）
      */
     @Edit
-    int delete(@Param("id") Long id);
+    void delete(@Param("id") Long id);
 
     /**
-     * 查询当天最大定额编号
+     * 查询当天最大定额编号（用于生成下一条编号）
      */
     String selectMaxCodeToday();
 }
