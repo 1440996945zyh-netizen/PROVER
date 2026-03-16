@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.apache.commons.collections4.CollectionUtils;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -120,5 +120,21 @@ public class EMaintenanceProjectQuotaServiceImpl implements EMaintenanceProjectQ
         if (!"1".equals(dto.getStatus()) && !"0".equals(dto.getStatus())) {
             throw new BusinessRuntimeException("状态值非法");
         }
+    }
+
+    /**
+     * 批量修改状态
+     * 说明：
+     * 1. 必须传入 ids
+     * 2. status 只能是 1（生效）或 0（失效）
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
+    public void updateStatusBatch(EMaintenanceProjectQuotaDTO dto) {
+        if (dto == null || CollectionUtils.isEmpty(dto.getIds())) {
+            throw new BusinessRuntimeException("请选择需要修改状态的数据");
+        }
+        fillAndCheckStatus(dto, false);
+        mapper.updateStatusBatch(dto);
     }
 }

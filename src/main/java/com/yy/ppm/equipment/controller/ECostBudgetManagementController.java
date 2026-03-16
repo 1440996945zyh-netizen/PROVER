@@ -16,17 +16,35 @@ import java.util.Map;
 
 /**
  * 预算管理 Controller
+ *
  * 接口前缀：/api/internal/ECostBudgetManagement
+ *
+ * 提供功能：
+ * 1. 分页查询
+ * 2. 详情查询
+ * 3. 新增
+ * 4. 修改
+ * 5. 删除
  */
 @RestController
 @RequestMapping("/api/internal/ECostBudgetManagement")
 public class ECostBudgetManagementController {
 
+    /**
+     * 控制器日志对象
+     */
     private static final MicroLogger LOGGER = new MicroLogger(ECostBudgetManagementController.class);
 
     @Resource
     private ECostBudgetManagementService service;
 
+    /**
+     * 分页查询预算管理列表
+     *
+     * @param searchDTO 查询条件
+     * @param parameter 分页参数
+     * @return 分页数据
+     */
     @GetMapping("/getList")
     @PreAuthorize("hasAuthority('equipment:ecostbudgetmanagement:query')")
     public Map<String, Object> getList(ECostBudgetManagementDTO searchDTO, PageParameter parameter) {
@@ -39,6 +57,12 @@ public class ECostBudgetManagementController {
         return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
     }
 
+    /**
+     * 根据主键ID查询详情
+     *
+     * @param id 主键ID
+     * @return 详情数据
+     */
     @GetMapping("/getById")
     @PreAuthorize("hasAuthority('equipment:ecostbudgetmanagement:getById')")
     public Map<String, Object> getById(@RequestParam("id") Long id) {
@@ -51,6 +75,12 @@ public class ECostBudgetManagementController {
         return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
     }
 
+    /**
+     * 新增预算管理
+     *
+     * @param dto 请求参数
+     * @return 操作结果
+     */
     @PostMapping("/add")
     @Log(title = "新增预算管理", value = OperateTypeEnum.INSERT)
     @PreAuthorize("hasAuthority('equipment:ecostbudgetmanagement:add')")
@@ -64,6 +94,12 @@ public class ECostBudgetManagementController {
         return Response.SUCCESS.newBuilder().out("新增成功").toResult();
     }
 
+    /**
+     * 修改预算管理
+     *
+     * @param dto 请求参数
+     * @return 操作结果
+     */
     @PutMapping("/update")
     @Log(title = "修改预算管理", value = OperateTypeEnum.UPDATE)
     @PreAuthorize("hasAuthority('equipment:ecostbudgetmanagement:update')")
@@ -77,6 +113,12 @@ public class ECostBudgetManagementController {
         return Response.SUCCESS.newBuilder().out("修改成功").toResult();
     }
 
+    /**
+     * 删除预算管理
+     *
+     * @param id 主键ID
+     * @return 操作结果
+     */
     @DeleteMapping("/delete")
     @Log(title = "删除预算管理", value = OperateTypeEnum.DELETE)
     @PreAuthorize("hasAuthority('equipment:ecostbudgetmanagement:delete')")

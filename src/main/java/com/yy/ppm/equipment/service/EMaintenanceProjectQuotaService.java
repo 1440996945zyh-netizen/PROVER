@@ -38,4 +38,10 @@ public interface EMaintenanceProjectQuotaService {
      * 删除
      */
     void delete(Long id);
+
+    /**
+     * 批量修改状态
+     * @param dto 请求参数，包含 ids 与 status
+     */
+    void updateStatusBatch(EMaintenanceProjectQuotaDTO dto);
 }

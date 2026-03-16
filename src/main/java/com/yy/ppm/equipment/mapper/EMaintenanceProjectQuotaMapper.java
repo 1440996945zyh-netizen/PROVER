@@ -44,4 +44,10 @@ public interface EMaintenanceProjectQuotaMapper {
      * 查询当天最大定额编号（用于生成下一条编号）
      */
     String selectMaxCodeToday();
+
+    /**
+     * 批量修改状态
+     * @param dto 包含 ids 与 status
+     */
+    void updateStatusBatch(EMaintenanceProjectQuotaDTO dto);
 }

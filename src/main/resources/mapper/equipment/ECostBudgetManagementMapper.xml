@@ -18,7 +18,7 @@
         t.UPDATE_TIME AS updateTime
         FROM E_COST_BUDGET_MANAGEMENT t
         LEFT JOIN M_DICT_DATA d
-        ON d.DICT_TYPE = 'RATE_TYPE'
+        ON d.DICT_TYPE = 'EXPENSE_TYPE'
         AND d.DICT_VALUE = t.COST_TYPE
         AND d.STATUS = '1'
         WHERE 1 = 1
@@ -44,7 +44,7 @@
             t.UPDATE_TIME AS updateTime
         FROM E_COST_BUDGET_MANAGEMENT t
                  LEFT JOIN M_DICT_DATA d
-                           ON d.DICT_TYPE = 'RATE_TYPE'
+                           ON d.DICT_TYPE = ''
                                AND d.DICT_VALUE = t.COST_TYPE
                                AND d.STATUS = '1'
         WHERE t.ID = #{id}

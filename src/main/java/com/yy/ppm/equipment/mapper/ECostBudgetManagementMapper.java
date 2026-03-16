@@ -7,28 +7,63 @@ import org.apache.ibatis.annotations.Param;
 
 /**
  * 预算管理 Mapper
+ *
+ * 对应表：E_COST_BUDGET_MANAGEMENT
  */
 public interface ECostBudgetManagementMapper {
 
-    /** 查询列表（分页） */
+    /**
+     * 查询预算管理列表（分页）
+     *
+     * @param searchDTO 查询条件
+     * @return 分页数据
+     */
     Page<ECostBudgetManagementDTO> selectList(ECostBudgetManagementDTO searchDTO);
 
-    /** 根据ID查询 */
+    /**
+     * 根据主键ID查询详情
+     *
+     * @param id 主键ID
+     * @return 详情数据
+     */
     ECostBudgetManagementDTO selectById(@Param("id") Long id);
 
-    /** 新增 */
+    /**
+     * 新增预算管理
+     *
+     * @param dto 请求参数
+     */
     @Edit
     void add(ECostBudgetManagementDTO dto);
 
-    /** 修改 */
+    /**
+     * 修改预算管理
+     *
+     * @param dto 请求参数
+     */
     @Edit
     void update(ECostBudgetManagementDTO dto);
 
-    /** 删除 */
+    /**
+     * 删除预算管理
+     *
+     * @param id 主键ID
+     */
     @Edit
     void delete(@Param("id") Long id);
 
-    /** 同一年份下费用类型是否重复 */
+    /**
+     * 校验同一年份下费用类型是否重复
+     *
+     * 使用场景：
+     * 1. 新增时校验 year + costType 是否已存在
+     * 2. 修改时校验 year + costType 是否与其他记录重复
+     *
+     * @param year 年份
+     * @param costType 费用类型
+     * @param id 当前记录ID，修改时用于排除自己；新增时可传 null
+     * @return 重复数量
+     */
     Long countDuplicate(@Param("year") String year,
                         @Param("costType") String costType,
                         @Param("id") Long id);

@@ -109,4 +109,16 @@
         WHERE t.QUOTA_CODE LIKE ('DE-' || TO_CHAR(SYSDATE, 'YYYY-MM-DD') || '-%')
     </select>
 
+    <!-- 批量修改状态 -->
+    <update id="updateStatusBatch">
+        UPDATE E_IC_TENANCE_PROJECT_QUOTA
+        SET
+        STATUS      = #{status},
+        UPDATE_BY   = #{loginUserId},
+        UPDATE_TIME = #{now}
+        WHERE ID IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
 </mapper>

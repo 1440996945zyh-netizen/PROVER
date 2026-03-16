@@ -9,6 +9,7 @@ import java.util.Date;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * 维修定额项目 DTO
@@ -49,5 +50,6 @@ public class EMaintenanceProjectQuotaDTO extends BasePO implements Serializable 
     /** 状态：1-生效，0-失效 */
     private String status;
 
-
+    /** 批量修改状态时使用的主键ID集合 */
+    private List<Long> ids;
 }

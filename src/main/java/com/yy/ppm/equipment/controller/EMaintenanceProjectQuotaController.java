@@ -107,4 +107,23 @@ public class EMaintenanceProjectQuotaController {
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("删除成功").toResult();
     }
+
+    /**
+     * 批量修改维修定额项目状态
+     * 入参：
+     * 1. ids：选中的维修定额ID集合
+     * 2. status：目标状态，1-生效，0-失效
+     */
+    @PutMapping("/updateStatusBatch")
+    @Log(title = "批量修改维修定额项目状态", value = OperateTypeEnum.UPDATE)
+    @PreAuthorize("hasAuthority('equipment:emmaintenanceprojectquota:update')")
+    public Map<String, Object> updateStatusBatch(@RequestBody EMaintenanceProjectQuotaDTO dto) {
+        final String methodName = "EMaintenanceProjectQuotaController:updateStatusBatch";
+        LOGGER.enter(methodName + "[start]", "dto:" + dto);
+
+        service.updateStatusBatch(dto);
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("状态修改成功").toResult();
+    }
 }
