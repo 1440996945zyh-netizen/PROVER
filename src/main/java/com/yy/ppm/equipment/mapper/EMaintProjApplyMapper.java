@@ -28,4 +28,8 @@ public interface EMaintProjApplyMapper {
     void insertApplyQuata(EMaintProjApplyQuotaPO item);
 
     void deleteApplyQuata(Long id);
+
+    void update(EMaintProjApplyDTO po);
+
+    void deleteApply(Long id);
 }

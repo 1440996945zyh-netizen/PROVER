@@ -16,6 +16,7 @@ public interface EMaintProjApplyService {
     void save(EMaintProjApplyDTO po);
 
     void delete(Long id);
+    void deleteProJect(Long id);
 
 
 }

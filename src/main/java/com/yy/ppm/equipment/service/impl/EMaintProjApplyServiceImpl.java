@@ -60,13 +60,20 @@ public class EMaintProjApplyServiceImpl implements EMaintProjApplyService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void save(EMaintProjApplyDTO po) {
+        if (po.getId() == null) {
+            po.setId(snowflake.nextId());
+            // 自动生成采购单号
+            String appNumber = commonService.generateSerialNumber(SerialNumberPrefixEnum.PROJ_APPLY);
+            po.setAppNumber(appNumber);
 
-        po.setId(snowflake.nextId());
-        // 自动生成采购单号
-        String appNumber = commonService.generateSerialNumber(SerialNumberPrefixEnum.PROJ_APPLY);
-        po.setAppNumber(appNumber);
+            mapper.insert(po);
+        }else {
+            mapper.update(po);
+            mapper.deleteApplyQuata(po.getId());
 
-        mapper.insert(po);
+        }
+
+
         po.getList().forEach(item -> {
             item.setId(snowflake.nextId());
             item.setParentId(po.getId());
@@ -78,17 +85,25 @@ public class EMaintProjApplyServiceImpl implements EMaintProjApplyService {
     @Transactional(rollbackFor = Exception.class)
     public void delete(Long id) {
         if (id == null) {
-            throw new BusinessRuntimeException("请选择一条数据删除");
+            throw new BusinessRuntimeException("请选择一条数据作废");
         }
         EMaintProjApplyDTO eMaintProjApplyDTO = new EMaintProjApplyDTO();
         eMaintProjApplyDTO.setId( id);
         EMaintProjApplyDTO byId = mapper.getById(eMaintProjApplyDTO);
        int num = eMaintInfoServiceImpl.number(byId.getAppNumber());
        if(num>0){
-           throw new BusinessRuntimeException("已派工,不可删除");
+           throw new BusinessRuntimeException("已派工,不可作废");
        }
 
         mapper.deleteById(id, ApprovalStatusEnum.FIVE.code());
+
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteProJect(Long id) {
+        mapper.deleteApplyQuata( id);
+        mapper.deleteApply(id);
 
     }
 

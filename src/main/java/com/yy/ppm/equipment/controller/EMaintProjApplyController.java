@@ -82,16 +82,48 @@ public class EMaintProjApplyController {
 
 
     /**
-     * 删除维修项目申请定额
+     * 修改
+     */
+    @PutMapping("/update")
+    @PreAuthorize("hasAuthority('equipment:emequiprepaircontract:update')")
+    @Log(title = "修改维修项目申请定额", value = OperateTypeEnum.UPDATE)
+    public Map<String, Object> update(@RequestBody EMaintProjApplyDTO po) {
+        final String methodName = "MEquipmentOperationController:add";
+        LOGGER.enter(methodName + "[start]", "po:" + po);
+
+        eMaintProjApplyService.save(po);
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("新增成功").toResult();
+    }
+
+
+    /**
+     * 作废维修项目申请定额
      */
     @DeleteMapping("/delete")
     @PreAuthorize("hasAuthority('equipment:emaintprojapply:delete')")
-    @Log(title = "删除维修项目申请定额", value = OperateTypeEnum.DELETE)
+    @Log(title = "作废维修项目申请定额", value = OperateTypeEnum.DELETE)
     public Map<String, Object> delete(@RequestParam("id") Long id) {
         final String methodName = "MEquipmentOperationController:delete";
         LOGGER.enter(methodName + "[start]", "id:" + id);
 
         eMaintProjApplyService.delete(id);
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("作废成功").toResult();
+    }
+    /**
+     * 删除维修项目申请定额
+     */
+    @DeleteMapping("/deleteProJect")
+    @PreAuthorize("hasAuthority('equipment:emaintprojapply:deleteProJect')")
+    @Log(title = "删除维修项目申请定额", value = OperateTypeEnum.DELETE)
+    public Map<String, Object> deleteProJect(@RequestParam("id") Long id) {
+        final String methodName = "MEquipmentOperationController:delete";
+        LOGGER.enter(methodName + "[start]", "id:" + id);
+
+        eMaintProjApplyService.deleteProJect(id);
 
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("删除成功").toResult();
