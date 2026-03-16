@@ -186,11 +186,12 @@ public class BpmBusinessConfigServiceImpl implements BpmBusinessConfigService {
         BpmProcessDefinitionInfoPO processDefinitionInfo = processDefinitionService
                 .getProcessDefinitionInfo(procDefId);
 
-        processDefinitionInfo.setFieldList(processDefinitionInfo.getFieldKeys());
-
         if (processDefinitionInfo == null) {
             throw new BusinessRuntimeException("流程定义的表单信息不存在");
         }
+
+        processDefinitionInfo.setFieldList(processDefinitionInfo.getFieldKeys());
+
         return processDefinitionInfo;
     }
 }
