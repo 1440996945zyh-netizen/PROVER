@@ -95,7 +95,7 @@ public class EMaintProjApplyServiceImpl implements EMaintProjApplyService {
            throw new BusinessRuntimeException("已派工,不可作废");
        }
 
-        mapper.deleteById(id, ApprovalStatusEnum.FIVE.code());
+        mapper.deleteById(id, "1");
 
     }
 

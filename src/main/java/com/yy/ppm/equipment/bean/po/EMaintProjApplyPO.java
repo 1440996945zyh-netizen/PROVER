@@ -108,5 +108,6 @@ public class EMaintProjApplyPO extends BasePO implements Serializable {
      * 修改时间
      */
     private Date updateTime;
+    private String isSettlement;
 
 }

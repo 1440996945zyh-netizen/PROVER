@@ -25,6 +25,9 @@ public class EMaintProjApplyDTO extends EMaintProjApplyPO implements Serializabl
     private String appUnitName;
     private String statusLable;
 
+    private String processStatus;
+    private String processStatusLable;
+
 
     List<EMaintProjApplyQuotaPO> list;
 }
