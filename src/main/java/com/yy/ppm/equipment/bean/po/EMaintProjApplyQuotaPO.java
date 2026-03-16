@@ -46,6 +46,8 @@ public class EMaintProjApplyQuotaPO extends BasePO implements Serializable {
     // 含税金额
     private BigDecimal amountIncludingTax;
 
+    private int projectNum;
+
     // 创建人
     private Long createdUser;
 

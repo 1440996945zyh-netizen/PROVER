@@ -112,7 +112,8 @@
         TAX_RATE,
         AMOUNT_INCLUDING_TAX,
         CREATED_USER,
-        CREATED_TIME
+        CREATED_TIME,
+        PROJECT_NUM
         ) values
         (#{id,jdbcType=DECIMAL},
          #{parentId},
@@ -124,7 +125,8 @@
           #{taxRate},
           #{amountIncludingTax},
           #{loginUserId},
-          #{now,jdbcType=TIMESTAMP}
+          #{now,jdbcType=TIMESTAMP},
+          #{projectNum}
 
          )
     </insert>
@@ -156,7 +158,8 @@
         CREATED_USER,
         CREATED_TIME,
         UPDATE_USER,
-        UPDATE_TIME
+        UPDATE_TIME,
+        PROJECT_NUM
         FROM E_IC_MAINT_PROJ_APPLY_QUOTA
         WHERE
            PARENT_ID = #{id}
