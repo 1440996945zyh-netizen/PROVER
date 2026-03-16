@@ -18,6 +18,20 @@
     FROM E_COST_CONTRACT_INFO
     where
     1 = 1
+    <if test="contractName != null and contractName != ''">
+        <bind name="contractNameLike" value="'%'+contractName+'%'"/>
+        and CONTRACT_NAME like #{contractNameLike}
+    </if>
+    <if test="contractCode != null and contractCode != ''">
+        <bind name="contractCodeLike" value="'%'+contractCode+'%'"/>
+        and CONTRACT_CODE like #{contractCodeLike}
+    </if>
+    <if test="startDate != null">
+        and to_char(START_DATE,'yyyy-MM-dd') >= #{startDate}
+    </if>
+    <if test="endDate != null">
+        and to_char(END_DATE,'yyyy-MM-dd') &lt;= #{endDate}
+    </if>
     order by
     CREATED_TIME DESC
 </select>

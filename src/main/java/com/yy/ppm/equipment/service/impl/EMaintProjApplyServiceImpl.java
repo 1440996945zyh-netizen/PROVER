@@ -17,12 +17,16 @@ import com.yy.ppm.equipment.mapper.EMaintProjApplyMapper;
 import com.yy.ppm.equipment.mapper.MEquipmentInfoMapper;
 import com.yy.ppm.equipment.service.EMEquipRepairContractService;
 import com.yy.ppm.equipment.service.EMaintProjApplyService;
+import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceDTO;
+import com.yy.ppm.flowable.service.BpmProcessInstanceService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static com.yy.common.util.SecurityUtils.getLoginUserId;
 
 @Service
 public class EMaintProjApplyServiceImpl implements EMaintProjApplyService {
@@ -40,6 +44,9 @@ public class EMaintProjApplyServiceImpl implements EMaintProjApplyService {
     CommonServiceImpl commonService;
     @Autowired
     EMaintInfoServiceImpl eMaintInfoServiceImpl;
+
+    @Resource
+    BpmProcessInstanceService bpmProcessInstanceService;
 
     @Override
     public Pages<EMaintProjApplyDTO> getList(EMaintProjApplyDTO searchDTO, PageParameter parameter) {
@@ -105,6 +112,16 @@ public class EMaintProjApplyServiceImpl implements EMaintProjApplyService {
         mapper.deleteApplyQuata( id);
         mapper.deleteApply(id);
 
+    }
+
+
+    /**
+     * 提交发起流程
+     */
+    @Override
+    public void submit(BpmProcessInstanceDTO dto) {
+        // 调用流程实例发起
+        bpmProcessInstanceService.createProcessInstance(getLoginUserId(), dto);
     }
 
 }

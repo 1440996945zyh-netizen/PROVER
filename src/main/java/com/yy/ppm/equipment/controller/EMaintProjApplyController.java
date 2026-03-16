@@ -11,6 +11,7 @@ import com.yy.ppm.equipment.bean.dto.EMEquipRepairContractDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintProjApplyDTO;
 import com.yy.ppm.equipment.service.EMEquipRepairContractService;
 import com.yy.ppm.equipment.service.EMaintProjApplyService;
+import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceDTO;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -127,6 +128,23 @@ public class EMaintProjApplyController {
 
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("删除成功").toResult();
+    }
+
+
+    /**
+     * 提交审批
+     */
+    @PostMapping("/projectApplyStart")
+    @PreAuthorize("hasAuthority('bpm:equipment:controller:projectApplyStart')")
+    @Log(OperateTypeEnum.INSERT)
+    public Map<String, Object> submitConsumables(@RequestBody BpmProcessInstanceDTO dto) {
+        final String methodName = "BpmBusinessConfigController:insert";
+        LOGGER.enter(methodName, "提交业务数据");
+
+        eMaintProjApplyService.submit(dto);
+
+        LOGGER.exit(methodName, "新增BPM业务配置完成");
+        return Response.SUCCESS.newBuilder().out("新增成功").toResult();
     }
 
 }
