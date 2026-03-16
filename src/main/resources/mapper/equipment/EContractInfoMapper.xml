@@ -13,7 +13,8 @@
         START_DATE,
         END_DATE,
         APPLY_SCOPE,
-        STATUS
+        STATUS,
+        CONTRACT_TYPE
 
     FROM E_COST_CONTRACT_INFO
     where
@@ -45,7 +46,8 @@
         START_DATE,
         END_DATE,
         APPLY_SCOPE,
-        STATUS
+        STATUS,
+        CONTRACT_TYPE
 
     FROM E_COST_CONTRACT_INFO
     where
@@ -64,7 +66,8 @@
         APPLY_SCOPE,
         STATUS,
         CREATED_USER,
-        CREATED_TIME)
+        CREATED_TIME,
+        CONTRACT_TYPE)
     VALUES
     (
         #{id},
@@ -76,7 +79,8 @@
         #{applyScope},
         #{status},
         #{loginUserId,jdbcType=DECIMAL},
-        #{now,jdbcType=TIMESTAMP})
+        #{now,jdbcType=TIMESTAMP},
+        #{contractType})
 </insert>
 
 <update id="update">
@@ -89,6 +93,7 @@
         END_DATE = #{endDate},
         APPLY_SCOPE = #{applyScope},
         STATUS = #{status},
+        CONTRACT_TYPE = #{contractType},
         UPDATE_USER = #{loginUserId,jdbcType=DECIMAL},
         UPDATE_TIME = #{now,jdbcType=TIMESTAMP}
         WHERE

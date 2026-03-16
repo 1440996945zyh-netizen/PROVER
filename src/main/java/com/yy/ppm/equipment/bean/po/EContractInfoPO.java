@@ -48,6 +48,7 @@ public class EContractInfoPO extends BasePO implements Serializable {
 
     // 合同状态，默认1(有效)
     private String status;
+    private String contractType;
 
     // 创建人
     private Long createdUser;
