@@ -6,17 +6,19 @@
 
 <select id="getList" resultType="com.yy.ppm.equipment.bean.dto.EContractInfoDTO">
     SELECT
-        ID,
-        CONTRACT_NAME,
-        CONTRACT_CODE,
-        CONTRACT_AMOUNT,
-        START_DATE,
-        END_DATE,
-        APPLY_SCOPE,
-        STATUS,
-        CONTRACT_TYPE
+        t1.ID,
+        t1.CONTRACT_NAME,
+        t1.CONTRACT_CODE,
+        t1.CONTRACT_AMOUNT,
+        t1.START_DATE,
+        t1.END_DATE,
+        t1.APPLY_SCOPE,
+        t1.STATUS,
+        t1.CONTRACT_TYPE,
+        t2.DICT_LABEL contractTypeLable
 
-    FROM E_COST_CONTRACT_INFO
+    FROM E_COST_CONTRACT_INFO t1
+    LEFT JOIN M_DICT_DATA t2 ON t2.DICT_VALUE = t3.INSTANCE_STATUSAND t2.DICT_TYPE = 'CONTRACT_TYPE'
     where
     1 = 1
     <if test="contractName != null and contractName != ''">
@@ -39,19 +41,21 @@
 
 <select id="getById" resultType="com.yy.ppm.equipment.bean.dto.EContractInfoDTO">
     SELECT
-        ID,
-        CONTRACT_NAME,
-        CONTRACT_CODE,
-        CONTRACT_AMOUNT,
-        START_DATE,
-        END_DATE,
-        APPLY_SCOPE,
-        STATUS,
-        CONTRACT_TYPE
+        t1.ID,
+        t1.CONTRACT_NAME,
+        t1.CONTRACT_CODE,
+        t1.CONTRACT_AMOUNT,
+        t1.START_DATE,
+        t1.END_DATE,
+        t1.APPLY_SCOPE,
+        t1.STATUS,
+        t1.CONTRACT_TYPE,
+        t2.DICT_LABEL contractTypeLable
 
-    FROM E_COST_CONTRACT_INFO
+     FROM E_COST_CONTRACT_INFO t1
+     LEFT JOIN M_DICT_DATA t2 ON t2.DICT_VALUE = t3.INSTANCE_STATUSAND t2.DICT_TYPE = 'CONTRACT_TYPE'
     where
-    ID = #{id}
+        t1.ID = #{id}
 </select>
 
     <insert id="insert">
