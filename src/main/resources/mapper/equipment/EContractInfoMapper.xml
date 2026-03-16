@@ -27,10 +27,10 @@
         and CONTRACT_CODE like #{contractCodeLike}
     </if>
     <if test="startDate != null">
-        and to_char(START_DATE,'yyyy-MM-dd') >= #{startDate}
+        AND START_DATE >= #{startDate}
     </if>
     <if test="endDate != null">
-        and to_char(END_DATE,'yyyy-MM-dd') &lt;= #{endDate}
+        and END_DATE &lt;= #{endDate}
     </if>
     order by
     CREATED_TIME DESC
