@@ -192,6 +192,7 @@
         A.status,
         A.data_type,
         A.icon_app,
+        A.MENU_ICON_COLOR as menuIconColor,
         DECODE( A.status, '1', '正常', '停用') as statusLabel,
         nvl(perms,'') as perms,
         A.icon,

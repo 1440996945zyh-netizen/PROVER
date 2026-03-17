@@ -3,6 +3,7 @@ package com.yy.ppm.system.controller;
 import com.yy.common.enums.Response;
 import com.yy.common.log.MicroLogger;
 import com.yy.ppm.system.bean.dto.SysCustomRegionDTO;
+import com.yy.ppm.system.bean.dto.SysMenuDTO;
 import com.yy.ppm.system.service.SysCustomRegionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -46,6 +47,15 @@ public class SysCustomRegionController {
     }
 
     /**
+     * 获取列表（翻页）
+     * @return
+     */
+    @GetMapping("/getListApp")
+    public Map<String, Object> getListApp() {
+        List<SysMenuDTO> pages = sysCustomRegionService.getListApp();
+        return Response.SUCCESS.newBuilder().out("查询成功").toResult(pages);
+    }
+    /**
      * 查询单条记录
      * @param id
      * @return
@@ -79,7 +89,32 @@ public class SysCustomRegionController {
         return Response.SUCCESS.newBuilder().out(flag ? "收藏成功~" : "收藏失败").toResult();
 
     }
+    /**
+     * 新建App快捷菜单
+     * @param sysCustomRegionDTO
+     * @return
+     */
+    @PostMapping("/saveRegion")
+    public Map<String, Object> addApp(@RequestBody SysCustomRegionDTO sysCustomRegionDTO) {
 
+        boolean flag = sysCustomRegionService.doAppSave(sysCustomRegionDTO);
+
+        return Response.SUCCESS.newBuilder().out(flag ? "收藏成功~" : "收藏失败").toResult();
+
+    }
+
+    /**
+     * 删除app快捷菜单
+     * @param
+     * @return
+     */
+    @PostMapping("/delRegion")
+    public Map<String, Object> delRegion(@RequestBody SysCustomRegionDTO sysCustomRegionDTO) {
+
+        boolean flag = sysCustomRegionService.delAppRegion(sysCustomRegionDTO);
+
+        return Response.SUCCESS.newBuilder().out(flag ? "删除成功" : "删除失败").toResult();
+    }
     /**
      * 新建
      * @param list
@@ -97,6 +132,7 @@ public class SysCustomRegionController {
         return Response.SUCCESS.newBuilder().out(flag ? "新增成功" : "新增失败").toResult();
 
     }
+
 
 
     /**

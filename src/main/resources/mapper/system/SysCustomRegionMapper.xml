@@ -4,23 +4,25 @@
 
     <sql id="commonList">
         SELECT
-        ID,
-        USER_ACCOUNT,
-        USER_ID,
-        MENU_NAME,
-        MENU_ID,
-        MENU_ROUTER,
-        SORT_NUM,
-        CREATE_BY,
-        CREATE_BY_NAME,
-        CREATE_TIME,
-        UPDATE_BY,
-        UPDATE_BY_NAME,
-        UPDATE_TIME
+            ID,
+            USER_ACCOUNT,
+            USER_ID,
+            MENU_NAME,
+            MENU_ID,
+            MENU_ROUTER,
+            SORT_NUM,
+            DATA_TYPE,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME
         FROM
-        sys_custom_region
+            sys_custom_region
         where
-        USER_ID = #{loginUserId}
+            USER_ID = #{loginUserId}
+          AND DATA_TYPE = 'PC'
     </sql>
 
     <!--通过实体作为筛选条件查询-->
@@ -37,6 +39,7 @@
         MENU_NAME,
         MENU_ID,
         SORT_NUM,
+        DATA_TYPE,
         CREATE_BY,
         CREATE_BY_NAME,
         CREATE_TIME,
@@ -49,6 +52,49 @@
             id = #{id}
         </where>
     </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="getListApp" resultType="com.yy.ppm.system.bean.dto.SysMenuDTO" parameterType="java.lang.Long">
+        SELECT    A.id                              as menu_id,
+                  A.menu_name,
+                  A.parent_id,
+                  A.order_num,
+                  A.path,
+                  A.component,
+                  A.query,
+                  A.is_frame,
+                  A.is_cache,
+                  A.menu_type,
+                  A.visible,
+                  A.status,
+                  A.data_type,
+                  A.icon_app,
+                  A.MENU_ICON_COLOR as menuIconColor,
+                  DECODE(A.status, '0', '正常', '停用') as statusLabel,
+                  nvl(perms, '')                    as perms,
+                  A.icon,
+                  A.create_time,
+                  A.LINK
+
+        FROM SYS_MENU A,
+             SYS_ROLE_MENU B,
+             SYS_ROLE_USER C,
+             SYS_CUSTOM_REGION D
+        where C.USER_ID = #{loginUserId}
+          AND C.ROLE_ID = B.ROLE_ID
+          AND B.MENU_ID = A.ID
+          AND A.DATA_TYPE = 'APP'
+          AND A.ID = D.MENU_ID
+          AND A.status = 0
+          AND A.ID IN (
+            SELECT MENU_ID
+            FROM sys_custom_region
+            where USER_ID = #{loginUserId}
+              and DATA_TYPE = 'APP'
+        )
+        ORDER BY D.CREATE_TIME ASC
+    </select>
+
     <!-- 新增 -->
     <insert id="insert" parameterType="com.yy.ppm.system.bean.dto.SysCustomRegionDTO">
         INSERT INTO sys_custom_region(
@@ -59,6 +105,7 @@
             MENU_ID,
             MENU_ROUTER,
             SORT_NUM,
+            DATA_TYPE,
             CREATE_BY,
             CREATE_BY_NAME,
             CREATE_TIME
@@ -70,6 +117,7 @@
                     #{menuId, jdbcType=VARCHAR},
                     #{menuRouter, jdbcType=VARCHAR},
                     #{sortNum, jdbcType=VARCHAR},
+                    #{dataType, jdbcType=VARCHAR},
                     #{loginUserId, jdbcType=BIGINT},
                     #{loginUserName, jdbcType=VARCHAR},
                     #{now}
@@ -77,7 +125,6 @@
     </insert>
 
     <insert id="batchInsert" parameterType="java.util.List">
-
         INSERT INTO sys_custom_region(
         ID,
         USER_ACCOUNT,
@@ -86,6 +133,7 @@
         MENU_ID,
         MENU_ROUTER,
         SORT_NUM,
+        DATA_TYPE,
         CREATE_BY,
         CREATE_BY_NAME,
         CREATE_TIME)
@@ -99,6 +147,7 @@
             #{item.menuId, jdbcType=VARCHAR},
             #{item.menuRouter, jdbcType=VARCHAR},
             #{item.sortNum, jdbcType=VARCHAR},
+            #{item.dataType, jdbcType=VARCHAR},
             #{item.createBy, jdbcType=BIGINT},
             #{item.createByName, jdbcType=VARCHAR},
             #{item.createTime}
@@ -118,6 +167,7 @@
         MENU_NAME = #{menuName,jdbcType=VARCHAR},
         MENU_ROUTER = #{menuRouter,jdbcType=VARCHAR},
         SORT_NUM = #{sortNum,jdbcType=VARCHAR},
+        DATA_TYPE = #{item.dataType, jdbcType=VARCHAR},
         UPDATE_BY = #{loginUserId, jdbcType=BIGINT},
         UPDATE_BY_NAME = #{loginUserName, jdbcType=VARCHAR},
         UPDATE_TIME = #{now}
@@ -141,5 +191,14 @@
             USER_ID = #{userId,jdbcType=VARCHAR}
             AND MENU_ID = #{menuId,jdbcType=VARCHAR}
     </delete>
+
+    <select id="getCount" parameterType="com.yy.ppm.system.bean.dto.SysCustomRegionDTO">
+        SELECT COUNT(*)  FROM
+            sys_custom_region
+        WHERE
+            USER_ID = #{userId,jdbcType=VARCHAR}
+          AND MENU_ID = #{menuId,jdbcType=VARCHAR}
+    </select>
+
 </mapper>
 
