@@ -71,6 +71,11 @@ public class SysFileServiceImpl implements SysFileService {
         return sysFileMapper.getBusFiles(businessId, businessType);
     }
 
+    @Override
+    public List<SysFileDTO> getBusFiles(Long businessId, String businessType) {
+        return getBusFiles( String.valueOf(businessId), businessType);
+    }
+
     /**
      * 拷贝文件
      * @param bucketName 源存储桶名称

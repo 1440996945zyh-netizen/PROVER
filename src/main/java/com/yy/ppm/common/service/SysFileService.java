@@ -34,6 +34,7 @@ public interface SysFileService {
      * @return SysFile对象
      */
     List<SysFileDTO> getBusFiles(String businessId, String businessType);
+    List<SysFileDTO> getBusFiles(Long businessId, String businessType);
 
     /**
      * 拷贝文件
