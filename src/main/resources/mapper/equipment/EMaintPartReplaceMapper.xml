@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMaintPartReplaceMapper">
+
+    <!-- 根据维修信息ID查询配件更换列表 -->
+    <select id="selectListByMaintInfoId" resultType="com.yy.ppm.equipment.bean.dto.EMaintPartReplaceDTO">
+        SELECT
+            ID,
+            MAINT_INFO_ID,
+            EQUIP_ID,
+            WAREHOUSE_OUT_NO,
+            WAREHOUSE_OUT_DETAIL_ID,
+            MATERIAL_ID,
+            MATERIAL_NAME,
+            SPECIFICATION_MODEL,
+            UNIT_CODE,
+            UNIT_NAME,
+            APPLICATION_QUANTITY,
+            USED_QUANTITY,
+            APPLICATION_QUANTITY - NVL(USED_QUANTITY, 0) AS UNUSED_QUANTITY,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME
+        FROM
+            E_MAINT_PART_REPLACE
+        WHERE
+            MAINT_INFO_ID = #{maintInfoId}
+        ORDER BY CREATE_TIME ASC
+    </select>
+
+    <!-- 根据设备ID查询可用的出库单和申领单明细（用于配件更换选择） -->
+    <select id="selectAvailableDetailsByEquipId" resultType="com.yy.ppm.equipment.bean.dto.EMaintPartReplaceQueryDTO">
+        SELECT
+            WO.WAREHOUSE_OUT_NO AS warehouseOutNo,
+            OD.ID AS warehouseOutDetailId,
+            OD.MATERIAL_ID AS materialId,
+            OD.MATERIAL_NAME AS materialName,
+            OD.SPECIFICATION_MODEL AS specificationModel,
+            OD.UNIT_CODE AS unitCode,
+            OD.UNIT_NAME AS unitName,
+            NVL(OD.OUT_QUANTITY, 0) AS applicationQuantity,
+            NVL(PR.USED_QUANTITY, 0) AS usedQuantity,
+            (NVL(OD.OUT_QUANTITY, 0) - NVL(PR.USED_QUANTITY, 0)) AS unusedQuantity
+        FROM
+            E_MAT_WAREHOUSE_OUT_DETAIL OD
+        INNER JOIN E_MAT_WAREHOUSE_OUT WO ON OD.WAREHOUSE_OUT_ID = WO.ID
+        INNER JOIN E_MAT_WAREHOUSE_OUT_APP_DETAIL AD ON OD.WAREHOUSE_OUT_APP_DETAIL_ID = AD.ID
+        INNER JOIN E_MAT_WAREHOUSE_OUT_APP OA ON AD.WAREHOUSE_OUT_APP_ID = OA.ID AND OA.DEL_FLAG = 0
+        LEFT JOIN (
+            SELECT
+                WAREHOUSE_OUT_DETAIL_ID,
+                SUM(USED_QUANTITY) AS USED_QUANTITY
+            FROM
+                E_MAINT_PART_REPLACE
+            GROUP BY
+                WAREHOUSE_OUT_DETAIL_ID
+        ) PR ON OD.ID = PR.WAREHOUSE_OUT_DETAIL_ID
+        WHERE
+             WO.STATUS = 1
+            AND OD.OUT_QUANTITY > 0
+            AND (AD.EQUIP_IDS = #{equipId})
+            AND (NVL(AD.APPLICATION_QUANTITY, 0) - NVL(PR.USED_QUANTITY, 0)) > 0
+        ORDER BY WO.WAREHOUSE_OUT_NO, OD.ID ASC
+    </select>
+
+    <!-- 新增配件更换记录 -->
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.EMaintPartReplacePO">
+        INSERT INTO E_MAINT_PART_REPLACE
+        (
+            ID,
+            MAINT_INFO_ID,
+            EQUIP_ID,
+            WAREHOUSE_OUT_NO,
+            WAREHOUSE_OUT_DETAIL_ID,
+            MATERIAL_ID,
+            MATERIAL_NAME,
+            SPECIFICATION_MODEL,
+            UNIT_CODE,
+            UNIT_NAME,
+            APPLICATION_QUANTITY,
+            USED_QUANTITY,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )
+        VALUES
+        (
+            #{id,jdbcType=NUMERIC},
+            #{maintInfoId,jdbcType=NUMERIC},
+            #{equipId,jdbcType=NUMERIC},
+            #{warehouseOutNo,jdbcType=VARCHAR},
+            #{warehouseOutDetailId,jdbcType=NUMERIC},
+            #{materialId,jdbcType=NUMERIC},
+            #{materialName,jdbcType=VARCHAR},
+            #{specificationModel,jdbcType=VARCHAR},
+            #{unitCode,jdbcType=VARCHAR},
+            #{unitName,jdbcType=VARCHAR},
+            #{applicationQuantity,jdbcType=NUMERIC},
+            #{usedQuantity,jdbcType=NUMERIC},
+            #{loginUserId,jdbcType=NUMERIC},
+            #{loginUserName,jdbcType=VARCHAR},
+            #{now,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <!-- 修改配件更换记录 -->
+    <update id="update" parameterType="com.yy.ppm.equipment.bean.po.EMaintPartReplacePO">
+        UPDATE E_MAINT_PART_REPLACE
+        <set>
+            <if test="maintInfoId != null">
+                MAINT_INFO_ID = #{maintInfoId,jdbcType=NUMERIC},
+            </if>
+            <if test="equipId != null">
+                EQUIP_ID = #{equipId,jdbcType=NUMERIC},
+            </if>
+            <if test="warehouseOutNo != null">
+                WAREHOUSE_OUT_NO = #{warehouseOutNo,jdbcType=VARCHAR},
+            </if>
+            <if test="warehouseOutDetailId != null">
+                WAREHOUSE_OUT_DETAIL_ID = #{warehouseOutDetailId,jdbcType=NUMERIC},
+            </if>
+            <if test="materialId != null">
+                MATERIAL_ID = #{materialId,jdbcType=NUMERIC},
+            </if>
+            <if test="materialName != null">
+                MATERIAL_NAME = #{materialName,jdbcType=VARCHAR},
+            </if>
+            <if test="specificationModel != null">
+                SPECIFICATION_MODEL = #{specificationModel,jdbcType=VARCHAR},
+            </if>
+            <if test="unitCode != null">
+                UNIT_CODE = #{unitCode,jdbcType=VARCHAR},
+            </if>
+            <if test="unitName != null">
+                UNIT_NAME = #{unitName,jdbcType=VARCHAR},
+            </if>
+            <if test="applicationQuantity != null">
+                APPLICATION_QUANTITY = #{applicationQuantity,jdbcType=NUMERIC},
+            </if>
+            <if test="usedQuantity != null">
+                USED_QUANTITY = #{usedQuantity,jdbcType=NUMERIC},
+            </if>
+            <if test="loginUserId != null">
+                UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
+            </if>
+            <if test="loginUserName != null and loginUserName != ''">
+                UPDATE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="now != null">
+                UPDATE_TIME = #{now,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        WHERE
+            ID = #{id}
+    </update>
+
+    <!-- 删除配件更换记录（根据维修信息ID，物理删除） -->
+    <delete id="deleteByMaintInfoId">
+        DELETE FROM E_MAINT_PART_REPLACE
+        WHERE MAINT_INFO_ID = #{maintInfoId}
+    </delete>
+
+    <!-- 根据出库单明细ID查询已使用数量总和 -->
+    <select id="selectTotalUsedQuantityByWarehouseOutDetailId" resultType="java.math.BigDecimal">
+        SELECT
+            NVL(SUM(USED_QUANTITY), 0)
+        FROM
+            E_MAINT_PART_REPLACE
+        WHERE
+            WAREHOUSE_OUT_DETAIL_ID = #{warehouseOutDetailId}
+    </select>
+
+</mapper>
+

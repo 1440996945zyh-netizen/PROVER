@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMaterialPurchaseComparisonMapper">
+
+    <resultMap id="EMaterialPurchaseComparisonDTOResult" type="com.yy.ppm.equipment.bean.dto.EMaterialPurchaseComparisonDTO">
+        <id property="id" column="ID"/>
+        <result property="purchaseId" column="PURCHASE_ID"/>
+        <result property="supplierId" column="SUPPLIER_ID"/>
+        <result property="supplierName" column="SUPPLIER_NAME"/>
+        <result property="quotationPrice" column="QUOTATION_PRICE"/>
+        <result property="createBy" column="CREATE_BY"/>
+        <result property="createByName" column="CREATE_BY_NAME"/>
+        <result property="createTime" column="CREATE_TIME"/>
+        <result property="updateBy" column="UPDATE_BY"/>
+        <result property="updateByName" column="UPDATE_BY_NAME"/>
+        <result property="updateTime" column="UPDATE_TIME"/>
+    </resultMap>
+
+    <sql id="selectEMaterialPurchaseComparisonVo">
+        SELECT
+            ID, PURCHASE_ID, SUPPLIER_ID, SUPPLIER_NAME, QUOTATION_PRICE,
+            CREATE_BY, CREATE_BY_NAME, CREATE_TIME, UPDATE_BY, UPDATE_BY_NAME, UPDATE_TIME
+        FROM E_MATERIAL_PURCHASE_COMPARISON
+    </sql>
+
+    <!-- 根据采购主表ID查询比价信息列表 -->
+    <select id="selectListByPurchaseId" parameterType="Long" resultMap="EMaterialPurchaseComparisonDTOResult">
+        <include refid="selectEMaterialPurchaseComparisonVo"/>
+        WHERE PURCHASE_ID = #{purchaseId}
+        ORDER BY CREATE_TIME ASC
+    </select>
+
+    <!-- 新增物资采购比价信息 -->
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.EMaterialPurchaseComparisonPO">
+        INSERT INTO E_MATERIAL_PURCHASE_COMPARISON (
+            ID, PURCHASE_ID, SUPPLIER_ID, SUPPLIER_NAME, QUOTATION_PRICE,
+            CREATE_BY, CREATE_BY_NAME, CREATE_TIME
+        ) VALUES (
+            #{id}, #{purchaseId}, #{supplierId}, #{supplierName}, #{quotationPrice},
+            #{loginUserId}, #{loginUserName}, #{now}
+        )
+    </insert>
+
+    <!-- 批量新增物资采购比价信息 -->
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO E_MATERIAL_PURCHASE_COMPARISON (
+            ID, PURCHASE_ID, SUPPLIER_ID, SUPPLIER_NAME, QUOTATION_PRICE,
+            CREATE_BY, CREATE_BY_NAME, CREATE_TIME
+        )
+        <foreach collection="list" item="item" separator=" UNION ALL ">
+            SELECT
+                #{item.id},
+                #{item.purchaseId},
+                #{item.supplierId},
+                #{item.supplierName},
+                #{item.quotationPrice},
+                #{item.loginUserId},
+                #{item.loginUserName},
+                #{item.now}
+            FROM DUAL
+        </foreach>
+    </insert>
+
+    <!-- 修改物资采购比价信息 -->
+    <update id="update" parameterType="com.yy.ppm.equipment.bean.po.EMaterialPurchaseComparisonPO">
+        UPDATE E_MATERIAL_PURCHASE_COMPARISON
+        <set>
+            <if test="purchaseId != null">PURCHASE_ID = #{purchaseId},</if>
+            <if test="supplierId != null">SUPPLIER_ID = #{supplierId},</if>
+            <if test="supplierName != null">SUPPLIER_NAME = #{supplierName},</if>
+            <if test="quotationPrice != null">QUOTATION_PRICE = #{quotationPrice},</if>
+            UPDATE_BY = #{loginUserId},
+            UPDATE_BY_NAME = #{loginUserName},
+            UPDATE_TIME = #{now}
+        </set>
+        WHERE ID = #{id}
+    </update>
+
+    <!-- 删除物资采购比价信息（根据采购主表ID） -->
+    <delete id="deleteByPurchaseId" parameterType="Long">
+        DELETE FROM E_MATERIAL_PURCHASE_COMPARISON WHERE PURCHASE_ID = #{purchaseId}
+    </delete>
+
+    <!-- 删除物资采购比价信息（根据ID） -->
+    <delete id="deleteById" parameterType="Long">
+        DELETE FROM E_MATERIAL_PURCHASE_COMPARISON WHERE ID = #{id}
+    </delete>
+
+</mapper>
+

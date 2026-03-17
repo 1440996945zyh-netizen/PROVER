@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMEquipRepairContractMapper">
+
+<select id="getList" resultType="com.yy.ppm.equipment.bean.dto.EMEquipRepairContractDTO">
+    SELECT
+    ID,
+    EXTERNAL_COMPANY_ID,
+    PRINCIPAL,
+    PHONE,
+    REPAIR_TYPE,
+    REMARK,
+    CONTRACT_DATE_START,
+    CONTRACT_DATE_END,
+    DELETED,
+    CREATED_USER,
+    CREATED_TIME,
+    MODIFIED_USER,
+    MODIFIED_TIME,
+    EXTERNAL_COMPANY_CODE,
+    UNIT_NAME,
+    COMPANY_ID,
+    USER_ORG_ID,
+    SERVICE_COMPANIES,
+    ENTITY_TYPE,
+    OUT_TYPE
+    FROM E_M_EQUIP_REPAIR_CONTRACT
+    where
+    deleted = 0
+    <if test="externalCompanyCode != null and externalCompanyCode != ''">
+        <bind name="externalCompanyCodeLike" value="'%'+externalCompanyCode+'%'"/>
+        and EXTERNAL_COMPANY_CODE like #{externalCompanyCodeLike}
+    </if>
+    <if test="unitName != null and unitName != ''">
+        <bind name="unitNameLike" value="'%'+unitName+'%'"/>
+        and UNIT_NAME like #{unitNameLike}
+    </if>
+    order by
+    CREATED_TIME DESC
+</select>
+
+<select id="getById" resultType="com.yy.ppm.equipment.bean.dto.EMEquipRepairContractDTO">
+    SELECT
+        ID,
+        EXTERNAL_COMPANY_ID,
+        PRINCIPAL,
+        PHONE,
+        REPAIR_TYPE,
+        REMARK,
+        CONTRACT_DATE_START,
+        CONTRACT_DATE_END,
+        DELETED,
+        CREATED_USER,
+        CREATED_TIME,
+        MODIFIED_USER,
+        MODIFIED_TIME,
+        EXTERNAL_COMPANY_CODE,
+        UNIT_NAME,
+        COMPANY_ID,
+        USER_ORG_ID,
+        SERVICE_COMPANIES,
+        ENTITY_TYPE,
+        OUT_TYPE
+    FROM E_M_EQUIP_REPAIR_CONTRACT
+    where
+    ID = #{id}
+</select>
+    <select id="queryUnitName" resultType="com.yy.ppm.equipment.bean.dto.EMEquipRepairContractDTO">
+        SELECT
+        ID,
+        UNIT_NAME,
+        EXTERNAL_COMPANY_ID
+        FROM E_M_EQUIP_REPAIR_CONTRACT
+        where
+            deleted = 0
+        <if test="unitName != null and unitName != ''">
+            <bind name="unitNameLike" value="'%'+unitName+'%'"/>
+            and UNIT_NAME like #{unitNameLike}
+        </if>
+    </select>
+
+    <insert id="insert">
+    INSERT INTO E_M_EQUIP_REPAIR_CONTRACT (
+        ID,
+        EXTERNAL_COMPANY_ID,
+        PRINCIPAL,
+        PHONE,
+        REPAIR_TYPE,
+        REMARK,
+        CONTRACT_DATE_START,
+        CONTRACT_DATE_END,
+        CREATED_USER,
+        CREATED_TIME,
+        EXTERNAL_COMPANY_CODE,
+        UNIT_NAME,
+        COMPANY_ID,
+        USER_ORG_ID,
+        SERVICE_COMPANIES,
+        ENTITY_TYPE,
+        OUT_TYPE
+    ) values
+    (#{id},
+     #{externalCompanyId},
+      #{principal},
+      #{phone},
+      #{repairType},
+      #{remark},
+      #{contractDateStart},
+      #{contractDateEnd},
+      #{loginUserId,jdbcType=NUMERIC},
+      #{now,jdbcType=TIMESTAMP},
+      #{externalCompanyCode},
+      #{unitName},
+      #{companyId},
+      #{userOrgId},
+      #{serviceCompanies},
+      #{entityType},
+      #{outType}
+
+    )
+</insert>
+
+<update id="update">
+    update E_M_EQUIP_REPAIR_CONTRACT
+    set
+    EXTERNAL_COMPANY_ID=#{externalCompanyId},
+    PRINCIPAL= #{principal},
+    PHONE= #{phone},
+    REPAIR_TYPE= #{repairType},
+    REMARK= #{remark},
+    CONTRACT_DATE_START= #{contractDateStart},
+    CONTRACT_DATE_END= #{contractDateEnd},
+    MODIFIED_USER= #{loginUserId,jdbcType=NUMERIC},
+    MODIFIED_TIME= #{now,jdbcType=TIMESTAMP},
+    EXTERNAL_COMPANY_CODE= #{externalCompanyCode},
+    UNIT_NAME= #{unitName},
+    COMPANY_ID= #{companyId},
+    USER_ORG_ID= #{userOrgId},
+    SERVICE_COMPANIES= #{serviceCompanies},
+    ENTITY_TYPE= #{entityType},
+    OUT_TYPE= #{outType}
+    where
+    ID = #{id}
+</update>
+
+<update id="deleteById">
+    update E_M_EQUIP_REPAIR_CONTRACT
+    set deleted = 1
+    where
+        ID = #{id}
+</update>
+
+    <select id="getByCompanyIdAndOutType" resultType="com.yy.ppm.equipment.bean.dto.EMEquipRepairContractDTO">
+        SELECT
+            ID,
+            EXTERNAL_COMPANY_ID,
+            UNIT_NAME,
+            PRINCIPAL,
+            PHONE,
+            REPAIR_TYPE,
+            REMARK,
+            CONTRACT_DATE_START,
+            CONTRACT_DATE_END,
+            EXTERNAL_COMPANY_CODE,
+            COMPANY_ID,
+            USER_ORG_ID,
+            SERVICE_COMPANIES,
+            ENTITY_TYPE,
+            OUT_TYPE
+        FROM E_M_EQUIP_REPAIR_CONTRACT
+        WHERE DELETED = 0
+          AND ENTITY_TYPE = 1
+          AND SERVICE_COMPANIES LIKE '%' || #{useCompanyId, jdbcType=VARCHAR} || '%'
+          AND OUT_TYPE = #{outType, jdbcType=VARCHAR}
+        ORDER BY CREATED_TIME DESC
+    </select>
+    <select id="getUser" resultType="java.lang.Integer">
+        SELECT
+        count(ID)
+        FROM E_M_EQUIP_REPAIR_USER
+        WHERE REPAIR_CONTARCT_ID = #{id}
+    </select>
+    <select id="getOutTypeNum" resultType="com.yy.ppm.equipment.bean.dto.EMEquipRepairContractDTO">
+        SELECT
+            COUNT(*) AS unitNameSum,
+            SUM(CASE WHEN OUT_TYPE = '1' THEN 1 ELSE 0 END) AS inSunm ,
+            SUM(CASE WHEN OUT_TYPE = '2' THEN 1 ELSE 0 END) AS outSum
+        FROM E_M_EQUIP_REPAIR_CONTRACT
+        WHERE deleted = 0
+    </select>
+</mapper>
+

@@ -104,6 +104,20 @@ public class SysCustomRegionController {
     }
 
     /**
+     * 删除
+     * @param
+     * @return
+     */
+    @PostMapping("/delRegion")
+    public Map<String, Object> delRegion(@RequestBody SysCustomRegionDTO sysCustomRegionDTO) {
+
+        boolean flag = sysCustomRegionService.delRegion(sysCustomRegionDTO);
+
+        return Response.SUCCESS.newBuilder().out(flag ? "删除成功" : "删除失败").toResult();
+    }
+
+
+    /**
      * 删除app快捷菜单
      * @param
      * @return

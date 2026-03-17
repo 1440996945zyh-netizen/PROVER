@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.MEquipmentSupplyMapper">
+
+    <!-- 根据设备ID查询供货信息 -->
+    <select id="selectByEquipId" resultType="com.yy.ppm.equipment.bean.po.MEquipmentSupplyPO">
+        SELECT
+            ID,
+            EQUIP_ID,
+            PRODUCTION_CODE,
+            EQUIP_WEIGHT,
+            ENGINE_POWER,
+            EQUIP_BUY_DATE,
+            EQUIP_USE_DATE,
+            SUPPLY_COMPANY,
+            MANUFACTURER,
+            EMISSION_STANDARD,
+            DEL_FLAG,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME,
+            DELETE_BY,
+            DELETE_BY_NAME,
+            DELETE_TIME
+        FROM
+            E_M_EQPT_SUPPLY
+        WHERE
+            EQUIP_ID = #{equipId}
+            AND DEL_FLAG = 0
+    </select>
+
+    <!-- 新增设备供货信息 -->
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.MEquipmentSupplyPO">
+        INSERT INTO E_M_EQPT_SUPPLY
+        (
+            ID,
+            EQUIP_ID,
+            PRODUCTION_CODE,
+            EQUIP_WEIGHT,
+            ENGINE_POWER,
+            EQUIP_BUY_DATE,
+            EQUIP_USE_DATE,
+            SUPPLY_COMPANY,
+            MANUFACTURER,
+            EMISSION_STANDARD,
+            DEL_FLAG,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )
+        VALUES
+        (
+            #{id,jdbcType=NUMERIC},
+            #{equipId,jdbcType=NUMERIC},
+            #{productionCode,jdbcType=VARCHAR},
+            #{equipWeight,jdbcType=VARCHAR},
+            #{enginePower,jdbcType=VARCHAR},
+            #{equipBuyDate,jdbcType=DATE},
+            #{equipUseDate,jdbcType=DATE},
+            #{supplyCompany,jdbcType=VARCHAR},
+            #{manufacturer,jdbcType=VARCHAR},
+            #{emissionStandard,jdbcType=VARCHAR},
+            0,
+            #{loginUserId,jdbcType=NUMERIC},
+            #{loginUserName,jdbcType=NVARCHAR},
+            #{now,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <!-- 修改设备供货信息 -->
+    <update id="update" parameterType="com.yy.ppm.equipment.bean.po.MEquipmentSupplyPO">
+        UPDATE E_M_EQPT_SUPPLY
+        <set>
+            <if test="productionCode != null">
+                PRODUCTION_CODE = #{productionCode,jdbcType=VARCHAR},
+            </if>
+            <if test="equipWeight != null">
+                EQUIP_WEIGHT = #{equipWeight,jdbcType=VARCHAR},
+            </if>
+            <if test="enginePower != null">
+                ENGINE_POWER = #{enginePower,jdbcType=VARCHAR},
+            </if>
+            <if test="equipBuyDate != null">
+                EQUIP_BUY_DATE = #{equipBuyDate,jdbcType=DATE},
+            </if>
+            <if test="equipUseDate != null">
+                EQUIP_USE_DATE = #{equipUseDate,jdbcType=DATE},
+            </if>
+            <if test="supplyCompany != null">
+                SUPPLY_COMPANY = #{supplyCompany,jdbcType=VARCHAR},
+            </if>
+            <if test="manufacturer != null">
+                MANUFACTURER = #{manufacturer,jdbcType=VARCHAR},
+            </if>
+            <if test="emissionStandard != null">
+                EMISSION_STANDARD = #{emissionStandard,jdbcType=VARCHAR},
+            </if>
+            UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
+            UPDATE_BY_NAME = #{loginUserName,jdbcType=NVARCHAR},
+            UPDATE_TIME = #{now,jdbcType=TIMESTAMP}
+        </set>
+        WHERE
+            ID = #{id}
+    </update>
+
+    <!-- 删除设备供货信息（逻辑删除） -->
+    <update id="deleteByEquipId">
+        UPDATE E_M_EQPT_SUPPLY
+        SET
+            DEL_FLAG = 1,
+            DELETE_BY = #{loginUserId,jdbcType=NVARCHAR},
+            DELETE_BY_NAME = #{loginUserName,jdbcType=NVARCHAR},
+            DELETE_TIME = #{now,jdbcType=TIMESTAMP}
+        WHERE
+            EQUIP_ID = #{equipId}
+    </update>
+
+</mapper>
+

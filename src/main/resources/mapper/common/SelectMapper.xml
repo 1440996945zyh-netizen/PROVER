@@ -126,6 +126,7 @@
         </if>
     </select>
 
+
     <select id="getVoyageList" resultType="java.util.Map">
         <if test="'' != search.labelContent and null != search.labelContent" >
             SELECT
@@ -297,6 +298,48 @@
             </if>
         </where>
         ORDER BY CONTACT_NO
+    </select>
+
+    <!-- 查询设备小类下拉列表 -->
+    <select id="getEqptType" resultType="java.util.Map">
+        SELECT
+        ID "value",
+        TYPE_NAME "label",
+        CATEGORY_LEVEL "level"
+        FROM
+        E_M_EQPT_TYPE
+        WHERE
+        1=1
+        <if test="categoryLevel != null and categoryLevel != ''">
+            AND CATEGORY_LEVEL = #{categoryLevel}
+        </if>
+        <if test="parentId != null and parentId != ''">
+            AND PARENT_ID = #{parentId}
+        </if>
+    </select>
+
+    <select id="getUserByDept" resultType="java.util.Map">
+        select
+            S1.ID as "value",
+            S1.USER_NAME as "label"
+        from
+            SYS_USER S1
+        where
+            S1.DEPT_ID = #{deptId}
+          AND S1.STATUS = '1'
+        order by S1.SORT_NUM
+    </select>
+    <select id="getUserByCompany" resultType="java.util.Map">
+        select
+            S1.ID as "value",
+            S1.USER_NAME as "label"
+        from
+            SYS_USER S1
+        where
+            (S1.DEPT_ID IN (SELECT DEPT_ID FROM SYS_DEPT WHERE PARENT_ID = #{companyId})
+          OR S1.DEPT_ID = #{companyId})
+          AND S1.STATUS = '1'
+        order by S1.SORT_NUM
     </select>
 
 </mapper>

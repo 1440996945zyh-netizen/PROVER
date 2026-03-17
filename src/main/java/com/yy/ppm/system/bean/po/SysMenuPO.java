@@ -60,4 +60,7 @@ public class SysMenuPO extends BasePO implements Serializable {
     /**数据类别（1：PC；2：APP) */
     private String dataType;
 
+    private String appType;
+
+
 }

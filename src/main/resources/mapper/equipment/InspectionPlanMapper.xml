@@ -1,0 +1,520 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.InspectionPlanMapper">
+
+
+
+<select id="queryAll" resultType="com.yy.ppm.equipment.bean.po.InspectionPlanPO">
+    SELECT
+    ID,
+    EQUIP_SMALL_CATEGORY_ID,
+    EQUIP_SMALL_CATEGORY_NAME,
+    EQUIP_ID,
+    EQUIP_NAME,
+    EQUIP_TYPE,
+    INITIAL_DATE,
+    DEADLINE_DATE,
+    SET_DATE,
+    IS_SINGLE,
+    CYCLE,
+    INSPECTOR_ID,
+    INSPECTOR_NAME,
+    STANDARD_ID,
+    CONTENT,
+    STANDARD,
+    TIME_LIMIT,
+    INITIAL_NUMBER,
+    DEADLINE_NUMBER,
+    RECENTLY_TASK_DATE,
+    CREATE_BY,
+    CREATE_BY_NAME,
+    CREATE_TIME
+    FROM
+    E_CHECK_PLAN
+    WHERE
+    1=1
+    <if test="equipName != null and equipName != ''">
+        <bind name="equipNameLike" value="'%'+equipName+'%'"/>
+        AND EQUIP_NAME like #{equipName}
+    </if>
+    <if test="equipSmallCategoryId != null and equipSmallCategoryId != ''">
+        AND EQUIP_SMALL_CATEGORY_ID = #{equipSmallCategoryId}
+    </if>
+    <if test="equipType != null and equipType != ''">
+        AND EQUIP_TYPE = #{equipType}
+    </if>
+    order by
+    CREATE_TIME DESC
+</select>
+
+<select id="queryById" resultType="com.yy.ppm.equipment.bean.po.InspectionPlanPO">
+    SELECT
+    ID,
+    EQUIP_SMALL_CATEGORY_ID,
+    EQUIP_SMALL_CATEGORY_NAME,
+    EQUIP_ID,
+    EQUIP_NAME,
+    EQUIP_TYPE,
+    INITIAL_DATE,
+    DEADLINE_DATE,
+    SET_DATE,
+    IS_SINGLE,
+    CYCLE,
+    INSPECTOR_ID,
+    INSPECTOR_NAME,
+    STANDARD_ID,
+    CONTENT,
+    STANDARD,
+    TIME_LIMIT,
+    INITIAL_NUMBER,
+    DEADLINE_NUMBER,
+    CREATE_BY,
+    CREATE_BY_NAME,
+    CREATE_TIME
+    FROM
+    E_CHECK_PLAN
+    WHERE
+    ID = #{id}
+</select>
+
+<insert id="insert">
+    INSERT INTO E_CHECK_PLAN
+    (
+    ID,
+    EQUIP_SMALL_CATEGORY_ID,
+    EQUIP_SMALL_CATEGORY_NAME,
+    EQUIP_ID,
+    EQUIP_NAME,
+    EQUIP_TYPE,
+    INITIAL_DATE,
+    DEADLINE_DATE,
+    SET_DATE,
+    IS_SINGLE,
+    CYCLE,
+    INSPECTOR_ID,
+    INSPECTOR_NAME,
+    STANDARD_ID,
+    CONTENT,
+    STANDARD,
+    TIME_LIMIT,
+    INITIAL_NUMBER,
+    DEADLINE_NUMBER,
+    RECENTLY_TASK_DATE,
+    CREATE_BY,
+    CREATE_BY_NAME,
+    CREATE_TIME
+    ) values
+    (
+    #{id},
+    #{equipSmallCategoryId},
+    #{equipSmallCategoryName},
+    #{equipId},
+    #{equipName},
+    #{equipType},
+    #{initialDate},
+    #{deadlineDate},
+    #{setDate},
+    #{isSingle},
+    #{cycle},
+    #{inspectorId},
+    #{inspectorName},
+    #{standardId},
+    #{content},
+    #{standard},
+    #{timeLimit},
+    #{initialNumber},
+    #{deadlineNumber},
+    #{now},
+    #{loginUserId},
+    #{loginUserName},
+    #{now}
+    )
+</insert>
+
+<update id="update">
+    UPDATE E_CHECK_PLAN
+    SET
+    EQUIP_SMALL_CATEGORY_ID = #{equipSmallCategoryId},
+    EQUIP_SMALL_CATEGORY_NAME = #{equipSmallCategoryName},
+    EQUIP_ID = #{equipId},
+    EQUIP_NAME = #{equipName},
+    EQUIP_TYPE = #{equipType},
+    INITIAL_DATE = #{initialDate},
+    DEADLINE_DATE = #{deadlineDate},
+    SET_DATE = #{setDate},
+    IS_SINGLE = #{isSingle},
+    CYCLE = #{cycle},
+    INSPECTOR_ID = #{inspectorId},
+    INSPECTOR_NAME = #{inspectorName},
+    STANDARD_ID = #{standardId},
+    CONTENT = #{content},
+    STANDARD = #{standard},
+    TIME_LIMIT = #{timeLimit},
+    INITIAL_NUMBER = #{initialNumber},
+    DEADLINE_NUMBER = #{deadlineNumber},
+    UPDATE_BY = #{loginUserId},
+    UPDATE_BY_NAME = #{loginUserName},
+    UPDATE_TIME = #{now}
+    WHERE
+    ID = #{id}
+</update>
+
+<delete id="deleteById">
+    delete from E_CHECK_PLAN where ID = #{id}
+</delete>
+
+<select id="getEquipListById" resultType="com.yy.ppm.equipment.bean.po.MEquipmentInfoPO">
+    SELECT
+    ID,
+    EQUIP_SMALL_CATEGORY_ID,
+    SPECIFIC_CODE,
+    EQUIP_NAME
+    FROM
+    E_M_EQPT_INFO
+    WHERE
+    1=1
+    <if test="id != null and id != ''">
+        and EQUIP_SMALL_CATEGORY_ID = #{id}
+    </if>
+</select>
+
+<insert id="insertPlanTask">
+    INSERT INTO E_CHECK_TASK
+    (
+    ID,
+    EQUIP_PLAN_ID,
+    EQUIP_ID,
+    EQUIP_NAME,
+    START_DATE,
+    END_DATE,
+    INSPECTOR_ID,
+    INSPECTOR_NAME,
+    INITIAL_NUMBER,
+    DEADLINE_NUMBER,
+    CREATE_BY,
+    CREATE_BY_NAME,
+    CREATE_TIME
+    ) values
+    (
+    #{id},
+    #{equipPlanId},
+    #{equipId},
+    #{equipName},
+    #{startDate},
+    #{endDate},
+    #{inspectorId},
+    #{inspectorName},
+    #{initialNumber},
+    #{deadlineNumber},
+    #{loginUserId},
+    #{loginUserName},
+    #{now}
+    )
+</insert>
+
+<select id="getTaskDetail" resultType="com.yy.ppm.equipment.bean.po.InspectionPlanTaskPO">
+    SELECT
+    ID,
+    EQUIP_PLAN_ID,
+    EQUIP_ID,
+    EQUIP_NAME,
+    START_DATE,
+    END_DATE
+    FROM
+    E_CHECK_TASK
+    WHERE
+    1=1
+    <if test="equipPlanId != null">
+        AND EQUIP_PLAN_ID = #{equipPlanId}
+    </if>
+    ORDER BY
+    CREATE_TIME DESC
+</select>
+
+<select id="getInspectionPlanList" resultType="com.yy.ppm.equipment.bean.po.InspectionPlanPO">
+    SELECT
+    ID,
+    EQUIP_ID,
+    EQUIP_NAME,
+    EQUIP_TYPE,
+    INITIAL_DATE,
+    DEADLINE_DATE,
+    INITIAL_NUMBER,
+    DEADLINE_NUMBER,
+    SET_DATE,
+    CYCLE,
+    INSPECTOR_ID,
+    INSPECTOR_NAME,
+    TIME_LIMIT
+    FROM
+    E_CHECK_PLAN
+    WHERE
+    IS_SINGLE = '2'
+</select>
+
+<select id="getInspectionPlanTaskList" resultType="com.yy.ppm.equipment.bean.po.InspectionPlanTaskPO">
+    SELECT
+    t1.ID,
+    t1.EQUIP_PLAN_ID,
+    t1.EQUIP_ID,
+    t1.EQUIP_NAME,
+    t1.START_DATE,
+    t1.END_DATE
+    FROM
+    E_CHECK_TASK t1
+    INNER JOIN (
+    SELECT
+    EQUIP_PLAN_ID,
+    MAX( CREATE_TIME ) AS max_create_time
+    FROM E_CHECK_TASK
+    GROUP BY
+    EQUIP_PLAN_ID
+    ) t2 ON t2.EQUIP_PLAN_ID = t1.EQUIP_PLAN_ID AND t1.CREATE_TIME = t2.max_create_time
+</select>
+
+<insert id="insertPlanItem">
+    INSERT INTO E_CHECK_PLAN_ITEM(
+    ID,
+    EQUIP_PLAN_ID,
+    STANDARD_ID,
+    EQUIP_SMALL_CATEGORY_ID,
+    EQUIP_SMALL_CATEGORY_NAME,
+    EQUIP_INSTITUTION_ID,
+    EQUIP_INSTITUTION_NAME,
+    EQUIP_UNIT_ID,
+    EQUIP_UNIT_NAME,
+    CONTENT,
+    STANDARD,
+    EQUIP_TYPE,
+    CREATE_BY,
+    CREATE_BY_NAME,
+    CREATE_TIME
+    )
+    (
+    <foreach collection="list" item="item" separator="union all">
+        select
+        #{item.id},
+        #{item.equipPlanId},
+        #{item.standardId},
+        #{item.equipSmallCategoryId},
+        #{item.equipSmallCategoryName},
+        #{item.equipInstitutionId},
+        #{item.equipInstitutionName},
+        #{item.equipUnitId},
+        #{item.equipUnitName},
+        #{item.content},
+        #{item.standard},
+        #{item.equipType},
+        #{item.loginUserId},
+        #{item.loginUserName},
+        #{item.now}
+        from dual
+    </foreach>
+    )
+</insert>
+
+<delete id="deletePlanItemByPlanId">
+    delete from E_CHECK_PLAN_ITEM where EQUIP_PLAN_ID = #{id}
+</delete>
+
+<insert id="insertPlanTaskItem">
+    INSERT INTO E_CHECK_TASK_ITEM(
+    ID,
+    EQUIP_TASK_ID,
+    STANDARD_ID,
+    EQUIP_PLAN_ID,
+    EQUIP_PLAN_ITEM_ID,
+    EQUIP_SMALL_CATEGORY_ID,
+    EQUIP_SMALL_CATEGORY_NAME,
+    EQUIP_INSTITUTION_ID,
+    EQUIP_INSTITUTION_NAME,
+    EQUIP_UNIT_ID,
+    EQUIP_UNIT_NAME,
+    CONTENT,
+    STANDARD,
+    EQUIP_TYPE,
+    CREATE_BY,
+    CREATE_BY_NAME,
+    CREATE_TIME
+    )
+    (
+    <foreach collection="list" item="item" separator="union all">
+        select
+        #{item.id},
+        #{item.equipTaskId},
+        #{item.standardId},
+        #{item.equipPlanId},
+        #{item.equipPlanItemId},
+        #{item.equipSmallCategoryId},
+        #{item.equipSmallCategoryName},
+        #{item.equipInstitutionId},
+        #{item.equipInstitutionName},
+        #{item.equipUnitId},
+        #{item.equipUnitName},
+        #{item.content},
+        #{item.standard},
+        #{item.equipType},
+        #{item.loginUserId},
+        #{item.loginUserName},
+        #{item.now}
+        from dual
+    </foreach>
+    )
+</insert>
+
+<select id="getPlanItem" resultType="com.yy.ppm.equipment.bean.po.InspectionPlanItemPO">
+    SELECT
+    ID,
+    EQUIP_PLAN_ID,
+    STANDARD_ID,
+    EQUIP_SMALL_CATEGORY_ID,
+    EQUIP_SMALL_CATEGORY_NAME,
+    EQUIP_INSTITUTION_ID,
+    EQUIP_INSTITUTION_NAME,
+    EQUIP_UNIT_ID,
+    EQUIP_UNIT_NAME,
+    CONTENT,
+    STANDARD,
+    EQUIP_TYPE
+    FROM
+    E_CHECK_PLAN_ITEM
+    WHERE
+    EQUIP_PLAN_ID = #{id}
+</select>
+
+<select id="getInspectionPlanItemList" resultType="com.yy.ppm.equipment.bean.po.InspectionPlanItemPO">
+    SELECT
+    t1.ID,
+    t1.EQUIP_PLAN_ID,
+    t1.STANDARD_ID,
+    t1.EQUIP_SMALL_CATEGORY_ID,
+    t1.EQUIP_SMALL_CATEGORY_NAME,
+    t1.EQUIP_INSTITUTION_ID,
+    t1.EQUIP_INSTITUTION_NAME,
+    t1.EQUIP_UNIT_ID,
+    t1.EQUIP_UNIT_NAME,
+    t1.CONTENT,
+    t1.STANDARD,
+    t1.EQUIP_TYPE
+    FROM
+    E_CHECK_PLAN_ITEM t1
+    left join E_CHECK_PLAN t2 on t2.ID = t1.EQUIP_PLAN_ID
+    WHERE
+    t2.IS_SINGLE = '2'
+</select>
+
+<insert id="insertPlanTaskList">
+    INSERT INTO E_CHECK_TASK(
+    ID,
+    EQUIP_PLAN_ID,
+    EQUIP_ID,
+    EQUIP_NAME,
+    START_DATE,
+    END_DATE,
+    INITIAL_NUMBER,
+    DEADLINE_NUMBER,
+    INSPECTOR_ID,
+    INSPECTOR_NAME,
+    CREATE_BY,
+    CREATE_BY_NAME,
+    CREATE_TIME
+    )
+    (
+    <foreach collection="list" item="item" separator="union all">
+        select
+        #{item.id},
+        #{item.equipPlanId},
+        #{item.equipId},
+        #{item.equipName},
+        #{item.startDate},
+        #{item.endDate},
+        #{item.initialNumber},
+        #{item.deadlineNumber},
+        #{item.inspectorId},
+        #{item.inspectorName},
+        #{item.createBy},
+        #{item.createByName},
+        #{item.createTime}
+        from dual
+    </foreach>
+    )
+</insert>
+
+<update id="updatePlanList">
+    BEGIN
+    <foreach collection="list" item="item">
+        UPDATE E_CHECK_PLAN
+        SET
+        DEADLINE_DATE = #{item.deadlineDate},
+        DEADLINE_NUMBER = #{item.deadlineNumber},
+        RECENTLY_TASK_DATE = #{item.recentlyTaskDate}
+        WHERE
+        ID = #{item.id};
+    </foreach>
+    END;
+</update>
+
+<insert id="insertPlanTaskItemList">
+    INSERT INTO E_CHECK_TASK_ITEM(
+    ID,
+    EQUIP_TASK_ID,
+    STANDARD_ID,
+    EQUIP_PLAN_ID,
+    EQUIP_PLAN_ITEM_ID,
+    EQUIP_SMALL_CATEGORY_ID,
+    EQUIP_SMALL_CATEGORY_NAME,
+    EQUIP_INSTITUTION_ID,
+    EQUIP_INSTITUTION_NAME,
+    EQUIP_UNIT_ID,
+    EQUIP_UNIT_NAME,
+    CONTENT,
+    STANDARD,
+    EQUIP_TYPE,
+    CREATE_BY,
+    CREATE_BY_NAME,
+    CREATE_TIME
+    )
+    (
+    <foreach collection="list" item="item" separator="union all">
+        select
+        #{item.id},
+        #{item.equipTaskId},
+        #{item.standardId},
+        #{item.equipPlanId},
+        #{item.equipPlanItemId},
+        #{item.equipSmallCategoryId},
+        #{item.equipSmallCategoryName},
+        #{item.equipInstitutionId},
+        #{item.equipInstitutionName},
+        #{item.equipUnitId},
+        #{item.equipUnitName},
+        #{item.content},
+        #{item.standard},
+        #{item.equipType},
+        #{item.createBy},
+        #{item.createByName},
+        #{item.createTime}
+        from dual
+    </foreach>
+    )
+</insert>
+
+<select id="getEquipmentOperationList" resultType="com.yy.ppm.equipment.bean.po.MEquipmentOperationPO">
+    SELECT
+    EQUIP_ID,
+    EQUIP_NAME,
+    sum(RUN_TIME) RUN_TIME,
+    sum(RUN_MILEAGE) RUN_MILEAGE,
+    sum(WORK_TON) WORK_TON,
+    sum(WORK_BOX) WORK_BOX
+    FROM
+    E_M_EQPT_OPERATION
+    GROUP BY
+    EQUIP_ID,
+    EQUIP_NAME
+</select>
+
+</mapper>
+

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMaterialWarehouseInOutRelMapper">
+
+    <!-- 新增物资入库出库关系 -->
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.EMaterialWarehouseInOutRelPO">
+        INSERT INTO E_MAT_WAREHOUSE_IN_OUT_REL
+        (
+            ID,
+            WAREHOUSE_IN_DETAIL_ID,
+            WAREHOUSE_OUT_DETAIL_ID,
+            QUANTITY,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )
+        VALUES
+        (
+            #{id,jdbcType=NUMERIC},
+            #{warehouseInDetailId,jdbcType=NUMERIC},
+            #{warehouseOutDetailId,jdbcType=NUMERIC},
+            #{quantity,jdbcType=NUMERIC},
+            #{loginUserId,jdbcType=NUMERIC},
+            #{loginUserName,jdbcType=VARCHAR},
+            #{now,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <!-- 批量新增物资入库出库关系 -->
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO E_MAT_WAREHOUSE_IN_OUT_REL
+        (
+            ID,
+            WAREHOUSE_IN_DETAIL_ID,
+            WAREHOUSE_OUT_DETAIL_ID,
+            QUANTITY,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )
+        <foreach collection="list" item="item" separator="UNION ALL">
+            SELECT
+                #{item.id,jdbcType=NUMERIC},
+                #{item.warehouseInDetailId,jdbcType=NUMERIC},
+                #{item.warehouseOutDetailId,jdbcType=NUMERIC},
+                #{item.quantity,jdbcType=NUMERIC},
+                #{item.loginUserId,jdbcType=NUMERIC},
+                #{item.loginUserName,jdbcType=VARCHAR},
+                #{item.now,jdbcType=TIMESTAMP}
+            FROM DUAL
+        </foreach>
+    </insert>
+
+    <!-- 根据出库明细ID删除关系 -->
+    <delete id="deleteByWarehouseOutDetailId">
+        DELETE FROM E_MAT_WAREHOUSE_IN_OUT_REL
+        WHERE WAREHOUSE_OUT_DETAIL_ID = #{warehouseOutDetailId}
+    </delete>
+
+    <!-- 根据出库明细ID列表删除关系 -->
+    <delete id="deleteByWarehouseOutDetailIds">
+        DELETE FROM E_MAT_WAREHOUSE_IN_OUT_REL
+        WHERE WAREHOUSE_OUT_DETAIL_ID IN
+        <foreach collection="warehouseOutDetailIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 根据出库明细ID查询关系列表 -->
+    <select id="selectListByWarehouseOutDetailId" resultType="com.yy.ppm.equipment.bean.po.EMaterialWarehouseInOutRelPO">
+        SELECT
+            ID,
+            WAREHOUSE_IN_DETAIL_ID,
+            WAREHOUSE_OUT_DETAIL_ID,
+            QUANTITY,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME
+        FROM
+            E_MAT_WAREHOUSE_IN_OUT_REL
+        WHERE
+            WAREHOUSE_OUT_DETAIL_ID = #{warehouseOutDetailId}
+        ORDER BY CREATE_TIME ASC
+    </select>
+
+</mapper>
+

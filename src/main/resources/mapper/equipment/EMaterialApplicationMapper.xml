@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMaterialApplicationMapper">
+
+    <!-- 查询物资申报列表 -->
+    <select id="selectList" resultType="com.yy.ppm.equipment.bean.dto.EMaterialApplicationDTO">
+        SELECT
+            ID,
+            APPLICATION_NO,
+            APPLICATION_TITLE,
+            APPLICATION_TYPE_CODE,
+            APPLICATION_TYPE_NAME,
+            FIXED_SERVICE_CATEGORY_CODE,
+            FIXED_SERVICE_CATEGORY_NAME,
+            REMARK,
+            DEPT_ID,
+            DEPT_NAME,
+            STATUS,
+            APPROVAL_REMARK,
+            APPROVAL_BY,
+            APPROVAL_BY_NAME,
+            APPROVAL_TIME,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME
+        FROM
+            E_MATERIAL_APPLICATION
+        <where>
+            <if test="applicationNo != null and applicationNo != ''">
+                <bind name="applicationNoPattern" value="'%' + applicationNo + '%'"/>
+                AND APPLICATION_NO LIKE #{applicationNoPattern}
+            </if>
+            <if test="applicationTitle != null and applicationTitle != ''">
+                <bind name="applicationTitlePattern" value="'%' + applicationTitle + '%'"/>
+                AND APPLICATION_TITLE LIKE #{applicationTitlePattern}
+            </if>
+            <if test="applicationTypeCode != null and applicationTypeCode != ''">
+                AND APPLICATION_TYPE_CODE = #{applicationTypeCode}
+            </if>
+            <if test="deptId != null">
+                AND DEPT_ID = #{deptId}
+            </if>
+            <if test="status != null and status != ''">
+                AND STATUS = #{status}
+            </if>
+        </where>
+        ORDER BY CREATE_TIME DESC
+    </select>
+
+    <!-- ResultMap定义：物资申报主表包含明细列表 -->
+    <resultMap id="EMaterialApplicationWithDetailsResultMap" type="com.yy.ppm.equipment.bean.dto.EMaterialApplicationDTO">
+        <id property="id" column="APPLICATION_ID"/>
+        <result property="applicationNo" column="APPLICATION_NO"/>
+        <result property="applicationTitle" column="APPLICATION_TITLE"/>
+        <result property="applicationTypeCode" column="APPLICATION_TYPE_CODE"/>
+        <result property="applicationTypeName" column="APPLICATION_TYPE_NAME"/>
+        <result property="fixedServiceCategoryCode" column="FIXED_SERVICE_CATEGORY_CODE"/>
+        <result property="fixedServiceCategoryName" column="FIXED_SERVICE_CATEGORY_NAME"/>
+        <result property="remark" column="REMARK"/>
+        <result property="deptId" column="DEPT_ID"/>
+        <result property="deptName" column="DEPT_NAME"/>
+        <result property="status" column="STATUS"/>
+        <result property="approvalRemark" column="APPROVAL_REMARK"/>
+        <result property="approvalBy" column="APPROVAL_BY"/>
+        <result property="approvalByName" column="APPROVAL_BY_NAME"/>
+        <result property="approvalTime" column="APPROVAL_TIME"/>
+        <result property="createBy" column="CREATE_BY"/>
+        <result property="createByName" column="CREATE_BY_NAME"/>
+        <result property="createTime" column="CREATE_TIME"/>
+        <result property="updateBy" column="UPDATE_BY"/>
+        <result property="updateByName" column="UPDATE_BY_NAME"/>
+        <result property="updateTime" column="UPDATE_TIME"/>
+        <collection property="detailList" ofType="com.yy.ppm.equipment.bean.dto.EMaterialApplicationDetailDTO">
+            <id property="id" column="DETAIL_ID"/>
+            <result property="applicationId" column="DETAIL_APPLICATION_ID"/>
+            <result property="materialCodeId" column="DETAIL_MATERIAL_CODE_ID"/>
+            <result property="materialCode" column="DETAIL_MATERIAL_CODE"/>
+            <result property="materialName" column="DETAIL_MATERIAL_NAME"/>
+            <result property="specificationModel" column="DETAIL_SPECIFICATION_MODEL"/>
+            <result property="unit" column="DETAIL_UNIT"/>
+            <result property="applicationQuantity" column="DETAIL_APPLICATION_QUANTITY"/>
+            <result property="estimatedPrice" column="DETAIL_ESTIMATED_PRICE"/>
+            <result property="amount" column="DETAIL_AMOUNT"/>
+            <result property="flowDirection" column="DETAIL_FLOW_DIRECTION"/>
+            <result property="supplyTimeLimit" column="DETAIL_SUPPLY_TIME_LIMIT"/>
+            <result property="suggestedBrand" column="DETAIL_SUGGESTED_BRAND"/>
+            <result property="specificationDesc" column="DETAIL_SPECIFICATION_DESC"/>
+            <result property="purchaseDetailId" column="DETAIL_PURCHASE_DETAIL_ID"/>
+            <result property="stockQuantity" column="DETAIL_STOCK_QUANTITY"/>
+            <result property="createBy" column="DETAIL_CREATE_BY"/>
+            <result property="createByName" column="DETAIL_CREATE_BY_NAME"/>
+            <result property="createTime" column="DETAIL_CREATE_TIME"/>
+            <result property="updateBy" column="DETAIL_UPDATE_BY"/>
+            <result property="updateByName" column="DETAIL_UPDATE_BY_NAME"/>
+            <result property="updateTime" column="DETAIL_UPDATE_TIME"/>
+        </collection>
+    </resultMap>
+
+    <!-- 查询物资申报列表（包含明细和库存数量，分页） -->
+    <select id="selectListWithDetails" resultMap="EMaterialApplicationWithDetailsResultMap">
+        SELECT
+            A.ID AS APPLICATION_ID,
+            A.APPLICATION_NO,
+            A.APPLICATION_TITLE,
+            A.APPLICATION_TYPE_CODE,
+            A.APPLICATION_TYPE_NAME,
+            A.FIXED_SERVICE_CATEGORY_CODE,
+            A.FIXED_SERVICE_CATEGORY_NAME,
+            A.REMARK,
+            A.DEPT_ID,
+            A.DEPT_NAME,
+            A.STATUS,
+            A.APPROVAL_REMARK,
+            A.APPROVAL_BY,
+            A.APPROVAL_BY_NAME,
+            A.APPROVAL_TIME,
+            A.CREATE_BY,
+            A.CREATE_BY_NAME,
+            A.CREATE_TIME,
+            A.UPDATE_BY,
+            A.UPDATE_BY_NAME,
+            A.UPDATE_TIME,
+            AD.ID AS DETAIL_ID,
+            AD.APPLICATION_ID AS DETAIL_APPLICATION_ID,
+            AD.MATERIAL_CODE_ID AS DETAIL_MATERIAL_CODE_ID,
+            AD.MATERIAL_CODE AS DETAIL_MATERIAL_CODE,
+            AD.MATERIAL_NAME AS DETAIL_MATERIAL_NAME,
+            AD.SPECIFICATION_MODEL AS DETAIL_SPECIFICATION_MODEL,
+            AD.UNIT AS DETAIL_UNIT,
+            AD.APPLICATION_QUANTITY AS DETAIL_APPLICATION_QUANTITY,
+            AD.ESTIMATED_PRICE AS DETAIL_ESTIMATED_PRICE,
+            AD.AMOUNT AS DETAIL_AMOUNT,
+            AD.FLOW_DIRECTION AS DETAIL_FLOW_DIRECTION,
+            AD.SUPPLY_TIME_LIMIT AS DETAIL_SUPPLY_TIME_LIMIT,
+            AD.SUGGESTED_BRAND AS DETAIL_SUGGESTED_BRAND,
+            AD.SPECIFICATION_DESC AS DETAIL_SPECIFICATION_DESC,
+            AD.PURCHASE_DETAIL_ID AS DETAIL_PURCHASE_DETAIL_ID,
+            <if test="warehouseId != null">
+                NVL(SUM(WID.REMAINING_QUANTITY), 0) AS DETAIL_STOCK_QUANTITY,
+            </if>
+            <if test="warehouseId == null">
+                0 AS DETAIL_STOCK_QUANTITY,
+            </if>
+            AD.CREATE_BY AS DETAIL_CREATE_BY,
+            AD.CREATE_BY_NAME AS DETAIL_CREATE_BY_NAME,
+            AD.CREATE_TIME AS DETAIL_CREATE_TIME,
+            AD.UPDATE_BY AS DETAIL_UPDATE_BY,
+            AD.UPDATE_BY_NAME AS DETAIL_UPDATE_BY_NAME,
+            AD.UPDATE_TIME AS DETAIL_UPDATE_TIME
+        FROM
+            E_MATERIAL_APPLICATION A
+        LEFT JOIN E_MATERIAL_APPLICATION_DETAIL AD ON A.ID = AD.APPLICATION_ID
+        <if test="warehouseId != null">
+            LEFT JOIN E_MATERIAL_WAREHOUSE_IN_DETAIL WID ON AD.MATERIAL_CODE_ID = WID.MATERIAL_ID
+            LEFT JOIN E_MATERIAL_WAREHOUSE_IN WI ON WID.WAREHOUSE_IN_ID = WI.ID  AND WI.WAREHOUSE_ID = #{warehouseId}
+        </if>
+        <where>
+            <if test="applicationNo != null and applicationNo != ''">
+                <bind name="applicationNoPattern" value="'%' + applicationNo + '%'"/>
+                AND A.APPLICATION_NO LIKE #{applicationNoPattern}
+            </if>
+            <if test="applicationTitle != null and applicationTitle != ''">
+                <bind name="applicationTitlePattern" value="'%' + applicationTitle + '%'"/>
+                AND A.APPLICATION_TITLE LIKE #{applicationTitlePattern}
+            </if>
+            <if test="applicationTypeCode != null and applicationTypeCode != ''">
+                AND A.APPLICATION_TYPE_CODE = #{applicationTypeCode}
+            </if>
+            <if test="deptId != null">
+                AND A.DEPT_ID = #{deptId}
+            </if>
+            <if test="createBy != null">
+                AND A.CREATE_BY = #{createBy}
+            </if>
+            <if test="status != null and status != ''">
+                AND A.STATUS = #{status}
+            </if>
+            <if test="warehouseId != null">
+               AND WI.WAREHOUSE_ID = #{warehouseId}  AND WI.ACCEPTANCE_STATUS = 1
+            </if>
+        </where>
+        <if test="warehouseId != null">
+        GROUP BY
+            A.ID,
+            A.APPLICATION_NO,
+            A.APPLICATION_TITLE,
+            A.APPLICATION_TYPE_CODE,
+            A.APPLICATION_TYPE_NAME,
+            A.FIXED_SERVICE_CATEGORY_CODE,
+            A.FIXED_SERVICE_CATEGORY_NAME,
+            A.REMARK,
+            A.DEPT_ID,
+            A.DEPT_NAME,
+            A.STATUS,
+            A.APPROVAL_REMARK,
+            A.APPROVAL_BY,
+            A.APPROVAL_BY_NAME,
+            A.APPROVAL_TIME,
+            A.CREATE_BY,
+            A.CREATE_BY_NAME,
+            A.CREATE_TIME,
+            A.UPDATE_BY,
+            A.UPDATE_BY_NAME,
+            A.UPDATE_TIME,
+            AD.ID,
+            AD.APPLICATION_ID,
+            AD.MATERIAL_CODE_ID,
+            AD.MATERIAL_CODE,
+            AD.MATERIAL_NAME,
+            AD.SPECIFICATION_MODEL,
+            AD.UNIT,
+            AD.APPLICATION_QUANTITY,
+            AD.ESTIMATED_PRICE,
+            AD.AMOUNT,
+            AD.FLOW_DIRECTION,
+            AD.SUPPLY_TIME_LIMIT,
+            AD.SUGGESTED_BRAND,
+            AD.SPECIFICATION_DESC,
+            AD.PURCHASE_DETAIL_ID,
+            AD.CREATE_BY,
+            AD.CREATE_BY_NAME,
+            AD.CREATE_TIME,
+            AD.UPDATE_BY,
+            AD.UPDATE_BY_NAME,
+            AD.UPDATE_TIME
+        </if>
+        ORDER BY A.CREATE_TIME DESC, AD.CREATE_TIME ASC
+    </select>
+
+    <!-- 根据ID查询物资申报 -->
+    <select id="selectById" resultType="com.yy.ppm.equipment.bean.dto.EMaterialApplicationDTO">
+        SELECT
+            ID,
+            APPLICATION_NO,
+            APPLICATION_TITLE,
+            APPLICATION_TYPE_CODE,
+            APPLICATION_TYPE_NAME,
+            FIXED_SERVICE_CATEGORY_CODE,
+            FIXED_SERVICE_CATEGORY_NAME,
+            REMARK,
+            DEPT_ID,
+            DEPT_NAME,
+            STATUS,
+            APPROVAL_REMARK,
+            APPROVAL_BY,
+            APPROVAL_BY_NAME,
+            APPROVAL_TIME,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME
+        FROM
+            E_MATERIAL_APPLICATION
+        WHERE
+            ID = #{id}
+    </select>
+
+    <!-- 新增物资申报 -->
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.EMaterialApplicationPO">
+        INSERT INTO E_MATERIAL_APPLICATION
+        (
+            ID,
+            APPLICATION_NO,
+            APPLICATION_TITLE,
+            APPLICATION_TYPE_CODE,
+            APPLICATION_TYPE_NAME,
+            FIXED_SERVICE_CATEGORY_CODE,
+            FIXED_SERVICE_CATEGORY_NAME,
+            REMARK,
+            DEPT_ID,
+            DEPT_NAME,
+            STATUS,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )
+        VALUES
+        (
+            #{id,jdbcType=NUMERIC},
+            #{applicationNo,jdbcType=VARCHAR},
+            #{applicationTitle,jdbcType=VARCHAR},
+            #{applicationTypeCode,jdbcType=VARCHAR},
+            #{applicationTypeName,jdbcType=VARCHAR},
+            #{fixedServiceCategoryCode,jdbcType=VARCHAR},
+            #{fixedServiceCategoryName,jdbcType=VARCHAR},
+            #{remark,jdbcType=VARCHAR},
+            #{deptId,jdbcType=NUMERIC},
+            #{deptName,jdbcType=VARCHAR},
+            #{status,jdbcType=VARCHAR},
+            #{loginUserId,jdbcType=NUMERIC},
+            #{loginUserName,jdbcType=VARCHAR},
+            #{now,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <!-- 修改物资申报 -->
+    <update id="update" parameterType="com.yy.ppm.equipment.bean.po.EMaterialApplicationPO">
+        UPDATE E_MATERIAL_APPLICATION
+        <set>
+            <if test="applicationNo != null and applicationNo != ''">
+                APPLICATION_NO = #{applicationNo,jdbcType=VARCHAR},
+            </if>
+            <if test="applicationTitle != null">
+                APPLICATION_TITLE = #{applicationTitle,jdbcType=VARCHAR},
+            </if>
+            <if test="applicationTypeCode != null">
+                APPLICATION_TYPE_CODE = #{applicationTypeCode,jdbcType=VARCHAR},
+            </if>
+            <if test="applicationTypeName != null">
+                APPLICATION_TYPE_NAME = #{applicationTypeName,jdbcType=VARCHAR},
+            </if>
+            <if test="fixedServiceCategoryCode != null">
+                FIXED_SERVICE_CATEGORY_CODE = #{fixedServiceCategoryCode,jdbcType=VARCHAR},
+            </if>
+            <if test="fixedServiceCategoryName != null">
+                FIXED_SERVICE_CATEGORY_NAME = #{fixedServiceCategoryName,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                REMARK = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="deptId != null">
+                DEPT_ID = #{deptId,jdbcType=NUMERIC},
+            </if>
+            <if test="deptName != null">
+                DEPT_NAME = #{deptName,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                STATUS = #{status,jdbcType=VARCHAR},
+            </if>
+            <if test="approvalRemark != null">
+                APPROVAL_REMARK = #{approvalRemark,jdbcType=VARCHAR},
+            </if>
+            <if test="approvalRemark == null">
+                APPROVAL_REMARK = NULL,
+            </if>
+            <if test="approvalBy != null">
+                APPROVAL_BY = #{approvalBy,jdbcType=NUMERIC},
+            </if>
+            <if test="approvalBy == null">
+                APPROVAL_BY = NULL,
+            </if>
+            <if test="approvalByName != null">
+                APPROVAL_BY_NAME = #{approvalByName,jdbcType=VARCHAR},
+            </if>
+            <if test="approvalByName == null">
+                APPROVAL_BY_NAME = NULL,
+            </if>
+            <if test="approvalTime != null">
+                APPROVAL_TIME = #{approvalTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="approvalTime == null">
+                APPROVAL_TIME = NULL,
+            </if>
+            <if test="loginUserId != null">
+                UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
+            </if>
+            <if test="loginUserName != null and loginUserName != ''">
+                UPDATE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="now != null">
+                UPDATE_TIME = #{now,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        WHERE
+            ID = #{id}
+    </update>
+
+    <!-- 删除物资申报（物理删除） -->
+    <delete id="deleteById">
+        DELETE FROM E_MATERIAL_APPLICATION
+        WHERE ID = #{id}
+    </delete>
+
+    <!-- 检查申请单号是否重复 -->
+    <select id="countByApplicationNo" resultType="int">
+        SELECT COUNT(*)
+        FROM E_MATERIAL_APPLICATION
+        WHERE APPLICATION_NO = #{applicationNo}
+        <if test="id != null">
+            AND ID != #{id}
+        </if>
+    </select>
+
+    <!-- 审批物资申报 -->
+    <update id="approve" parameterType="com.yy.ppm.equipment.bean.po.EMaterialApplicationPO">
+        UPDATE E_MATERIAL_APPLICATION
+        <set>
+            <if test="status != null">
+                STATUS = #{status,jdbcType=VARCHAR},
+            </if>
+            <if test="approvalRemark != null">
+                APPROVAL_REMARK = #{approvalRemark,jdbcType=VARCHAR},
+            </if>
+                APPROVAL_BY = #{loginUserId,jdbcType=NUMERIC},
+                APPROVAL_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+                APPROVAL_TIME = #{now,jdbcType=TIMESTAMP}
+        </set>
+        WHERE
+            ID = #{id}
+    </update>
+
+</mapper>
+

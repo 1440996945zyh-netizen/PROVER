@@ -222,4 +222,25 @@ public class SysDeptServiceImpl implements SysDeptService {
         return deptMapper.getDeptList(ids);
     }
 
+    /**
+     * 根据部门级别查询部门列表
+     *
+     * @param deptLevel 部门级别
+     * @return 部门信息集合
+     */
+    @Override
+    public List<SysDeptDTO> selectDeptListByLevel(String deptLevel) {
+        return deptMapper.selectDeptListByLevel(deptLevel);
+    }
+
+    /**
+     * 功能描述: 根据父部门ID查询部门列表
+     * @param parentId 父部门ID
+     * @return : java.util.List<com.yy.ppm.system.bean.dto.SysDeptDTO>
+     */
+    @Override
+    public List<SysDeptDTO> selectDeptListByParentId(Long parentId) {
+        return deptMapper.selectDeptListByParentId(parentId);
+    }
+
 }

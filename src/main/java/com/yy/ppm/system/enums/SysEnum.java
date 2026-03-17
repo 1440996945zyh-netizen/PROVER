@@ -56,7 +56,7 @@ public interface SysEnum {
     public static enum SysParamEnum {
 
         /** 桶名称 */
-        FILE_BUCKET("FILE_BUCKET", "ppm", "MIMIO桶名称");
+        FILE_BUCKET("FILE_BUCKET", "ems", "MIMIO桶名称");
 
         private String code;
         // 默认值

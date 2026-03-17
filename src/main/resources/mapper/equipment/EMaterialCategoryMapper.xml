@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMaterialCategoryMapper">
+
+    <!-- 查询物资类别树形列表 -->
+    <select id="selectMaterialCategoryTree" resultType="com.yy.ppm.equipment.bean.dto.EMaterialCategoryDTO">
+        SELECT
+            ID,
+            PARENT_ID,
+            CATEGORY_CODE,
+            CATEGORY_NAME,
+            SORT_ORDER,
+            IS_LABOR_PROTECTION,
+            CATEGORY_LEVEL,
+            CODE_COUNT,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME,
+            DEL_FLAG,
+            DELETE_BY,
+            DELETE_BY_NAME,
+            DELETE_TIME
+        FROM
+            E_MATERIAL_CATEGORY
+        WHERE
+            DEL_FLAG = 0
+            <if test="categoryName != null and categoryName != ''">
+                <bind name="categoryNamePattern" value="'%' + categoryName + '%'"/>
+                AND CATEGORY_NAME LIKE #{categoryNamePattern}
+            </if>
+        ORDER BY
+            SORT_ORDER ASC,
+            CATEGORY_LEVEL ASC,
+            CREATE_TIME ASC
+    </select>
+
+    <!-- 根据父级ID查询子级列表 -->
+    <select id="selectByParentId" resultType="com.yy.ppm.equipment.bean.dto.EMaterialCategoryDTO">
+        SELECT
+            ID,
+            PARENT_ID,
+            CATEGORY_CODE,
+            CATEGORY_NAME,
+            SORT_ORDER,
+            IS_LABOR_PROTECTION,
+            CATEGORY_LEVEL,
+            CODE_COUNT,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME,
+            DEL_FLAG,
+            DELETE_BY,
+            DELETE_BY_NAME,
+            DELETE_TIME
+        FROM
+            E_MATERIAL_CATEGORY
+        WHERE
+            DEL_FLAG = 0
+        <if test="parentId != null">
+            AND PARENT_ID = #{parentId}
+        </if>
+        <if test="parentId == null">
+            AND (PARENT_ID IS NULL OR PARENT_ID = 0)
+        </if>
+        ORDER BY
+            SORT_ORDER ASC,
+            CREATE_TIME ASC
+    </select>
+
+    <!-- 根据ID查询物资类别 -->
+    <select id="selectById" resultType="com.yy.ppm.equipment.bean.dto.EMaterialCategoryDTO">
+        SELECT
+            t1.ID,
+            t1.PARENT_ID,
+            t1.CATEGORY_CODE,
+            t1.CATEGORY_NAME,
+            t1.SORT_ORDER,
+            t1.IS_LABOR_PROTECTION,
+            t1.CATEGORY_LEVEL,
+            t1.CODE_COUNT,
+            t1.CREATE_BY,
+            t1.CREATE_BY_NAME,
+            t1.CREATE_TIME,
+            t1.UPDATE_BY,
+            t1.UPDATE_BY_NAME,
+            t1.UPDATE_TIME,
+            t1.DEL_FLAG,
+            t1.DELETE_BY,
+            t1.DELETE_BY_NAME,
+            t1.DELETE_TIME,
+            t2.CATEGORY_NAME AS PARENT_NAME
+        FROM
+            E_MATERIAL_CATEGORY t1
+        LEFT JOIN
+            E_MATERIAL_CATEGORY t2 ON t1.PARENT_ID = t2.ID
+        WHERE
+            t1.ID = #{id}
+            AND t1.DEL_FLAG = 0
+    </select>
+
+    <!-- 新增物资类别 -->
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.EMaterialCategoryPO">
+        INSERT INTO E_MATERIAL_CATEGORY
+        (
+            ID,
+            PARENT_ID,
+            CATEGORY_CODE,
+            CATEGORY_NAME,
+            SORT_ORDER,
+            IS_LABOR_PROTECTION,
+            CATEGORY_LEVEL,
+            CODE_COUNT,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            DEL_FLAG
+        )
+        VALUES
+        (
+            #{id,jdbcType=NUMERIC},
+            #{parentId,jdbcType=NUMERIC},
+            #{categoryCode,jdbcType=VARCHAR},
+            #{categoryName,jdbcType=VARCHAR},
+            #{sortOrder,jdbcType=NUMERIC},
+            #{isLaborProtection,jdbcType=NUMERIC},
+            #{categoryLevel,jdbcType=NUMERIC},
+            #{codeCount,jdbcType=NUMERIC},
+            #{loginUserId,jdbcType=NUMERIC},
+            #{loginUserName,jdbcType=VARCHAR},
+            #{now,jdbcType=TIMESTAMP},
+            0
+        )
+    </insert>
+
+    <!-- 修改物资类别 -->
+    <update id="update" parameterType="com.yy.ppm.equipment.bean.po.EMaterialCategoryPO">
+        UPDATE E_MATERIAL_CATEGORY
+        <set>
+            <if test="parentId != null">
+                PARENT_ID = #{parentId,jdbcType=NUMERIC},
+            </if>
+            <if test="categoryCode != null and categoryCode != ''">
+                CATEGORY_CODE = #{categoryCode,jdbcType=VARCHAR},
+            </if>
+            <if test="categoryName != null and categoryName != ''">
+                CATEGORY_NAME = #{categoryName,jdbcType=VARCHAR},
+            </if>
+            <if test="sortOrder != null">
+                SORT_ORDER = #{sortOrder,jdbcType=NUMERIC},
+            </if>
+            <if test="isLaborProtection != null">
+                IS_LABOR_PROTECTION = #{isLaborProtection,jdbcType=NUMERIC},
+            </if>
+            <if test="categoryLevel != null">
+                CATEGORY_LEVEL = #{categoryLevel,jdbcType=NUMERIC},
+            </if>
+            <if test="codeCount != null">
+                CODE_COUNT = #{codeCount,jdbcType=NUMERIC},
+            </if>
+            <if test="loginUserId != null">
+                UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
+            </if>
+            <if test="loginUserName != null and loginUserName != ''">
+                UPDATE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="now != null">
+                UPDATE_TIME = #{now,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        WHERE
+            ID = #{id}
+    </update>
+
+    <!-- 删除物资类别（逻辑删除） -->
+    <update id="deleteById" parameterType="com.yy.ppm.equipment.bean.po.EMaterialCategoryPO">
+        UPDATE E_MATERIAL_CATEGORY
+        SET
+            DEL_FLAG = 1,
+            DELETE_BY = #{loginUserId,jdbcType=NUMERIC},
+            DELETE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            DELETE_TIME = #{now,jdbcType=TIMESTAMP}
+        WHERE
+            ID = #{id,jdbcType=BIGINT}
+    </update>
+
+    <!-- 检查是否有子级 -->
+    <select id="countByParentId" resultType="int">
+        SELECT COUNT(*)
+        FROM E_MATERIAL_CATEGORY
+        WHERE PARENT_ID = #{parentId}
+        AND DEL_FLAG = 0
+    </select>
+
+    <!-- 检查同级下名称是否重复 -->
+    <select id="countByNameAndParent" resultType="int">
+        SELECT COUNT(*)
+        FROM E_MATERIAL_CATEGORY
+        WHERE CATEGORY_NAME = #{categoryName}
+        AND DEL_FLAG = 0
+        <if test="parentId != null">
+            AND PARENT_ID = #{parentId}
+        </if>
+        <if test="parentId == null">
+            AND (PARENT_ID IS NULL OR PARENT_ID = 0)
+        </if>
+        <if test="id != null">
+            AND ID != #{id}
+        </if>
+    </select>
+
+    <!-- 检查同级下编码是否重复 -->
+    <select id="countByCodeAndParent" resultType="int">
+        SELECT COUNT(*)
+        FROM E_MATERIAL_CATEGORY
+        WHERE CATEGORY_CODE = #{categoryCode}
+        AND DEL_FLAG = 0
+        <if test="parentId != null">
+            AND PARENT_ID = #{parentId}
+        </if>
+        <if test="parentId == null">
+            AND (PARENT_ID IS NULL OR PARENT_ID = 0)
+        </if>
+        <if test="id != null">
+            AND ID != #{id}
+        </if>
+    </select>
+
+    <!-- 检查全表中编码是否重复（排除当前ID） -->
+    <select id="countByCode" resultType="int">
+        SELECT COUNT(*)
+        FROM E_MATERIAL_CATEGORY
+        WHERE CATEGORY_CODE = #{categoryCode}
+        AND DEL_FLAG = 0
+        <if test="id != null">
+            AND ID != #{id}
+        </if>
+    </select>
+
+    <!-- 根据级别和父级ID查询物资类别列表 -->
+    <select id="selectByLevelAndParent" resultType="com.yy.ppm.equipment.bean.dto.EMaterialCategoryDTO">
+        SELECT
+            ID,
+            PARENT_ID,
+            CATEGORY_CODE,
+            CATEGORY_NAME,
+            SORT_ORDER,
+            IS_LABOR_PROTECTION,
+            CATEGORY_LEVEL,
+            CODE_COUNT,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME,
+            DEL_FLAG,
+            DELETE_BY,
+            DELETE_BY_NAME,
+            DELETE_TIME
+        FROM
+            E_MATERIAL_CATEGORY
+        WHERE
+            DEL_FLAG = 0
+            AND CATEGORY_LEVEL = #{categoryLevel}
+        <if test="parentId != null">
+            AND PARENT_ID = #{parentId}
+        </if>
+        <if test="parentId == null">
+            AND (PARENT_ID IS NULL OR PARENT_ID = 0)
+        </if>
+        ORDER BY
+            SORT_ORDER ASC,
+            CREATE_TIME ASC
+    </select>
+
+    <!-- 更新父级的CODE_COUNT -->
+    <update id="updateParentCodeCount">
+        UPDATE E_MATERIAL_CATEGORY
+        SET CODE_COUNT = #{codeCount,jdbcType=NUMERIC}
+        WHERE ID = #{parentId}
+    </update>
+
+</mapper>
+

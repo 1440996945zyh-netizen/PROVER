@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.MEquipmentOperationMapper">
+
+<select id="getList" resultType="com.yy.ppm.equipment.bean.po.MEquipmentOperationPO">
+    SELECT
+    ID,
+    WORK_DATE,
+    EQUIP_ID,
+    EQUIP_NAME,
+    RUN_TIME,
+    WORK_TIME,
+    FAULT_TIME,
+    RUN_MILEAGE,
+    WORK_TON,
+    WORK_BOX,
+    OIL_CONSUME,
+    POWER_CONSUME,
+    CREATE_BY,
+    CREATE_BY_NAME,
+    CREATE_TIME
+    FROM
+    E_M_EQPT_OPERATION
+    where
+    1=1
+    <if test="equipName != null and equipName != ''">
+        <bind name="equipNameLike" value="'%'+equipName+'%'"/>
+        and EQUIP_NAME like #{equipNameLike}
+    </if>
+    <if test="startTime != null and startTime != ''">
+        and WORK_DATE >= to_date(#{startTime},'yyyy-MM-dd')
+    </if>
+    <if test="endTime != null and endTime != ''">
+        and WORK_DATE &lt;= to_date(#{endTime},'yyyy-MM-dd')
+    </if>
+    order by
+    CREATE_TIME DESC
+</select>
+
+<select id="getById" resultType="com.yy.ppm.equipment.bean.po.MEquipmentOperationPO">
+    SELECT
+    ID,
+    WORK_DATE,
+    EQUIP_ID,
+    EQUIP_NAME,
+    RUN_TIME,
+    WORK_TIME,
+    FAULT_TIME,
+    RUN_MILEAGE,
+    WORK_TON,
+    WORK_BOX,
+    OIL_CONSUME,
+    POWER_CONSUME,
+    CREATE_BY,
+    CREATE_BY_NAME,
+    CREATE_TIME
+    FROM
+    E_M_EQPT_OPERATION
+    where
+    ID = #{id}
+</select>
+
+<insert id="insert">
+    insert into E_M_EQPT_OPERATION
+    (
+    ID,
+    WORK_DATE,
+    EQUIP_ID,
+    EQUIP_NAME,
+    RUN_TIME,
+    WORK_TIME,
+    FAULT_TIME,
+    RUN_MILEAGE,
+    WORK_TON,
+    WORK_BOX,
+    OIL_CONSUME,
+    POWER_CONSUME,
+    CREATE_BY,
+    CREATE_BY_NAME,
+    CREATE_TIME
+    ) values
+    (
+    #{id},
+    #{workDate},
+    #{equipId},
+    #{equipName},
+    #{runTime},
+    #{workTime},
+    #{faultTime},
+    #{runMileage},
+    #{workTon},
+    #{workBox},
+    #{oilConsume},
+    #{powerConsume},
+    #{loginUserId},
+    #{loginUserName},
+    #{now}
+    )
+</insert>
+
+<update id="update">
+    update E_M_EQPT_OPERATION
+    set
+    WORK_DATE = #{workDate},
+    EQUIP_ID = #{equipId},
+    EQUIP_NAME = #{equipName},
+    RUN_TIME = #{runTime},
+    WORK_TIME = #{workTime},
+    FAULT_TIME = #{faultTime},
+    RUN_MILEAGE = #{runMileage},
+    WORK_TON = #{workTon},
+    WORK_BOX = #{workBox},
+    OIL_CONSUME = #{oilConsume},
+    POWER_CONSUME = #{powerConsume},
+    UPDATE_BY = #{loginUserId},
+    UPDATE_BY_NAME = #{loginUserName},
+    UPDATE_TIME = #{now}
+    where
+    ID = #{id}
+</update>
+
+<delete id="deleteById">
+    delete from E_M_EQPT_OPERATION where ID = #{id}
+</delete>
+</mapper>
+

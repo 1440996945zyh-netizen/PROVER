@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMaterialStockMapper">
+
+    <!-- 查询物资库存列表（分页，汇总） -->
+    <select id="selectStockList" resultType="com.yy.ppm.equipment.bean.dto.EMaterialStockDTO">
+        SELECT
+            WI.WAREHOUSE_ID AS warehouseId,
+            WI.WAREHOUSE_NAME AS warehouseName,
+            MC.ID AS materialId,
+            MC.MATERIAL_NAME AS materialName,
+            CASE
+                WHEN c3.CATEGORY_NAME IS NOT NULL AND c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL
+                    THEN c3.CATEGORY_NAME || '/' || c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
+                WHEN c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL
+                    THEN c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
+                WHEN c.CATEGORY_NAME IS NOT NULL
+                    THEN c.CATEGORY_NAME
+                ELSE ''
+            END AS categoryName,
+            MC.SPECIFICATION_MODEL AS specificationModel,
+            MC.BRAND AS brand,
+            MC.UNIT_CODE AS unitCode,
+            MC.UNIT_NAME AS unitName,
+            NVL(SUM(WID.REMAINING_QUANTITY), 0) AS stockQuantity,
+            CASE
+                WHEN NVL(SUM(WID.REMAINING_QUANTITY), 0) > 0
+                THEN NVL(SUM(WID.REMAINING_QUANTITY * NVL(WID.TAX_INCLUDED_UNIT_PRICE, 0)), 0) / NVL(SUM(WID.REMAINING_QUANTITY), 0)
+                ELSE 0
+            END AS stockUnitPrice,
+            NVL(SUM(WID.REMAINING_QUANTITY * NVL(WID.TAX_INCLUDED_UNIT_PRICE, 0)), 0) AS stockTotalPrice
+        FROM
+            E_MATERIAL_WAREHOUSE_IN_DETAIL WID
+        INNER JOIN E_MATERIAL_WAREHOUSE_IN WI ON WID.WAREHOUSE_IN_ID = WI.ID  AND WI.ACCEPTANCE_STATUS = 1
+        INNER JOIN E_MATERIAL_CODE MC ON WID.MATERIAL_ID = MC.ID AND MC.DEL_FLAG = 0
+        LEFT JOIN E_MATERIAL_CATEGORY c ON MC.CATEGORY_ID = c.ID AND c.DEL_FLAG = 0
+        LEFT JOIN E_MATERIAL_CATEGORY c2 ON c.PARENT_ID = c2.ID AND c2.DEL_FLAG = 0
+        LEFT JOIN E_MATERIAL_CATEGORY c3 ON c2.PARENT_ID = c3.ID AND c3.DEL_FLAG = 0
+        <where>
+            AND WID.REMAINING_QUANTITY > 0
+            <if test="warehouseId != null">
+                AND WI.WAREHOUSE_ID = #{warehouseId}
+            </if>
+            <if test="warehouseName != null and warehouseName != ''">
+                <bind name="warehouseNamePattern" value="'%' + warehouseName + '%'"/>
+                AND WI.WAREHOUSE_NAME LIKE #{warehouseNamePattern}
+            </if>
+            <if test="materialId != null">
+                AND MC.ID = #{materialId}
+            </if>
+            <if test="materialName != null and materialName != ''">
+                <bind name="materialNamePattern" value="'%' + materialName + '%'"/>
+                AND MC.MATERIAL_NAME LIKE #{materialNamePattern}
+            </if>
+            <if test="categoryId != null">
+                AND MC.CATEGORY_ID = #{categoryId}
+            </if>
+            <if test="specificationModel != null and specificationModel != ''">
+                <bind name="specificationModelPattern" value="'%' + specificationModel + '%'"/>
+                AND MC.SPECIFICATION_MODEL LIKE #{specificationModelPattern}
+            </if>
+            <if test="brand != null and brand != ''">
+                <bind name="brandPattern" value="'%' + brand + '%'"/>
+                AND MC.BRAND LIKE #{brandPattern}
+            </if>
+        </where>
+        GROUP BY
+            WI.WAREHOUSE_ID,
+            WI.WAREHOUSE_NAME,
+            MC.ID,
+            MC.MATERIAL_NAME,
+            CASE
+                WHEN c3.CATEGORY_NAME IS NOT NULL AND c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL
+                    THEN c3.CATEGORY_NAME || '/' || c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
+                WHEN c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL
+                    THEN c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
+                WHEN c.CATEGORY_NAME IS NOT NULL
+                    THEN c.CATEGORY_NAME
+                ELSE ''
+            END,
+            MC.SPECIFICATION_MODEL,
+            MC.BRAND,
+            MC.UNIT_CODE,
+            MC.UNIT_NAME
+        ORDER BY WI.WAREHOUSE_NAME, MC.MATERIAL_NAME
+    </select>
+
+    <!-- 查询物资库存明细列表（根据仓库ID和物资ID） -->
+    <select id="selectStockDetailList" resultType="com.yy.ppm.equipment.bean.dto.EMaterialStockDetailDTO">
+        SELECT
+            WID.MATERIAL_NAME AS materialName,
+            WI.SUPPLIER_NAME AS supplierName,
+            WID.SPECIFICATION AS specificationDesc,
+            WID.BRAND AS brand,
+            WID.PURCHASE_QUANTITY AS purchaseQuantity,
+            WID.WAREHOUSE_IN_QUANTITY AS warehouseInQuantity,
+            WID.OUT_QUANTITY AS outQuantity,
+            WID.REMAINING_QUANTITY AS remainingQuantity,
+            WID.UNIT AS unit,
+            WID.WARRANTY_EXPIRY_DATE AS warrantyExpiryDate,
+            WID.PURCHASER_NAME AS purchaserName,
+            WI.WAREHOUSE_IN_DATE AS warehouseInTime,
+            WI.WAREHOUSE_IN_NO AS warehouseInNo,
+            WI.WAREHOUSE_IN_TYPE_NAME AS warehouseInTypeName
+        FROM
+            E_MATERIAL_WAREHOUSE_IN_DETAIL WID
+        INNER JOIN E_MATERIAL_WAREHOUSE_IN WI ON WID.WAREHOUSE_IN_ID = WI.ID AND WI.ACCEPTANCE_STATUS = 1
+        <where>
+            WI.WAREHOUSE_ID = #{warehouseId}
+            AND WID.MATERIAL_ID = #{materialId}
+            <if test="warehouseInTimeStart != null and warehouseInTimeStart != ''">
+                AND WI.WAREHOUSE_IN_DATE &gt;= TO_DATE(#{warehouseInTimeStart}, 'YYYY-MM-DD')
+            </if>
+            <if test="warehouseInTimeEnd != null and warehouseInTimeEnd != ''">
+                AND WI.WAREHOUSE_IN_DATE &lt;= TO_DATE(#{warehouseInTimeEnd}, 'YYYY-MM-DD')
+            </if>
+        </where>
+        ORDER BY WI.WAREHOUSE_IN_DATE DESC, WID.CREATE_TIME ASC
+    </select>
+
+    <!-- 查询物资库存流水列表（根据仓库ID和物资ID） -->
+    <select id="selectStockFlowList" resultType="com.yy.ppm.equipment.bean.dto.EMaterialStockFlowDTO">
+        SELECT
+            REL.ID AS id,
+            REL.WAREHOUSE_IN_DETAIL_ID AS warehouseInDetailId,
+            REL.WAREHOUSE_OUT_DETAIL_ID AS warehouseOutDetailId,
+            REL.QUANTITY AS quantity,
+            MC.MATERIAL_CODE AS materialCode,
+            MC.MATERIAL_NAME AS materialName,
+            WI.ID AS warehouseInId,
+            WI.WAREHOUSE_IN_NO AS warehouseInNo,
+            WI.WAREHOUSE_IN_DATE AS warehouseInDate,
+            WI.WAREHOUSE_IN_TITLE AS warehouseInTitle,
+            WO.ID AS warehouseOutId,
+            WO.WAREHOUSE_OUT_NO AS warehouseOutNo,
+            WO.CREATE_TIME AS warehouseOutDate,
+            WO.WAREHOUSE_OUT_TITLE AS warehouseOutTitle,
+            2 AS operationType,
+            WO.CREATE_TIME AS operationTime,
+            REL.CREATE_TIME AS createTime
+        FROM
+            E_MAT_WAREHOUSE_IN_OUT_REL REL
+        INNER JOIN E_MATERIAL_WAREHOUSE_IN_DETAIL WID ON REL.WAREHOUSE_IN_DETAIL_ID = WID.ID
+        INNER JOIN E_MATERIAL_WAREHOUSE_IN WI ON WID.WAREHOUSE_IN_ID = WI.ID
+        INNER JOIN E_MATERIAL_CODE MC ON WID.MATERIAL_ID = MC.ID AND MC.DEL_FLAG = 0
+        INNER JOIN E_MAT_WAREHOUSE_OUT_DETAIL WOD ON REL.WAREHOUSE_OUT_DETAIL_ID = WOD.ID
+        INNER JOIN E_MAT_WAREHOUSE_OUT WO ON WOD.WAREHOUSE_OUT_ID = WO.ID
+        WHERE
+            WI.WAREHOUSE_ID = #{warehouseId}
+            AND WID.MATERIAL_ID = #{materialId}
+            AND WI.ACCEPTANCE_STATUS = 1
+            <if test="warehouseInTimeStart != null and warehouseInTimeStart != ''">
+                AND WI.WAREHOUSE_IN_DATE &gt;= TO_DATE(#{warehouseInTimeStart}, 'YYYY-MM-DD')
+            </if>
+            <if test="warehouseInTimeEnd != null and warehouseInTimeEnd != ''">
+                AND WI.WAREHOUSE_IN_DATE &lt;= TO_DATE(#{warehouseInTimeEnd}, 'YYYY-MM-DD')
+            </if>
+        ORDER BY REL.CREATE_TIME DESC,WI.WAREHOUSE_IN_NO
+    </select>
+
+    <!-- 查询指定仓库的所有物资库存（用于创建盘点单） -->
+    <select id="selectStockListByWarehouseId" resultType="com.yy.ppm.equipment.bean.dto.EMaterialStockDTO">
+        SELECT
+            WI.WAREHOUSE_ID AS warehouseId,
+            WI.WAREHOUSE_NAME AS warehouseName,
+            MC.ID AS materialId,
+            MC.MATERIAL_NAME AS materialName,
+            MC.SPECIFICATION_MODEL AS specificationModel,
+            MC.UNIT_CODE AS unitCode,
+            MC.UNIT_NAME AS unitName,
+            NVL(SUM(WID.REMAINING_QUANTITY), 0) AS stockQuantity
+        FROM
+            E_MATERIAL_WAREHOUSE_IN_DETAIL WID
+        INNER JOIN E_MATERIAL_WAREHOUSE_IN WI ON WID.WAREHOUSE_IN_ID = WI.ID AND WI.ACCEPTANCE_STATUS = 1
+        INNER JOIN E_MATERIAL_CODE MC ON WID.MATERIAL_ID = MC.ID AND MC.DEL_FLAG = 0
+        WHERE
+            WI.WAREHOUSE_ID = #{warehouseId}
+            AND WID.REMAINING_QUANTITY > 0
+        GROUP BY
+            WI.WAREHOUSE_ID,
+            WI.WAREHOUSE_NAME,
+            MC.ID,
+            MC.MATERIAL_NAME,
+            MC.SPECIFICATION_MODEL,
+            MC.UNIT_CODE,
+            MC.UNIT_NAME
+        ORDER BY MC.MATERIAL_NAME
+    </select>
+
+    <!-- 查询物资库存列表（导出，不分页） -->
+    <select id="selectStockListForExport" resultType="com.yy.ppm.equipment.bean.dto.EMaterialStockDTO">
+        SELECT
+            WI.WAREHOUSE_ID AS warehouseId,
+            WI.WAREHOUSE_NAME AS warehouseName,
+            MC.ID AS materialId,
+            MC.MATERIAL_NAME AS materialName,
+            CASE
+                WHEN c3.CATEGORY_NAME IS NOT NULL AND c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL
+                    THEN c3.CATEGORY_NAME || '/' || c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
+                WHEN c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL
+                    THEN c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
+                WHEN c.CATEGORY_NAME IS NOT NULL
+                    THEN c.CATEGORY_NAME
+                ELSE ''
+            END AS categoryName,
+            MC.SPECIFICATION_MODEL AS specificationModel,
+            MC.BRAND AS brand,
+            MC.UNIT_CODE AS unitCode,
+            MC.UNIT_NAME AS unitName,
+            NVL(SUM(WID.REMAINING_QUANTITY), 0) AS stockQuantity,
+            CASE
+                WHEN NVL(SUM(WID.REMAINING_QUANTITY), 0) > 0
+                THEN NVL(SUM(WID.REMAINING_QUANTITY * NVL(WID.TAX_INCLUDED_UNIT_PRICE, 0)), 0) / NVL(SUM(WID.REMAINING_QUANTITY), 0)
+                ELSE 0
+            END AS stockUnitPrice,
+            NVL(SUM(WID.REMAINING_QUANTITY * NVL(WID.TAX_INCLUDED_UNIT_PRICE, 0)), 0) AS stockTotalPrice
+        FROM
+            E_MATERIAL_WAREHOUSE_IN_DETAIL WID
+        INNER JOIN E_MATERIAL_WAREHOUSE_IN WI ON WID.WAREHOUSE_IN_ID = WI.ID  AND WI.ACCEPTANCE_STATUS = 1
+        INNER JOIN E_MATERIAL_CODE MC ON WID.MATERIAL_ID = MC.ID AND MC.DEL_FLAG = 0
+        LEFT JOIN E_MATERIAL_CATEGORY c ON MC.CATEGORY_ID = c.ID AND c.DEL_FLAG = 0
+        LEFT JOIN E_MATERIAL_CATEGORY c2 ON c.PARENT_ID = c2.ID AND c2.DEL_FLAG = 0
+        LEFT JOIN E_MATERIAL_CATEGORY c3 ON c2.PARENT_ID = c3.ID AND c3.DEL_FLAG = 0
+        <where>
+            AND WID.REMAINING_QUANTITY > 0
+            <if test="warehouseId != null">
+                AND WI.WAREHOUSE_ID = #{warehouseId}
+            </if>
+            <if test="warehouseName != null and warehouseName != ''">
+                <bind name="warehouseNamePattern" value="'%' + warehouseName + '%'"/>
+                AND WI.WAREHOUSE_NAME LIKE #{warehouseNamePattern}
+            </if>
+            <if test="materialId != null">
+                AND MC.ID = #{materialId}
+            </if>
+            <if test="materialName != null and materialName != ''">
+                <bind name="materialNamePattern" value="'%' + materialName + '%'"/>
+                AND MC.MATERIAL_NAME LIKE #{materialNamePattern}
+            </if>
+            <if test="categoryId != null">
+                AND MC.CATEGORY_ID = #{categoryId}
+            </if>
+            <if test="specificationModel != null and specificationModel != ''">
+                <bind name="specificationModelPattern" value="'%' + specificationModel + '%'"/>
+                AND MC.SPECIFICATION_MODEL LIKE #{specificationModelPattern}
+            </if>
+            <if test="brand != null and brand != ''">
+                <bind name="brandPattern" value="'%' + brand + '%'"/>
+                AND MC.BRAND LIKE #{brandPattern}
+            </if>
+        </where>
+        GROUP BY
+            WI.WAREHOUSE_ID,
+            WI.WAREHOUSE_NAME,
+            MC.ID,
+            MC.MATERIAL_NAME,
+            CASE
+                WHEN c3.CATEGORY_NAME IS NOT NULL AND c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL
+                    THEN c3.CATEGORY_NAME || '/' || c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
+                WHEN c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL
+                    THEN c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
+                WHEN c.CATEGORY_NAME IS NOT NULL
+                    THEN c.CATEGORY_NAME
+                ELSE ''
+            END,
+            MC.SPECIFICATION_MODEL,
+            MC.BRAND,
+            MC.UNIT_CODE,
+            MC.UNIT_NAME
+        ORDER BY WI.WAREHOUSE_NAME, MC.MATERIAL_NAME
+    </select>
+
+</mapper>
+

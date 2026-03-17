@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.MEquipmentFinanceMapper">
+
+    <!-- 根据设备ID查询财务信息 -->
+    <select id="selectByEquipId" resultType="com.yy.ppm.equipment.bean.po.MEquipmentFinancePO">
+        SELECT
+            ID,
+            EQUIP_ID,
+            EQUIP_ASSETS_CODE,
+            PRICE,
+            NET_VALUE,
+            DEPRECIATION_LIMIT,
+            ALREADY_LIMIT,
+            DEL_FLAG,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME,
+            DELETE_BY,
+            DELETE_BY_NAME,
+            DELETE_TIME
+        FROM
+            E_M_EQPT_FINANCE
+        WHERE
+            EQUIP_ID = #{equipId}
+            AND DEL_FLAG = 0
+    </select>
+
+    <!-- 新增设备财务信息 -->
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.MEquipmentFinancePO">
+        INSERT INTO E_M_EQPT_FINANCE
+        (
+            ID,
+            EQUIP_ID,
+            EQUIP_ASSETS_CODE,
+            PRICE,
+            NET_VALUE,
+            DEPRECIATION_LIMIT,
+            ALREADY_LIMIT,
+            DEL_FLAG,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )
+        VALUES
+        (
+            #{id,jdbcType=NUMERIC},
+            #{equipId,jdbcType=NUMERIC},
+            #{equipAssetsCode,jdbcType=VARCHAR},
+            #{price,jdbcType=NUMERIC},
+            #{netValue,jdbcType=NUMERIC},
+            #{depreciationLimit,jdbcType=NUMERIC},
+            #{alreadyLimit,jdbcType=NUMERIC},
+            0,
+            #{loginUserId,jdbcType=NUMERIC},
+            #{loginUserName,jdbcType=VARCHAR},
+            #{now,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <!-- 修改设备财务信息 -->
+    <update id="update" parameterType="com.yy.ppm.equipment.bean.po.MEquipmentFinancePO">
+        UPDATE E_M_EQPT_FINANCE
+        <set>
+            <if test="equipAssetsCode != null">
+                EQUIP_ASSETS_CODE = #{equipAssetsCode,jdbcType=VARCHAR},
+            </if>
+            <if test="price != null">
+                PRICE = #{price,jdbcType=NUMERIC},
+            </if>
+            <if test="netValue != null">
+                NET_VALUE = #{netValue,jdbcType=NUMERIC},
+            </if>
+            <if test="depreciationLimit != null">
+                DEPRECIATION_LIMIT = #{depreciationLimit,jdbcType=NUMERIC},
+            </if>
+            <if test="alreadyLimit != null">
+                ALREADY_LIMIT = #{alreadyLimit,jdbcType=NUMERIC},
+            </if>
+            UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
+            UPDATE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            UPDATE_TIME = #{now,jdbcType=TIMESTAMP}
+        </set>
+        WHERE
+            ID = #{id}
+    </update>
+
+    <!-- 删除设备财务信息（逻辑删除） -->
+    <update id="deleteByEquipId">
+        UPDATE E_M_EQPT_FINANCE
+        SET
+            DEL_FLAG = 1,
+            DELETE_BY = #{loginUserId,jdbcType=BIGINT},
+            DELETE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            DELETE_TIME = #{now,jdbcType=TIMESTAMP}
+        WHERE
+            EQUIP_ID = #{equipId}
+    </update>
+
+</mapper>
+

@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.MEquipmentTypeMapper">
+
+    <!-- 查询设备类别管理树（只到设备小类：1/2/3级） -->
+    <select id="selectEquipmentTypeTree" resultType="com.yy.ppm.equipment.bean.dto.MEquipmentTypeDTO">
+        SELECT
+        ID              AS id,
+        TYPE_NAME       AS typeName,
+        PARENT_ID       AS parentId,
+        CATEGORY_LEVEL  AS categoryLevel,
+        SORT_ORDER      AS sortOrder,
+        CREATE_TIME     AS createTime
+        FROM E_M_EQPT_TYPE
+        WHERE DEL_FLAG = 0
+        AND CATEGORY_LEVEL &lt;= 3
+        <if test="typeName != null and typeName != ''">
+            <bind name="kwLike" value="'%' + typeName + '%'" />
+            AND TYPE_NAME LIKE #{kwLike}
+        </if>
+        ORDER BY NVL(SORT_ORDER,0), CREATE_TIME DESC
+    </select>
+
+    <!-- 查询设备类型分类树形列表 -->
+    <select id="partsTree" resultType="com.yy.ppm.equipment.bean.dto.MEquipmentTypeDTO">
+        SELECT
+            ID,
+            TYPE_NAME,
+            decode(CATEGORY_LEVEL,3,null,PARENT_ID) PARENT_ID,
+            CATEGORY_LEVEL,
+            SORT_ORDER,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME,
+            DEL_FLAG,
+            DELETE_BY,
+            DELETE_BY_NAME,
+            DELETE_TIME
+        FROM
+            E_M_EQPT_TYPE
+        WHERE
+            DEL_FLAG = 0
+            and CATEGORY_LEVEL > 2
+        <if test="typeName != null and typeName != ''">
+            <bind name="typeNameLike" value="'%'+typeName+'%'"/>
+            and TYPE_NAME like #{typeNameLike}
+        </if>
+        ORDER BY
+            SORT_ORDER ASC,
+            CATEGORY_LEVEL ASC,
+            CREATE_TIME ASC
+    </select>
+
+    <!-- 根据父级ID查询子级列表 -->
+    <select id="selectByParentId" resultType="com.yy.ppm.equipment.bean.dto.MEquipmentTypeDTO">
+        SELECT
+            ID,
+            TYPE_NAME,
+            PARENT_ID,
+            CATEGORY_LEVEL,
+            SORT_ORDER,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME,
+            DEL_FLAG,
+            DELETE_BY,
+            DELETE_BY_NAME,
+            DELETE_TIME
+        FROM
+            E_M_EQPT_TYPE
+        WHERE
+            DEL_FLAG = 0
+        <if test="parentId != null">
+            AND PARENT_ID = #{parentId}
+        </if>
+        <if test="parentId == null">
+            AND (PARENT_ID IS NULL OR PARENT_ID = 0)
+        </if>
+        ORDER BY
+            SORT_ORDER ASC,
+            CREATE_TIME ASC
+    </select>
+
+    <!-- 根据ID查询设备类型分类 -->
+    <select id="selectById" resultType="com.yy.ppm.equipment.bean.dto.MEquipmentTypeDTO">
+        SELECT
+            t1.ID,
+            t1.TYPE_NAME,
+            t1.PARENT_ID,
+            t1.CATEGORY_LEVEL,
+            t1.SORT_ORDER,
+            t1.CREATE_BY,
+            t1.CREATE_BY_NAME,
+            t1.CREATE_TIME,
+            t1.UPDATE_BY,
+            t1.UPDATE_BY_NAME,
+            t1.UPDATE_TIME,
+            t1.DEL_FLAG,
+            t1.DELETE_BY,
+            t1.DELETE_BY_NAME,
+            t1.DELETE_TIME,
+            t2.TYPE_NAME AS PARENT_NAME
+        FROM
+            E_M_EQPT_TYPE t1
+        LEFT JOIN
+            E_M_EQPT_TYPE t2 ON t1.PARENT_ID = t2.ID
+        WHERE
+            t1.ID = #{id}
+            AND t1.DEL_FLAG = 0
+    </select>
+
+    <!-- 新增设备类型分类 -->
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.MEquipmentTypePO">
+        INSERT INTO E_M_EQPT_TYPE
+        (
+            ID,
+            TYPE_NAME,
+            PARENT_ID,
+            CATEGORY_LEVEL,
+            SORT_ORDER,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            DEL_FLAG
+        )
+        VALUES
+        (
+            #{id,jdbcType=NUMERIC},
+            #{typeName,jdbcType=VARCHAR},
+            #{parentId,jdbcType=NUMERIC},
+            #{categoryLevel,jdbcType=NUMERIC},
+            #{sortOrder,jdbcType=NUMERIC},
+            #{loginUserId,jdbcType=NUMERIC},
+            #{loginUserName,jdbcType=VARCHAR},
+            #{now,jdbcType=TIMESTAMP},
+            0
+        )
+    </insert>
+
+    <!-- 修改设备类型分类 -->
+    <update id="update" parameterType="com.yy.ppm.equipment.bean.po.MEquipmentTypePO">
+        UPDATE E_M_EQPT_TYPE
+        <set>
+            <if test="typeName != null and typeName != ''">
+                TYPE_NAME = #{typeName,jdbcType=VARCHAR},
+            </if>
+            <if test="parentId != null">
+                PARENT_ID = #{parentId,jdbcType=NUMERIC},
+            </if>
+            <if test="categoryLevel != null">
+                CATEGORY_LEVEL = #{categoryLevel,jdbcType=NUMERIC},
+            </if>
+            <if test="sortOrder != null">
+                SORT_ORDER = #{sortOrder,jdbcType=NUMERIC},
+            </if>
+            <if test="loginUserId != null">
+                UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
+            </if>
+            <if test="loginUserName != null and loginUserName != ''">
+                UPDATE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="now != null">
+                UPDATE_TIME = #{now,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        WHERE
+            ID = #{id}
+    </update>
+
+    <!-- 删除设备类型分类（逻辑删除） -->
+    <update id="deleteById" parameterType="com.yy.ppm.equipment.bean.po.MEquipmentTypePO">
+        UPDATE E_M_EQPT_TYPE
+        SET
+            DEL_FLAG = 1,
+            DELETE_BY = #{loginUserId,jdbcType=NUMERIC},
+            DELETE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            DELETE_TIME = #{now,jdbcType=TIMESTAMP}
+        WHERE
+            ID = #{id,jdbcType=BIGINT}
+    </update>
+
+    <!-- 检查是否有子级 -->
+    <select id="countByParentId" resultType="int">
+        SELECT COUNT(*)
+        FROM E_M_EQPT_TYPE
+        WHERE PARENT_ID = #{parentId}
+        AND DEL_FLAG = 0
+    </select>
+
+    <!-- 检查同级下名称是否重复 -->
+    <select id="countByNameAndParent" resultType="int">
+        SELECT COUNT(*)
+        FROM E_M_EQPT_TYPE
+        WHERE TYPE_NAME = #{typeName}
+        AND DEL_FLAG = 0
+        <if test="parentId != null">
+            AND PARENT_ID = #{parentId}
+        </if>
+        <if test="parentId == null">
+            AND (PARENT_ID IS NULL OR PARENT_ID = 0)
+        </if>
+        <if test="id != null">
+            AND ID != #{id}
+        </if>
+    </select>
+
+    <!-- 根据级别和父级ID查询设备类型列表 -->
+    <select id="selectByLevelAndParent" resultType="com.yy.ppm.equipment.bean.dto.MEquipmentTypeDTO">
+        SELECT
+            ID,
+            TYPE_NAME,
+            PARENT_ID,
+            CATEGORY_LEVEL,
+            SORT_ORDER,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME,
+            DEL_FLAG,
+            DELETE_BY,
+            DELETE_BY_NAME,
+            DELETE_TIME
+        FROM
+            E_M_EQPT_TYPE
+        WHERE
+            DEL_FLAG = 0
+            AND CATEGORY_LEVEL = #{categoryLevel}
+        <if test="parentId != null">
+            AND PARENT_ID = #{parentId}
+        </if>
+        <if test="parentId == null">
+            AND (PARENT_ID IS NULL OR PARENT_ID = 0)
+        </if>
+        ORDER BY
+            SORT_ORDER ASC,
+            CREATE_TIME ASC
+    </select>
+
+</mapper>
+

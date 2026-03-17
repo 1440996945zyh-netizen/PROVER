@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.MEquipmentInfoMapper">
+
+    <!-- 查询设备台账信息列表（分页） -->
+    <select id="selectList" resultType="com.yy.ppm.equipment.bean.dto.MEquipmentInfoDTO">
+        SELECT
+            e.ID,
+            e.EQUIP_BIG_CATEGORY_ID,
+            e.EQUIP_BIG_CATEGORY_NAME,
+            e.EQUIP_MIDDLE_CATEGORY_ID,
+            e.EQUIP_MIDDLE_CATEGORY_NAME,
+            e.EQUIP_SMALL_CATEGORY_ID,
+            e.EQUIP_SMALL_CATEGORY_NAME,
+            e.EQUIP_NAME,
+            e.SPECIFIC_CODE,
+            e.MODEL_NUMBER,
+            e.EQUIP_CODE,
+            e.EQUIP_SYSTEM_CODE,
+            e.EQUIP_TECH_STATE,
+            e.EQUIP_TECH_STATE_NAME,
+            e.EQUIP_STATE,
+            e.EQUIP_STATE_NAME,
+            e.UNIT,
+            e.UNIT_NAME,
+            e.INSURANCE_DATE,
+            e.USE_COMPANY_ID,
+            e.USE_ORG_ID,
+            d.DEPT_NAME AS USE_ORG_NAME,
+            e.IS_PARTICULAR,
+            e.LONGITUDE,
+            e.LATITUDE,
+            e.RESPONSI_CODE,
+            e.REMARK,
+            e.ASSETS_NO,
+            e.ASSETS_NAME,
+            e.SOURCE_TYPE,
+            e.SOURCE_TYPE_NAME,
+            e.APPROVE_TYPE,
+            e.ASSETS_NUM,
+            e.ASSETS_CATEGORY_TYPE,
+            e.RUN_STATUS,
+            e.ENERGY_STATUS,
+            e.OIL_NUM_TYPE,
+            e.ITEM_CATEGORY,
+            e.ITEM_NAME,
+            e.ASSETS_TYPE,
+            e.FLOW_ID,
+            e.PK_USEDORG,
+            e.PK_OWNERORG,
+            e.DEFINE4,
+            e.DEFINE8,
+            e.DEFINE13,
+            e.DEFINE14,
+            e.DEFINE15,
+            e.DEFINE18,
+            e.DEFINE19,
+            e.DEFINE20,
+            e.DEFINE21,
+            e.DEFINE22,
+            e.DEFINE23,
+            e.DEFINE109,
+            e.DEFINE28,
+            e.DEFINE44,
+            e.PK_ORG,
+            e.CREATE_BY,
+            e.CREATE_BY_NAME,
+            e.CREATE_TIME,
+            e.UPDATE_BY,
+            e.UPDATE_BY_NAME,
+            e.UPDATE_TIME,
+            e.DEL_FLAG,
+            -- 关联供货信息表字段
+            s.PRODUCTION_CODE AS FACTORY_NUMBER,
+            s.EQUIP_USE_DATE AS USAGE_TIME,
+            s.MANUFACTURER,
+            s.EQUIP_WEIGHT,
+            s.ENGINE_POWER
+        FROM
+            E_M_EQPT_INFO e
+        LEFT JOIN SYS_DEPT d ON e.USE_ORG_ID = d.ID
+        LEFT JOIN E_M_EQPT_SUPPLY s ON e.ID = s.EQUIP_ID AND s.DEL_FLAG = 0
+        <where>
+            e.DEL_FLAG = 0
+            <if test="equipName != null and equipName != ''">
+                <bind name="equipNamePattern" value="'%' + equipName + '%'"/>
+                AND e.EQUIP_NAME LIKE #{equipNamePattern}
+            </if>
+            <if test="equipCode != null and equipCode != ''">
+                <bind name="equipCodePattern" value="'%' + equipCode + '%'"/>
+                AND e.EQUIP_CODE LIKE #{equipCodePattern}
+            </if>
+            <if test="equipBigCategoryId != null">
+                AND e.EQUIP_BIG_CATEGORY_ID = #{equipBigCategoryId}
+            </if>
+            <if test="equipMiddleCategoryId != null">
+                AND e.EQUIP_MIDDLE_CATEGORY_ID = #{equipMiddleCategoryId}
+            </if>
+            <if test="equipSmallCategoryId != null">
+                AND e.EQUIP_SMALL_CATEGORY_ID = #{equipSmallCategoryId}
+            </if>
+            <if test="equipState != null">
+                AND e.EQUIP_STATE = #{equipState}
+            </if>
+            <if test="useCompanyId != null">
+                AND e.USE_COMPANY_ID = #{useCompanyId}
+            </if>
+            <if test="useOrgId != null">
+                AND e.USE_ORG_ID = #{useOrgId}
+            </if>
+        </where>
+        ORDER BY
+            CREATE_TIME DESC
+    </select>
+
+    <!-- 根据ID查询设备台账信息 -->
+    <select id="selectById" resultType="com.yy.ppm.equipment.bean.dto.MEquipmentInfoDTO">
+        SELECT
+            ID,
+            EQUIP_BIG_CATEGORY_ID,
+            EQUIP_BIG_CATEGORY_NAME,
+            EQUIP_MIDDLE_CATEGORY_ID,
+            EQUIP_MIDDLE_CATEGORY_NAME,
+            EQUIP_SMALL_CATEGORY_ID,
+            EQUIP_SMALL_CATEGORY_NAME,
+            EQUIP_NAME,
+            SPECIFIC_CODE,
+            MODEL_NUMBER,
+            EQUIP_CODE,
+            EQUIP_SYSTEM_CODE,
+            EQUIP_TECH_STATE,
+            EQUIP_TECH_STATE_NAME,
+            EQUIP_STATE,
+            EQUIP_STATE_NAME,
+            UNIT,
+            UNIT_NAME,
+            INSURANCE_DATE,
+            USE_COMPANY_ID,
+            USE_ORG_ID,
+            IS_PARTICULAR,
+            LONGITUDE,
+            LATITUDE,
+            RESPONSI_CODE,
+            REMARK,
+            ASSETS_NO,
+            ASSETS_NAME,
+            SOURCE_TYPE,
+            SOURCE_TYPE_NAME,
+            APPROVE_TYPE,
+            ASSETS_NUM,
+            ASSETS_CATEGORY_TYPE,
+            RUN_STATUS,
+            ENERGY_STATUS,
+            OIL_NUM_TYPE,
+            ITEM_CATEGORY,
+            ITEM_NAME,
+            ASSETS_TYPE,
+            FLOW_ID,
+            PK_USEDORG,
+            PK_OWNERORG,
+            DEFINE4,
+            DEFINE8,
+            DEFINE13,
+            DEFINE14,
+            DEFINE15,
+            DEFINE18,
+            DEFINE19,
+            DEFINE20,
+            DEFINE21,
+            DEFINE22,
+            DEFINE23,
+            DEFINE109,
+            DEFINE28,
+            DEFINE44,
+            PK_ORG,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME,
+            DEL_FLAG
+        FROM
+            E_M_EQPT_INFO
+        WHERE
+            ID = #{id}
+            AND DEL_FLAG = 0
+    </select>
+
+    <!-- 新增设备台账信息 -->
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.MEquipmentInfoPO">
+        INSERT INTO E_M_EQPT_INFO
+        (
+            ID,
+            EQUIP_BIG_CATEGORY_ID,
+            EQUIP_BIG_CATEGORY_NAME,
+            EQUIP_MIDDLE_CATEGORY_ID,
+            EQUIP_MIDDLE_CATEGORY_NAME,
+            EQUIP_SMALL_CATEGORY_ID,
+            EQUIP_SMALL_CATEGORY_NAME,
+            EQUIP_NAME,
+            SPECIFIC_CODE,
+            MODEL_NUMBER,
+            EQUIP_CODE,
+            EQUIP_SYSTEM_CODE,
+            EQUIP_TECH_STATE,
+            EQUIP_TECH_STATE_NAME,
+            EQUIP_STATE,
+            EQUIP_STATE_NAME,
+            UNIT,
+            UNIT_NAME,
+            INSURANCE_DATE,
+            USE_COMPANY_ID,
+            USE_ORG_ID,
+            IS_PARTICULAR,
+            LONGITUDE,
+            LATITUDE,
+            RESPONSI_CODE,
+            REMARK,
+            ASSETS_NO,
+            ASSETS_NAME,
+            SOURCE_TYPE,
+            SOURCE_TYPE_NAME,
+            APPROVE_TYPE,
+            ASSETS_NUM,
+            ASSETS_CATEGORY_TYPE,
+            RUN_STATUS,
+            ENERGY_STATUS,
+            OIL_NUM_TYPE,
+            ITEM_CATEGORY,
+            ITEM_NAME,
+            ASSETS_TYPE,
+            FLOW_ID,
+            PK_USEDORG,
+            PK_OWNERORG,
+            DEFINE4,
+            DEFINE8,
+            DEFINE13,
+            DEFINE14,
+            DEFINE15,
+            DEFINE18,
+            DEFINE19,
+            DEFINE20,
+            DEFINE21,
+            DEFINE22,
+            DEFINE23,
+            DEFINE109,
+            DEFINE28,
+            DEFINE44,
+            PK_ORG,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            DEL_FLAG
+        )
+        VALUES
+        (
+            #{id,jdbcType=NUMERIC},
+            #{equipBigCategoryId,jdbcType=NUMERIC},
+            #{equipBigCategoryName,jdbcType=NVARCHAR},
+            #{equipMiddleCategoryId,jdbcType=NUMERIC},
+            #{equipMiddleCategoryName,jdbcType=NVARCHAR},
+            #{equipSmallCategoryId,jdbcType=NUMERIC},
+            #{equipSmallCategoryName,jdbcType=NVARCHAR},
+            #{equipName,jdbcType=VARCHAR},
+            #{specificCode,jdbcType=VARCHAR},
+            #{modelNumber,jdbcType=VARCHAR},
+            #{equipCode,jdbcType=VARCHAR},
+            #{equipSystemCode,jdbcType=VARCHAR},
+            #{equipTechState,jdbcType=NUMERIC},
+            #{equipTechStateName,jdbcType=NVARCHAR},
+            #{equipState,jdbcType=NUMERIC},
+            #{equipStateName,jdbcType=NVARCHAR},
+            #{unit,jdbcType=VARCHAR},
+            #{unitName,jdbcType=NVARCHAR},
+            #{insuranceDate,jdbcType=VARCHAR},
+            #{useCompanyId,jdbcType=NUMERIC},
+            #{useOrgId,jdbcType=NUMERIC},
+            #{isParticular,jdbcType=NUMERIC},
+            #{longitude,jdbcType=NUMERIC},
+            #{latitude,jdbcType=NUMERIC},
+            #{responsiCode,jdbcType=NUMERIC},
+            #{remark,jdbcType=VARCHAR},
+            #{assetsNo,jdbcType=VARCHAR},
+            #{assetsName,jdbcType=VARCHAR},
+            #{sourceType,jdbcType=NUMERIC},
+            #{sourceTypeName,jdbcType=NVARCHAR},
+            #{approveType,jdbcType=VARCHAR},
+            #{assetsNum,jdbcType=NUMERIC},
+            #{assetsCategoryType,jdbcType=NUMERIC},
+            #{runStatus,jdbcType=NUMERIC},
+            #{energyStatus,jdbcType=NUMERIC},
+            #{oilNumType,jdbcType=NUMERIC},
+            #{itemCategory,jdbcType=NUMERIC},
+            #{itemName,jdbcType=VARCHAR},
+            #{assetsType,jdbcType=NUMERIC},
+            #{flowId,jdbcType=NUMERIC},
+            #{pkUsedorg,jdbcType=VARCHAR},
+            #{pkOwnerorg,jdbcType=VARCHAR},
+            #{define4,jdbcType=VARCHAR},
+            #{define8,jdbcType=VARCHAR},
+            #{define13,jdbcType=VARCHAR},
+            #{define14,jdbcType=VARCHAR},
+            #{define15,jdbcType=VARCHAR},
+            #{define18,jdbcType=VARCHAR},
+            #{define19,jdbcType=VARCHAR},
+            #{define20,jdbcType=VARCHAR},
+            #{define21,jdbcType=VARCHAR},
+            #{define22,jdbcType=VARCHAR},
+            #{define23,jdbcType=VARCHAR},
+            #{define109,jdbcType=VARCHAR},
+            #{define28,jdbcType=VARCHAR},
+            #{define44,jdbcType=VARCHAR},
+            #{pkOrg,jdbcType=VARCHAR},
+            #{loginUserId,jdbcType=NUMERIC},
+            #{loginUserName,jdbcType=NVARCHAR},
+            #{now,jdbcType=TIMESTAMP},
+            0
+        )
+    </insert>
+
+    <!-- 修改设备台账信息 -->
+    <update id="update" parameterType="com.yy.ppm.equipment.bean.po.MEquipmentInfoPO">
+        UPDATE E_M_EQPT_INFO
+        <set>
+            <if test="equipBigCategoryId != null">
+                EQUIP_BIG_CATEGORY_ID = #{equipBigCategoryId,jdbcType=BIGINT},
+            </if>
+            <if test="equipBigCategoryName != null and equipBigCategoryName != ''">
+                EQUIP_BIG_CATEGORY_NAME = #{equipBigCategoryName,jdbcType=VARCHAR},
+            </if>
+            <if test="equipMiddleCategoryId != null">
+                EQUIP_MIDDLE_CATEGORY_ID = #{equipMiddleCategoryId,jdbcType=BIGINT},
+            </if>
+            <if test="equipMiddleCategoryName != null and equipMiddleCategoryName != ''">
+                EQUIP_MIDDLE_CATEGORY_NAME = #{equipMiddleCategoryName,jdbcType=VARCHAR},
+            </if>
+            <if test="equipSmallCategoryId != null">
+                EQUIP_SMALL_CATEGORY_ID = #{equipSmallCategoryId,jdbcType=BIGINT},
+            </if>
+            <if test="equipSmallCategoryName != null and equipSmallCategoryName != ''">
+                EQUIP_SMALL_CATEGORY_NAME = #{equipSmallCategoryName,jdbcType=VARCHAR},
+            </if>
+            <if test="equipName != null and equipName != ''">
+                EQUIP_NAME = #{equipName,jdbcType=VARCHAR},
+            </if>
+            <if test="specificCode != null">
+                SPECIFIC_CODE = #{specificCode,jdbcType=VARCHAR},
+            </if>
+            <if test="modelNumber != null">
+                MODEL_NUMBER = #{modelNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="equipCode != null and equipCode != ''">
+                EQUIP_CODE = #{equipCode,jdbcType=VARCHAR},
+            </if>
+            <if test="equipSystemCode != null">
+                EQUIP_SYSTEM_CODE = #{equipSystemCode,jdbcType=VARCHAR},
+            </if>
+            <if test="equipTechState != null">
+                EQUIP_TECH_STATE = #{equipTechState,jdbcType=VARCHAR},
+            </if>
+            <if test="equipTechStateName != null">
+                EQUIP_TECH_STATE_NAME = #{equipTechStateName,jdbcType=VARCHAR},
+            </if>
+            <if test="equipState != null">
+                EQUIP_STATE = #{equipState,jdbcType=VARCHAR},
+            </if>
+            <if test="equipStateName != null">
+                EQUIP_STATE_NAME = #{equipStateName,jdbcType=VARCHAR},
+            </if>
+            <if test="unit != null">
+                UNIT = #{unit,jdbcType=VARCHAR},
+            </if>
+            <if test="unitName != null">
+                UNIT_NAME = #{unitName,jdbcType=VARCHAR},
+            </if>
+            <if test="insuranceDate != null">
+                INSURANCE_DATE = #{insuranceDate,jdbcType=VARCHAR},
+            </if>
+            <if test="useCompanyId != null">
+                USE_COMPANY_ID = #{useCompanyId,jdbcType=BIGINT},
+            </if>
+            <if test="useOrgId != null">
+                USE_ORG_ID = #{useOrgId,jdbcType=BIGINT},
+            </if>
+            <if test="isParticular != null">
+                IS_PARTICULAR = #{isParticular,jdbcType=VARCHAR},
+            </if>
+            <if test="longitude != null">
+                LONGITUDE = #{longitude,jdbcType=NUMERIC},
+            </if>
+            <if test="latitude != null">
+                LATITUDE = #{latitude,jdbcType=NUMERIC},
+            </if>
+            <if test="responsiCode != null">
+                RESPONSI_CODE = #{responsiCode,jdbcType=BIGINT},
+            </if>
+            <if test="remark != null">
+                REMARK = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="assetsNo != null">
+                ASSETS_NO = #{assetsNo,jdbcType=VARCHAR},
+            </if>
+            <if test="assetsName != null">
+                ASSETS_NAME = #{assetsName,jdbcType=VARCHAR},
+            </if>
+            <if test="sourceType != null">
+                SOURCE_TYPE = #{sourceType,jdbcType=VARCHAR},
+            </if>
+            <if test="sourceTypeName != null">
+                SOURCE_TYPE_NAME = #{sourceTypeName,jdbcType=VARCHAR},
+            </if>
+            <if test="approveType != null">
+                APPROVE_TYPE = #{approveType,jdbcType=VARCHAR},
+            </if>
+            <if test="assetsNum != null">
+                ASSETS_NUM = #{assetsNum,jdbcType=NUMERIC},
+            </if>
+            <if test="assetsCategoryType != null">
+                ASSETS_CATEGORY_TYPE = #{assetsCategoryType,jdbcType=NUMERIC},
+            </if>
+            <if test="runStatus != null">
+                RUN_STATUS = #{runStatus,jdbcType=NUMERIC},
+            </if>
+            <if test="energyStatus != null">
+                ENERGY_STATUS = #{energyStatus,jdbcType=NUMERIC},
+            </if>
+            <if test="oilNumType != null">
+                OIL_NUM_TYPE = #{oilNumType,jdbcType=NUMERIC},
+            </if>
+            <if test="itemCategory != null">
+                ITEM_CATEGORY = #{itemCategory,jdbcType=NUMERIC},
+            </if>
+            <if test="itemName != null">
+                ITEM_NAME = #{itemName,jdbcType=VARCHAR},
+            </if>
+            <if test="assetsType != null">
+                ASSETS_TYPE = #{assetsType,jdbcType=NUMERIC},
+            </if>
+            <if test="flowId != null">
+                FLOW_ID = #{flowId,jdbcType=NUMERIC},
+            </if>
+            <if test="pkUsedorg != null">
+                PK_USEDORG = #{pkUsedorg,jdbcType=VARCHAR},
+            </if>
+            <if test="pkOwnerorg != null">
+                PK_OWNERORG = #{pkOwnerorg,jdbcType=VARCHAR},
+            </if>
+            <if test="define4 != null">
+                DEFINE4 = #{define4,jdbcType=VARCHAR},
+            </if>
+            <if test="define8 != null">
+                DEFINE8 = #{define8,jdbcType=VARCHAR},
+            </if>
+            <if test="define13 != null">
+                DEFINE13 = #{define13,jdbcType=VARCHAR},
+            </if>
+            <if test="define14 != null">
+                DEFINE14 = #{define14,jdbcType=VARCHAR},
+            </if>
+            <if test="define15 != null">
+                DEFINE15 = #{define15,jdbcType=VARCHAR},
+            </if>
+            <if test="define18 != null">
+                DEFINE18 = #{define18,jdbcType=VARCHAR},
+            </if>
+            <if test="define19 != null">
+                DEFINE19 = #{define19,jdbcType=VARCHAR},
+            </if>
+            <if test="define20 != null">
+                DEFINE20 = #{define20,jdbcType=VARCHAR},
+            </if>
+            <if test="define21 != null">
+                DEFINE21 = #{define21,jdbcType=VARCHAR},
+            </if>
+            <if test="define22 != null">
+                DEFINE22 = #{define22,jdbcType=VARCHAR},
+            </if>
+            <if test="define23 != null">
+                DEFINE23 = #{define23,jdbcType=VARCHAR},
+            </if>
+            <if test="define109 != null">
+                DEFINE109 = #{define109,jdbcType=VARCHAR},
+            </if>
+            <if test="define28 != null">
+                DEFINE28 = #{define28,jdbcType=VARCHAR},
+            </if>
+            <if test="define44 != null">
+                DEFINE44 = #{define44,jdbcType=VARCHAR},
+            </if>
+            <if test="pkOrg != null">
+                PK_ORG = #{pkOrg,jdbcType=VARCHAR},
+            </if>
+            <if test="loginUserId != null">
+                UPDATE_BY = #{loginUserId,jdbcType=BIGINT},
+            </if>
+            <if test="loginUserName != null and loginUserName != ''">
+                UPDATE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="now != null">
+                UPDATE_TIME = #{now,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        WHERE
+            ID = #{id}
+    </update>
+
+    <!-- 删除设备台账信息（逻辑删除） -->
+    <update id="deleteById" parameterType="com.yy.ppm.equipment.bean.po.MEquipmentInfoPO">
+        UPDATE E_M_EQPT_INFO
+        SET
+            DEL_FLAG = 1,
+            DELETE_BY = #{loginUserName,jdbcType=NVARCHAR},
+            DELETE_BY_NAME = #{loginUserName,jdbcType=NVARCHAR},
+            DELETE_TIME = #{now,jdbcType=TIMESTAMP}
+        WHERE
+            ID = #{id}
+    </update>
+
+    <!-- 检查设备编码是否重复 -->
+    <select id="countByEquipCode" resultType="int">
+        SELECT COUNT(*)
+        FROM E_M_EQPT_INFO
+        WHERE EQUIP_CODE = #{equipCode}
+        AND DEL_FLAG = 0
+        <if test="id != null">
+            AND ID != #{id}
+        </if>
+    </select>
+
+    <!-- 查询设备选择列表（用于下拉框） -->
+    <select id="selectEquipmentList" resultType="com.yy.ppm.equipment.bean.dto.EquipmentSelectDTO">
+        SELECT
+            e.ID AS id,
+            e.EQUIP_CODE AS equipCode,
+            e.EQUIP_NAME AS equipName,
+            e.EQUIP_BIG_CATEGORY_NAME AS equipBigCategoryName,
+            e.EQUIP_MIDDLE_CATEGORY_NAME AS equipMiddleCategoryName,
+            e.EQUIP_SMALL_CATEGORY_NAME AS equipSmallCategoryName,
+            e.ID AS value,
+            (
+                CASE WHEN e.EQUIP_SMALL_CATEGORY_NAME IS NOT NULL THEN e.EQUIP_SMALL_CATEGORY_NAME ELSE '' END ||
+                CASE WHEN e.EQUIP_SMALL_CATEGORY_NAME IS NOT NULL AND e.EQUIP_NAME IS NOT NULL THEN ' - ' ELSE '' END ||
+                CASE WHEN e.EQUIP_NAME IS NOT NULL THEN e.EQUIP_NAME ELSE '' END
+            ) AS label
+        FROM
+            E_M_EQPT_INFO e
+        WHERE
+            e.DEL_FLAG = 0
+            <if test="keyword != null and keyword != ''">
+                <bind name="keywordPattern" value="'%' + keyword + '%'"/>
+                AND (e.EQUIP_NAME LIKE #{keywordPattern} OR e.EQUIP_CODE LIKE #{keywordPattern})
+            </if>
+        ORDER BY
+            e.EQUIP_BIG_CATEGORY_NAME, e.EQUIP_MIDDLE_CATEGORY_NAME, e.EQUIP_SMALL_CATEGORY_NAME, e.EQUIP_NAME
+    </select>
+
+</mapper>
+

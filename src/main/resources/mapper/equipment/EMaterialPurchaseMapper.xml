@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMaterialPurchaseMapper">
+
+    <!-- 查询物资采购列表 -->
+    <select id="selectList" resultType="com.yy.ppm.equipment.bean.dto.EMaterialPurchaseDTO">
+        SELECT
+            ID,
+            PURCHASE_TITLE,
+            PURCHASE_NO,
+            SUPPLIER_ID,
+            SUPPLIER_NAME,
+            PURCHASE_TYPE_CODE,
+            PURCHASE_TYPE_NAME,
+            FIXED_SERVICE_CATEGORY_CODE,
+            FIXED_SERVICE_CATEGORY_NAME,
+            TAX_INCLUDED_AMOUNT,
+            TAX_EXCLUDED_AMOUNT,
+            PURCHASE_STATUS,
+            FAILURE_REASON,
+            APPROVAL_BY,
+            APPROVAL_BY_NAME,
+            APPROVAL_TIME,
+            APPROVAL_REMARK,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME
+        FROM
+            E_MATERIAL_PURCHASE
+        <where>
+            <if test="purchaseNo != null and purchaseNo != ''">
+                <bind name="purchaseNoPattern" value="'%' + purchaseNo + '%'"/>
+                AND PURCHASE_NO LIKE #{purchaseNoPattern}
+            </if>
+            <if test="purchaseTitle != null and purchaseTitle != ''">
+                <bind name="purchaseTitlePattern" value="'%' + purchaseTitle + '%'"/>
+                AND PURCHASE_TITLE LIKE #{purchaseTitlePattern}
+            </if>
+            <if test="supplierId != null">
+                AND SUPPLIER_ID = #{supplierId}
+            </if>
+            <if test="supplierName != null and supplierName != ''">
+                <bind name="supplierNamePattern" value="'%' + supplierName + '%'"/>
+                AND SUPPLIER_NAME LIKE #{supplierNamePattern}
+            </if>
+            <if test="purchaseTypeCode != null and purchaseTypeCode != ''">
+                AND PURCHASE_TYPE_CODE = #{purchaseTypeCode}
+            </if>
+            <if test="purchaseStatus != null">
+                AND PURCHASE_STATUS = #{purchaseStatus}
+            </if>
+        </where>
+        ORDER BY CREATE_TIME DESC
+    </select>
+
+    <!-- 根据ID查询物资采购 -->
+    <select id="selectById" resultType="com.yy.ppm.equipment.bean.dto.EMaterialPurchaseDTO">
+        SELECT
+            ID,
+            PURCHASE_TITLE,
+            PURCHASE_NO,
+            SUPPLIER_ID,
+            SUPPLIER_NAME,
+            PURCHASE_TYPE_CODE,
+            PURCHASE_TYPE_NAME,
+            FIXED_SERVICE_CATEGORY_CODE,
+            FIXED_SERVICE_CATEGORY_NAME,
+            TAX_INCLUDED_AMOUNT,
+            TAX_EXCLUDED_AMOUNT,
+            PURCHASE_STATUS,
+            FAILURE_REASON,
+            APPROVAL_BY,
+            APPROVAL_BY_NAME,
+            APPROVAL_TIME,
+            APPROVAL_REMARK,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME
+        FROM
+            E_MATERIAL_PURCHASE
+        WHERE
+            ID = #{id}
+    </select>
+
+    <!-- 新增物资采购 -->
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.EMaterialPurchasePO">
+        INSERT INTO E_MATERIAL_PURCHASE
+        (
+            ID,
+            PURCHASE_TITLE,
+            PURCHASE_NO,
+            SUPPLIER_ID,
+            SUPPLIER_NAME,
+            PURCHASE_TYPE_CODE,
+            PURCHASE_TYPE_NAME,
+            FIXED_SERVICE_CATEGORY_CODE,
+            FIXED_SERVICE_CATEGORY_NAME,
+            TAX_INCLUDED_AMOUNT,
+            TAX_EXCLUDED_AMOUNT,
+            PURCHASE_STATUS,
+            FAILURE_REASON,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )
+        VALUES
+        (
+            #{id,jdbcType=NUMERIC},
+            #{purchaseTitle,jdbcType=VARCHAR},
+            #{purchaseNo,jdbcType=VARCHAR},
+            #{supplierId,jdbcType=NUMERIC},
+            #{supplierName,jdbcType=VARCHAR},
+            #{purchaseTypeCode,jdbcType=VARCHAR},
+            #{purchaseTypeName,jdbcType=VARCHAR},
+            #{fixedServiceCategoryCode,jdbcType=VARCHAR},
+            #{fixedServiceCategoryName,jdbcType=VARCHAR},
+            #{taxIncludedAmount,jdbcType=NUMERIC},
+            #{taxExcludedAmount,jdbcType=NUMERIC},
+            #{purchaseStatus,jdbcType=NUMERIC},
+            #{failureReason,jdbcType=VARCHAR},
+            #{loginUserId,jdbcType=NUMERIC},
+            #{loginUserName,jdbcType=VARCHAR},
+            #{now,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <!-- 修改物资采购 -->
+    <update id="update" parameterType="com.yy.ppm.equipment.bean.po.EMaterialPurchasePO">
+        UPDATE E_MATERIAL_PURCHASE
+        <set>
+            <if test="purchaseTitle != null">
+                PURCHASE_TITLE = #{purchaseTitle,jdbcType=VARCHAR},
+            </if>
+            <if test="purchaseNo != null and purchaseNo != ''">
+                PURCHASE_NO = #{purchaseNo,jdbcType=VARCHAR},
+            </if>
+            <if test="supplierId != null">
+                SUPPLIER_ID = #{supplierId,jdbcType=NUMERIC},
+            </if>
+            <if test="supplierName != null">
+                SUPPLIER_NAME = #{supplierName,jdbcType=VARCHAR},
+            </if>
+            <if test="purchaseTypeCode != null">
+                PURCHASE_TYPE_CODE = #{purchaseTypeCode,jdbcType=VARCHAR},
+            </if>
+            <if test="purchaseTypeName != null">
+                PURCHASE_TYPE_NAME = #{purchaseTypeName,jdbcType=VARCHAR},
+            </if>
+            <if test="fixedServiceCategoryCode != null">
+                FIXED_SERVICE_CATEGORY_CODE = #{fixedServiceCategoryCode,jdbcType=VARCHAR},
+            </if>
+            <if test="fixedServiceCategoryName != null">
+                FIXED_SERVICE_CATEGORY_NAME = #{fixedServiceCategoryName,jdbcType=VARCHAR},
+            </if>
+            <if test="taxIncludedAmount != null">
+                TAX_INCLUDED_AMOUNT = #{taxIncludedAmount,jdbcType=NUMERIC},
+            </if>
+            <if test="taxExcludedAmount != null">
+                TAX_EXCLUDED_AMOUNT = #{taxExcludedAmount,jdbcType=NUMERIC},
+            </if>
+            <if test="purchaseStatus != null">
+                PURCHASE_STATUS = #{purchaseStatus,jdbcType=NUMERIC},
+            </if>
+            <if test="failureReason != null">
+                FAILURE_REASON = #{failureReason,jdbcType=VARCHAR},
+            </if>
+            <if test="failureReason == null">
+                FAILURE_REASON = NULL,
+            </if>
+            <if test="approvalBy != null">
+                APPROVAL_BY = #{approvalBy,jdbcType=NUMERIC},
+            </if>
+            <if test="approvalBy == null">
+                APPROVAL_BY = NULL,
+            </if>
+            <if test="approvalByName != null">
+                APPROVAL_BY_NAME = #{approvalByName,jdbcType=VARCHAR},
+            </if>
+            <if test="approvalByName == null">
+                APPROVAL_BY_NAME = NULL,
+            </if>
+            <if test="approvalTime != null">
+                APPROVAL_TIME = #{approvalTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="approvalTime == null">
+                APPROVAL_TIME = NULL,
+            </if>
+            <if test="approvalRemark != null">
+                APPROVAL_REMARK = #{approvalRemark,jdbcType=VARCHAR},
+            </if>
+            <if test="approvalRemark == null">
+                APPROVAL_REMARK = NULL,
+            </if>
+            <if test="loginUserId != null">
+                UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
+            </if>
+            <if test="loginUserName != null and loginUserName != ''">
+                UPDATE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="now != null">
+                UPDATE_TIME = #{now,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        WHERE
+            ID = #{id}
+    </update>
+
+    <!-- 删除物资采购（物理删除） -->
+    <delete id="deleteById">
+        DELETE FROM E_MATERIAL_PURCHASE
+        WHERE ID = #{id}
+    </delete>
+
+    <!-- 检查采购单号是否重复 -->
+    <select id="countByPurchaseNo" resultType="int">
+        SELECT COUNT(*)
+        FROM E_MATERIAL_PURCHASE
+        WHERE PURCHASE_NO = #{purchaseNo}
+        <if test="id != null">
+            AND ID != #{id}
+        </if>
+    </select>
+
+</mapper>
+

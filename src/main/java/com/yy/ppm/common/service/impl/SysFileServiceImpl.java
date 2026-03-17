@@ -233,4 +233,9 @@ public class SysFileServiceImpl implements SysFileService {
 
     }
 
+    @Override
+    public void saveFileBusRelation(List<Long> fileIds, Long businessId) {
+        saveFileBusRelation(fileIds, String.valueOf(businessId));
+    }
+
 }

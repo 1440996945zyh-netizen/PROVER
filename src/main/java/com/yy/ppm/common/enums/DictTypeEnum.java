@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 @Getter
 public enum DictTypeEnum {
 
+    SPECIAL_OPERATION("SPECIAL_OPERATION", "特殊作业情况"),
     SOURCE_TARGET_TYPE("SOURCE_TARGET_TYPE", "源 目的"),
     UNIT("UNIT", "计量单位"),
     DNBILLTYPE("DNBILLTYPE", "借方票据类型"),
@@ -77,6 +78,12 @@ public enum DictTypeEnum {
     BONUS_PENALTY_TYPE("BONUS_PENALTY_TYPE", "奖惩类型"),
     INOUT_STORAGE("INOUT_STORAGE", "进出场类型"),
     CNBILLTYPE("CNBILLTYPE", "贷方票据类型"),
+    E_ENERGY("E_ENERGY", "能源类型"),
+    E_TECH("E_TECH", "设备技术情况"),
+    E_UNIT("E_UNIT", "设备计量单位"),
+    E_STATUS("E_STATUS", "设备使用状态"),
+    E_VATION("E_VATION", "改造类型"),
+    EMISSION("EMISSION", "排放标准"),
     STOP_REASON_TYPE("STOP_REASON_TYPE", "停时类型"),
     EFFICIENCY_TYPE("EFFICIENCY_TYPE", "效率类别"),
     SALARY_STATUS("SALARY_STATUS", "计件工资审核状态"),
@@ -123,7 +130,8 @@ public enum DictTypeEnum {
     BPM_LISTENER_TASK_EVENT("BPM_LISTENER_TASK_EVENT", "任务监听器事件"),
     BPM_LISTENER_EXECUTION_EVENT("BPM_LISTENER_EXECUTION_EVENT", "执行监听器事件"),
     COMMON_PHRASES_TYPE("COMMON_PHRASES_TYPE", "常用审批语类型"),
-    MODEL_TYPE("MODEL_TYPE", "模板类型");
+    MODEL_TYPE("MODEL_TYPE", "模板类型"),
+    CERTIFICATE_TYPE("CERTIFICATE_TYPE", "证件类型"),;
 
 
     private final String type;

@@ -6,7 +6,13 @@ import com.yy.ppm.common.bean.dto.SelecSearchDTO;
 import com.yy.ppm.common.enums.SelectEnum;
 import com.yy.ppm.common.mapper.SelectMapper;
 import com.yy.ppm.common.service.SelectService;
+import com.yy.ppm.equipment.bean.dto.EquipmentSelectDTO;
+
+import com.yy.ppm.equipment.bean.dto.EMaintProjApplyDTO;
+import com.yy.ppm.equipment.service.EMaintInfoService;
+import com.yy.ppm.equipment.service.MEquipmentInfoService;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
@@ -27,6 +33,12 @@ public class SelectServiceImpl implements SelectService {
 
     @Resource
     public SelectMapper selectMapper;
+    @Autowired
+    private MEquipmentInfoService mEquipmentInfoService;
+
+    @Autowired
+    private EMaintInfoService eMaintInfoService;
+
 
 
     /**
@@ -131,16 +143,31 @@ public class SelectServiceImpl implements SelectService {
                     // 按作业班组
                 } else if (!StringUtil.isEmpty(StringUtil.getString(params.get("workClass")))) {
                     res = selectMapper.getUserByWorkClass(StringUtil.getString(params.get("WorkClass")));
+                    // 按部门查询
+                } else if (params.get("deptId") != null) {
+                    Long deptId = Long.parseLong(StringUtil.getString(params.get("deptId")));
+                    res = selectMapper.getUserByDept(deptId);
 
-                } else {
+                } else if (params.get("companyId") != null) {
+                    Long companyId = Long.parseLong(StringUtil.getString(params.get("companyId")));
+                    res = selectMapper.getUserByCompany(companyId);
+
+                }else {
                     res = selectMapper.getLocalSelect(
                             SelectEnum.USER.getTableName(),
                             SelectEnum.USER.getValueName(),
                             SelectEnum.USER.getLabelName(),
                             null);
                 }
-
                 break;
+
+            // 设备类型
+            case "EQUIP_TYPE" :
+                String categoryLevel = StringUtil.getString(params.get("categoryLevel"));
+                String parentId = StringUtil.getString(params.get("parentId"));
+                res = selectMapper.getEqptType(categoryLevel,parentId);
+                break;
+
             // 按组织架构级别查询组织架构
             case "DEPT_LEVEL" :
 
@@ -207,7 +234,11 @@ public class SelectServiceImpl implements SelectService {
                 break;
             // 字典
             case "DICT" :
+
                 String dictType = StringUtil.getString(params.get("dictType"));
+                if("E_ENERGY".equals(dictType)){
+                    System.out.println(dictType);
+                }
                 String remark = StringUtil.getString(params.get("remark"));
                 // 基础过滤条件
                 String condition = " DICT_TYPE = '" + DictTypeEnum.match(dictType) + "' AND STATUS = '1'";
@@ -278,6 +309,36 @@ public class SelectServiceImpl implements SelectService {
                         SelectEnum.BPM_MODEL.getValueName(),
                         SelectEnum.BPM_MODEL.getLabelName(),
                         "");
+                break;
+                        // 设备
+            case "EQUIPMENT" :
+                String keyword = StringUtil.getString(params.get("keyword"));
+                List<EquipmentSelectDTO> equipmentList = mEquipmentInfoService.getEquipmentSelectList(keyword);
+                // 转换为 Map 格式
+                res = new ArrayList<>();
+                for (EquipmentSelectDTO equipment : equipmentList) {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("value", equipment.getValue());
+                    map.put("label", equipment.getLabel());
+                    res.add(map);
+                }
+                break;
+            // 维修项目申请单
+            case "MAINT_PROJ_APPLY" :
+                String equipId = StringUtil.getString(params.get("equipId"));
+                String appType = StringUtil.getString(params.get("appType"));
+                String appNumber = StringUtil.getString(params.get("appNumber"));
+                String maintInfoId = StringUtil.getString(params.get("maintInfoId"));
+                List<EMaintProjApplyDTO> maintProjSelectList = eMaintInfoService.getMaintProjSelectList(equipId,appType,appNumber,maintInfoId);
+                // 转换为 Map 格式
+                res = new ArrayList<>();
+                for (EMaintProjApplyDTO eMaintProjApplyDTO : maintProjSelectList) {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("value", eMaintProjApplyDTO.getAppNumber());
+                    map.put("label", eMaintProjApplyDTO.getAppUnitName());
+                    res.add(map);
+                }
+                break;
             default:
                 break;
         }

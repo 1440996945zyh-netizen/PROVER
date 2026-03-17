@@ -58,6 +58,8 @@ public interface SysFileService {
      */
     void saveFileBusRelation(List<Long> fileIds, String businessId);
 
+    void saveFileBusRelation(List<Long> fileIds, Long businessId);
+
     /**
      * 删除附件
      * @param fileId

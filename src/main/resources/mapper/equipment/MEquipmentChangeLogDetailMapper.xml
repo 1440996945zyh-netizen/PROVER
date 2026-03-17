@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.MEquipmentChangeLogDetailMapper">
+
+    <!-- 根据变更记录主表ID查询详情列表 -->
+    <select id="selectByChangeLogId" resultType="com.yy.ppm.equipment.bean.dto.MEquipmentChangeLogDetailDTO">
+        SELECT
+            ID,
+            CHANGE_LOG_ID,
+            CHANGE_FIELD,
+            CHANGE_FIELD_NAME,
+            OLD_VALUE,
+            NEW_VALUE
+        FROM
+            E_M_EQPT_CHANGE_LOG_DETAIL
+        WHERE
+            CHANGE_LOG_ID = #{changeLogId}
+            AND DEL_FLAG = 0
+        ORDER BY ID
+    </select>
+
+    <!-- 批量新增变更记录详情 -->
+    <insert id="insertBatch" parameterType="java.util.List">
+        INSERT INTO E_M_EQPT_CHANGE_LOG_DETAIL (
+            ID,
+            CHANGE_LOG_ID,
+            CHANGE_FIELD,
+            CHANGE_FIELD_NAME,
+            OLD_VALUE,
+            NEW_VALUE,
+            DEL_FLAG,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )
+        <foreach collection="list" item="item" separator="UNION ALL">
+            SELECT
+                #{item.id},
+                #{item.changeLogId},
+                #{item.changeField},
+                #{item.changeFieldName},
+                #{item.oldValue},
+                #{item.newValue},
+                0,
+                #{item.loginUserId,jdbcType=BIGINT},
+                #{item.loginUserName,jdbcType=VARCHAR},
+                SYSDATE
+            FROM DUAL
+        </foreach>
+    </insert>
+
+</mapper>
+

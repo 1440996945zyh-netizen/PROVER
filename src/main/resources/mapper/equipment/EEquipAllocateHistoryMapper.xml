@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EEquipAllocateHistoryMapper">
+
+    <resultMap id="BaseResultMap" type="com.yy.ppm.equipment.bean.po.EEquipAllocateHistoryPO">
+        <id column="ID" property="id"/>
+        <result column="ORDER_ID" property="orderId"/>
+        <result column="EQUIP_ID" property="equipId"/>
+        <result column="LAST_CHANGE_INFO" property="lastChangeInfo"/>
+        <result column="REMARK" property="remark"/>
+        <result column="DEL_FLAG" property="delFlag"/>
+        <result column="CREATE_BY" property="createBy"/>
+        <result column="CREATE_BY_NAME" property="createByName"/>
+        <result column="CREATE_TIME" property="createTime"/>
+        <result column="UPDATE_BY" property="updateBy"/>
+        <result column="UPDATE_BY_NAME" property="updateByName"/>
+        <result column="UPDATE_TIME" property="updateTime"/>
+    </resultMap>
+
+    <resultMap id="EquipResultMap" type="com.yy.ppm.equipment.bean.dto.AllocateEquipDTO">
+        <id column="equipId" property="equipId"/>
+        <result column="equipCode" property="equipCode"/>
+        <result column="equipName" property="equipName"/>
+        <result column="equipSpecification" property="equipSpecification"/>
+        <result column="modelNumber" property="modelNumber"/>
+        <result column="equipBigCategoryName" property="equipBigCategoryName"/>
+        <result column="equipMiddleCategoryName" property="equipMiddleCategoryName"/>
+        <result column="equipSmallCategoryName" property="equipSmallCategoryName"/>
+        <result column="useCompanyName" property="useCompanyName"/>
+        <result column="useOrgName" property="useOrgName"/>
+        <result column="equipAssetsCode" property="equipAssetsCode"/>
+        <result column="depreciationLimit" property="depreciationLimit"/>
+        <result column="alreadyLimit" property="alreadyLimit"/>
+        <result column="netValue" property="netValue"/>
+        <result column="price" property="price"/>
+        <result column="equipBuyDate" property="equipBuyDate"/>
+        <result column="equipState" property="equipState"/>
+        <result column="equipStateName" property="equipStateName"/>
+        <result column="remark" property="remark"/>
+        <result column="lastChangeInfo" property="lastChangeInfo"/>
+    </resultMap>
+
+    <!-- 新增调拨历史记录 -->
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.EEquipAllocateHistoryPO">
+        INSERT INTO E_M_EQUIP_ALLOCATE_HISTORY (
+            ID, ORDER_ID, EQUIP_ID, LAST_CHANGE_INFO, REMARK, DEL_FLAG,
+            CREATE_BY, CREATE_BY_NAME, CREATE_TIME
+        ) VALUES (
+            #{id}, #{orderId}, #{equipId}, #{lastChangeInfo}, #{remark}, #{delFlag},
+            #{createBy}, #{createByName}, #{createTime}
+        )
+    </insert>
+
+    <!-- 根据工单ID查询调拨历史记录 -->
+    <select id="getHistoryByOrderId" resultMap="BaseResultMap">
+        SELECT
+            ID, ORDER_ID, EQUIP_ID, LAST_CHANGE_INFO, REMARK, DEL_FLAG,
+            CREATE_BY, CREATE_BY_NAME, CREATE_TIME,
+            UPDATE_BY, UPDATE_BY_NAME, UPDATE_TIME
+        FROM E_M_EQUIP_ALLOCATE_HISTORY
+        WHERE ORDER_ID = #{orderId} AND DEL_FLAG = 0
+        ORDER BY CREATE_TIME DESC
+    </select>
+
+    <!-- 根据工单ID查询调拨设备列表 -->
+    <select id="getEquipListByOrderId" resultMap="EquipResultMap">
+        SELECT
+            e.ID as equipId,
+            e.EQUIP_CODE as equipCode,
+            e.EQUIP_NAME as equipName,
+            e.MODEL_NUMBER as modelNumber,
+            ebc.TYPE_NAME as equipBigCategoryName,
+            emc.TYPE_NAME as equipMiddleCategoryName,
+            esc.TYPE_NAME as equipSmallCategoryName,
+            (SELECT ID FROM SYS_DEPT WHERE ID = u.PARENT_ID) as useCompanyId,
+            (SELECT DEPT_NAME FROM SYS_DEPT WHERE ID = u.PARENT_ID) as useCompanyName,
+--             d.ORG_NAME as useCompanyName,
+            u.DEPT_ID as useOrgId,
+            u.DEPT_NAME as useOrgName,
+            e.EQUIP_STATE as equipState,
+            e.EQUIP_STATE_NAME as equipStateName,
+            efi.EQUIP_ASSETS_CODE as equipAssetsCode,
+            efi.DEPRECIATION_LIMIT as depreciationLimit,
+            efi.ALREADY_LIMIT as alreadyLimit,
+            efi.NET_VALUE as netValue,
+            efi.PRICE as price,
+            esi.EQUIP_BUY_DATE as equipBuyDate,
+            h.REMARK as remark,
+            h.LAST_CHANGE_INFO as lastChangeInfo
+        FROM E_M_EQUIP_ALLOCATE_HISTORY h
+        INNER JOIN E_M_EQPT_INFO e ON h.EQUIP_ID = e.ID
+        LEFT JOIN E_M_EQPT_TYPE ebc ON e.EQUIP_BIG_CATEGORY_ID = ebc.ID
+        LEFT JOIN E_M_EQPT_TYPE emc ON e.EQUIP_MIDDLE_CATEGORY_ID = emc.ID
+        LEFT JOIN E_M_EQPT_TYPE esc ON e.EQUIP_SMALL_CATEGORY_ID = esc.ID
+        LEFT JOIN SYS_DEPT d ON e.USE_COMPANY_ID = d.ID
+        LEFT JOIN SYS_DEPT u ON e.USE_ORG_ID = u.ID
+        LEFT JOIN E_M_EQPT_FINANCE efi ON e.ID = efi.EQUIP_ID AND efi.DEL_FLAG = 0
+        LEFT JOIN E_M_EQPT_SUPPLY esi ON e.ID = esi.EQUIP_ID AND esi.DEL_FLAG = 0
+        WHERE h.ORDER_ID = #{orderId} AND h.DEL_FLAG = 0
+        ORDER BY h.CREATE_TIME DESC
+    </select>
+
+</mapper>

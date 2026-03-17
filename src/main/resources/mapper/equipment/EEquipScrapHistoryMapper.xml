@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EEquipScrapHistoryMapper">
+
+    <resultMap id="BaseResultMap" type="com.yy.ppm.equipment.bean.po.EEquipScrapHistoryPO">
+        <id column="ID" property="id" jdbcType="BIGINT"/>
+        <result column="ORDER_ID" property="orderId" jdbcType="BIGINT"/>
+        <result column="EQUIP_ID" property="equipId" jdbcType="BIGINT"/>
+        <result column="LAST_CHANGE_INFO" property="lastChangeInfo" jdbcType="VARCHAR"/>
+        <result column="DEL_FLAG" property="delFlag" jdbcType="BIGINT"/>
+        <result column="CREATE_BY" property="createBy" jdbcType="BIGINT"/>
+        <result column="CREATE_BY_NAME" property="createByName" jdbcType="VARCHAR"/>
+        <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="UPDATE_BY" property="updateBy" jdbcType="BIGINT"/>
+        <result column="UPDATE_BY_NAME" property="updateByName" jdbcType="VARCHAR"/>
+        <result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 根据报废单ID查询历史记录 -->
+    <select id="getHistoryByOrderId" resultMap="BaseResultMap">
+        SELECT
+            ID, ORDER_ID, EQUIP_ID, LAST_CHANGE_INFO, DEL_FLAG,
+            CREATE_BY, CREATE_BY_NAME, CREATE_TIME,
+            UPDATE_BY, UPDATE_BY_NAME, UPDATE_TIME
+        FROM E_M_EQUIP_SCRAP_HISTORY
+        WHERE ORDER_ID = #{orderId} AND DEL_FLAG = 0
+        ORDER BY CREATE_TIME DESC
+    </select>
+
+    <!-- 新增报废历史记录 -->
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.EEquipScrapHistoryPO">
+        INSERT INTO E_M_EQUIP_SCRAP_HISTORY (
+            ID, ORDER_ID, EQUIP_ID, LAST_CHANGE_INFO, DEL_FLAG,
+            CREATE_BY, CREATE_BY_NAME, CREATE_TIME
+        ) VALUES (
+            #{id}, #{orderId}, #{equipId}, #{lastChangeInfo}, #{delFlag},
+            #{createBy}, #{createByName}, #{createTime}
+        )
+    </insert>
+
+
+
+</mapper>

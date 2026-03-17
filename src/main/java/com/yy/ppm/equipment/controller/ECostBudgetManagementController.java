@@ -1,0 +1,93 @@
+package com.yy.ppm.equipment.controller;
+
+import com.yy.common.enums.OperateTypeEnum;
+import com.yy.common.enums.Response;
+import com.yy.common.log.MicroLogger;
+import com.yy.common.page.PageParameter;
+import com.yy.common.page.Pages;
+import com.yy.framework.annotation.Log;
+import com.yy.ppm.equipment.bean.dto.ECostBudgetManagementDTO;
+import com.yy.ppm.equipment.service.ECostBudgetManagementService;
+import jakarta.annotation.Resource;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
+/**
+ * 预算管理 Controller
+ * 接口前缀：/api/internal/ECostBudgetManagement
+ */
+@RestController
+@RequestMapping("/api/internal/ECostBudgetManagement")
+public class ECostBudgetManagementController {
+
+    private static final MicroLogger LOGGER = new MicroLogger(ECostBudgetManagementController.class);
+
+    @Resource
+    private ECostBudgetManagementService service;
+
+    @GetMapping("/getList")
+    @PreAuthorize("hasAuthority('equipment:ecostbudgetmanagement:query')")
+    public Map<String, Object> getList(ECostBudgetManagementDTO searchDTO, PageParameter parameter) {
+        final String methodName = "ECostBudgetManagementController:getList";
+        LOGGER.enter(methodName + "[start]", "searchDTO:" + searchDTO + ", parameter:" + parameter);
+
+        Pages<ECostBudgetManagementDTO> result = service.list(searchDTO, parameter);
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
+    }
+
+    @GetMapping("/getById")
+    @PreAuthorize("hasAuthority('equipment:ecostbudgetmanagement:getById')")
+    public Map<String, Object> getById(@RequestParam("id") Long id) {
+        final String methodName = "ECostBudgetManagementController:getById";
+        LOGGER.enter(methodName + "[start]", "id:" + id);
+
+        ECostBudgetManagementDTO result = service.get(id);
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
+    }
+
+    @PostMapping("/add")
+    @Log(title = "新增预算管理", value = OperateTypeEnum.INSERT)
+    @PreAuthorize("hasAuthority('equipment:ecostbudgetmanagement:add')")
+    public Map<String, Object> add(@RequestBody ECostBudgetManagementDTO dto) {
+        final String methodName = "ECostBudgetManagementController:add";
+        LOGGER.enter(methodName + "[start]", "dto:" + dto);
+
+        service.add(dto);
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("新增成功").toResult();
+    }
+
+    @PutMapping("/update")
+    @Log(title = "修改预算管理", value = OperateTypeEnum.UPDATE)
+    @PreAuthorize("hasAuthority('equipment:ecostbudgetmanagement:update')")
+    public Map<String, Object> update(@RequestBody ECostBudgetManagementDTO dto) {
+        final String methodName = "ECostBudgetManagementController:update";
+        LOGGER.enter(methodName + "[start]", "dto:" + dto);
+
+        service.update(dto);
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("修改成功").toResult();
+    }
+
+    @DeleteMapping("/delete")
+    @Log(title = "删除预算管理", value = OperateTypeEnum.DELETE)
+    @PreAuthorize("hasAuthority('equipment:ecostbudgetmanagement:delete')")
+    public Map<String, Object> delete(@RequestParam("id") Long id) {
+        final String methodName = "ECostBudgetManagementController:delete";
+        LOGGER.enter(methodName + "[start]", "id:" + id);
+
+        service.delete(id);
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("删除成功").toResult();
+    }
+}
+

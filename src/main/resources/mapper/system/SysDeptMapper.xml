@@ -48,8 +48,14 @@
                 <bind name="deptNameLike" value="'%' + deptName + '%'"/>
                 AND d.DEPT_NAME LIKE  #{deptNameLike,jdbcType=VARCHAR}
             </if>
+            <if test='deptLevel != null'>
+                AND d.DEPT_LEVEL = #{deptLevel}
+            </if>
             <if test='status != null and status !=""'>
                 AND d.STATUS = #{status}
+            </if>
+            <if test='inOutType != null and inOutType !=""'>
+                AND d.IN_OUT_TYPE = #{inOutType}
             </if>
         </where>
         order by d.parent_id, d.order_no
@@ -325,5 +331,23 @@
     <delete id="deleteDeptById" parameterType="Long">
         delete from sys_dept where id = #{id}
     </delete>
+
+
+    <select id="selectDeptListByLevel" parameterType="String" resultType="com.yy.ppm.system.bean.dto.SysDeptDTO">
+        <include refid="selectDeptVo"/>
+        <where>
+            AND d.DEPT_LEVEL = #{deptLevel}
+            AND d.STATUS = '1'
+        </where>
+        order by d.order_no, d.dept_name
+    </select>
+    <select id="selectDeptListByParentId" parameterType="Long" resultType="com.yy.ppm.system.bean.dto.SysDeptDTO">
+        <include refid="selectDeptVo"/>
+        <where>
+            AND d.PARENT_ID = #{parentId}
+            AND d.STATUS = '1'
+        </where>
+        order by d.order_no, d.dept_name
+    </select>
 
 </mapper>

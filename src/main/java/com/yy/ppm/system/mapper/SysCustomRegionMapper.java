@@ -28,6 +28,14 @@ public interface SysCustomRegionMapper {
 
 
  /**
+  * 获取列表
+  * @param
+  * @return
+  */
+ public List<SysMenuDTO> getListApp(@Param("loginUserId") Long loginUserId);
+
+
+ /**
   * 根据id获取
   * @param id 主键
   * @return
@@ -41,6 +49,9 @@ public interface SysCustomRegionMapper {
   */
  @Edit
  public int insert(SysCustomRegionDTO sysCustomRegionDTO);
+ public int getCount(SysCustomRegionDTO sysCustomRegionDTO);
+
+
 
  /**
   * 批量新增

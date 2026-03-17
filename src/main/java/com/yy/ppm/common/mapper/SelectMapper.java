@@ -1,6 +1,7 @@
 package com.yy.ppm.common.mapper;
 
 import com.yy.ppm.common.bean.dto.SelecSearchDTO;
+import com.yy.ppm.equipment.bean.dto.EquipSmallCategorySelectDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -88,4 +89,19 @@ public interface SelectMapper {
 
     List<Map<String, Object>> listContract(Map<String, Object> params);
 
+    List<Map<String, Object>> getEqptType(@Param("categoryLevel") String categoryLevel, @Param("parentId") String parentId);
+
+    /**
+     * 按部门查询人员
+     * @param deptId 部门ID
+     * @return
+     */
+    List<Map<String, Object>> getUserByDept(@Param("deptId") Long deptId);
+
+    /**
+     * 按公司查询人员
+     * @param companyId 公司ID
+     * @return
+     */
+    List<Map<String, Object>> getUserByCompany(@Param("companyId") Long companyId);
 }

@@ -1,0 +1,591 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMaterialStockCheckMapper">
+
+    <!-- 查询盘点单列表（分页）- 只查询主表信息 -->
+    <select id="selectCheckList" resultType="com.yy.ppm.equipment.bean.dto.EMaterialStockCheckDTO">
+        SELECT
+            C.ID AS id,
+            C.CHECK_NO AS checkNo,
+            C.WAREHOUSE_ID AS warehouseId,
+            C.WAREHOUSE_NAME AS warehouseName,
+            C.CHECK_DATE AS checkDate,
+            C.CHECK_START_DATE AS checkStartDate,
+            C.CHECK_END_DATE AS checkEndDate,
+            C.CHECK_TITLE AS checkTitle,
+            C.CHECK_TYPE AS checkType,
+            CASE
+                WHEN C.CHECK_TYPE = 1 THEN '全量盘点'
+                WHEN C.CHECK_TYPE = 2 THEN '部分盘点'
+                ELSE '未知'
+            END AS checkTypeName,
+            C.CHECK_STATUS AS checkStatus,
+            CASE
+                WHEN C.CHECK_STATUS = 0 THEN '待盘点'
+                WHEN C.CHECK_STATUS = 1 THEN '盘点中'
+                WHEN C.CHECK_STATUS = 2 THEN '已完成'
+                ELSE '未知'
+            END AS checkStatusName,
+            C.CHECK_PERSON_ID AS checkPersonId,
+            C.CHECK_PERSON_NAME AS checkPersonName,
+            C.REMARK AS remark,
+            C.CREATE_BY AS createBy,
+            C.CREATE_BY_NAME AS createByName,
+            C.CREATE_TIME AS createTime,
+            C.UPDATE_BY AS updateBy,
+            C.UPDATE_BY_NAME AS updateByName,
+            C.UPDATE_TIME AS updateTime,
+            NVL((SELECT COUNT(*) FROM E_MATERIAL_STOCK_CHECK_DETAIL WHERE CHECK_ID = C.ID), 0) AS totalDetailCount,
+            NVL((SELECT COUNT(*) FROM E_MATERIAL_STOCK_CHECK_DETAIL WHERE CHECK_ID = C.ID AND (CHECK_STATUS IS NULL OR CHECK_STATUS = 0)), 0) AS uncheckedCount,
+            NVL((SELECT COUNT(*) FROM E_MATERIAL_STOCK_CHECK_DETAIL WHERE CHECK_ID = C.ID AND CHECK_STATUS = 1), 0) AS pendingConfirmCount,
+            NVL((SELECT COUNT(*) FROM E_MATERIAL_STOCK_CHECK_DETAIL WHERE CHECK_ID = C.ID AND CHECK_STATUS = 2), 0) AS checkedCount
+        FROM
+            E_MATERIAL_STOCK_CHECK C
+        <where>
+            C.DEL_FLAG = 0
+            <if test="checkNo != null and checkNo != ''">
+                <bind name="checkNoPattern" value="'%' + checkNo + '%'"/>
+                AND C.CHECK_NO LIKE #{checkNoPattern}
+            </if>
+            <if test="warehouseId != null">
+                AND C.WAREHOUSE_ID = #{warehouseId}
+            </if>
+            <if test="warehouseName != null and warehouseName != ''">
+                <bind name="warehouseNamePattern" value="'%' + warehouseName + '%'"/>
+                AND C.WAREHOUSE_NAME LIKE #{warehouseNamePattern}
+            </if>
+            <if test="checkDateStart != null">
+                AND C.CHECK_DATE &gt;= #{checkDateStart}
+            </if>
+            <if test="checkDateEnd != null">
+                AND C.CHECK_DATE &lt;= #{checkDateEnd}
+            </if>
+            <if test="checkStatus != null">
+                AND C.CHECK_STATUS = #{checkStatus}
+            </if>
+            <if test="checkPersonName != null and checkPersonName != ''">
+                <bind name="checkPersonNamePattern" value="'%' + checkPersonName + '%'"/>
+                AND C.CHECK_PERSON_NAME LIKE #{checkPersonNamePattern}
+            </if>
+            <if test="checkTitle != null and checkTitle != ''">
+                <bind name="checkTitlePattern" value="'%' + checkTitle + '%'"/>
+                AND C.CHECK_TITLE LIKE #{checkTitlePattern}
+            </if>
+        </where>
+        ORDER BY C.CREATE_TIME DESC
+    </select>
+
+    <!-- 根据ID查询盘点单 -->
+    <select id="selectById" resultType="com.yy.ppm.equipment.bean.dto.EMaterialStockCheckDTO">
+        SELECT
+            ID AS id,
+            CHECK_NO AS checkNo,
+            WAREHOUSE_ID AS warehouseId,
+            WAREHOUSE_NAME AS warehouseName,
+            CHECK_DATE AS checkDate,
+            CHECK_START_DATE AS checkStartDate,
+            CHECK_END_DATE AS checkEndDate,
+            CHECK_TITLE AS checkTitle,
+            CHECK_TYPE AS checkType,
+            CASE
+                WHEN CHECK_TYPE = 1 THEN '全量盘点'
+                WHEN CHECK_TYPE = 2 THEN '部分盘点'
+                ELSE '未知'
+            END AS checkTypeName,
+            CHECK_STATUS AS checkStatus,
+            CASE
+                WHEN CHECK_STATUS = 0 THEN '待盘点'
+                WHEN CHECK_STATUS = 1 THEN '盘点中'
+                WHEN CHECK_STATUS = 2 THEN '已完成'
+                WHEN CHECK_STATUS = 3 THEN '已调整'
+                ELSE '未知'
+            END AS checkStatusName,
+            CHECK_PERSON_ID AS checkPersonId,
+            CHECK_PERSON_NAME AS checkPersonName,
+            REMARK AS remark,
+            CREATE_BY AS createBy,
+            CREATE_BY_NAME AS createByName,
+            CREATE_TIME AS createTime,
+            UPDATE_BY AS updateBy,
+            UPDATE_BY_NAME AS updateByName,
+            UPDATE_TIME AS updateTime
+        FROM
+            E_MATERIAL_STOCK_CHECK
+        WHERE
+            ID = #{id}
+            AND DEL_FLAG = 0
+    </select>
+
+    <!-- 新增盘点单 -->
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.EMaterialStockCheckPO">
+        INSERT INTO E_MATERIAL_STOCK_CHECK
+        (
+            ID,
+            CHECK_NO,
+            WAREHOUSE_ID,
+            WAREHOUSE_NAME,
+            CHECK_DATE,
+            CHECK_START_DATE,
+            CHECK_END_DATE,
+            CHECK_TITLE,
+            CHECK_TYPE,
+            CHECK_STATUS,
+            CHECK_PERSON_ID,
+            CHECK_PERSON_NAME,
+            REMARK,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            DEL_FLAG
+        )
+        VALUES
+        (
+            #{id,jdbcType=NUMERIC},
+            #{checkNo,jdbcType=VARCHAR},
+            #{warehouseId,jdbcType=NUMERIC},
+            #{warehouseName,jdbcType=VARCHAR},
+            #{checkDate,jdbcType=DATE},
+            #{checkStartDate,jdbcType=DATE},
+            #{checkEndDate,jdbcType=DATE},
+            #{checkTitle,jdbcType=VARCHAR},
+            #{checkType,jdbcType=NUMERIC},
+            #{checkStatus,jdbcType=NUMERIC},
+            #{checkPersonId,jdbcType=NUMERIC},
+            #{checkPersonName,jdbcType=VARCHAR},
+            #{remark,jdbcType=VARCHAR},
+            #{loginUserId,jdbcType=NUMERIC},
+            #{loginUserName,jdbcType=VARCHAR},
+            #{now,jdbcType=TIMESTAMP},
+            0
+        )
+    </insert>
+
+    <!-- 更新盘点单 -->
+    <update id="update" parameterType="com.yy.ppm.equipment.bean.po.EMaterialStockCheckPO">
+        UPDATE E_MATERIAL_STOCK_CHECK
+        <set>
+            <if test="warehouseId != null">
+                WAREHOUSE_ID = #{warehouseId,jdbcType=NUMERIC},
+            </if>
+            <if test="warehouseName != null">
+                WAREHOUSE_NAME = #{warehouseName,jdbcType=VARCHAR},
+            </if>
+            <if test="checkDate != null">
+                CHECK_DATE = #{checkDate,jdbcType=DATE},
+            </if>
+            <if test="checkStartDate != null">
+                CHECK_START_DATE = #{checkStartDate,jdbcType=DATE},
+            </if>
+            <if test="checkEndDate != null">
+                CHECK_END_DATE = #{checkEndDate,jdbcType=DATE},
+            </if>
+            <if test="checkTitle != null">
+                CHECK_TITLE = #{checkTitle,jdbcType=VARCHAR},
+            </if>
+            <if test="checkType != null">
+                CHECK_TYPE = #{checkType,jdbcType=NUMERIC},
+            </if>
+            <if test="checkStatus != null">
+                CHECK_STATUS = #{checkStatus,jdbcType=NUMERIC},
+            </if>
+            <if test="checkPersonId != null">
+                CHECK_PERSON_ID = #{checkPersonId,jdbcType=NUMERIC},
+            </if>
+            <if test="checkPersonName != null">
+                CHECK_PERSON_NAME = #{checkPersonName,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                REMARK = #{remark,jdbcType=VARCHAR},
+            </if>
+            UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
+            UPDATE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            UPDATE_TIME = #{now,jdbcType=TIMESTAMP}
+        </set>
+        WHERE
+            ID = #{id}
+    </update>
+
+    <!-- 删除盘点单（逻辑删除） -->
+    <update id="deleteById">
+        UPDATE E_MATERIAL_STOCK_CHECK
+        SET
+            DEL_FLAG = 1,
+            UPDATE_TIME = SYSDATE
+        WHERE
+            ID = #{id}
+    </update>
+
+    <!-- 检查盘点单号是否重复 -->
+    <select id="countByCheckNo" resultType="int">
+        SELECT COUNT(*)
+        FROM E_MATERIAL_STOCK_CHECK
+        WHERE CHECK_NO = #{checkNo}
+        AND DEL_FLAG = 0
+        <if test="id != null">
+            AND ID != #{id}
+        </if>
+    </select>
+
+    <!-- 查询盘点明细列表（根据盘点单ID） -->
+    <select id="selectDetailListByCheckId" resultType="com.yy.ppm.equipment.bean.dto.EMaterialStockCheckDetailDTO">
+        SELECT
+            ID AS id,
+            CHECK_ID AS checkId,
+            MATERIAL_ID AS materialId,
+            MATERIAL_NAME AS materialName,
+            SPECIFICATION_MODEL AS specificationModel,
+            UNIT_CODE AS unitCode,
+            UNIT_NAME AS unitName,
+            BOOK_QUANTITY AS bookQuantity,
+            CHECK_QUANTITY AS checkQuantity,
+            DIFFERENCE_QUANTITY AS differenceQuantity,
+            DIFFERENCE_TYPE AS differenceType,
+            CASE
+                WHEN DIFFERENCE_TYPE = 1 THEN '盘盈'
+                WHEN DIFFERENCE_TYPE = 2 THEN '盘亏'
+                WHEN DIFFERENCE_TYPE = 0 THEN '无差异'
+                ELSE '未知'
+            END AS differenceTypeName,
+            WAREHOUSE_IN_DETAIL_ID AS warehouseInDetailId,
+            CHECK_STATUS AS checkStatus,
+            CASE
+                WHEN CHECK_STATUS = 0 THEN '待盘点'
+                WHEN CHECK_STATUS = 1 THEN '已盘点'
+                ELSE '未知'
+            END AS checkStatusName,
+            REMARK AS remark,
+            AUDIT_BY AS auditBy,
+            AUDIT_BY_NAME AS auditByName,
+            AUDIT_TIME AS auditTime
+        FROM
+            E_MATERIAL_STOCK_CHECK_DETAIL
+        WHERE
+            CHECK_ID = #{checkId}
+        ORDER BY MATERIAL_NAME
+    </select>
+
+    <!-- 查询盘点明细列表（包含入库明细和入库主表信息）- 分页 -->
+    <select id="selectDetailListWithInInfo" resultType="com.yy.ppm.equipment.bean.dto.EMaterialStockCheckDetailWithInDTO">
+        SELECT
+            -- 盘点明细表字段
+            CD.ID AS id,
+            CD.CHECK_ID AS checkId,
+            CD.MATERIAL_ID AS materialId,
+            CD.MATERIAL_NAME AS materialName,
+            CD.SPECIFICATION_MODEL AS specificationModel,
+            CD.UNIT_CODE AS unitCode,
+            CD.UNIT_NAME AS unitName,
+            CD.BOOK_QUANTITY AS bookQuantity,
+            CD.CHECK_QUANTITY AS checkQuantity,
+            CD.DIFFERENCE_QUANTITY AS differenceQuantity,
+            CD.DIFFERENCE_TYPE AS differenceType,
+            CASE
+                WHEN CD.DIFFERENCE_TYPE = 1 THEN '盘盈'
+                WHEN CD.DIFFERENCE_TYPE = 2 THEN '盘亏'
+                WHEN CD.DIFFERENCE_TYPE = 0 THEN '无差异'
+                ELSE '未知'
+            END AS differenceTypeName,
+            CD.WAREHOUSE_IN_DETAIL_ID AS warehouseInDetailId,
+            CD.CHECK_STATUS AS checkStatus,
+            CASE
+                WHEN CD.CHECK_STATUS = 0 THEN '待盘点'
+                WHEN CD.CHECK_STATUS = 1 THEN '已盘点'
+                ELSE '未知'
+            END AS checkStatusName,
+            CD.REMARK AS remark,
+            CD.AUDIT_BY AS auditBy,
+            CD.AUDIT_BY_NAME AS auditByName,
+            CD.AUDIT_TIME AS auditTime,
+            -- 入库明细表字段
+            WID.WAREHOUSE_IN_ID AS warehouseInId,
+            WID.WAREHOUSE_IN_QUANTITY AS warehouseInQuantity,
+            WID.OUT_QUANTITY AS outQuantity,
+            WID.REMAINING_QUANTITY AS remainingQuantity,
+            WID.TAX_INCLUDED_UNIT_PRICE AS taxIncludedUnitPrice,
+            WID.TAX_INCLUDED_AMOUNT AS taxIncludedAmount,
+            WID.SUPPLIER_ID AS supplierId,
+            WID.SUPPLIER_NAME AS supplierName,
+            WID.BRAND AS brand,
+            WID.SPECIFICATION_DESC AS specificationDesc,
+            -- 入库主表字段
+            WI.WAREHOUSE_IN_NO AS warehouseInNo,
+            WI.WAREHOUSE_IN_TITLE AS warehouseInTitle,
+            WI.WAREHOUSE_IN_TYPE_CODE AS warehouseInTypeCode,
+            WI.WAREHOUSE_IN_TYPE_NAME AS warehouseInTypeName,
+            WI.WAREHOUSE_IN_DATE AS warehouseInDate,
+            WI.DEPT_ID AS deptId,
+            WI.DEPT_NAME AS deptName,
+            WI.ACCEPTANCE_STATUS AS acceptanceStatus,
+            CASE
+                WHEN WI.ACCEPTANCE_STATUS = 0 THEN '待验收'
+                WHEN WI.ACCEPTANCE_STATUS = 1 THEN '通过'
+                WHEN WI.ACCEPTANCE_STATUS = 2 THEN '不通过'
+                ELSE '未知'
+            END AS acceptanceStatusName,
+            WI.ACCEPTANCE_REMARKS AS acceptanceRemarks
+        FROM
+            E_MATERIAL_STOCK_CHECK_DETAIL CD
+        LEFT JOIN E_MATERIAL_WAREHOUSE_IN_DETAIL WID ON CD.WAREHOUSE_IN_DETAIL_ID = WID.ID
+        LEFT JOIN E_MATERIAL_WAREHOUSE_IN WI ON WID.WAREHOUSE_IN_ID = WI.ID
+        <where>
+            CD.CHECK_ID = #{checkId}
+            <if test="materialName != null and materialName != ''">
+                <bind name="materialNamePattern" value="'%' + materialName + '%'"/>
+                AND CD.MATERIAL_NAME LIKE #{materialNamePattern}
+            </if>
+            <if test="specificationModel != null and specificationModel != ''">
+                <bind name="specificationModelPattern" value="'%' + specificationModel + '%'"/>
+                AND CD.SPECIFICATION_MODEL LIKE #{specificationModelPattern}
+            </if>
+            <if test="warehouseInNo != null and warehouseInNo != ''">
+                <bind name="warehouseInNoPattern" value="'%' + warehouseInNo + '%'"/>
+                AND WI.WAREHOUSE_IN_NO LIKE #{warehouseInNoPattern}
+            </if>
+            <if test="warehouseInTitle != null and warehouseInTitle != ''">
+                <bind name="warehouseInTitlePattern" value="'%' + warehouseInTitle + '%'"/>
+                AND WI.WAREHOUSE_IN_TITLE LIKE #{warehouseInTitlePattern}
+            </if>
+            <if test="supplierName != null and supplierName != ''">
+                <bind name="supplierNamePattern" value="'%' + supplierName + '%'"/>
+                AND WID.SUPPLIER_NAME LIKE #{supplierNamePattern}
+            </if>
+            <if test="differenceType != null">
+                AND CD.DIFFERENCE_TYPE = #{differenceType}
+            </if>
+            <if test="checkStatus != null">
+                AND CD.CHECK_STATUS = #{checkStatus}
+            </if>
+        </where>
+        ORDER BY CD.MATERIAL_NAME, WI.WAREHOUSE_IN_NO
+    </select>
+
+    <!-- 批量新增盘点明细 -->
+    <insert id="batchInsertDetail" parameterType="java.util.List">
+        INSERT INTO E_MATERIAL_STOCK_CHECK_DETAIL
+        (
+            ID,
+            CHECK_ID,
+            MATERIAL_ID,
+            MATERIAL_NAME,
+            SPECIFICATION_MODEL,
+            UNIT_CODE,
+            UNIT_NAME,
+            BOOK_QUANTITY,
+            CHECK_QUANTITY,
+            DIFFERENCE_QUANTITY,
+            DIFFERENCE_TYPE,
+            WAREHOUSE_IN_DETAIL_ID,
+            CHECK_STATUS,
+            REMARK,
+            CREATE_TIME
+        )
+        <foreach collection="list" item="item" separator="UNION ALL">
+            SELECT
+                #{item.id,jdbcType=NUMERIC},
+                #{item.checkId,jdbcType=NUMERIC},
+                #{item.materialId,jdbcType=NUMERIC},
+                #{item.materialName,jdbcType=VARCHAR},
+                #{item.specificationModel,jdbcType=VARCHAR},
+                #{item.unitCode,jdbcType=VARCHAR},
+                #{item.unitName,jdbcType=VARCHAR},
+                #{item.bookQuantity,jdbcType=NUMERIC},
+                #{item.checkQuantity,jdbcType=NUMERIC},
+                #{item.differenceQuantity,jdbcType=NUMERIC},
+                #{item.differenceType,jdbcType=NUMERIC},
+                #{item.warehouseInDetailId,jdbcType=NUMERIC},
+                #{item.checkStatus,jdbcType=NUMERIC},
+                #{item.remark,jdbcType=VARCHAR},
+                SYSDATE
+            FROM DUAL
+        </foreach>
+    </insert>
+
+    <!-- 批量更新盘点明细 -->
+    <update id="batchUpdateDetail" parameterType="java.util.List">
+        BEGIN
+        <foreach collection="list" item="item">
+            UPDATE E_MATERIAL_STOCK_CHECK_DETAIL
+            SET
+                CHECK_QUANTITY = #{item.checkQuantity,jdbcType=NUMERIC},
+                DIFFERENCE_QUANTITY = #{item.differenceQuantity,jdbcType=NUMERIC},
+                DIFFERENCE_TYPE = #{item.differenceType,jdbcType=NUMERIC},
+                REMARK = #{item.remark,jdbcType=VARCHAR},
+                UPDATE_TIME = SYSDATE
+            WHERE ID = #{item.id};
+        </foreach>
+        END;
+    </update>
+
+    <!-- 删除盘点明细（根据盘点单ID） -->
+    <delete id="deleteDetailByCheckId">
+        DELETE FROM E_MATERIAL_STOCK_CHECK_DETAIL
+        WHERE CHECK_ID = #{checkId}
+    </delete>
+
+    <!-- 根据仓库ID查询所有入库明细并插入到盘点明细表（全量盘点，库存大于0的） -->
+    <insert id="insertDetailFromInDetailsByWarehouse">
+        INSERT INTO E_MATERIAL_STOCK_CHECK_DETAIL
+        (
+            ID,
+            CHECK_ID,
+            MATERIAL_ID,
+            MATERIAL_NAME,
+            SPECIFICATION_MODEL,
+            UNIT_CODE,
+            UNIT_NAME,
+            BOOK_QUANTITY,
+            CHECK_QUANTITY,
+            DIFFERENCE_QUANTITY,
+            DIFFERENCE_TYPE,
+            WAREHOUSE_IN_DETAIL_ID,
+            CHECK_STATUS,
+            CREATE_TIME
+        )
+        SELECT
+            SEQ_STOCK_CHECK_DETAIL_ID.NEXTVAL,
+            #{checkId},
+            WID.MATERIAL_ID,
+            WID.MATERIAL_NAME,
+            WID.SPECIFICATION,
+            WID.UNIT_CODE,
+            WID.UNIT,
+            WID.REMAINING_QUANTITY,
+            NULL,
+            0,
+            0,
+            WID.ID,
+            0,
+            SYSDATE
+        FROM
+            E_MATERIAL_WAREHOUSE_IN_DETAIL WID
+        INNER JOIN E_MATERIAL_WAREHOUSE_IN WI ON WID.WAREHOUSE_IN_ID = WI.ID
+        WHERE
+            WI.WAREHOUSE_ID = #{warehouseId}
+            AND WI.ACCEPTANCE_STATUS = 1
+            AND WID.REMAINING_QUANTITY > 0
+    </insert>
+
+    <!-- 根据仓库ID和物资ID列表查询入库明细并插入到盘点明细表（部分盘点，库存大于0的） -->
+    <insert id="insertDetailFromInDetailsByWarehouseAndMaterials">
+        INSERT INTO E_MATERIAL_STOCK_CHECK_DETAIL
+        (
+            ID,
+            CHECK_ID,
+            MATERIAL_ID,
+            MATERIAL_NAME,
+            SPECIFICATION_MODEL,
+            UNIT_CODE,
+            UNIT_NAME,
+            BOOK_QUANTITY,
+            CHECK_QUANTITY,
+            DIFFERENCE_QUANTITY,
+            DIFFERENCE_TYPE,
+            WAREHOUSE_IN_DETAIL_ID,
+            CHECK_STATUS,
+            CREATE_TIME
+        )
+        SELECT
+            SEQ_STOCK_CHECK_DETAIL_ID.NEXTVAL,
+            #{checkId},
+            WID.MATERIAL_ID,
+            WID.MATERIAL_NAME,
+            WID.SPECIFICATION,
+            WID.UNIT_CODE,
+            WID.UNIT,
+            WID.REMAINING_QUANTITY,
+            NULL,
+            0,
+            0,
+            WID.ID,
+            0,
+            SYSDATE
+        FROM
+            E_MATERIAL_WAREHOUSE_IN_DETAIL WID
+        INNER JOIN E_MATERIAL_WAREHOUSE_IN WI ON WID.WAREHOUSE_IN_ID = WI.ID
+        WHERE
+            WI.WAREHOUSE_ID = #{warehouseId}
+            AND WI.ACCEPTANCE_STATUS = 1
+            AND WID.REMAINING_QUANTITY > 0
+            <if test="materialIds != null and materialIds.size() > 0">
+                AND WID.MATERIAL_ID IN
+                <foreach collection="materialIds" item="materialId" open="(" separator="," close=")">
+                    #{materialId}
+                </foreach>
+            </if>
+    </insert>
+
+    <!-- 根据ID查询盘点明细 -->
+    <select id="selectDetailById" resultType="com.yy.ppm.equipment.bean.dto.EMaterialStockCheckDetailDTO">
+        SELECT
+            ID AS id,
+            CHECK_ID AS checkId,
+            MATERIAL_ID AS materialId,
+            MATERIAL_NAME AS materialName,
+            SPECIFICATION_MODEL AS specificationModel,
+            UNIT_CODE AS unitCode,
+            UNIT_NAME AS unitName,
+            BOOK_QUANTITY AS bookQuantity,
+            CHECK_QUANTITY AS checkQuantity,
+            DIFFERENCE_QUANTITY AS differenceQuantity,
+            DIFFERENCE_TYPE AS differenceType,
+            CASE
+                WHEN DIFFERENCE_TYPE = 1 THEN '盘盈'
+                WHEN DIFFERENCE_TYPE = 2 THEN '盘亏'
+                WHEN DIFFERENCE_TYPE = 0 THEN '无差异'
+                ELSE '未知'
+            END AS differenceTypeName,
+            WAREHOUSE_IN_DETAIL_ID AS warehouseInDetailId,
+            CHECK_STATUS AS checkStatus,
+            CASE
+                WHEN CHECK_STATUS = 0 THEN '待盘点'
+                WHEN CHECK_STATUS = 1 THEN '已盘点'
+                ELSE '未知'
+            END AS checkStatusName,
+            REMARK AS remark,
+            AUDIT_BY AS auditBy,
+            AUDIT_BY_NAME AS auditByName,
+            AUDIT_TIME AS auditTime
+        FROM
+            E_MATERIAL_STOCK_CHECK_DETAIL
+        WHERE
+            ID = #{id}
+    </select>
+
+    <!-- 更新盘点明细 -->
+    <update id="updateDetail" parameterType="com.yy.ppm.equipment.bean.po.EMaterialStockCheckDetailPO">
+        UPDATE E_MATERIAL_STOCK_CHECK_DETAIL
+        <set>
+            <if test="checkStatus != null">
+                CHECK_STATUS = #{checkStatus},
+            </if>
+            <if test="bookQuantity != null">
+                BOOK_QUANTITY = #{bookQuantity},
+            </if>
+            <if test="checkQuantity != null">
+                CHECK_QUANTITY = #{checkQuantity},
+            </if>
+            <if test="differenceQuantity != null">
+                DIFFERENCE_QUANTITY = #{differenceQuantity},
+            </if>
+            <if test="differenceType != null">
+                DIFFERENCE_TYPE = #{differenceType},
+            </if>
+            <if test="remark != null">
+                REMARK = #{remark},
+            </if>
+            <if test="loginUserId != null">
+                AUDIT_BY = #{loginUserId},
+            </if>
+            <if test="loginUserName != null">
+                AUDIT_BY_NAME = #{loginUserName},
+            </if>
+            AUDIT_TIME = SYSDATE
+        </set>
+        WHERE
+            ID = #{id}
+    </update>
+
+</mapper>
+

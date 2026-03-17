@@ -49,7 +49,26 @@
                   nvl(perms, '')                    as perms,
                   A.icon,
                   A.create_time,
-                  A.LINK
+                  A.LINK,
+                  A.APP_TYPE
+        FROM SYS_MENU A,
+             SYS_ROLE_MENU B,
+             SYS_ROLE_USER C,
+             SYS_CUSTOM_REGION D
+        where C.USER_ID = #{loginUserId}
+          AND C.ROLE_ID = B.ROLE_ID
+          AND B.MENU_ID = A.ID
+          AND A.DATA_TYPE = 'APP'
+          AND A.ID = D.MENU_ID
+          AND A.status = 0
+          AND A.ID IN (
+            SELECT MENU_ID
+            FROM sys_custom_region
+            where USER_ID = #{loginUserId}
+              and DATA_TYPE = 'APP'
+        )
+        ORDER BY D.CREATE_TIME ASC
+    </select>
 
         FROM SYS_MENU A,
              SYS_ROLE_MENU B,

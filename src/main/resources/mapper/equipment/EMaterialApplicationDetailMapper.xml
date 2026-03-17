@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMaterialApplicationDetailMapper">
+
+    <!-- 根据申请表ID查询明细列表 -->
+    <select id="selectListByApplicationId" resultType="com.yy.ppm.equipment.bean.dto.EMaterialApplicationDetailDTO">
+        SELECT
+            ID,
+            APPLICATION_ID,
+            MATERIAL_CODE_ID,
+            MATERIAL_CODE,
+            MATERIAL_NAME,
+            SPECIFICATION_MODEL,
+            UNIT,
+            APPLICATION_QUANTITY,
+            ESTIMATED_PRICE,
+            AMOUNT,
+            APPLICATION_STOCK_QUANTITY,
+            FLOW_TYPE,
+            FLOW_DIRECTION,
+            EQUIP_IDS,
+            EQUIP_NAMES,
+            SUPPLY_TIME_LIMIT,
+            SUGGESTED_BRAND,
+            SPECIFICATION_DESC,
+            PURCHASE_DETAIL_ID,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME
+        FROM
+            E_MATERIAL_APPLICATION_DETAIL
+        WHERE
+            APPLICATION_ID = #{applicationId}
+        ORDER BY CREATE_TIME ASC
+    </select>
+
+    <!-- 根据申请表ID查询明细列表（包含库存数量） -->
+    <select id="selectListByApplicationIdWithStock" resultType="com.yy.ppm.equipment.bean.dto.EMaterialApplicationDetailDTO">
+        SELECT
+            AD.ID,
+            AD.APPLICATION_ID,
+            AD.MATERIAL_CODE_ID,
+            AD.MATERIAL_CODE,
+            AD.MATERIAL_NAME,
+            AD.SPECIFICATION_MODEL,
+            AD.UNIT,
+            AD.APPLICATION_QUANTITY,
+            AD.ESTIMATED_PRICE,
+            AD.AMOUNT,
+            AD.APPLICATION_STOCK_QUANTITY,
+            AD.FLOW_DIRECTION,
+            AD.SUPPLY_TIME_LIMIT,
+            AD.SUGGESTED_BRAND,
+            AD.SPECIFICATION_DESC,
+            AD.PURCHASE_DETAIL_ID,
+            AD.CREATE_BY,
+            AD.CREATE_BY_NAME,
+            AD.CREATE_TIME,
+            AD.UPDATE_BY,
+            AD.UPDATE_BY_NAME,
+            AD.UPDATE_TIME,
+            <if test="warehouseId != null">
+                NVL(SUM(WID.REMAINING_QUANTITY), 0) AS STOCK_QUANTITY
+            </if>
+            <if test="warehouseId == null">
+                0 AS STOCK_QUANTITY
+            </if>
+        FROM
+            E_MATERIAL_APPLICATION_DETAIL AD
+        <if test="warehouseId != null">
+            LEFT JOIN E_MATERIAL_WAREHOUSE_IN_DETAIL WID ON AD.MATERIAL_CODE_ID = WID.MATERIAL_ID AND WID.DEL_FLAG = 0
+            LEFT JOIN E_MATERIAL_WAREHOUSE_IN WI ON WID.WAREHOUSE_IN_ID = WI.ID AND WI.DEL_FLAG = 0 AND WI.WAREHOUSE_ID = #{warehouseId}
+        </if>
+        WHERE
+            AD.APPLICATION_ID = #{applicationId}
+            AND AD.DEL_FLAG = 0
+        <if test="warehouseId != null">
+        GROUP BY
+            AD.ID,
+            AD.APPLICATION_ID,
+            AD.MATERIAL_CODE_ID,
+            AD.MATERIAL_CODE,
+            AD.MATERIAL_NAME,
+            AD.SPECIFICATION_MODEL,
+            AD.UNIT,
+            AD.APPLICATION_QUANTITY,
+            AD.ESTIMATED_PRICE,
+            AD.AMOUNT,
+            AD.APPLICATION_STOCK_QUANTITY,
+            AD.FLOW_DIRECTION,
+            AD.SUPPLY_TIME_LIMIT,
+            AD.SUGGESTED_BRAND,
+            AD.SPECIFICATION_DESC,
+            AD.PURCHASE_DETAIL_ID,
+            AD.CREATE_BY,
+            AD.CREATE_BY_NAME,
+            AD.CREATE_TIME,
+            AD.UPDATE_BY,
+            AD.UPDATE_BY_NAME,
+            AD.UPDATE_TIME
+        </if>
+        ORDER BY AD.CREATE_TIME ASC
+    </select>
+
+    <!-- 新增物资申报明细 -->
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.EMaterialApplicationDetailPO">
+        INSERT INTO E_MATERIAL_APPLICATION_DETAIL
+        (
+            ID,
+            APPLICATION_ID,
+            MATERIAL_CODE_ID,
+            MATERIAL_CODE,
+            MATERIAL_NAME,
+            SPECIFICATION_MODEL,
+            UNIT,
+            APPLICATION_QUANTITY,
+            ESTIMATED_PRICE,
+            AMOUNT,
+            APPLICATION_STOCK_QUANTITY,
+            FLOW_TYPE,
+            FLOW_DIRECTION,
+            EQUIP_IDS,
+            EQUIP_NAMES,
+            SUPPLY_TIME_LIMIT,
+            SUGGESTED_BRAND,
+            SPECIFICATION_DESC,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )
+        VALUES
+        (
+            #{id,jdbcType=NUMERIC},
+            #{applicationId,jdbcType=NUMERIC},
+            #{materialCodeId,jdbcType=NUMERIC},
+            #{materialCode,jdbcType=VARCHAR},
+            #{materialName,jdbcType=VARCHAR},
+            #{specificationModel,jdbcType=VARCHAR},
+            #{unit,jdbcType=VARCHAR},
+            #{applicationQuantity,jdbcType=NUMERIC},
+            #{estimatedPrice,jdbcType=NUMERIC},
+            #{amount,jdbcType=NUMERIC},
+            #{applicationStockQuantity,jdbcType=NUMERIC},
+            #{flowType,jdbcType=VARCHAR},
+            #{flowDirection,jdbcType=VARCHAR},
+            #{equipIds,jdbcType=VARCHAR},
+            #{equipNames,jdbcType=VARCHAR},
+            #{supplyTimeLimit,jdbcType=VARCHAR},
+            #{suggestedBrand,jdbcType=VARCHAR},
+            #{specificationDesc,jdbcType=VARCHAR},
+            #{loginUserId,jdbcType=NUMERIC},
+            #{loginUserName,jdbcType=VARCHAR},
+            #{now,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <!-- 修改物资申报明细 -->
+    <update id="update" parameterType="com.yy.ppm.equipment.bean.po.EMaterialApplicationDetailPO">
+        UPDATE E_MATERIAL_APPLICATION_DETAIL
+        <set>
+            <if test="applicationId != null">
+                APPLICATION_ID = #{applicationId,jdbcType=NUMERIC},
+            </if>
+            <if test="materialCodeId != null">
+                MATERIAL_CODE_ID = #{materialCodeId,jdbcType=NUMERIC},
+            </if>
+            <if test="materialCode != null">
+                MATERIAL_CODE = #{materialCode,jdbcType=VARCHAR},
+            </if>
+            <if test="materialName != null">
+                MATERIAL_NAME = #{materialName,jdbcType=VARCHAR},
+            </if>
+            <if test="specificationModel != null">
+                SPECIFICATION_MODEL = #{specificationModel,jdbcType=VARCHAR},
+            </if>
+            <if test="unit != null">
+                UNIT = #{unit,jdbcType=VARCHAR},
+            </if>
+            <if test="applicationQuantity != null">
+                APPLICATION_QUANTITY = #{applicationQuantity,jdbcType=NUMERIC},
+            </if>
+            <if test="estimatedPrice != null">
+                ESTIMATED_PRICE = #{estimatedPrice,jdbcType=NUMERIC},
+            </if>
+            <if test="amount != null">
+                AMOUNT = #{amount,jdbcType=NUMERIC},
+            </if>
+            <if test="applicationStockQuantity != null">
+                APPLICATION_STOCK_QUANTITY = #{applicationStockQuantity,jdbcType=NUMERIC},
+            </if>
+            <if test="flowType != null">
+                FLOW_TYPE = #{flowType,jdbcType=VARCHAR},
+            </if>
+            <if test="flowDirection != null">
+                FLOW_DIRECTION = #{flowDirection,jdbcType=VARCHAR},
+            </if>
+            <if test="equipIds != null">
+                EQUIP_IDS = #{equipIds,jdbcType=VARCHAR},
+            </if>
+            <if test="equipNames != null">
+                EQUIP_NAMES = #{equipNames,jdbcType=VARCHAR},
+            </if>
+            <if test="supplyTimeLimit != null">
+                SUPPLY_TIME_LIMIT = #{supplyTimeLimit,jdbcType=VARCHAR},
+            </if>
+            <if test="suggestedBrand != null">
+                SUGGESTED_BRAND = #{suggestedBrand,jdbcType=VARCHAR},
+            </if>
+            <if test="specificationDesc != null">
+                SPECIFICATION_DESC = #{specificationDesc,jdbcType=VARCHAR},
+            </if>
+            <if test="purchaseDetailId != null">
+                PURCHASE_DETAIL_ID = #{purchaseDetailId,jdbcType=NUMERIC},
+            </if>
+            <if test="purchaseDetailId == null">
+                PURCHASE_DETAIL_ID = NULL,
+            </if>
+            <if test="loginUserId != null">
+                UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
+            </if>
+            <if test="loginUserName != null and loginUserName != ''">
+                UPDATE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="now != null">
+                UPDATE_TIME = #{now,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        WHERE
+            ID = #{id}
+    </update>
+
+    <!-- 删除物资申报明细（根据申请表ID） -->
+    <delete id="deleteByApplicationId">
+        DELETE FROM E_MATERIAL_APPLICATION_DETAIL
+        WHERE APPLICATION_ID = #{applicationId}
+    </delete>
+
+    <!-- 删除物资申报明细（根据ID） -->
+    <delete id="deleteById">
+        DELETE FROM E_MATERIAL_APPLICATION_DETAIL
+        WHERE ID = #{id}
+    </delete>
+
+    <!-- 更新物资申报明细的采购明细ID -->
+    <update id="updatePurchaseDetailId">
+        UPDATE E_MATERIAL_APPLICATION_DETAIL
+        <set>
+            <if test="purchaseDetailId != null">
+                PURCHASE_DETAIL_ID = #{purchaseDetailId},
+            </if>
+            <if test="purchaseDetailId == null">
+                PURCHASE_DETAIL_ID = NULL,
+            </if>
+        </set>
+        WHERE ID = #{id}
+    </update>
+
+    <!-- 批量更新物资申报明细的采购明细ID -->
+    <update id="batchUpdatePurchaseDetailId">
+        MERGE INTO E_MATERIAL_APPLICATION_DETAIL T1
+        USING (
+            <foreach collection="updateList" item="item" separator=" UNION ALL ">
+                SELECT
+                    #{item.id} AS ID,
+                    #{item.purchaseDetailId} AS PURCHASE_DETAIL_ID
+                FROM DUAL
+            </foreach>
+        ) T2
+        ON (T1.ID = T2.ID)
+        WHEN MATCHED THEN
+            UPDATE SET T1.PURCHASE_DETAIL_ID = T2.PURCHASE_DETAIL_ID
+    </update>
+
+    <!-- 清空物资申报明细的采购明细ID（根据采购明细ID） -->
+    <update id="clearPurchaseDetailIdByPurchaseDetailId">
+        UPDATE E_MATERIAL_APPLICATION_DETAIL
+        SET PURCHASE_DETAIL_ID = NULL
+        WHERE PURCHASE_DETAIL_ID = #{purchaseDetailId}
+    </update>
+
+    <!-- 查询申报物资明细列表（用于采购时选择，关联物资申报表，只查询已审批通过的） -->
+    <select id="selectDetailListForPurchase" resultType="com.yy.ppm.equipment.bean.dto.EMaterialApplicationDetailDTO">
+        SELECT
+            D.ID,
+            D.APPLICATION_ID,
+            D.MATERIAL_CODE_ID,
+            D.MATERIAL_CODE,
+            D.MATERIAL_NAME,
+            D.SPECIFICATION_MODEL,
+            D.UNIT,
+            D.APPLICATION_QUANTITY,
+            D.ESTIMATED_PRICE,
+            D.AMOUNT,
+            D.FLOW_TYPE,
+            D.FLOW_DIRECTION,
+            D.EQUIP_IDS,
+            D.SUPPLY_TIME_LIMIT,
+            D.SUGGESTED_BRAND,
+            D.SPECIFICATION_DESC,
+            D.PURCHASE_DETAIL_ID,
+            A.APPLICATION_NO,
+            A.APPLICATION_TITLE,
+            A.APPLICATION_TYPE_NAME,
+            CASE
+                WHEN c3.CATEGORY_NAME IS NOT NULL AND c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL
+                    THEN c3.CATEGORY_NAME || '/' || c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
+                WHEN c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL
+                    THEN c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
+                WHEN c.CATEGORY_NAME IS NOT NULL
+                    THEN c.CATEGORY_NAME
+                ELSE ''
+            END AS CATEGORY_NAME,
+            D.CREATE_BY,
+            D.CREATE_BY_NAME,
+            D.CREATE_TIME,
+            D.UPDATE_BY,
+            D.UPDATE_BY_NAME,
+            D.UPDATE_TIME
+        FROM
+            E_MATERIAL_APPLICATION_DETAIL D
+        INNER JOIN E_MATERIAL_APPLICATION A ON D.APPLICATION_ID = A.ID
+        LEFT JOIN E_MATERIAL_CODE MC ON D.MATERIAL_CODE_ID = MC.ID AND MC.DEL_FLAG = 0
+        LEFT JOIN E_MATERIAL_CATEGORY c ON MC.CATEGORY_ID = c.ID AND c.DEL_FLAG = 0
+        LEFT JOIN E_MATERIAL_CATEGORY c2 ON c.PARENT_ID = c2.ID AND c2.DEL_FLAG = 0
+        LEFT JOIN E_MATERIAL_CATEGORY c3 ON c2.PARENT_ID = c3.ID AND c3.DEL_FLAG = 0
+        <where>
+            AND A.STATUS = '3'
+            <if test="applicationNo != null and applicationNo != ''">
+                <bind name="applicationNoPattern" value="'%' + applicationNo + '%'"/>
+                AND A.APPLICATION_NO LIKE #{applicationNoPattern}
+            </if>
+            <if test="applicationTitle != null and applicationTitle != ''">
+                <bind name="applicationTitlePattern" value="'%' + applicationTitle + '%'"/>
+                AND A.APPLICATION_TITLE LIKE #{applicationTitlePattern}
+            </if>
+            <if test="materialName != null and materialName != ''">
+                <bind name="materialNamePattern" value="'%' + materialName + '%'"/>
+                AND D.MATERIAL_NAME LIKE #{materialNamePattern}
+            </if>
+            <if test="materialCode != null and materialCode != ''">
+                <bind name="materialCodePattern" value="'%' + materialCode + '%'"/>
+                AND D.MATERIAL_CODE LIKE #{materialCodePattern}
+            </if>
+            <if test="startDate != null and startDate != ''">
+                AND A.CREATE_TIME &gt;= TO_DATE(#{startDate}, 'YYYY-MM-DD')
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND A.CREATE_TIME &lt; TO_DATE(#{endDate}, 'YYYY-MM-DD') + 1
+            </if>
+            <if test="purchaseStatus != null and purchaseStatus != ''">
+                <if test="purchaseStatus == 0">
+                    AND (D.PURCHASE_DETAIL_ID IS NULL OR D.PURCHASE_DETAIL_ID = '')
+                </if>
+                <if test="purchaseStatus == 1">
+                    AND D.PURCHASE_DETAIL_ID IS NOT NULL AND D.PURCHASE_DETAIL_ID != ''
+                </if>
+            </if>
+            <if test="purchaseTypeCode != null and purchaseTypeCode != ''">
+                <if test="purchaseTypeCode == '03'">
+                    <!-- 定点服务：查询指定定点服务类别的申报 -->
+                    <if test="fixedServiceCategoryCode != null and fixedServiceCategoryCode != ''">
+                        AND A.FIXED_SERVICE_CATEGORY_CODE = #{fixedServiceCategoryCode}
+                    </if>
+                </if>
+                <if test="purchaseTypeCode != '03'">
+                    <!-- 非定点服务：查询不是定点服务的申报（定点服务类别为空） -->
+                    AND (A.FIXED_SERVICE_CATEGORY_CODE IS NULL OR A.FIXED_SERVICE_CATEGORY_CODE = '')
+                </if>
+            </if>
+        </where>
+        ORDER BY A.CREATE_TIME DESC, D.CREATE_TIME ASC
+    </select>
+
+    <!-- 查询物资申报明细关联采购明细列表（用于入库时选择） -->
+    <select id="selectDetailListForWarehouseIn" resultType="com.yy.ppm.equipment.bean.dto.EMaterialApplicationDetailForWarehouseInDTO">
+        SELECT
+            AD.ID AS APPLICATION_DETAIL_ID,
+            PD.ID AS PURCHASE_DETAIL_ID,
+            PD.PURCHASE_ID,
+            AD.MATERIAL_CODE,
+            AD.MATERIAL_CODE_ID AS MATERIAL_ID,
+            AD.MATERIAL_NAME,
+            P.SUPPLIER_NAME,
+            NVL(MC.SPECIFICATION_MODEL, AD.SPECIFICATION_MODEL) AS SPECIFICATION_MODEL,
+            AD.SUGGESTED_BRAND,
+            MC.BRAND AS brand,
+            AD.APPLICATION_QUANTITY,
+            PD.TAX_INCLUDED_UNIT_PRICE,
+            PD.TAX_INCLUDED_AMOUNT,
+            PD.TAX_RATE,
+            AD.UNIT,
+            AD.SUPPLY_TIME_LIMIT,
+            AD.FLOW_TYPE,
+            AD.FLOW_DIRECTION,
+            AD.EQUIP_IDS,
+            AD.SPECIFICATION_DESC,
+            PD.PURCHASE_QUANTITY,
+            NVL(SUM_WID.WAREHOUSE_IN_QUANTITY, 0) AS WAREHOUSE_IN_QUANTITY,
+            (PD.PURCHASE_QUANTITY - NVL(SUM_WID.WAREHOUSE_IN_QUANTITY, 0)) AS REMAINING_QUANTITY,
+            A.APPLICATION_NO,
+            A.APPLICATION_TITLE,
+            A.APPLICATION_TYPE_NAME,
+            A.DEPT_ID AS APPLICATION_DEPT_ID,
+            A.DEPT_NAME AS APPLICATION_DEPT_NAME,
+            P.SUPPLIER_ID,
+            P.CREATE_BY AS PURCHASE_CREATE_BY,
+            P.CREATE_BY_NAME AS PURCHASE_CREATE_BY_NAME,
+            P.PURCHASE_NO,
+            P.PURCHASE_TYPE_NAME,
+            P.FIXED_SERVICE_CATEGORY_NAME
+        FROM
+            E_MATERIAL_PURCHASE_DETAIL PD
+        INNER JOIN E_MATERIAL_PURCHASE P ON PD.PURCHASE_ID = P.ID
+        LEFT JOIN E_MATERIAL_APPLICATION_DETAIL AD ON PD.ID = AD.PURCHASE_DETAIL_ID
+        LEFT JOIN E_MATERIAL_APPLICATION A ON AD.APPLICATION_ID = A.ID
+        LEFT JOIN E_MATERIAL_CODE MC ON AD.MATERIAL_CODE_ID = MC.ID AND MC.DEL_FLAG = 0
+        LEFT JOIN (
+            SELECT
+                AD_INNER.PURCHASE_DETAIL_ID,
+                SUM(WID.WAREHOUSE_IN_QUANTITY) AS WAREHOUSE_IN_QUANTITY
+            FROM
+                E_MATERIAL_WAREHOUSE_IN_DETAIL WID
+            INNER JOIN E_MATERIAL_APPLICATION_DETAIL AD_INNER ON WID.APPLICATION_ID = AD_INNER.ID
+            WHERE
+                WID.APPLICATION_ID IS NOT NULL
+                AND AD_INNER.PURCHASE_DETAIL_ID IS NOT NULL
+            GROUP BY
+                AD_INNER.PURCHASE_DETAIL_ID
+        ) SUM_WID ON PD.ID = SUM_WID.PURCHASE_DETAIL_ID
+        <where>
+            AND P.PURCHASE_STATUS = 1
+            AND (AD.ID IS NULL OR A.STATUS = '3')
+            AND (PD.PURCHASE_QUANTITY - NVL(SUM_WID.WAREHOUSE_IN_QUANTITY, 0)) > 0
+            <if test="applicationNo != null and applicationNo != ''">
+                <bind name="applicationNoPattern" value="'%' + applicationNo + '%'"/>
+                AND A.APPLICATION_NO LIKE #{applicationNoPattern}
+            </if>
+            <if test="purchaseNo != null and purchaseNo != ''">
+                <bind name="purchaseNoPattern" value="'%' + purchaseNo + '%'"/>
+                AND P.PURCHASE_NO LIKE #{purchaseNoPattern}
+            </if>
+            <if test="materialName != null and materialName != ''">
+                <bind name="materialNamePattern" value="'%' + materialName + '%'"/>
+                AND AD.MATERIAL_NAME LIKE #{materialNamePattern}
+            </if>
+            <if test="supplierName != null and supplierName != ''">
+                <bind name="supplierNamePattern" value="'%' + supplierName + '%'"/>
+                AND P.SUPPLIER_NAME LIKE #{supplierNamePattern}
+            </if>
+            <if test="supplierId != null">
+                AND P.SUPPLIER_ID = #{supplierId}
+            </if>
+        </where>
+        ORDER BY P.CREATE_TIME DESC, PD.CREATE_TIME ASC
+    </select>
+
+    <!-- 根据ID查询申请单明细的规格描述 -->
+    <select id="selectSpecificationDescById" resultType="java.lang.String">
+        SELECT SPECIFICATION_DESC
+        FROM E_MATERIAL_APPLICATION_DETAIL
+        WHERE ID = #{id}
+    </select>
+
+</mapper>
+

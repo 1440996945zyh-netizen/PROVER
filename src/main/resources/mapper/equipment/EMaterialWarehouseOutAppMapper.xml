@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMaterialWarehouseOutAppMapper">
+
+    <!-- 查询物资出库列表 -->
+    <select id="selectList" resultType="com.yy.ppm.equipment.bean.dto.EMaterialWarehouseOutDTO">
+        SELECT
+            ID,
+            WAREHOUSE_OUT_NO,
+            WAREHOUSE_OUT_TITLE,
+            WAREHOUSE_ID,
+            WAREHOUSE_NAME,
+            DEPT_ID,
+            DEPT_NAME,
+            RECEIVER_ID,
+            RECEIVER_NAME,
+            STATUS,
+            CONFIRM_BY,
+            CONFIRM_BY_NAME,
+            CONFIRM_TIME,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME
+        FROM
+            E_MAT_WAREHOUSE_OUT
+        <where>
+            <if test="warehouseOutNo != null and warehouseOutNo != ''">
+                <bind name="warehouseOutNoPattern" value="'%' + warehouseOutNo + '%'"/>
+                AND WAREHOUSE_OUT_NO LIKE #{warehouseOutNoPattern}
+            </if>
+            <if test="warehouseOutTitle != null and warehouseOutTitle != ''">
+                <bind name="warehouseOutTitlePattern" value="'%' + warehouseOutTitle + '%'"/>
+                AND WAREHOUSE_OUT_TITLE LIKE #{warehouseOutTitlePattern}
+            </if>
+            <if test="deptId != null">
+                AND DEPT_ID = #{deptId}
+            </if>
+            <if test="warehouseName != null and warehouseName != ''">
+                AND WAREHOUSE_NAME = #{warehouseName}
+            </if>
+        </where>
+        ORDER BY CREATE_TIME DESC
+    </select>
+
+    <!-- 根据ID查询物资出库 -->
+    <select id="selectById" resultType="com.yy.ppm.equipment.bean.dto.EMaterialWarehouseOutDTO">
+        SELECT
+            ID,
+            WAREHOUSE_OUT_NO,
+            WAREHOUSE_OUT_TITLE,
+            WAREHOUSE_ID,
+            WAREHOUSE_NAME,
+            DEPT_ID,
+            DEPT_NAME,
+            RECEIVER_ID,
+            RECEIVER_NAME,
+            STATUS,
+            CONFIRM_BY,
+            CONFIRM_BY_NAME,
+            CONFIRM_TIME,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME
+        FROM
+            E_MAT_WAREHOUSE_OUT
+        WHERE
+            ID = #{id}
+    </select>
+
+    <!-- 新增物资出库 -->
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.EMaterialWarehouseOutPO">
+        INSERT INTO E_MAT_WAREHOUSE_OUT
+        (
+            ID,
+            WAREHOUSE_OUT_NO,
+            WAREHOUSE_OUT_TITLE,
+            WAREHOUSE_ID,
+            WAREHOUSE_NAME,
+            DEPT_ID,
+            DEPT_NAME,
+            RECEIVER_ID,
+            RECEIVER_NAME,
+            STATUS,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        )
+        VALUES
+        (
+            #{id,jdbcType=NUMERIC},
+            #{warehouseOutNo,jdbcType=VARCHAR},
+            #{warehouseOutTitle,jdbcType=VARCHAR},
+            #{warehouseId,jdbcType=NUMERIC},
+            #{warehouseName,jdbcType=VARCHAR},
+            #{deptId,jdbcType=NUMERIC},
+            #{deptName,jdbcType=VARCHAR},
+            #{receiverId,jdbcType=NUMERIC},
+            #{receiverName,jdbcType=VARCHAR},
+            #{status,jdbcType=NUMERIC},
+            #{loginUserId,jdbcType=NUMERIC},
+            #{loginUserName,jdbcType=VARCHAR},
+            #{now,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <!-- 修改物资出库 -->
+    <update id="update" parameterType="com.yy.ppm.equipment.bean.po.EMaterialWarehouseOutPO">
+        UPDATE E_MAT_WAREHOUSE_OUT
+        <set>
+            <if test="warehouseOutNo != null and warehouseOutNo != ''">
+                WAREHOUSE_OUT_NO = #{warehouseOutNo,jdbcType=VARCHAR},
+            </if>
+            <if test="warehouseOutTitle != null">
+                WAREHOUSE_OUT_TITLE = #{warehouseOutTitle,jdbcType=VARCHAR},
+            </if>
+            <if test="warehouseId != null">
+                WAREHOUSE_ID = #{warehouseId,jdbcType=NUMERIC},
+            </if>
+            <if test="warehouseName != null">
+                WAREHOUSE_NAME = #{warehouseName,jdbcType=VARCHAR},
+            </if>
+            <if test="deptId != null">
+                DEPT_ID = #{deptId,jdbcType=NUMERIC},
+            </if>
+            <if test="deptName != null">
+                DEPT_NAME = #{deptName,jdbcType=VARCHAR},
+            </if>
+            <if test="receiverId != null">
+                RECEIVER_ID = #{receiverId,jdbcType=NUMERIC},
+            </if>
+            <if test="receiverName != null">
+                RECEIVER_NAME = #{receiverName,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                STATUS = #{status,jdbcType=NUMERIC},
+            </if>
+            <if test="confirmBy != null">
+                CONFIRM_BY = #{confirmBy,jdbcType=NUMERIC},
+            </if>
+            <if test="confirmByName != null">
+                CONFIRM_BY_NAME = #{confirmByName,jdbcType=VARCHAR},
+            </if>
+            <if test="confirmTime != null">
+                CONFIRM_TIME = #{confirmTime,jdbcType=TIMESTAMP},
+            </if>
+                UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
+                UPDATE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+                UPDATE_TIME = #{now,jdbcType=TIMESTAMP}
+        </set>
+        WHERE
+            ID = #{id}
+    </update>
+
+    <!-- 删除物资出库（物理删除） -->
+    <delete id="deleteById">
+        DELETE FROM E_MAT_WAREHOUSE_OUT
+        WHERE ID = #{id}
+    </delete>
+
+    <!-- 检查出库单号是否重复 -->
+    <select id="countByWarehouseOutNo" resultType="int">
+        SELECT COUNT(*)
+        FROM E_MAT_WAREHOUSE_OUT
+        WHERE WAREHOUSE_OUT_NO = #{warehouseOutNo}
+        <if test="id != null">
+            AND ID != #{id}
+        </if>
+    </select>
+
+</mapper>
+

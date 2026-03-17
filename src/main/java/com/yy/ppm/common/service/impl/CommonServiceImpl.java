@@ -8,15 +8,21 @@ import com.yy.common.util.str.StringUtil;
 import com.yy.framework.exception.BusinessRuntimeException;
 import com.yy.ppm.common.bean.dto.CheckDTO;
 import com.yy.ppm.common.enums.AutoNumEnum;
+import com.yy.ppm.common.enums.SerialNumberPrefixEnum;
 import com.yy.ppm.common.mapper.CommonMapper;
 import com.yy.ppm.common.service.CommonService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class CommonServiceImpl implements CommonService {
@@ -30,6 +36,10 @@ public class CommonServiceImpl implements CommonService {
 
     @Resource
     private MessageUtils messageUtils;
+
+    @Resource
+    private RedisTemplate<String, String> redisTemplate;
+
 
     @Override
     public int delete(String tableName, String columnName, String columnValue) {
@@ -218,5 +228,49 @@ public class CommonServiceImpl implements CommonService {
         return baseMapper.getAutoNum(params);
 
     }
+
+
+
+    /**
+     * 生成单号
+     * 生成规则：前缀-日期(yyyyMMdd)-4位序列号（前面补0）
+     * 格式示例：P0-20251212-0001
+     *
+     * @param prefix 单号前缀
+     * @return 生成的单号
+     */
+    @Override
+    public String generateSerialNumber(String prefix) {
+        final String methodName = "generateSerialNumber";
+        LOGGER.enter(methodName, "prefix:" + prefix);
+        // 获取今天的日期，格式为 yyyyMMdd
+        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String key = prefix + today;
+        Long count = redisTemplate.opsForValue().increment(key);
+        redisTemplate.expire(key, 24, TimeUnit.HOURS);
+        // 将序列号格式化为4位数（前面补0）
+        String serialNumber = String.format("%04d", count);
+        // 最终单号：前缀-日期-四位数序列号
+        String result = prefix + "-" + today + "-" + serialNumber;
+        LOGGER.exit(methodName, "生成的单号:" + result);
+        return result;
+    }
+
+    /**
+     * 生成单号（使用枚举）
+     * 生成规则：前缀-日期(yyyyMMdd)-4位序列号（前面补0）
+     * 格式示例：PO-20251212-0001
+     *
+     * @param prefixEnum 单号前缀枚举
+     * @return 生成的单号
+     */
+    @Override
+    public String generateSerialNumber(SerialNumberPrefixEnum prefixEnum) {
+        if (prefixEnum == null) {
+            throw new IllegalArgumentException("单号前缀枚举不能为空");
+        }
+        return generateSerialNumber(prefixEnum.getCode());
+    }
+
 
 }
