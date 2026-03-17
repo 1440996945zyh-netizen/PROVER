@@ -76,11 +76,26 @@ public interface SysCustomRegionMapper {
   */
  public int deleteById(Long id);
 
+
+ /**
+  * 获取列表
+  * @param
+  * @return
+  */
+ public List<SysMenuDTO> getListApp(@Param("loginUserId") Long loginUserId);
+
  /**
   * 取消收藏
   * @param sysCustomRegionDTO
   * @return
   */
  public int deleteSingleData(SysCustomRegionDTO sysCustomRegionDTO);
+
+ /**
+ * 查询收藏数量
+  * @param sysCustomRegionDTO
+  * @return
+  */
+ public int getCount(SysCustomRegionDTO sysCustomRegionDTO);
 }
 

@@ -17,12 +17,16 @@ import com.yy.ppm.equipment.mapper.EMaintProjApplyMapper;
 import com.yy.ppm.equipment.mapper.MEquipmentInfoMapper;
 import com.yy.ppm.equipment.service.EMEquipRepairContractService;
 import com.yy.ppm.equipment.service.EMaintProjApplyService;
+import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceDTO;
+import com.yy.ppm.flowable.service.BpmProcessInstanceService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static com.yy.common.util.SecurityUtils.getLoginUserId;
 
 @Service
 public class EMaintProjApplyServiceImpl implements EMaintProjApplyService {
@@ -40,6 +44,9 @@ public class EMaintProjApplyServiceImpl implements EMaintProjApplyService {
     CommonServiceImpl commonService;
     @Autowired
     EMaintInfoServiceImpl eMaintInfoServiceImpl;
+
+    @Resource
+    BpmProcessInstanceService bpmProcessInstanceService;
 
     @Override
     public Pages<EMaintProjApplyDTO> getList(EMaintProjApplyDTO searchDTO, PageParameter parameter) {
@@ -60,13 +67,20 @@ public class EMaintProjApplyServiceImpl implements EMaintProjApplyService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void save(EMaintProjApplyDTO po) {
+        if (po.getId() == null) {
+            po.setId(snowflake.nextId());
+            // 自动生成采购单号
+            String appNumber = commonService.generateSerialNumber(SerialNumberPrefixEnum.PROJ_APPLY);
+            po.setAppNumber(appNumber);
 
-        po.setId(snowflake.nextId());
-        // 自动生成采购单号
-        String appNumber = commonService.generateSerialNumber(SerialNumberPrefixEnum.PROJ_APPLY);
-        po.setAppNumber(appNumber);
+            mapper.insert(po);
+        }else {
+            mapper.update(po);
+            mapper.deleteApplyQuata(po.getId());
 
-        mapper.insert(po);
+        }
+
+
         po.getList().forEach(item -> {
             item.setId(snowflake.nextId());
             item.setParentId(po.getId());
@@ -78,18 +92,36 @@ public class EMaintProjApplyServiceImpl implements EMaintProjApplyService {
     @Transactional(rollbackFor = Exception.class)
     public void delete(Long id) {
         if (id == null) {
-            throw new BusinessRuntimeException("请选择一条数据删除");
+            throw new BusinessRuntimeException("请选择一条数据作废");
         }
         EMaintProjApplyDTO eMaintProjApplyDTO = new EMaintProjApplyDTO();
         eMaintProjApplyDTO.setId( id);
         EMaintProjApplyDTO byId = mapper.getById(eMaintProjApplyDTO);
        int num = eMaintInfoServiceImpl.number(byId.getAppNumber());
        if(num>0){
-           throw new BusinessRuntimeException("已派工,不可删除");
+           throw new BusinessRuntimeException("已派工,不可作废");
        }
 
-        mapper.deleteById(id, ApprovalStatusEnum.FIVE.code());
+        mapper.deleteById(id, "1");
 
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteProJect(Long id) {
+        mapper.deleteApplyQuata( id);
+        mapper.deleteApply(id);
+
+    }
+
+
+    /**
+     * 提交发起流程
+     */
+    @Override
+    public void submit(BpmProcessInstanceDTO dto) {
+        // 调用流程实例发起
+        bpmProcessInstanceService.createProcessInstance(getLoginUserId(), dto);
     }
 
 }

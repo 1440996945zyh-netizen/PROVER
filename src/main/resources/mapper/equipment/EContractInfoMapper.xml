@@ -6,36 +6,56 @@
 
 <select id="getList" resultType="com.yy.ppm.equipment.bean.dto.EContractInfoDTO">
     SELECT
-        ID,
-        CONTRACT_NAME,
-        CONTRACT_CODE,
-        CONTRACT_AMOUNT,
-        START_DATE,
-        END_DATE,
-        APPLY_SCOPE,
-        STATUS
+    t1.ID,
+    t1.CONTRACT_NAME,
+    t1.CONTRACT_CODE,
+    t1.CONTRACT_AMOUNT,
+    t1.START_DATE,
+    t1.END_DATE,
+    t1.APPLY_SCOPE,
+    t1.STATUS,
+    t1.CONTRACT_TYPE,
+    t2.DICT_LABEL contractTypeLabel
 
-    FROM E_COST_CONTRACT_INFO
+    FROM E_COST_CONTRACT_INFO t1
+    LEFT JOIN M_DICT_DATA t2 ON t2.DICT_VALUE = t1.CONTRACT_TYPE AND  t2.DICT_TYPE = 'CONTRACT_TYPE'
     where
     1 = 1
+    <if test="contractName != null and contractName != ''">
+        <bind name="contractNameLike" value="'%'+contractName+'%'"/>
+        and CONTRACT_NAME like #{contractNameLike}
+    </if>
+    <if test="contractCode != null and contractCode != ''">
+        <bind name="contractCodeLike" value="'%'+contractCode+'%'"/>
+        and CONTRACT_CODE like #{contractCodeLike}
+    </if>
+    <if test="startDate != null">
+        AND START_DATE >= #{startDate}
+    </if>
+    <if test="endDate != null">
+        and END_DATE &lt;= #{endDate}
+    </if>
     order by
     CREATED_TIME DESC
 </select>
 
 <select id="getById" resultType="com.yy.ppm.equipment.bean.dto.EContractInfoDTO">
     SELECT
-        ID,
-        CONTRACT_NAME,
-        CONTRACT_CODE,
-        CONTRACT_AMOUNT,
-        START_DATE,
-        END_DATE,
-        APPLY_SCOPE,
-        STATUS
+        t1.ID,
+        t1.CONTRACT_NAME,
+        t1.CONTRACT_CODE,
+        t1.CONTRACT_AMOUNT,
+        t1.START_DATE,
+        t1.END_DATE,
+        t1.APPLY_SCOPE,
+        t1.STATUS,
+        t1.CONTRACT_TYPE,
+        t2.DICT_LABEL contractTypeLable
 
-    FROM E_COST_CONTRACT_INFO
+     FROM E_COST_CONTRACT_INFO t1
+     LEFT JOIN M_DICT_DATA t2 ON t2.DICT_VALUE = t3.INSTANCE_STATUSAND t2.DICT_TYPE = 'CONTRACT_TYPE'
     where
-    ID = #{id}
+        t1.ID = #{id}
 </select>
 
     <insert id="insert">
@@ -50,7 +70,8 @@
         APPLY_SCOPE,
         STATUS,
         CREATED_USER,
-        CREATED_TIME)
+        CREATED_TIME,
+        CONTRACT_TYPE)
     VALUES
     (
         #{id},
@@ -62,7 +83,8 @@
         #{applyScope},
         #{status},
         #{loginUserId,jdbcType=DECIMAL},
-        #{now,jdbcType=TIMESTAMP})
+        #{now,jdbcType=TIMESTAMP},
+        #{contractType})
 </insert>
 
 <update id="update">
@@ -75,6 +97,7 @@
         END_DATE = #{endDate},
         APPLY_SCOPE = #{applyScope},
         STATUS = #{status},
+        CONTRACT_TYPE = #{contractType},
         UPDATE_USER = #{loginUserId,jdbcType=DECIMAL},
         UPDATE_TIME = #{now,jdbcType=TIMESTAMP}
         WHERE

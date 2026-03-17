@@ -67,7 +67,7 @@ public class SysFileServiceImpl implements SysFileService {
      * @return SysFile对象
      */
     @Override
-    public List<SysFileDTO> getBusFiles(Long businessId, String businessType) {
+    public List<SysFileDTO> getBusFiles(String businessId, String businessType) {
         return sysFileMapper.getBusFiles(businessId, businessType);
     }
 

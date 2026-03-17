@@ -11,6 +11,7 @@ import com.yy.ppm.equipment.bean.dto.EMEquipRepairContractDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintProjApplyDTO;
 import com.yy.ppm.equipment.service.EMEquipRepairContractService;
 import com.yy.ppm.equipment.service.EMaintProjApplyService;
+import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceDTO;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -82,11 +83,28 @@ public class EMaintProjApplyController {
 
 
     /**
-     * 删除维修项目申请定额
+     * 修改
+     */
+    @PutMapping("/update")
+    @PreAuthorize("hasAuthority('equipment:emequiprepaircontract:update')")
+    @Log(title = "修改维修项目申请定额", value = OperateTypeEnum.UPDATE)
+    public Map<String, Object> update(@RequestBody EMaintProjApplyDTO po) {
+        final String methodName = "MEquipmentOperationController:add";
+        LOGGER.enter(methodName + "[start]", "po:" + po);
+
+        eMaintProjApplyService.save(po);
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("新增成功").toResult();
+    }
+
+
+    /**
+     * 作废维修项目申请定额
      */
     @DeleteMapping("/delete")
     @PreAuthorize("hasAuthority('equipment:emaintprojapply:delete')")
-    @Log(title = "删除维修项目申请定额", value = OperateTypeEnum.DELETE)
+    @Log(title = "作废维修项目申请定额", value = OperateTypeEnum.DELETE)
     public Map<String, Object> delete(@RequestParam("id") Long id) {
         final String methodName = "MEquipmentOperationController:delete";
         LOGGER.enter(methodName + "[start]", "id:" + id);
@@ -94,7 +112,39 @@ public class EMaintProjApplyController {
         eMaintProjApplyService.delete(id);
 
         LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("作废成功").toResult();
+    }
+    /**
+     * 删除维修项目申请定额
+     */
+    @DeleteMapping("/deleteProJect")
+    @PreAuthorize("hasAuthority('equipment:emaintprojapply:deleteProJect')")
+    @Log(title = "删除维修项目申请定额", value = OperateTypeEnum.DELETE)
+    public Map<String, Object> deleteProJect(@RequestParam("id") Long id) {
+        final String methodName = "MEquipmentOperationController:delete";
+        LOGGER.enter(methodName + "[start]", "id:" + id);
+
+        eMaintProjApplyService.deleteProJect(id);
+
+        LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("删除成功").toResult();
+    }
+
+
+    /**
+     * 提交审批
+     */
+    @PostMapping("/projectApplyStart")
+    @PreAuthorize("hasAuthority('bpm:equipment:controller:projectApplyStart')")
+    @Log(OperateTypeEnum.INSERT)
+    public Map<String, Object> submitConsumables(@RequestBody BpmProcessInstanceDTO dto) {
+        final String methodName = "BpmBusinessConfigController:insert";
+        LOGGER.enter(methodName, "提交业务数据");
+
+        eMaintProjApplyService.submit(dto);
+
+        LOGGER.exit(methodName, "新增BPM业务配置完成");
+        return Response.SUCCESS.newBuilder().out("新增成功").toResult();
     }
 
 }

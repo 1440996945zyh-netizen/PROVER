@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 用户服务支撑Dao
@@ -82,5 +83,10 @@ public interface SysUserMapper {
 	 */
     List<SysUserDTO> getUserList(@Param("list") Collection<Long> ids);
 
-
+	/**
+	 * 获得拥有多个岗位的用户编号集合
+	 * @param postKeys
+	 * @return
+	 */
+    Set<Long> getUserPostIdListByPostKey(@Param("list") Set<String> postKeys);
 }

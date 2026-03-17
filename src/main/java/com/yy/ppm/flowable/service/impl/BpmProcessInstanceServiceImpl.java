@@ -949,7 +949,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
                     Set<String> approverNameSet = new LinkedHashSet<>(); // 使用 Set 去重
                     for (Task task : activeTasks) {  // 使用 flowableTaskService 获取身份链接
                         List<IdentityLink> links = taskService.getIdentityLinksForTask(task.getId());
-                        Boolean hasRole = Boolean.FALSE;
+//                        Boolean hasRole = Boolean.FALSE;
                         // 情况 B：没有处理人，查询候选组（角色）或候选用户
                         if (CollUtil.isNotEmpty(links)) {
                             for (IdentityLink link : links) {
@@ -958,14 +958,13 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
                                     // TODO: 这里可能是角色也可能是岗位，目前默认角色
                                     // 这里默认演示获取角色名称
                                     SysRoleDTO role = sysRoleService.getById(NumberUtils.parseLong(link.getGroupId()));
-                                    hasRole = Boolean.TRUE;
                                     if (role != null) {
                                         approverNameSet.add("角色:" + role.getRoleName());
                                     }
                                 }
                             }
                             // 情况 A：已经有明确的处理人 (Assignee)
-                        }else if(StrUtil.isNotBlank(task.getAssignee()) && hasRole==Boolean.FALSE) {
+                        }else if(StrUtil.isNotBlank(task.getAssignee())) {
                             SysUserDTO user = sysUserService.getById(NumberUtils.parseLong(task.getAssignee()));
                             if (user != null) {
                                 approverNameSet.add(user.getUserName());
@@ -1369,7 +1368,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
     @Override
     public Long getPersonalSign() {
         Long loginUserId = SecurityUtils.getLoginUserId();
-        List<SysFileDTO> fileDTOS = sysFileMapper.getBusFiles(loginUserId, FileUploadBusinessTypeEnum.PERSONAL_SIGN.getCode());
+        List<SysFileDTO> fileDTOS = sysFileMapper.getBusFiles(loginUserId.toString(), FileUploadBusinessTypeEnum.PERSONAL_SIGN.getCode());
         if(StringUtil.isEmpty(fileDTOS)){
             throw new BusinessRuntimeException("未维护个人电子签名");
         }

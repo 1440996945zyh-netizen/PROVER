@@ -2,6 +2,7 @@ package com.yy.ppm.equipment.service;
 
 import com.yy.common.page.Pages;
 import com.yy.ppm.equipment.bean.dto.*;
+import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceDTO;
 
 /**
  * 物资申报Service接口
@@ -51,5 +52,8 @@ public interface EMaterialApplicationService {
      * 查询物资申报主表列表（包含明细列表，用于出库申请时选择）
      */
     Pages<EMaterialApplicationDTO> getListWithDetails(EMaterialApplicationSearchDTO searchDTO);
+
+    void submit(BpmProcessInstanceDTO dto);
+
 }
 

@@ -1,14 +1,14 @@
 package com.yy.ppm.system.service.impl;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import cn.hutool.core.collection.CollUtil;
 import com.yy.common.flowable.enums.CommonStatusEnum;
 import com.yy.common.flowable.utils.CollectionUtils;
 import com.yy.framework.exception.BusinessRuntimeException;
+import com.yy.ppm.common.enums.DictTypeEnum;
+import com.yy.ppm.common.enums.SelectEnum;
+import com.yy.ppm.common.mapper.SelectMapper;
 import com.yy.ppm.common.service.SysFileService;
 import jakarta.annotation.Resource;
 
@@ -41,6 +41,7 @@ import cn.hutool.core.lang.Snowflake;
 
 import static com.yy.common.flowable.constants.GlobalErrorCodeConstants.USER_IS_DISABLE;
 import static com.yy.common.flowable.constants.GlobalErrorCodeConstants.USER_NOT_EXISTS;
+import static com.yy.common.flowable.constants.GlobalErrorCodeConstants.POST_NOT_EXISTS;
 import static com.yy.common.flowable.utils.ServiceExceptionUtil.exception;
 
 /**
@@ -80,6 +81,8 @@ public class SysUserServiceImpl implements SysUserService {
 	private CommonService baseService;
 	@Resource
 	private SysFileService sysFileService;
+	@Resource
+	private SelectMapper selectMapper;
 
 	@Override
 	public Pages<SysUserDTO> getList(SysUserSearchDTO sysUserSearchDTO) {
@@ -331,4 +334,45 @@ public class SysUserServiceImpl implements SysUserService {
 			}
 		});
 	}
+
+	/**
+	 * 校验岗位是否有效。如下情况，视为无效：
+	 * 1. 岗位编号不存在
+	 *
+	 * @param postKeys 岗位编号数组
+	 */
+	@Override
+	public void validPostList(Set<String> postKeys) {
+		if(StringUtil.isEmpty(postKeys)){
+			return;
+		}
+		// 获得岗位信息
+		String condition = " DICT_TYPE = 'POST' AND STATUS = '1'";
+		List<Map<String, Object>> posts = selectMapper.getLocalSelect(
+				SelectEnum.DICT.getTableName(),
+				SelectEnum.DICT.getValueName(),
+				SelectEnum.DICT.getLabelName(),
+				condition);
+		Map<Object, Map<String, Object>> postMap = CollectionUtils.convertMap(posts, post -> post.get("value"));
+
+		postKeys.forEach(postKey -> {
+			// 获取当前岗位信息
+			Map<String, Object> post = postMap.get(postKey);
+			// 校验1：岗位是否存在
+			if (post == null) {
+				throw exception(POST_NOT_EXISTS);
+			}
+		});
+	}
+
+	/**
+	 * 岗位key查询用户
+	 * */
+	@Override
+	public Set<Long> getUserIdListByPostKeys(Set<String> postKeys) {
+		return sysUserMapper.getUserPostIdListByPostKey(postKeys);
+
+	}
+
+
 }

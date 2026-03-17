@@ -23,10 +23,20 @@
     t1.CREATED_TIME,
     t1.UPDATE_USER,
     t1.UPDATE_TIME,
+    t1.IS_SETTLEMENT,
     t1.STATUS,
-    t2. DICT_LABEL statusLable
+    t3.PROC_INST_ID,
+    CASE
+    WHEN t3.INSTANCE_STATUS IS NULL THEN '0'
+    ELSE t3.INSTANCE_STATUS
+    END AS processStatus,
+    CASE
+    WHEN t2.DICT_LABEL IS NULL THEN '未发起'
+    ELSE t2.DICT_LABEL
+    END AS processStatusLabel
     FROM E_IC_MAINT_PROJ_APPLY t1
-    LEFT JOIN  M_DICT_DATA t2 ON t2.DICT_VALUE = t1.STATUS  AND t2.DICT_TYPE = 'APPROVAL_STATUS'
+    LEFT JOIN BPM_BUSINESS_INSTANCE t3 ON t3.BUSINESS_DATA_ID = t1.ID
+    LEFT JOIN  M_DICT_DATA t2 ON t2.DICT_VALUE = t3.INSTANCE_STATUS  AND t2.DICT_TYPE = 'APPROVAL_STATUS'
     WHERE 1 = 1
     <if test="usingDeptName != null and usingDeptName != ''">
         <bind name="usingDeptName" value="'%'+usingDeptName+'%'"/>
@@ -112,7 +122,8 @@
         TAX_RATE,
         AMOUNT_INCLUDING_TAX,
         CREATED_USER,
-        CREATED_TIME
+        CREATED_TIME,
+        PROJECT_NUM
         ) values
         (#{id,jdbcType=DECIMAL},
          #{parentId},
@@ -124,7 +135,8 @@
           #{taxRate},
           #{amountIncludingTax},
           #{loginUserId},
-          #{now,jdbcType=TIMESTAMP}
+          #{now,jdbcType=TIMESTAMP},
+          #{projectNum}
 
          )
     </insert>
@@ -135,11 +147,34 @@
         SET STATUS = #{status}
         WHERE ID = #{id}
     </update>
+    <update id="update">
+        UPDATE E_IC_MAINT_PROJ_APPLY
+        SET
+        USING_DEPT_ID = #{usingDeptId},
+        USING_DEPT_NAME = #{usingDeptName},
+        EQUIP_TYPE_ID = #{equipTypeId},
+        EQUIP_ID = #{equipId},
+        EQUIP_NAME = #{equipName},
+        APP_TYPE = #{appType},
+        APP_CONTENT = #{appContent},
+        MAINTENANCE_UNIT_ID = #{maintenanceUnit},
+        MAINTENANCE_UNIT_NAME = #{maintenanceUnitName},
+        BUDGET_AMOUNT = #{budgetAmount},
+        REMARK = #{remark},
+        UPDATE_USER = #{loginUserId},
+        UPDATE_TIME = #{now,jdbcType=TIMESTAMP}
+    </update>
     <delete id="deleteApplyQuata">
         DELETE FROM
             E_IC_MAINT_PROJ_APPLY_QUOTA
         WHERE
             PARENT_ID = #{id}
+    </delete>
+    <delete id="deleteApply">
+        DELETE FROM
+            E_IC_MAINT_PROJ_APPLY
+        WHERE
+            ID = #{id}
     </delete>
 
     <select id="getApplyQuataList" resultType="com.yy.ppm.equipment.bean.po.EMaintProjApplyQuotaPO">
@@ -156,7 +191,8 @@
         CREATED_USER,
         CREATED_TIME,
         UPDATE_USER,
-        UPDATE_TIME
+        UPDATE_TIME,
+        PROJECT_NUM
         FROM E_IC_MAINT_PROJ_APPLY_QUOTA
         WHERE
            PARENT_ID = #{id}

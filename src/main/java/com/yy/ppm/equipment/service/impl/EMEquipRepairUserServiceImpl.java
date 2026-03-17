@@ -80,8 +80,13 @@ public class EMEquipRepairUserServiceImpl implements EMEquipRepairUserService {
             mapper.deleteUserDetail(po.getId());
 
             for (EMEquipRepairUserDetailDTO userDetailDTO : po.getList()) {
+                //删除附件
+                sysFileService.delete(null,userDetailDTO.getId());
+
                 userDetailDTO.setId(snowflake.nextId());
                 userDetailDTO.setRepairUserId(po.getId());
+
+
 
                 // 关联文件
                 if (userDetailDTO.getFileIds() != null && !userDetailDTO.getFileIds().isEmpty()) {

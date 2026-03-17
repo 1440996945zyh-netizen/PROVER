@@ -4,6 +4,7 @@ import com.yy.common.page.PageParameter;
 import com.yy.common.page.Pages;
 import com.yy.ppm.equipment.bean.dto.EMEquipRepairContractDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintProjApplyDTO;
+import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceDTO;
 
 import java.util.List;
 
@@ -16,6 +17,9 @@ public interface EMaintProjApplyService {
     void save(EMaintProjApplyDTO po);
 
     void delete(Long id);
+    void deleteProJect(Long id);
+
+    void submit(BpmProcessInstanceDTO dto);
 
 
 }
