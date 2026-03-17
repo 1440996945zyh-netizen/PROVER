@@ -105,6 +105,9 @@ public class SelectServiceImpl implements SelectService {
             case "VOYAGE" :
                 res = selectMapper.getVoyageList(selectCommonSearch);
                 break;
+            case "CUSTOMER_SUPPLIER" :
+                res = selectMapper.materialSupplier(selectCommonSearch);
+                break;
             default:
                 break;
         }

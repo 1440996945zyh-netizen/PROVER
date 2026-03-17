@@ -104,4 +104,6 @@ public interface SelectMapper {
      * @return
      */
     List<Map<String, Object>> getUserByCompany(@Param("companyId") Long companyId);
+
+    List<Map<String, Object>> materialSupplier(@Param("search") SelecSearchDTO selectCommonSearch);
 }

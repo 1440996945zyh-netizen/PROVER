@@ -7,46 +7,58 @@
     <!-- 查询物资申报列表 -->
     <select id="selectList" resultType="com.yy.ppm.equipment.bean.dto.EMaterialApplicationDTO">
         SELECT
-            ID,
-            APPLICATION_NO,
-            APPLICATION_TITLE,
-            APPLICATION_TYPE_CODE,
-            APPLICATION_TYPE_NAME,
-            FIXED_SERVICE_CATEGORY_CODE,
-            FIXED_SERVICE_CATEGORY_NAME,
-            REMARK,
-            DEPT_ID,
-            DEPT_NAME,
-            STATUS,
-            APPROVAL_REMARK,
-            APPROVAL_BY,
-            APPROVAL_BY_NAME,
-            APPROVAL_TIME,
-            CREATE_BY,
-            CREATE_BY_NAME,
-            CREATE_TIME,
-            UPDATE_BY,
-            UPDATE_BY_NAME,
-            UPDATE_TIME
+            t1.ID,
+            t1.APPLICATION_NO,
+            t1.APPLICATION_TITLE,
+            t1.APPLICATION_TYPE_CODE,
+            t1.APPLICATION_TYPE_NAME,
+            t1.FIXED_SERVICE_CATEGORY_CODE,
+            t1.FIXED_SERVICE_CATEGORY_NAME,
+            t1.REMARK,
+            t1.DEPT_ID,
+            t1.DEPT_NAME,
+            t1.STATUS,
+            t1.APPROVAL_REMARK,
+            t1.APPROVAL_BY,
+            t1.APPROVAL_BY_NAME,
+            t1.APPROVAL_TIME,
+            t1.CREATE_BY,
+            t1.CREATE_BY_NAME,
+            t1.CREATE_TIME,
+            t1.UPDATE_BY,
+            t1.UPDATE_BY_NAME,
+            t1.UPDATE_TIME,
+            t3.PROC_INST_ID,
+            CASE
+            WHEN t3.INSTANCE_STATUS IS NULL THEN '0'
+            ELSE t3.INSTANCE_STATUS
+            END AS processStatus,
+            CASE
+            WHEN t2.DICT_LABEL IS NULL THEN '未发起'
+            ELSE t2.DICT_LABEL
+            END AS processStatusLabel
         FROM
-            E_MATERIAL_APPLICATION
+            E_MATERIAL_APPLICATION t1
+        LEFT JOIN BPM_BUSINESS_INSTANCE t3 ON t3.BUSINESS_DATA_ID = t1.ID
+        LEFT JOIN  M_DICT_DATA t2 ON t2.DICT_VALUE = t3.INSTANCE_STATUS  AND t2.DICT_TYPE = 'APPROVAL_STATUS'
+
         <where>
             <if test="applicationNo != null and applicationNo != ''">
                 <bind name="applicationNoPattern" value="'%' + applicationNo + '%'"/>
-                AND APPLICATION_NO LIKE #{applicationNoPattern}
+                AND t1.APPLICATION_NO LIKE #{applicationNoPattern}
             </if>
             <if test="applicationTitle != null and applicationTitle != ''">
                 <bind name="applicationTitlePattern" value="'%' + applicationTitle + '%'"/>
-                AND APPLICATION_TITLE LIKE #{applicationTitlePattern}
+                AND t1.APPLICATION_TITLE LIKE #{applicationTitlePattern}
             </if>
             <if test="applicationTypeCode != null and applicationTypeCode != ''">
-                AND APPLICATION_TYPE_CODE = #{applicationTypeCode}
+                AND t1.APPLICATION_TYPE_CODE = #{applicationTypeCode}
             </if>
             <if test="deptId != null">
-                AND DEPT_ID = #{deptId}
+                AND t1.DEPT_ID = #{deptId}
             </if>
             <if test="status != null and status != ''">
-                AND STATUS = #{status}
+                AND t1.STATUS = #{status}
             </if>
         </where>
         ORDER BY CREATE_TIME DESC
