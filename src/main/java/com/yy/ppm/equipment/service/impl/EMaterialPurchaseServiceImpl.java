@@ -21,6 +21,8 @@ import com.yy.ppm.equipment.mapper.EMaterialApplicationDetailMapper;
 import com.yy.ppm.equipment.mapper.EMaterialPurchaseComparisonMapper;
 import com.yy.ppm.equipment.mapper.EMaterialWarehouseInDetailMapper;
 import com.yy.ppm.equipment.service.EMaterialPurchaseService;
+import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceDTO;
+import com.yy.ppm.flowable.service.BpmProcessInstanceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.yy.common.util.SecurityUtils.getLoginUserId;
 
 /**
  * 物资采购Service业务层处理
@@ -61,6 +65,9 @@ public class EMaterialPurchaseServiceImpl implements EMaterialPurchaseService {
 
     @Resource
     private EMaterialWarehouseInDetailMapper warehouseInDetailMapper;
+
+    @Resource
+    BpmProcessInstanceService bpmProcessInstanceService;
 
     @Resource
     private Snowflake snowflake;
@@ -576,5 +583,18 @@ public class EMaterialPurchaseServiceImpl implements EMaterialPurchaseService {
             }
         }
     }
+
+
+    /**
+     * 提交发起流程
+     */
+    @Override
+    public void submit(BpmProcessInstanceDTO dto) {
+        // 调用流程实例发起
+        bpmProcessInstanceService.createProcessInstance(getLoginUserId(), dto);
+    }
+
+
+
 }
 

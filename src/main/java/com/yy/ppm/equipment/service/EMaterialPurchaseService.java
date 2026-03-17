@@ -3,6 +3,7 @@ package com.yy.ppm.equipment.service;
 import com.yy.common.page.Pages;
 import com.yy.ppm.equipment.bean.dto.EMaterialPurchaseDTO;
 import com.yy.ppm.equipment.bean.dto.EMaterialPurchaseSearchDTO;
+import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceDTO;
 
 /**
  * 物资采购Service接口
@@ -42,5 +43,8 @@ public interface EMaterialPurchaseService {
      * @param approvalRemark 审核备注（暂不使用，数据库无此字段）
      */
     void approve(Long id, Integer status, String approvalRemark);
+
+
+    void submit(BpmProcessInstanceDTO dto);
 }
 
