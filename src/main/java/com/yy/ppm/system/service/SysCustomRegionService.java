@@ -23,9 +23,6 @@ public interface SysCustomRegionService {
      */
     public List<SysCustomRegionDTO> getList();
 
-    List<SysMenuDTO> getListApp();
-
-
      /**
       * 查询单条记录
       *
@@ -41,17 +38,6 @@ public interface SysCustomRegionService {
      * @return 是否成功
      */
     public boolean doSave(SysCustomRegionDTO sysCustomRegionDTO);
-
-    /**
-     * 保存
-     *
-     * @param sysCustomRegionDTO
-     * @return 是否成功
-     */
-    public boolean doAppSave(SysCustomRegionDTO sysCustomRegionDTO);
-
-
-    boolean delRegion(SysCustomRegionDTO dto);
 
     /**
      * 批量保存

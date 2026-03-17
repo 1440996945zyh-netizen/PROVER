@@ -53,18 +53,6 @@ public class SysCustomRegionServiceImpl implements SysCustomRegionService {
     }
 
     /**
-     * 获取列表（翻页）
-     *
-     * @param
-     * @return 对象列表
-     */
-    @Override
-    public List<SysMenuDTO> getListApp() {
-
-        return sysCustomRegionMapper.getListApp(securityUtils.getLoginUserId());
-    }
-
-    /**
       * 查询单条记录
       *
       * @param id
@@ -100,44 +88,6 @@ public class SysCustomRegionServiceImpl implements SysCustomRegionService {
         return true;
 
     }
-
-    /**
-     * 保存
-     *
-     * @param dto
-     * @return 是否成功
-     */
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public boolean doAppSave(SysCustomRegionDTO dto) {
-
-        dto.setUserAccount(securityUtils.getUserInfo().getUserAccount());
-        dto.setUserId(securityUtils.getUserInfo().getId());
-        dto.setDataType("APP");
-        if (sysCustomRegionMapper.getCount(dto)==0) {
-            dto.setId(snowflake.nextId());
-            return sysCustomRegionMapper.insert(dto) == 1;
-        }
-        return true;
-    }
-
-    /**
-     * 保存
-     *
-     * @param dto
-     * @return 是否成功
-     */
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public boolean delRegion(SysCustomRegionDTO dto) {
-
-        dto.setUserAccount(securityUtils.getUserInfo().getUserAccount());
-        dto.setUserId(securityUtils.getUserInfo().getId());
-        dto.setDataType("APP");
-        sysCustomRegionMapper.deleteSingleData(dto);
-        return true;
-    }
-
 
     /**
      * 批量保存

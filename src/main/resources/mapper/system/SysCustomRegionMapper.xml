@@ -29,7 +29,6 @@
     <select id="getList" resultType="com.yy.ppm.system.bean.dto.SysCustomRegionDTO" parameterType="java.lang.Long">
         <include refid="commonList"></include>
     </select>
-
     <!--通过实体作为筛选条件查询-->
     <select id="getListApp" resultType="com.yy.ppm.system.bean.dto.SysMenuDTO" parameterType="java.lang.Long">
         SELECT    A.id                              as menu_id,
@@ -46,71 +45,6 @@
                   A.status,
                   A.data_type,
                   A.icon_app,
-                  DECODE(A.status, '0', '正常', '停用') as statusLabel,
-                  nvl(perms, '')                    as perms,
-                  A.icon,
-                  A.create_time,
-                  A.LINK,
-                  A.APP_TYPE
-        FROM SYS_MENU A,
-             SYS_ROLE_MENU B,
-             SYS_ROLE_USER C,
-             SYS_CUSTOM_REGION D
-        where C.USER_ID = #{loginUserId}
-          AND C.ROLE_ID = B.ROLE_ID
-          AND B.MENU_ID = A.ID
-          AND A.DATA_TYPE = 'APP'
-          AND A.ID = D.MENU_ID
-          AND A.status = 0
-          AND A.ID IN (
-            SELECT MENU_ID
-            FROM sys_custom_region
-            where USER_ID = #{loginUserId}
-              and DATA_TYPE = 'APP'
-        )
-        ORDER BY D.CREATE_TIME ASC
-    </select>
-
-    <!-- 根据gid查询数据 -->
-    <select id="getById" resultType="com.yy.ppm.system.bean.dto.SysCustomRegionDTO" parameterType="java.lang.Long">
-        SELECT
-        ID,
-        USER_ACCOUNT,
-        USER_ID,
-        MENU_NAME,
-        MENU_ID,
-        SORT_NUM,
-        DATA_TYPE,
-        CREATE_BY,
-        CREATE_BY_NAME,
-        CREATE_TIME,
-        UPDATE_BY,
-        UPDATE_BY_NAME,
-        UPDATE_TIME
-        FROM
-        sys_custom_region
-        <where>
-            id = #{id}
-        </where>
-    </select>
-
-    <!--通过实体作为筛选条件查询-->
-    <select id="getListApp" resultType="com.yy.ppm.system.bean.dto.SysMenuDTO" parameterType="java.lang.Long">
-        SELECT    A.id                              as menu_id,
-                  A.menu_name,
-                  A.parent_id,
-                  A.order_num,
-                  A.path,
-                  A.component,
-                  A.query,
-                  A.is_frame,
-                  A.is_cache,
-                  A.menu_type,
-                  A.visible,
-                  A.status,
-                  A.data_type,
-                  A.icon_app,
-                  A.MENU_ICON_COLOR as menuIconColor,
                   DECODE(A.status, '0', '正常', '停用') as statusLabel,
                   nvl(perms, '')                    as perms,
                   A.icon,
@@ -135,7 +69,28 @@
         )
         ORDER BY D.CREATE_TIME ASC
     </select>
-
+    <!-- 根据gid查询数据 -->
+    <select id="getById" resultType="com.yy.ppm.system.bean.dto.SysCustomRegionDTO" parameterType="java.lang.Long">
+        SELECT
+        ID,
+        USER_ACCOUNT,
+        USER_ID,
+        MENU_NAME,
+        MENU_ID,
+        SORT_NUM,
+        DATA_TYPE,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME
+        FROM
+        sys_custom_region
+        <where>
+            id = #{id}
+        </where>
+    </select>
     <!-- 新增 -->
     <insert id="insert" parameterType="com.yy.ppm.system.bean.dto.SysCustomRegionDTO">
         INSERT INTO sys_custom_region(
@@ -166,6 +121,7 @@
     </insert>
 
     <insert id="batchInsert" parameterType="java.util.List">
+
         INSERT INTO sys_custom_region(
         ID,
         USER_ACCOUNT,
