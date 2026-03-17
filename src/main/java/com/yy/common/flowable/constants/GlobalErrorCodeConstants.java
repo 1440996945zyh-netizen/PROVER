@@ -40,6 +40,7 @@ public interface GlobalErrorCodeConstants {
     ErrorCode UNKNOWN = new ErrorCode(999, "未知错误");
 
     ErrorCode USER_NOT_EXISTS = new ErrorCode(1_002_003_003, "用户不存在");
+    ErrorCode POST_NOT_EXISTS = new ErrorCode(1_002_003_004, "岗位不存在");
     ErrorCode USER_IS_DISABLE = new ErrorCode(1_002_003_006, "名字为【{}】的用户已被禁用");
 
 }

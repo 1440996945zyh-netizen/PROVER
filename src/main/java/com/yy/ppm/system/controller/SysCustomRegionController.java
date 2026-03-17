@@ -52,12 +52,9 @@ public class SysCustomRegionController {
      */
     @GetMapping("/getListApp")
     public Map<String, Object> getListApp() {
-
         List<SysMenuDTO> pages = sysCustomRegionService.getListApp();
-
         return Response.SUCCESS.newBuilder().out("查询成功").toResult(pages);
     }
-
     /**
      * 查询单条记录
      * @param id
@@ -93,7 +90,7 @@ public class SysCustomRegionController {
 
     }
     /**
-     * 新建
+     * 新建App快捷菜单
      * @param sysCustomRegionDTO
      * @return
      */
@@ -121,6 +118,18 @@ public class SysCustomRegionController {
 
 
     /**
+     * 删除app快捷菜单
+     * @param
+     * @return
+     */
+    @PostMapping("/delRegion")
+    public Map<String, Object> delRegion(@RequestBody SysCustomRegionDTO sysCustomRegionDTO) {
+
+        boolean flag = sysCustomRegionService.delAppRegion(sysCustomRegionDTO);
+
+        return Response.SUCCESS.newBuilder().out(flag ? "删除成功" : "删除失败").toResult();
+    }
+    /**
      * 新建
      * @param list
      * @return
@@ -137,6 +146,7 @@ public class SysCustomRegionController {
         return Response.SUCCESS.newBuilder().out(flag ? "新增成功" : "新增失败").toResult();
 
     }
+
 
 
     /**

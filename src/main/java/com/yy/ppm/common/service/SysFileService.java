@@ -33,7 +33,7 @@ public interface SysFileService {
      * @param businessId 业务id
      * @return SysFile对象
      */
-    List<SysFileDTO> getBusFiles(Long businessId, String businessType);
+    List<SysFileDTO> getBusFiles(String businessId, String businessType);
 
     /**
      * 拷贝文件

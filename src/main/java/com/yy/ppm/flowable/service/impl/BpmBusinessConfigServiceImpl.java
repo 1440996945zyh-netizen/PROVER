@@ -77,6 +77,10 @@ public class BpmBusinessConfigServiceImpl implements BpmBusinessConfigService {
         dto.setId(snowflake.nextId());
         // 获取流程模型对应的最新流程定义ID
         String procDefId = bpmBusinessConfigMapper.getprocDefId(dto.getProcModelId());
+        if (StringUtils.isEmpty(procDefId)) {
+            // 抛出自定义异常或业务异常，让前端捕获错误信息
+            throw new BusinessRuntimeException("流程模型未发布~");
+        }
         dto.setProcDefId(procDefId);
 
         // 设置默认状态
@@ -114,6 +118,10 @@ public class BpmBusinessConfigServiceImpl implements BpmBusinessConfigService {
         }
         // 获取流程模型对应的最新流程定义ID
         String procDefId = bpmBusinessConfigMapper.getprocDefId(dto.getProcModelId());
+        if (StringUtils.isEmpty(procDefId)) {
+            // 抛出自定义异常或业务异常，让前端捕获错误信息
+            throw new BusinessRuntimeException("流程模型未发布~");
+        }
         dto.setProcDefId(procDefId);
 
 
@@ -178,11 +186,12 @@ public class BpmBusinessConfigServiceImpl implements BpmBusinessConfigService {
         BpmProcessDefinitionInfoPO processDefinitionInfo = processDefinitionService
                 .getProcessDefinitionInfo(procDefId);
 
-        processDefinitionInfo.setFieldList(processDefinitionInfo.getFieldKeys());
-
         if (processDefinitionInfo == null) {
             throw new BusinessRuntimeException("流程定义的表单信息不存在");
         }
+
+        processDefinitionInfo.setFieldList(processDefinitionInfo.getFieldKeys());
+
         return processDefinitionInfo;
     }
 }

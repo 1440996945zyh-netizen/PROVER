@@ -87,7 +87,7 @@ public class SysCustomRegionServiceImpl implements SysCustomRegionService {
 
         dto.setUserAccount(securityUtils.getUserInfo().getUserAccount());
         dto.setUserId(securityUtils.getUserInfo().getId());
-
+        dto.setDataType("PC");
         // 删除单个
         sysCustomRegionMapper.deleteSingleData(dto);
 
@@ -163,6 +163,7 @@ public class SysCustomRegionServiceImpl implements SysCustomRegionService {
         for (SysCustomRegionDTO dto : list) {
             dto.setId(snowflake.nextId());
             dto.setUserAccount(securityUtils.getLoginUserAccount());
+            dto.setDataType("PC");
             dto.setUserId(securityUtils.getLoginUserId());
             dto.setCreateBy(securityUtils.getLoginUserId());
             dto.setCreateByName(securityUtils.getLoginUserName());
@@ -184,6 +185,51 @@ public class SysCustomRegionServiceImpl implements SysCustomRegionService {
 
         return sysCustomRegionMapper.deleteById(id) == 1;
 
+    }
+    /**
+     * 获取列表（翻页）
+     *
+     * @param
+     * @return 对象列表
+     */
+    @Override
+    public List<SysMenuDTO> getListApp() {
+        return sysCustomRegionMapper.getListApp(securityUtils.getLoginUserId());
+    }
+    /**
+     * 保存
+     *
+     * @param dto
+     * @return 是否成功
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean doAppSave(SysCustomRegionDTO dto) {
+
+        dto.setUserAccount(securityUtils.getUserInfo().getUserAccount());
+        dto.setUserId(securityUtils.getUserInfo().getId());
+        dto.setDataType("APP");
+        if (sysCustomRegionMapper.getCount(dto)==0) {
+            dto.setId(snowflake.nextId());
+            return sysCustomRegionMapper.insert(dto) == 1;
+        }
+        return true;
+    }
+
+    /**
+     * 保存
+     *
+     * @param dto
+     * @return 是否成功
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean delAppRegion(SysCustomRegionDTO dto) {
+        dto.setUserAccount(securityUtils.getUserInfo().getUserAccount());
+        dto.setUserId(securityUtils.getUserInfo().getId());
+        dto.setDataType("APP");
+        sysCustomRegionMapper.deleteSingleData(dto);
+        return true;
     }
 }
 

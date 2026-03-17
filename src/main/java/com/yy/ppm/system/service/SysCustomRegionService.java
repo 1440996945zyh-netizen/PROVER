@@ -69,5 +69,27 @@ public interface SysCustomRegionService {
      */
     public boolean deleteById(Long id);
 
+
+    /**
+     * 保存
+     * @param sysCustomRegionDTO
+     * @return 是否成功
+     */
+    public boolean doAppSave(SysCustomRegionDTO sysCustomRegionDTO);
+
+    /**
+    * 删除App快捷菜单
+     * @param dto
+     * @return
+     */
+    boolean delAppRegion(SysCustomRegionDTO dto);
+
+    /**
+    * 获取App快捷菜单列表
+     * @return
+     */
+    public  List<SysMenuDTO> getListApp();
+
+
 }
 
