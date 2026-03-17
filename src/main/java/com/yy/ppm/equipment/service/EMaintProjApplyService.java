@@ -19,7 +19,10 @@ public interface EMaintProjApplyService {
     void delete(Long id);
     void deleteProJect(Long id);
 
-    void submit(BpmProcessInstanceDTO dto);
+    void    submit(BpmProcessInstanceDTO dto);
 
-
+    /**
+     * 根据申请单号修改结算状态
+     */
+    void updateIsSettlement(String appNumber, String isSettlement);
 }

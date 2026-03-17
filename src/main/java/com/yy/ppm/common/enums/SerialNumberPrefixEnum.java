@@ -43,7 +43,12 @@ public enum SerialNumberPrefixEnum {
     /**
      * 项目维修申请
      */
-    PROJ_APPLY("XMSQ", "项目维修申请");
+    PROJ_APPLY("XMSQ", "项目维修申请"),
+
+    /**
+     * 结算
+     */
+    SETTLEMENT("JS", "结算");
 
     /**
      * 前缀代码

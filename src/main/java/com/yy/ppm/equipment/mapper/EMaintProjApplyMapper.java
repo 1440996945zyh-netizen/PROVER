@@ -31,5 +31,10 @@ public interface EMaintProjApplyMapper {
 
     void update(EMaintProjApplyDTO po);
 
+    /**
+     * 根据申请单号修改结算状态
+     */
+    void updateIsSettlement(@Param("appNumber") String appNumber, @Param("isSettlement") String isSettlement);
+
     void deleteApply(Long id);
 }

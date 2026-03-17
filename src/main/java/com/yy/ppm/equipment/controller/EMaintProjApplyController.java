@@ -147,4 +147,20 @@ public class EMaintProjApplyController {
         return Response.SUCCESS.newBuilder().out("新增成功").toResult();
     }
 
+    /**
+     * 根据申请单号修改结算状态
+     */
+    @PutMapping("/updateIsSettlement")
+    @PreAuthorize("hasAuthority('equipment:emaintprojapply:update')")
+    @Log(title = "修改维修项目申请结算状态", value = OperateTypeEnum.UPDATE)
+    public Map<String, Object> updateIsSettlement(@RequestParam("appNumber") String appNumber, @RequestParam("isSettlement") String isSettlement) {
+        final String methodName = "EMaintProjApplyController:updateIsSettlement";
+        LOGGER.enter(methodName + "[start]", "appNumber:" + appNumber + ", isSettlement:" + isSettlement);
+
+        eMaintProjApplyService.updateIsSettlement(appNumber, isSettlement);
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("修改成功").toResult();
+    }
+
 }

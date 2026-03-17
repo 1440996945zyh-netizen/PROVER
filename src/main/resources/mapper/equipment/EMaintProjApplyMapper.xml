@@ -198,5 +198,10 @@
            PARENT_ID = #{id}
         ORDER BY CREATED_TIME DESC
     </select>
+    <update id="updateIsSettlement">
+        UPDATE E_IC_MAINT_PROJ_APPLY
+        SET IS_SETTLEMENT = #{isSettlement}
+        WHERE APP_NUMBER = #{appNumber}
+    </update>
 </mapper>
 

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.ECostSettlementApplySubMapper">
+
+    <select id="selectByApplyId" resultType="com.yy.ppm.equipment.bean.dto.ECostSettlementApplySubDTO">
+        SELECT
+            s.ID,
+            s.APPLY_ID,
+            s.WORK_ORDER_NO,
+            s.EQUIP_ID,
+            s.MANT_APP_NUMBER,
+            s.ACCEPTANCE_TIME,
+            s.BUDGET_AMOUNT,
+            s.ACTUAL_AMOUNT,
+            e.EQUIP_NAME,
+            m.DISPATCH_TYPE_NAME
+        FROM
+            E_COST_SETTLEMENT_APPLY_SUB s
+        LEFT JOIN E_M_EQPT_INFO e ON s.EQUIP_ID = e.ID AND e.DEL_FLAG = 0
+        LEFT JOIN E_MAINT_INFO m ON s.WORK_ORDER_NO = m.WORK_ORDER_NO AND m.DEL_FLAG = 0
+        WHERE
+            s.APPLY_ID = #{applyId}
+    </select>
+
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.ECostSettlementApplySubPO">
+        INSERT INTO E_COST_SETTLEMENT_APPLY_SUB (
+            ID,
+            APPLY_ID,
+            WORK_ORDER_NO,
+            EQUIP_ID,
+            MANT_APP_NUMBER,
+            ACCEPTANCE_TIME,
+            BUDGET_AMOUNT,
+            ACTUAL_AMOUNT
+        ) VALUES (
+            #{id,jdbcType=NUMERIC},
+            #{applyId,jdbcType=NUMERIC},
+            #{workOrderNo,jdbcType=VARCHAR},
+            #{equipId,jdbcType=NUMERIC},
+            #{mantAppNumber,jdbcType=VARCHAR},
+            #{acceptanceTime,jdbcType=TIMESTAMP},
+            #{budgetAmount,jdbcType=NUMERIC},
+            #{actualAmount,jdbcType=NUMERIC}
+        )
+    </insert>
+
+    <delete id="deleteByApplyId">
+        DELETE FROM E_COST_SETTLEMENT_APPLY_SUB WHERE APPLY_ID = #{applyId}
+    </delete>
+
+    <update id="updateRejectStatusByApplyId">
+        UPDATE E_COST_SETTLEMENT_APPLY_SUB SET IS_APPROVAL_REJECT = #{isApprovalReject} WHERE APPLY_ID = #{applyId}
+    </update>
+
+</mapper>

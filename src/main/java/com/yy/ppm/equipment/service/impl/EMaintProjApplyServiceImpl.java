@@ -124,4 +124,9 @@ public class EMaintProjApplyServiceImpl implements EMaintProjApplyService {
         bpmProcessInstanceService.createProcessInstance(getLoginUserId(), dto);
     }
 
+    @Override
+    public void updateIsSettlement(String appNumber, String isSettlement) {
+        mapper.updateIsSettlement(appNumber, isSettlement);
+    }
+
 }

@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.ECostSettlementApplyMapper">
+
+    <select id="selectList" resultType="com.yy.ppm.equipment.bean.dto.ECostSettlementApplyDTO">
+        SELECT
+            t1.ID,
+            t1.SETTLEMENT_NO,
+            t1.MAINT_ORG_ID,
+            t1.MAINT_ORG_NAME,
+            t1.PROJECT_TYPE,
+            t1.TOTAL_BUDGET_AMOUNT,
+            t1.TOTAL_ACTUAL_AMOUNT,
+            t1.APPLY_USER_ID,
+            t1.APPLY_USER_NAME,
+            t1.APPLY_TIME,
+            t1.REMARK,
+            t1.CREATE_BY,
+            t1.CREATE_BY_NAME,
+            t1.CREATE_TIME,
+            t1.UPDATE_BY,
+            t1.UPDATE_BY_NAME,
+            t1.UPDATE_TIME,
+            t3.PROC_INST_ID,
+            (SELECT LISTAGG(s.WORK_ORDER_NO, ',') WITHIN GROUP (ORDER BY s.ID)
+             FROM E_COST_SETTLEMENT_APPLY_SUB s
+             WHERE s.APPLY_ID = t1.ID) AS workOrderNos,
+            CASE
+            WHEN t3.INSTANCE_STATUS IS NULL THEN '0'
+            ELSE t3.INSTANCE_STATUS
+            END AS processStatus,
+            CASE
+            WHEN t2.DICT_LABEL IS NULL THEN '未发起'
+            ELSE t2.DICT_LABEL
+            END AS processStatusLabel
+        FROM
+            E_COST_SETTLEMENT_APPLY t1
+        LEFT JOIN (
+            SELECT b.*, ROW_NUMBER() OVER(PARTITION BY BUSINESS_DATA_ID ORDER BY CREATE_TIME DESC, ID DESC) as rn
+            FROM BPM_BUSINESS_INSTANCE b
+        ) t3 ON t3.BUSINESS_DATA_ID = t1.ID AND t3.rn = 1
+        LEFT JOIN  M_DICT_DATA t2 ON t2.DICT_VALUE = t3.INSTANCE_STATUS  AND t2.DICT_TYPE = 'APPROVAL_STATUS'
+        <where>
+            <if test="settlementNo != null and settlementNo != ''">
+                <bind name="settlementNoPattern" value="'%' + settlementNo + '%'"/>
+                AND t1.SETTLEMENT_NO LIKE #{settlementNoPattern}
+            </if>
+            <if test="maintOrgName != null and maintOrgName != ''">
+                <bind name="maintOrgNamePattern" value="'%' + maintOrgName + '%'"/>
+                AND t1.MAINT_ORG_NAME LIKE #{maintOrgNamePattern}
+            </if>
+            <if test="maintOrgId != null">
+                AND t1.MAINT_ORG_ID = #{maintOrgId}
+            </if>
+            <if test="projectType != null and projectType != ''">
+                AND PROJECT_TYPE = #{projectType}
+            </if>
+            <if test="applyUserName != null and applyUserName != ''">
+                <bind name="applyUserNamePattern" value="'%' + applyUserName + '%'"/>
+                AND APPLY_USER_NAME LIKE #{applyUserNamePattern}
+            </if>
+            <if test="workOrderNo != null and workOrderNo != ''">
+                <bind name="workOrderNoPattern" value="'%' + workOrderNo + '%'"/>
+                AND EXISTS (
+                    SELECT 1 FROM E_COST_SETTLEMENT_APPLY_SUB s
+                    WHERE s.APPLY_ID = t1.ID
+                    AND s.WORK_ORDER_NO LIKE #{workOrderNoPattern}
+                )
+            </if>
+        </where>
+        ORDER BY CREATE_TIME DESC
+    </select>
+
+    <select id="selectById" resultType="com.yy.ppm.equipment.bean.dto.ECostSettlementApplyDTO">
+        SELECT t1.ID,
+               t1.SETTLEMENT_NO,
+               t1.MAINT_ORG_ID,
+               t1.MAINT_ORG_NAME,
+               t1.PROJECT_TYPE,
+               t1.TOTAL_BUDGET_AMOUNT,
+               t1.TOTAL_ACTUAL_AMOUNT,
+               t1.APPLY_USER_ID,
+               t1.APPLY_USER_NAME,
+               t1.APPLY_TIME,
+               t1.REMARK,
+               t1.CREATE_BY,
+               t1.CREATE_BY_NAME,
+               t1.CREATE_TIME,
+               t1.UPDATE_BY,
+               t1.UPDATE_BY_NAME,
+               t1.UPDATE_TIME,
+               t3.PROC_INST_ID,
+               CASE
+                   WHEN t3.INSTANCE_STATUS IS NULL THEN '0'
+                   ELSE t3.INSTANCE_STATUS
+                   END AS processStatus,
+               CASE
+                   WHEN t2.DICT_LABEL IS NULL THEN '未发起'
+                   ELSE t2.DICT_LABEL
+                   END AS processStatusLabel
+        FROM E_COST_SETTLEMENT_APPLY t1
+                 LEFT JOIN BPM_BUSINESS_INSTANCE t3 ON t3.BUSINESS_DATA_ID = t1.ID
+                 LEFT JOIN M_DICT_DATA t2 ON t2.DICT_VALUE = t3.INSTANCE_STATUS AND t2.DICT_TYPE = 'APPROVAL_STATUS'
+        WHERE t1.ID = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.ECostSettlementApplyPO">
+        INSERT INTO E_COST_SETTLEMENT_APPLY (
+            ID,
+            SETTLEMENT_NO,
+            MAINT_ORG_ID,
+            MAINT_ORG_NAME,
+            PROJECT_TYPE,
+            TOTAL_BUDGET_AMOUNT,
+            TOTAL_ACTUAL_AMOUNT,
+            APPLY_USER_ID,
+            APPLY_USER_NAME,
+            APPLY_TIME,
+            REMARK,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME
+        ) VALUES (
+            #{id,jdbcType=NUMERIC},
+            #{settlementNo,jdbcType=VARCHAR},
+            #{maintOrgId,jdbcType=NUMERIC},
+            #{maintOrgName,jdbcType=VARCHAR},
+            #{projectType,jdbcType=VARCHAR},
+            #{totalBudgetAmount,jdbcType=NUMERIC},
+            #{totalActualAmount,jdbcType=NUMERIC},
+            #{applyUserId,jdbcType=NUMERIC},
+            #{applyUserName,jdbcType=VARCHAR},
+            #{applyTime,jdbcType=TIMESTAMP},
+            #{remark,jdbcType=VARCHAR},
+            #{loginUserId,jdbcType=NUMERIC},
+            #{loginUserName,jdbcType=VARCHAR},
+            #{now,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.yy.ppm.equipment.bean.po.ECostSettlementApplyPO">
+        UPDATE E_COST_SETTLEMENT_APPLY
+        <set>
+            <if test="maintOrgId != null">
+                MAINT_ORG_ID = #{maintOrgId,jdbcType=NUMERIC},
+            </if>
+            <if test="maintOrgName != null">
+                MAINT_ORG_NAME = #{maintOrgName,jdbcType=VARCHAR},
+            </if>
+            <if test="projectType != null">
+                PROJECT_TYPE = #{projectType,jdbcType=VARCHAR},
+            </if>
+            <if test="totalBudgetAmount != null">
+                TOTAL_BUDGET_AMOUNT = #{totalBudgetAmount,jdbcType=NUMERIC},
+            </if>
+            <if test="totalActualAmount != null">
+                TOTAL_ACTUAL_AMOUNT = #{totalActualAmount,jdbcType=NUMERIC},
+            </if>
+            <if test="applyUserId != null">
+                APPLY_USER_ID = #{applyUserId,jdbcType=NUMERIC},
+            </if>
+            <if test="applyUserName != null">
+                APPLY_USER_NAME = #{applyUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="applyTime != null">
+                APPLY_TIME = #{applyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="remark != null">
+                REMARK = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="loginUserId != null">
+                UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
+            </if>
+            <if test="loginUserName != null">
+                UPDATE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="now != null">
+                UPDATE_TIME = #{now,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        WHERE ID = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM E_COST_SETTLEMENT_APPLY WHERE ID = #{id}
+    </delete>
+
+    <delete id="deleteByIds">
+        DELETE FROM E_COST_SETTLEMENT_APPLY
+        WHERE ID IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectAcceptedWorkOrders" resultType="com.yy.ppm.equipment.bean.dto.EMaintInfoDTO">
+        SELECT
+            m.ID,
+            m.WORK_ORDER_NO,
+            m.EQUIP_ID,
+            e.EQUIP_NAME,
+            m.MANT_APP_NUMBER,
+            m.ACCEPTANCE_TIME,
+            m.DISPATCH_TYPE_NAME as dispatchTypeName,
+            a.BUDGET_AMOUNT as budgetAmount
+        FROM
+            E_MAINT_INFO m
+        LEFT JOIN E_M_EQPT_INFO e ON m.EQUIP_ID = e.ID AND e.DEL_FLAG = 0
+        LEFT JOIN E_IC_MAINT_PROJ_APPLY a ON m.MANT_APP_NUMBER = a.APP_NUMBER
+        <where>
+            m.STATUS = 5
+            AND m.DEL_FLAG = 0
+            <if test="maintOrgId != null">
+                AND m.MAINT_ORG_ID = #{maintOrgId}
+            </if>
+            <if test="projectType != null and projectType != ''">
+                AND m.DISPATCH_TYPE_NAME = #{projectType}
+            </if>
+            <if test="workOrderNo != null and workOrderNo != ''">
+                <bind name="workOrderNoPattern" value="'%' + workOrderNo + '%'"/>
+                AND m.WORK_ORDER_NO LIKE #{workOrderNoPattern}
+            </if>
+            <if test="equipName != null and equipName != ''">
+                <bind name="equipNamePattern" value="'%' + equipName + '%'"/>
+                AND e.EQUIP_NAME LIKE #{equipNamePattern}
+            </if>
+            AND NOT EXISTS (
+                SELECT 1 FROM E_COST_SETTLEMENT_APPLY_SUB s
+                WHERE s.WORK_ORDER_NO = m.WORK_ORDER_NO
+                AND (s.IS_APPROVAL_REJECT IS NULL OR s.IS_APPROVAL_REJECT != '1')
+                <if test="id != null">
+                    AND s.APPLY_ID != #{id}
+                </if>
+            )
+        </where>
+        ORDER BY m.ACCEPTANCE_TIME DESC
+    </select>
+    <select id="getBusinessDataIdByProcessInstanceId" resultType="java.lang.Long">
+
+        SELECT BUSINESS_DATA_ID FROM BPM_BUSINESS_INSTANCE WHERE PROC_INST_ID = #{processInstanceId}
+    </select>
+
+</mapper>

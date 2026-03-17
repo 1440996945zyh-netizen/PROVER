@@ -83,9 +83,8 @@ public class EMEquipRepairContractController {
      * 维修单位名称
      */
     @GetMapping("/queryUnitName")
-    @PreAuthorize("hasAuthority('equipment:emequiprepaircontract:queryUnitName')")
     public Map<String, Object> queryUnitName(EMEquipRepairContractDTO searchDTO) {
-        final String methodName = "MEquipmentOperationController:getById";
+        final String methodName = "MEquipmentOperationController:queryUnitName";
         LOGGER.enter(methodName + "[start]", "searchDTO:" + searchDTO);
 
         List<EMEquipRepairContractDTO> result = emEquipRepairContractService.queryUnitName(searchDTO);

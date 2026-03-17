@@ -79,6 +79,9 @@
             <bind name="unitNameLike" value="'%'+unitName+'%'"/>
             and UNIT_NAME like #{unitNameLike}
         </if>
+        <if test="outType != null and outType != ''">
+            and OUT_TYPE = #{outType}
+        </if>
     </select>
 
     <insert id="insert">
