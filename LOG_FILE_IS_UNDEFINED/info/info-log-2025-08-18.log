@@ -1,9 +1,0 @@
-2025-08-18 17:29:02 |INFO  |SpringApplicationShutdownHook |QuartzScheduler.java:613 |org.quartz.core.QuartzScheduler |Scheduler BusinessScheduler_$_幕1755509042548 paused.
-2025-08-18 17:29:02 |INFO  |SpringApplicationShutdownHook |GracefulShutdown.java:54 |org.springframework.boot.web.embedded.tomcat.GracefulShutdown |Commencing graceful shutdown. Waiting for active requests to complete
-2025-08-18 17:29:02 |INFO  |tomcat-shutdown |GracefulShutdown.java:76 |org.springframework.boot.web.embedded.tomcat.GracefulShutdown |Graceful shutdown complete
-2025-08-18 17:29:02 |INFO  |SpringApplicationShutdownHook |SchedulerFactoryBean.java:845 |org.springframework.scheduling.quartz.SchedulerFactoryBean |Shutting down Quartz Scheduler
-2025-08-18 17:29:02 |INFO  |SpringApplicationShutdownHook |QuartzScheduler.java:694 |org.quartz.core.QuartzScheduler |Scheduler BusinessScheduler_$_幕1755509042548 shutting down.
-2025-08-18 17:29:02 |INFO  |SpringApplicationShutdownHook |QuartzScheduler.java:613 |org.quartz.core.QuartzScheduler |Scheduler BusinessScheduler_$_幕1755509042548 paused.
-2025-08-18 17:29:03 |INFO  |SpringApplicationShutdownHook |QuartzScheduler.java:771 |org.quartz.core.QuartzScheduler |Scheduler BusinessScheduler_$_幕1755509042548 shutdown complete.
-2025-08-18 17:29:03 |INFO  |SpringApplicationShutdownHook |DruidDataSource.java:2212 |com.alibaba.druid.pool.DruidDataSource |{dataSource-1} closing ...
-2025-08-18 17:29:03 |INFO  |SpringApplicationShutdownHook |DruidDataSource.java:2285 |com.alibaba.druid.pool.DruidDataSource |{dataSource-1} closed
