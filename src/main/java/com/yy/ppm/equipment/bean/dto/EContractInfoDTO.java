@@ -21,11 +21,11 @@ public class EContractInfoDTO extends EContractInfoPO implements Serializable {
 
     // ========== 扩展字段（适配你之前的查询需求） ==========
 
-    private String contractTypeLable;
+    private String contractTypeLabel;
 
     /**
      * 单位名称
      */
-    private String unit_name;
+    private String unitName;
 
 }
