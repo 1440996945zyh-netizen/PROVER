@@ -3,6 +3,7 @@ package com.yy.ppm.equipment.bean.dto;
 import com.yy.ppm.equipment.bean.po.EMaintInfoPO;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -54,4 +55,10 @@ public class EMaintInfoDTO extends EMaintInfoPO {
 
     /** 退回状态 */
     private Integer returnStatus;
+
+    /**
+     * 预算金额(含税)(根据维修项目含税金额计算(定额)，或手输(非定额)
+     */
+    private BigDecimal budgetAmount;
+
 }

@@ -67,8 +67,24 @@ public class EMaintInfoSearchDTO extends PageParameter implements Serializable {
     private Long createBy;
 
     /**
+     * 维修单位ID
+     */
+    private Long maintOrgId;
+
+    /**
      * 维修负责人ID（用于权限过滤）
      */
     private String maintLeaderId;
+
+
+    /**
+     * 项目类型（定额, 非定额）
+     */
+    private String projectType;
+
+    /**
+     * 排除当前结算单ID
+     */
+    private Long id;
 }
 
