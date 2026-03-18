@@ -3,6 +3,7 @@ package com.yy.ppm.equipment.service;
 import com.yy.common.page.Pages;
 import com.yy.ppm.equipment.bean.dto.EMaterialOutApplicationDTO;
 import com.yy.ppm.equipment.bean.dto.EMaterialOutApplicationSearchDTO;
+import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceDTO;
 
 /**
  * 物资出库申请Service接口
@@ -43,5 +44,8 @@ public interface EMaterialOutApplicationService {
      * 只查询审核通过的申请（状态为'3'）
      */
     Pages<EMaterialOutApplicationDTO> getListWithDetails(EMaterialOutApplicationSearchDTO searchDTO);
+
+
+    void submit(BpmProcessInstanceDTO dto);
 }
 

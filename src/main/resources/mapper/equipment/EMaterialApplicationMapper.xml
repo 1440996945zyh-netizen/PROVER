@@ -167,11 +167,13 @@
         FROM
             E_MATERIAL_APPLICATION A
         LEFT JOIN E_MATERIAL_APPLICATION_DETAIL AD ON A.ID = AD.APPLICATION_ID
+        LEFT JOIN BPM_BUSINESS_INSTANCE t3 ON t3.BUSINESS_DATA_ID = A.ID
         <if test="warehouseId != null">
             LEFT JOIN E_MATERIAL_WAREHOUSE_IN_DETAIL WID ON AD.MATERIAL_CODE_ID = WID.MATERIAL_ID
             LEFT JOIN E_MATERIAL_WAREHOUSE_IN WI ON WID.WAREHOUSE_IN_ID = WI.ID  AND WI.WAREHOUSE_ID = #{warehouseId}
         </if>
         <where>
+            t3.INSTANCE_STATUS='2'
             <if test="applicationNo != null and applicationNo != ''">
                 <bind name="applicationNoPattern" value="'%' + applicationNo + '%'"/>
                 AND A.APPLICATION_NO LIKE #{applicationNoPattern}
@@ -188,9 +190,6 @@
             </if>
             <if test="createBy != null">
                 AND A.CREATE_BY = #{createBy}
-            </if>
-            <if test="status != null and status != ''">
-                AND A.STATUS = #{status}
             </if>
             <if test="warehouseId != null">
                AND WI.WAREHOUSE_ID = #{warehouseId}  AND WI.ACCEPTANCE_STATUS = 1
