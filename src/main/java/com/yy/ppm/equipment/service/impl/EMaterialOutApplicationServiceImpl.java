@@ -17,6 +17,8 @@ import com.yy.ppm.equipment.mapper.EMaterialOutApplicationDetailMapper;
 import com.yy.ppm.equipment.mapper.EMaterialOutApplicationMapper;
 import com.yy.ppm.equipment.service.EMaterialOutApplicationService;
 import com.yy.ppm.equipment.service.EMaterialWarehouseInService;
+import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceDTO;
+import com.yy.ppm.flowable.service.BpmProcessInstanceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.util.StringUtils;
+
+import static com.yy.common.util.SecurityUtils.getLoginUserId;
 
 /**
  * 物资出库申请Service业务层处理
@@ -53,6 +57,9 @@ public class EMaterialOutApplicationServiceImpl implements EMaterialOutApplicati
 
     @Autowired
     CommonServiceImpl commonService;
+
+    @Resource
+    BpmProcessInstanceService bpmProcessInstanceService;
 
     @Resource
     private EMaterialWarehouseInService warehouseInService;
@@ -367,6 +374,17 @@ public class EMaterialOutApplicationServiceImpl implements EMaterialOutApplicati
         Pages<EMaterialOutApplicationDTO> result = PageHelperUtils.limit(searchDTO, () -> mapper.selectListWithDetails(searchDTO));
 
         return result;
+    }
+
+
+
+    /**
+     * 提交发起流程
+     */
+    @Override
+    public void submit(BpmProcessInstanceDTO dto) {
+        // 调用流程实例发起
+        bpmProcessInstanceService.createProcessInstance(getLoginUserId(), dto);
     }
 }
 

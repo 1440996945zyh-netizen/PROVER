@@ -25,5 +25,10 @@ public class EMaterialPurchaseDTO extends EMaterialPurchasePO {
      * 比价信息列表
      */
     private List<EMaterialPurchaseComparisonDTO> comparisonList;
+
+
+    private String processStatus;
+    private String processStatusLabel;
+    private String procInstId;
 }
 

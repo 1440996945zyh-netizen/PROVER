@@ -195,7 +195,7 @@ public class EMaterialPurchaseServiceImpl implements EMaterialPurchaseService {
                 throw new BusinessRuntimeException("采购单不存在");
             }
             // 如果当前状态是驳回（2），则清空审核信息并将状态改为待审核（0）
-            if (existingDto.getPurchaseStatus() != null && existingDto.getPurchaseStatus() == 2) {
+            if (existingDto.getProcessStatus() != null && "3".equals(existingDto.getProcessStatus())) {
                 po.setApprovalBy(null);
                 po.setApprovalByName(null);
                 po.setApprovalTime(null);
@@ -214,6 +214,14 @@ public class EMaterialPurchaseServiceImpl implements EMaterialPurchaseService {
                 comparisonMapper.deleteByPurchaseId(dto.getId());
             }
         }
+
+
+        //修改申请子表关联采购订单子表id
+        approve(dto.getId(), null, null);
+
+
+
+
     }
 
     /**
@@ -258,38 +266,6 @@ public class EMaterialPurchaseServiceImpl implements EMaterialPurchaseService {
     @Override
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
     public void approve(Long id, Integer status, String approvalRemark) {
-        EMaterialPurchasePO po = mapper.selectById(id);
-        if (po == null) {
-            throw new BusinessRuntimeException("采购单不存在");
-        }
-
-        // 验证：只有待审核状态才能审核
-        if (po.getPurchaseStatus() == null || po.getPurchaseStatus() != 0) {
-            throw new BusinessRuntimeException("只能审核待审核状态的采购单");
-        }
-
-        // 验证审核状态值
-        if (status == null || (status != 1 && status != 2)) {
-            throw new BusinessRuntimeException("审核状态值无效，只能为1（审核通过）或2（驳回）");
-        }
-
-        // 获取当前登录用户信息
-        UserInfo userInfo = securityUtils.getUserInfo();
-        if (userInfo == null) {
-            throw new BusinessRuntimeException("获取当前用户信息失败");
-        }
-
-        // 更新采购状态：1-审核通过，2-驳回
-        po.setPurchaseStatus(status);
-        // 设置审核信息
-        po.setApprovalBy(userInfo.getId());
-        po.setApprovalByName(userInfo.getUserName());
-        po.setApprovalTime(new java.util.Date());
-        po.setApprovalRemark(approvalRemark);
-        mapper.update(po);
-
-        // 如果审核通过（status == 1），批量更新申报明细的采购明细ID
-        if (status == 1) {
             // 查询采购明细列表
             List<EMaterialPurchaseDetailDTO> detailList = detailMapper.selectListByPurchaseId(id);
             // 构建批量更新列表
@@ -306,7 +282,7 @@ public class EMaterialPurchaseServiceImpl implements EMaterialPurchaseService {
             if (!updateList.isEmpty()) {
                 applicationDetailMapper.batchUpdatePurchaseDetailId(updateList);
             }
-        }
+
     }
 
     /**

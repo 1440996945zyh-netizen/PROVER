@@ -328,8 +328,9 @@
         LEFT JOIN E_MATERIAL_CATEGORY c ON MC.CATEGORY_ID = c.ID AND c.DEL_FLAG = 0
         LEFT JOIN E_MATERIAL_CATEGORY c2 ON c.PARENT_ID = c2.ID AND c2.DEL_FLAG = 0
         LEFT JOIN E_MATERIAL_CATEGORY c3 ON c2.PARENT_ID = c3.ID AND c3.DEL_FLAG = 0
+        LEFT JOIN BPM_BUSINESS_INSTANCE t3 ON t3.BUSINESS_DATA_ID = A.ID
         <where>
-            AND A.STATUS = '3'
+               t3.INSTANCE_STATUS='2'
             <if test="applicationNo != null and applicationNo != ''">
                 <bind name="applicationNoPattern" value="'%' + applicationNo + '%'"/>
                 AND A.APPLICATION_NO LIKE #{applicationNoPattern}
@@ -419,6 +420,7 @@
         LEFT JOIN E_MATERIAL_APPLICATION_DETAIL AD ON PD.ID = AD.PURCHASE_DETAIL_ID
         LEFT JOIN E_MATERIAL_APPLICATION A ON AD.APPLICATION_ID = A.ID
         LEFT JOIN E_MATERIAL_CODE MC ON AD.MATERIAL_CODE_ID = MC.ID AND MC.DEL_FLAG = 0
+        LEFT JOIN BPM_BUSINESS_INSTANCE t3 ON t3.BUSINESS_DATA_ID = P.ID
         LEFT JOIN (
             SELECT
                 AD_INNER.PURCHASE_DETAIL_ID,
@@ -433,8 +435,7 @@
                 AD_INNER.PURCHASE_DETAIL_ID
         ) SUM_WID ON PD.ID = SUM_WID.PURCHASE_DETAIL_ID
         <where>
-            AND P.PURCHASE_STATUS = 1
-            AND (AD.ID IS NULL OR A.STATUS = '3')
+             t3.INSTANCE_STATUS = 2
             AND (PD.PURCHASE_QUANTITY - NVL(SUM_WID.WAREHOUSE_IN_QUANTITY, 0)) > 0
             <if test="applicationNo != null and applicationNo != ''">
                 <bind name="applicationNoPattern" value="'%' + applicationNo + '%'"/>
