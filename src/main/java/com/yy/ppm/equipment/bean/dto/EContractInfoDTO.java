@@ -23,4 +23,9 @@ public class EContractInfoDTO extends EContractInfoPO implements Serializable {
 
     private String contractTypeLable;
 
+    /**
+     * 单位名称
+     */
+    private String unit_name;
+
 }

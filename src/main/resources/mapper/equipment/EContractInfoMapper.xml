@@ -15,10 +15,13 @@
     t1.APPLY_SCOPE,
     t1.STATUS,
     t1.CONTRACT_TYPE,
+    t3.EXTERNAL_COMPANY_ID,
+    t3.UNIT_NAME,
     t2.DICT_LABEL contractTypeLabel
 
     FROM E_COST_CONTRACT_INFO t1
     LEFT JOIN M_DICT_DATA t2 ON t2.DICT_VALUE = t1.CONTRACT_TYPE AND  t2.DICT_TYPE = 'CONTRACT_TYPE'
+    LEFT JOIN E_M_EQUIP_REPAIR_CONTRACT t3 ON t1.EXTERNAL_COMPANY_ID = t3.EXTERNAL_COMPANY_ID
     where
     1 = 1
     <if test="contractName != null and contractName != ''">
@@ -36,7 +39,7 @@
         and END_DATE &lt;= #{endDate}
     </if>
     order by
-    CREATED_TIME DESC
+    t1.CREATED_TIME DESC
 </select>
 
 <select id="getById" resultType="com.yy.ppm.equipment.bean.dto.EContractInfoDTO">
@@ -50,6 +53,7 @@
         t1.APPLY_SCOPE,
         t1.STATUS,
         t1.CONTRACT_TYPE,
+        t1.EXTERNAL_COMPANY_ID,
         t2.DICT_LABEL contractTypeLable
 
      FROM E_COST_CONTRACT_INFO t1
@@ -69,6 +73,7 @@
         END_DATE,
         APPLY_SCOPE,
         STATUS,
+        EXTERNAL_COMPANY_ID,
         CREATED_USER,
         CREATED_TIME,
         CONTRACT_TYPE)
@@ -82,6 +87,7 @@
         #{endDate},
         #{applyScope},
         #{status},
+        #{externalCompanyId},
         #{loginUserId,jdbcType=DECIMAL},
         #{now,jdbcType=TIMESTAMP},
         #{contractType})
@@ -97,6 +103,7 @@
         END_DATE = #{endDate},
         APPLY_SCOPE = #{applyScope},
         STATUS = #{status},
+        EXTERNAL_COMPANY_ID = #{externalCompanyId},
         CONTRACT_TYPE = #{contractType},
         UPDATE_USER = #{loginUserId,jdbcType=DECIMAL},
         UPDATE_TIME = #{now,jdbcType=TIMESTAMP}

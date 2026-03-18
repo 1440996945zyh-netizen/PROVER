@@ -62,4 +62,9 @@ public class EContractInfoPO extends BasePO implements Serializable {
     // 修改时间
     private Date updateTime;
 
+    /**
+     * 维修单位id
+     */
+    private String externalCompanyId;
+
 }
