@@ -26,6 +26,6 @@ public class EContractInfoDTO extends EContractInfoPO implements Serializable {
     /**
      * 单位名称
      */
-    private String unit_name;
+    private String unitName;
 
 }
