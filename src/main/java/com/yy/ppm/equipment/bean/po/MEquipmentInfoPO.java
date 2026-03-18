@@ -97,7 +97,7 @@ public class MEquipmentInfoPO extends BasePO {
     private String equipTechStateName;
 
     /**
-     * 设备状态（1.在修，2.在用，3.封存，4.报废）
+     * 设备状态（01.在用，02.在修，03.出租，04.封存，05.报废，06.停用，07.转卖）
      */
     private String equipState;
 

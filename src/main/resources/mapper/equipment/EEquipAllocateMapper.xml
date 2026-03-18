@@ -72,11 +72,22 @@
                 WHEN 2 THEN '审批成功'
                 WHEN 3 THEN '审批未通过'
                 ELSE '未知'
-            END as STATUS_NAME
+            END as STATUS_NAME,
+            t3.PROC_INST_ID,
+            CASE
+            WHEN t3.INSTANCE_STATUS IS NULL THEN '0'
+            ELSE t3.INSTANCE_STATUS
+            END AS processStatus,
+            CASE
+            WHEN t2.DICT_LABEL IS NULL THEN '未发起'
+            ELSE t2.DICT_LABEL
+            END AS processStatusLabel
         FROM E_M_EQUIP_ALLOCATE a
         LEFT JOIN SYS_DEPT d ON a.TO_COMPANY_ID = d.ID
         LEFT JOIN SYS_DEPT u ON a.TO_ORG_ID = u.ID
         LEFT JOIN SYS_USER su ON a.APPLY_USER = su.ID AND su.STATUS != 0
+        LEFT JOIN BPM_BUSINESS_INSTANCE t3 ON t3.BUSINESS_DATA_ID = a.ID
+        LEFT JOIN  M_DICT_DATA t2 ON t2.DICT_VALUE = t3.INSTANCE_STATUS  AND t2.DICT_TYPE = 'APPROVAL_STATUS'
         <where>
             a.DEL_FLAG = 0
             <if test="allocateCode != null and allocateCode != ''">
@@ -177,11 +188,22 @@
                 WHEN 2 THEN '审批成功'
                 WHEN 3 THEN '审批未通过'
                 ELSE '未知'
-            END as STATUS_NAME
+            END as STATUS_NAME,
+            t3.PROC_INST_ID,
+            CASE
+                WHEN t3.INSTANCE_STATUS IS NULL THEN '0'
+                ELSE t3.INSTANCE_STATUS
+                END AS processStatus,
+            CASE
+                WHEN t2.DICT_LABEL IS NULL THEN '未发起'
+                ELSE t2.DICT_LABEL
+                END AS processStatusLabel
         FROM E_M_EQUIP_ALLOCATE a
         LEFT JOIN SYS_DEPT d ON a.TO_COMPANY_ID = d.ID
         LEFT JOIN SYS_DEPT u ON a.TO_ORG_ID = u.ID
         LEFT JOIN SYS_USER su ON a.APPLY_USER = su.ID AND su.STATUS != 0
+        LEFT JOIN BPM_BUSINESS_INSTANCE t3 ON t3.BUSINESS_DATA_ID = a.ID
+        LEFT JOIN  M_DICT_DATA t2 ON t2.DICT_VALUE = t3.INSTANCE_STATUS  AND t2.DICT_TYPE = 'APPROVAL_STATUS'
         WHERE a.ID = #{id} AND a.DEL_FLAG = 0
     </select>
 
@@ -236,9 +258,9 @@
             <if test="status != null">STATUS = #{status},</if>
             <if test="executeUser != null">EXECUTE_USER = #{executeUser},</if>
             <if test="allocateFulfilTime != null">ALLOCATE_FULFIL_TIME = #{allocateFulfilTime},</if>
-            UPDATE_BY = #{updateBy},
-            UPDATE_BY_NAME = #{updateByName},
-            UPDATE_TIME = #{updateTime}
+            <if test="updateBy != null">UPDATE_BY = #{updateBy},</if>
+            <if test="updateByName != null">UPDATE_BY_NAME = #{updateByName},</if>
+            <if test="updateTime != null">UPDATE_TIME = #{updateTime},</if>
         </set>
         WHERE ID = #{id}
     </update>
@@ -298,4 +320,20 @@
         ORDER BY a.CREATE_TIME DESC
     </select>
 
+    <select id="getBusinessDataIdByProcessInstanceId" resultType="java.lang.Long">
+        SELECT BUSINESS_DATA_ID FROM BPM_BUSINESS_INSTANCE WHERE PROC_INST_ID = #{processInstanceId}
+    </select>
+
+    <!-- 根据ID删除设备调拨 -->
+    <update id="deleteById">
+        UPDATE E_M_EQUIP_ALLOCATE SET DEL_FLAG = 1 WHERE ID = #{id}
+    </update>
+
+    <!-- 批量删除设备调拨 -->
+    <update id="deleteByIds">
+        UPDATE E_M_EQUIP_ALLOCATE SET DEL_FLAG = 1 WHERE ID IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
 </mapper>

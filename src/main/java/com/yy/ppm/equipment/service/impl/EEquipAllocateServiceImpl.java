@@ -11,10 +11,7 @@ import com.yy.common.util.PageHelperUtils;
 import com.yy.common.util.SecurityUtils;
 import com.yy.common.util.UUIDUtils;
 import com.yy.framework.exception.BusinessRuntimeException;
-import com.yy.ppm.equipment.bean.dto.EEquipAllocateDTO;
-import com.yy.ppm.equipment.bean.dto.EEquipAllocateExportDTO;
-import com.yy.ppm.equipment.bean.dto.EEquipAllocateSearchDTO;
-import com.yy.ppm.equipment.bean.dto.AllocateEquipDTO;
+import com.yy.ppm.equipment.bean.dto.*;
 import com.yy.ppm.equipment.bean.po.EEquipAllocateHistoryPO;
 import com.yy.ppm.equipment.bean.po.EEquipAllocatePO;
 import com.yy.ppm.equipment.bean.po.MEquipmentInfoPO;
@@ -23,6 +20,8 @@ import com.yy.ppm.equipment.mapper.EEquipAllocateMapper;
 import com.yy.ppm.equipment.mapper.MEquipmentInfoMapper;
 import com.yy.ppm.equipment.service.EEquipAllocateHistoryService;
 import com.yy.ppm.equipment.service.EEquipAllocateService;
+import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceDTO;
+import com.yy.ppm.flowable.service.BpmProcessInstanceService;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -35,6 +34,8 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static com.yy.common.util.SecurityUtils.getLoginUserId;
 
 /**
  * 设备调拨Service业务层处理
@@ -63,6 +64,9 @@ public class EEquipAllocateServiceImpl implements EEquipAllocateService {
 
 	@Resource
 	private MEquipmentInfoMapper mEquipmentInfoMapper;
+
+	@Resource
+	BpmProcessInstanceService bpmProcessInstanceService;
 
 
 	/**
@@ -132,7 +136,7 @@ public class EEquipAllocateServiceImpl implements EEquipAllocateService {
 
 		po.setId(id);
 		po.setAllocateCode(allocateCode);
-		po.setStatus(1L);
+		po.setStatus(0L);
 		po.setApplyUser(userId);
 		po.setAllocateTime(now);
 		po.setDelFlag(0L);
@@ -146,7 +150,7 @@ public class EEquipAllocateServiceImpl implements EEquipAllocateService {
 			allocateHistoryService.createHistory(id, dto.getEquipList(), userId);
 
 			// TODO: 发起流程，暂时不发起直接更新设备状态
-			confirm(id, "");
+//			confirm(id, "");
 		}
 
 		LOGGER.exit(methodName, "");
@@ -193,18 +197,18 @@ public class EEquipAllocateServiceImpl implements EEquipAllocateService {
 			}
 		}
 
-		Long userId = SecurityUtils.getLoginUserId();
-		String userName = SecurityUtils.getLoginUserName();
+//		Long userId = SecurityUtils.getLoginUserId();
+//		String userName = SecurityUtils.getLoginUserName();
 		Date now = new Date();
 
 		EEquipAllocatePO updatePO = new EEquipAllocatePO();
 		updatePO.setId(allocatePO.getId());
 		updatePO.setStatus(2L);
-		updatePO.setExecuteUser(userId);
+//		updatePO.setExecuteUser(userId);
 		updatePO.setAllocateFulfilTime(now);
 		updatePO.setUpdateTime(now);
-		updatePO.setUpdateBy(userId);
-		updatePO.setUpdateByName(userName);
+//		updatePO.setUpdateBy(userId);
+//		updatePO.setUpdateByName(userName);
 
 		int count = allocateMapper.updateStatus(updatePO);
 
@@ -267,6 +271,73 @@ public class EEquipAllocateServiceImpl implements EEquipAllocateService {
 
 		LOGGER.exit(methodName, "导出数量:" + exportList.size());
 		return os.toByteArray();
+	}
+
+    @Override
+    public void submitEquipAllocate(BpmProcessInstanceDTO dto) {
+		// 判断当前状态，仅未发起状态下可提交
+		if (dto.getBusinessDataId() == null) {
+			throw new BusinessRuntimeException("业务数据ID不能为空");
+		}
+		EEquipAllocateDTO allocateDTO = allocateMapper.getById(dto.getBusinessDataId());
+		if (allocateDTO == null) {
+			throw new BusinessRuntimeException("业务数据不存在");
+		}
+		if (!"0".equals(allocateDTO.getProcessStatus())) {
+			throw new BusinessRuntimeException("仅未发起状态下可提交");
+		}
+		// 调用流程实例发起
+		bpmProcessInstanceService.createProcessInstance(getLoginUserId(), dto);
+    }
+
+
+	@Override
+	public Long getBusinessDataIdByProcessInstanceId(String processInstanceId) {
+		return allocateMapper.getBusinessDataIdByProcessInstanceId(processInstanceId);
+	}
+
+	@Override
+	public int updateStatus(EEquipAllocatePO po) {
+		return  allocateMapper.updateStatus(po);
+	}
+
+	@Override
+	@Transactional
+	public int deleteById(Long id) {
+		final String methodName = "EEquipAllocateServiceImpl:deleteById";
+		LOGGER.enter(methodName, "id:" + id);
+		EEquipAllocateDTO allocateDTO = allocateMapper.getById(id);
+		if (allocateDTO == null) {
+			return 0;
+		}
+		if (!"0".equals(allocateDTO.getProcessStatus())) {
+			throw new BusinessRuntimeException("只有未发起的申请才允许删除");
+		}
+		// 删除子表/历史记录
+		allocateHistoryMapper.deleteByOrderId(id);
+		// 删除主表
+		int result = allocateMapper.deleteById(id);
+		LOGGER.exit(methodName, "result:" + result);
+		return result;
+	}
+
+	@Override
+	@Transactional
+	public int deleteByIds(List<Long> ids) {
+		final String methodName = "EEquipAllocateServiceImpl:deleteByIds";
+		LOGGER.enter(methodName, "ids:" + ids);
+		for (Long id : ids) {
+			EEquipAllocateDTO allocateDTO = allocateMapper.getById(id);
+			if (allocateDTO != null && !"0".equals(allocateDTO.getProcessStatus())) {
+				throw new BusinessRuntimeException("工单[" + allocateDTO.getAllocateCode() + "]已发起流转，不允许删除");
+			}
+		}
+		// 批量删除子表/历史记录
+		allocateHistoryMapper.deleteByOrderIds(ids);
+		// 批量删除主表
+		int result = allocateMapper.deleteByIds(ids);
+		LOGGER.exit(methodName, "result:" + result);
+		return result;
 	}
 
 }

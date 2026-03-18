@@ -11,10 +11,7 @@ import com.yy.common.util.PageHelperUtils;
 import com.yy.common.util.SecurityUtils;
 import com.yy.common.util.UUIDUtils;
 import com.yy.framework.exception.BusinessRuntimeException;
-import com.yy.ppm.equipment.bean.dto.EEquipScrapDTO;
-import com.yy.ppm.equipment.bean.dto.EEquipScrapExportDTO;
-import com.yy.ppm.equipment.bean.dto.EEquipScrapSearchDTO;
-import com.yy.ppm.equipment.bean.dto.ScrapEquipDTO;
+import com.yy.ppm.equipment.bean.dto.*;
 import com.yy.ppm.equipment.bean.po.EEquipScrapHistoryPO;
 import com.yy.ppm.equipment.bean.po.EEquipScrapPO;
 import com.yy.ppm.equipment.bean.po.MEquipmentInfoPO;
@@ -23,6 +20,8 @@ import com.yy.ppm.equipment.mapper.EEquipScrapMapper;
 import com.yy.ppm.equipment.mapper.MEquipmentInfoMapper;
 import com.yy.ppm.equipment.service.EEquipScrapHistoryService;
 import com.yy.ppm.equipment.service.EEquipScrapService;
+import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceDTO;
+import com.yy.ppm.flowable.service.BpmProcessInstanceService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +33,8 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static com.yy.common.util.SecurityUtils.getLoginUserId;
 
 /**
  * @Author: fanxianjin
@@ -63,6 +64,9 @@ public class EEquipScrapServiceImpl implements EEquipScrapService {
 
 	@Resource
 	private MEquipmentInfoMapper mEquipmentInfoMapper;
+
+	@Resource
+	BpmProcessInstanceService bpmProcessInstanceService;
 
 
 	/**
@@ -133,7 +137,7 @@ public class EEquipScrapServiceImpl implements EEquipScrapService {
 		po.setId(id);
 		po.setScrapCode(scrapCode);
 		po.setScrapCode(UUIDUtils.getScrapCode(userId));
-		po.setStatus(1L);
+		po.setStatus(0L);
 		po.setApplyUser(userId);
 		po.setDelFlag(0L);
 		po.setCreateTime(now);
@@ -146,7 +150,7 @@ public class EEquipScrapServiceImpl implements EEquipScrapService {
 			scrapHistoryService.createHistory(id, dto.getEquipList(), userId);
 
 			//TODO 发起流程，暂时不发起直接更新设备状态为报废
-			confirm(id, "");
+//			confirm(id, "");
 		}
 
 		LOGGER.exit(methodName, "");
@@ -181,9 +185,9 @@ public class EEquipScrapServiceImpl implements EEquipScrapService {
 					try {
 						ScrapEquipDTO equipDTO = JSON.parseObject(history.getLastChangeInfo(), ScrapEquipDTO.class);
 						// 更新设备状态为报废
-						if (equipDTO.getEquipState() != null && !equipDTO.getEquipState().equals("04")) {
+						if (equipDTO.getEquipState() != null && !equipDTO.getEquipState().equals("05")) {
 							MEquipmentInfoPO mEquipmentInfoPO = new MEquipmentInfoPO();
-							mEquipmentInfoPO.setEquipState("04");
+							mEquipmentInfoPO.setEquipState("05");
 							mEquipmentInfoPO.setId(equipDTO.getEquipId());
 							mEquipmentInfoPO.setEquipStateName("报废");
 							mEquipmentInfoMapper.update(mEquipmentInfoPO);
@@ -195,18 +199,18 @@ public class EEquipScrapServiceImpl implements EEquipScrapService {
 			}
 		}
 
-		Long userId = SecurityUtils.getLoginUserId();
-		String userName = SecurityUtils.getLoginUserName();
+//		Long userId = SecurityUtils.getLoginUserId();
+//		String userName = SecurityUtils.getLoginUserName();
 		Date now = new Date();
 
 		EEquipScrapPO updatePO = new EEquipScrapPO();
 		updatePO.setId(scrapPO.getId());
 		updatePO.setStatus(2L);
-		updatePO.setExecuteUser(userId);
+//		updatePO.setExecuteUser(userId);
 		updatePO.setExecuteFulfilTime(now);
 		updatePO.setUpdateTime(now);
-		updatePO.setUpdateBy(userId);
-		updatePO.setUpdateByName(userName);
+//		updatePO.setUpdateBy(userId);
+//		updatePO.setUpdateByName(userName);
 
 		int count = scrapMapper.updateStatus(updatePO);
 
@@ -268,6 +272,73 @@ public class EEquipScrapServiceImpl implements EEquipScrapService {
 
 		LOGGER.exit(methodName, "导出数量:" + exportList.size());
 		return os.toByteArray();
+	}
+
+	@Override
+	public void submitEquipScrap(BpmProcessInstanceDTO dto) {
+		// 判断当前状态，仅未发起状态下可提交
+		if (dto.getBusinessDataId() == null) {
+			throw new BusinessRuntimeException("业务数据ID不能为空");
+		}
+		EEquipScrapDTO scrapDTO = scrapMapper.getById(dto.getBusinessDataId());
+		if (scrapDTO == null) {
+			throw new BusinessRuntimeException("业务数据不存在");
+		}
+		if (!"0".equals(scrapDTO.getProcessStatus())) {
+			throw new BusinessRuntimeException("仅未发起状态下可提交");
+		}
+		// 调用流程实例发起
+		bpmProcessInstanceService.createProcessInstance(getLoginUserId(), dto);
+
+	}
+
+	@Override
+	public Long getBusinessDataIdByProcessInstanceId(String processInstanceId) {
+		return scrapMapper.getBusinessDataIdByProcessInstanceId(processInstanceId);
+	}
+
+	@Override
+	public int updateStatus(EEquipScrapPO po) {
+		return  scrapMapper.updateStatus(po);
+	}
+
+	@Override
+	@Transactional
+	public int deleteById(Long id) {
+		final String methodName = "EEquipScrapServiceImpl:deleteById";
+		LOGGER.enter(methodName, "id:" + id);
+		EEquipScrapDTO scrapDTO = scrapMapper.getById(id);
+		if (scrapDTO == null) {
+			return 0;
+		}
+		if (!"0".equals(scrapDTO.getProcessStatus())) {
+			throw new BusinessRuntimeException("只有未发起的申请才允许删除");
+		}
+		// 删除子表/历史记录
+		scrapHistoryMapper.deleteByOrderId(id);
+		// 删除主表
+		int result = scrapMapper.deleteById(id);
+		LOGGER.exit(methodName, "result:" + result);
+		return result;
+	}
+
+	@Override
+	@Transactional
+	public int deleteByIds(List<Long> ids) {
+		final String methodName = "EEquipScrapServiceImpl:deleteByIds";
+		LOGGER.enter(methodName, "ids:" + ids);
+		for (Long id : ids) {
+			EEquipScrapDTO scrapDTO = scrapMapper.getById(id);
+			if (scrapDTO != null && !"0".equals(scrapDTO.getProcessStatus())) {
+				throw new BusinessRuntimeException("工单[" + scrapDTO.getScrapCode() + "]已发起流转，不允许删除");
+			}
+		}
+		// 批量删除子表/历史记录
+		scrapHistoryMapper.deleteByOrderIds(ids);
+		// 批量删除主表
+		int result = scrapMapper.deleteByIds(ids);
+		LOGGER.exit(methodName, "result:" + result);
+		return result;
 	}
 
 }

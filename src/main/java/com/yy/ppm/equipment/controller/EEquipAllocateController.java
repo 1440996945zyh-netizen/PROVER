@@ -10,8 +10,8 @@ import com.yy.ppm.common.excel.export.utils.ResponseUtils;
 import com.yy.ppm.equipment.bean.dto.EEquipAllocateDTO;
 import com.yy.ppm.equipment.bean.dto.EEquipAllocateSearchDTO;
 import com.yy.ppm.equipment.bean.dto.AllocateEquipDTO;
-import com.yy.ppm.equipment.service.EEquipAllocateHistoryService;
 import com.yy.ppm.equipment.service.EEquipAllocateService;
+import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceDTO;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,6 +19,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -139,6 +140,52 @@ public class EEquipAllocateController {
         }
 
         LOGGER.exit(methodName + "[end]");
+    }
+
+    /**
+     * 设备调拨提交审批
+     */
+    @PostMapping("/submitEquipAllocate")
+    @PreAuthorize("hasAuthority('bpm:equipment:controller:submitEquipAllocate')")
+    @Log(OperateTypeEnum.INSERT)
+    public Map<String, Object> submitEquipAllocate(@RequestBody BpmProcessInstanceDTO dto) {
+        final String methodName = "BpmBusinessConfigController:insert";
+        LOGGER.enter(methodName, "提交业务数据");
+
+        allocateService.submitEquipAllocate(dto);
+
+        LOGGER.exit(methodName, "新增BPM业务配置完成");
+        return Response.SUCCESS.newBuilder().out("新增成功").toResult();
+    }
+
+    /**
+     * 删除设备调拨申请
+     * @param id
+     */
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAuthority('equipment:equipAllocate:delete')")
+    @Log(title = "删除设备调拨申请", value = OperateTypeEnum.DELETE)
+    public Map<String, Object> delete(@PathVariable("id") Long id) {
+        final String methodName = "EEquipAllocateController:delete";
+        LOGGER.enter(methodName + "[start]", "id:" + id);
+        int result = allocateService.deleteById(id);
+        LOGGER.exit(methodName + "result:" + result);
+        return Response.SUCCESS.newBuilder().out("删除成功").toResult(result);
+    }
+
+    /**
+     * 批量删除设备调拨申请
+     * @param ids
+     */
+    @DeleteMapping("/deleteBatch")
+    @PreAuthorize("hasAuthority('equipment:equipAllocate:delete')")
+    @Log(title = "批量删除设备调拨申请", value = OperateTypeEnum.DELETE)
+    public Map<String, Object> deleteBatch(@RequestBody List<Long> ids) {
+        final String methodName = "EEquipAllocateController:deleteBatch";
+        LOGGER.enter(methodName + "[start]", "ids:" + ids);
+        int result = allocateService.deleteByIds(ids);
+        LOGGER.exit(methodName + "result:" + result);
+        return Response.SUCCESS.newBuilder().out("删除成功").toResult(result);
     }
 
 }

@@ -62,4 +62,19 @@ public class EEquipScrapDTO extends EEquipScrapPO implements Serializable {
      */
     private List<ScrapEquipDTO> equipList;
 
+    /**
+     * 流程状态
+     */
+    private String processStatus;
+    /**
+     * 流程状态标签
+     */
+    private String processStatusLabel;
+    /**
+     * 流程实例ID
+     */
+    private String procInstId;
+
+
+
 }

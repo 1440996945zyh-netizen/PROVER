@@ -132,7 +132,9 @@ public enum DictTypeEnum {
     COMMON_PHRASES_TYPE("COMMON_PHRASES_TYPE", "常用审批语类型"),
     MODEL_TYPE("MODEL_TYPE", "模板类型"),
     CERTIFICATE_TYPE("CERTIFICATE_TYPE", "证件类型"),
-    EXPENSE_TYPE("EXPENSE_TYPE", "维修费用类型"),;
+    EXPENSE_TYPE("EXPENSE_TYPE", "维修费用类型"),
+    E_ZS_TYPE("E_ZS_TYPE", "特种设备证书类型"),
+    FILE_TYPE("FILE_TYPE", "设备资料类型"),;
 
     private final String type;
 

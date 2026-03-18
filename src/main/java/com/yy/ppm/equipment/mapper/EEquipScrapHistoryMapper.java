@@ -26,5 +26,15 @@ public interface EEquipScrapHistoryMapper extends BaseMapper<EEquipScrapHistoryP
     @Edit
     int insert(EEquipScrapHistoryPO po);
 
+    /**
+     * 根据订单ID删除报废历史记录
+     */
+    @Edit
+    int deleteByOrderId(@Param("orderId") Long orderId);
 
+    /**
+     * 根据订单ID批量删除报废历史记录
+     */
+    @Edit
+    int deleteByOrderIds(@Param("orderIds") List<Long> orderIds);
 }
