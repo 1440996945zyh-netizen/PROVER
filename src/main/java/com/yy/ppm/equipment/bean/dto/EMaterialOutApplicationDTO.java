@@ -20,5 +20,10 @@ public class EMaterialOutApplicationDTO extends EMaterialOutApplicationPO {
      * 明细列表
      */
     private List<EMaterialOutApplicationDetailDTO> detailList;
+
+    private String processStatusLabel;
+    private String processStatus;
+    private String procInstId;
+
 }
 

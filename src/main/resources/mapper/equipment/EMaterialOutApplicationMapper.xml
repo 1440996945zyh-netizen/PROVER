@@ -7,25 +7,36 @@
     <!-- 查询物资出库申请列表 -->
     <select id="selectList" resultType="com.yy.ppm.equipment.bean.dto.EMaterialOutApplicationDTO">
         SELECT
-            ID,
-            WAREHOUSE_OUT_NO,
-            WAREHOUSE_OUT_TITLE,
-            WAREHOUSE_ID,
-            WAREHOUSE_NAME,
-            STATUS,
-            REMARKS,
-            AUDIT_REMARK,
-            ACCEPTANCE_PERSON_ID,
-            ACCEPTANCE_PERSON_NAME,
-            ACCEPTANCE_TIME,
-            CREATE_BY,
-            CREATE_BY_NAME,
-            CREATE_TIME,
-            UPDATE_BY,
-            UPDATE_BY_NAME,
-            UPDATE_TIME
+            t1.ID,
+            t1.WAREHOUSE_OUT_NO,
+            t1.WAREHOUSE_OUT_TITLE,
+            t1.WAREHOUSE_ID,
+            t1.WAREHOUSE_NAME,
+            t1.STATUS,
+            t1.REMARKS,
+            t1.AUDIT_REMARK,
+            t1.ACCEPTANCE_PERSON_ID,
+            t1.ACCEPTANCE_PERSON_NAME,
+            t1.ACCEPTANCE_TIME,
+            t1.CREATE_BY,
+            t1.CREATE_BY_NAME,
+            t1.CREATE_TIME,
+            t1.UPDATE_BY,
+            t1.UPDATE_BY_NAME,
+            t1.UPDATE_TIME,
+            t3.PROC_INST_ID,
+            CASE
+            WHEN t3.INSTANCE_STATUS IS NULL THEN '0'
+            ELSE t3.INSTANCE_STATUS
+            END AS processStatus,
+            CASE
+            WHEN t2.DICT_LABEL IS NULL THEN '未发起'
+            ELSE t2.DICT_LABEL
+            END AS processStatusLabel
         FROM
-            E_MAT_WAREHOUSE_OUT_APP
+            E_MAT_WAREHOUSE_OUT_APP t1
+        LEFT JOIN BPM_BUSINESS_INSTANCE t3 ON t3.BUSINESS_DATA_ID = t1.ID
+        LEFT JOIN  M_DICT_DATA t2 ON t2.DICT_VALUE = t3.INSTANCE_STATUS  AND t2.DICT_TYPE = 'APPROVAL_STATUS'
         <where>
             DEL_FLAG = 0
             <if test="warehouseOutNo != null and warehouseOutNo != ''">
