@@ -38,6 +38,16 @@
         )
     </insert>
 
+    <!-- 根据订单ID删除报废历史记录 -->
+    <update id="deleteByOrderId">
+        UPDATE E_M_EQUIP_SCRAP_HISTORY SET DEL_FLAG = 1 WHERE ORDER_ID = #{orderId}
+    </update>
 
-
+    <!-- 根据订单ID批量删除报废历史记录 -->
+    <update id="deleteByOrderIds">
+        UPDATE E_M_EQUIP_SCRAP_HISTORY SET DEL_FLAG = 1 WHERE ORDER_ID IN
+        <foreach collection="orderIds" item="orderId" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+    </update>
 </mapper>

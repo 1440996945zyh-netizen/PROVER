@@ -27,4 +27,13 @@ public interface EEquipAllocateHistoryMapper {
      */
     List<AllocateEquipDTO> getEquipListByOrderId(@Param("orderId") Long orderId);
 
+    /**
+     * 根据工单ID删除
+     */
+    int deleteByOrderId(@Param("orderId") Long orderId);
+
+    /**
+     * 根据工单ID批量删除
+     */
+    int deleteByOrderIds(@Param("orderIds") List<Long> orderIds);
 }

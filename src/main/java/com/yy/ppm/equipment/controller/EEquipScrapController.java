@@ -10,8 +10,8 @@ import com.yy.ppm.common.excel.export.utils.ResponseUtils;
 import com.yy.ppm.equipment.bean.dto.EEquipScrapDTO;
 import com.yy.ppm.equipment.bean.dto.EEquipScrapSearchDTO;
 import com.yy.ppm.equipment.bean.dto.ScrapEquipDTO;
-import com.yy.ppm.equipment.service.EEquipScrapHistoryService;
 import com.yy.ppm.equipment.service.EEquipScrapService;
+import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceDTO;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,6 +19,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -156,6 +157,53 @@ public class EEquipScrapController {
         }
 
         LOGGER.exit(methodName + "[end]");
+    }
+
+
+    /**
+     * 设备报废提交审批
+     */
+    @PostMapping("/submitEquipScrap")
+    @PreAuthorize("hasAuthority('bpm:equipment:controller:submitEquipScrap')")
+    @Log(OperateTypeEnum.INSERT)
+    public Map<String, Object> submitEquipScrap(@RequestBody BpmProcessInstanceDTO dto) {
+        final String methodName = "BpmBusinessConfigController:insert";
+        LOGGER.enter(methodName, "提交业务数据");
+
+        scrapService.submitEquipScrap(dto);
+
+        LOGGER.exit(methodName, "新增BPM业务配置完成");
+        return Response.SUCCESS.newBuilder().out("新增成功").toResult();
+    }
+
+    /**
+     * 删除设备报废申请
+     * @param id
+     */
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAuthority('equipment:equipScrap:delete')")
+    @Log(title = "删除设备报废申请", value = OperateTypeEnum.DELETE)
+    public Map<String, Object> delete(@PathVariable("id") Long id) {
+        final String methodName = "EEquipScrapController:delete";
+        LOGGER.enter(methodName + "[start]", "id:" + id);
+        int result = scrapService.deleteById(id);
+        LOGGER.exit(methodName + "result:" + result);
+        return Response.SUCCESS.newBuilder().out("删除成功").toResult(result);
+    }
+
+    /**
+     * 批量删除设备报废申请
+     * @param ids
+     */
+    @DeleteMapping("/deleteBatch")
+    @PreAuthorize("hasAuthority('equipment:equipScrap:delete')")
+    @Log(title = "批量删除设备报废申请", value = OperateTypeEnum.DELETE)
+    public Map<String, Object> deleteBatch(@RequestBody List<Long> ids) {
+        final String methodName = "EEquipScrapController:deleteBatch";
+        LOGGER.enter(methodName + "[start]", "ids:" + ids);
+        int result = scrapService.deleteByIds(ids);
+        LOGGER.exit(methodName + "result:" + result);
+        return Response.SUCCESS.newBuilder().out("删除成功").toResult(result);
     }
 
 }

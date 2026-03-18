@@ -60,5 +60,18 @@ public class EEquipAllocateDTO extends EEquipAllocatePO implements Serializable 
      * 设备列表
      */
     private List<AllocateEquipDTO> equipList;
+    /**
+     * 流程状态
+     */
+    private String processStatus;
+    /**
+     * 流程状态标签
+     */
+    private String processStatusLabel;
+    /**
+     * 流程实例ID
+     */
+    private String procInstId;
+
 
 }

@@ -66,4 +66,22 @@ public interface EEquipScrapMapper extends BaseMapper<EEquipScrapPO> {
      */
     List<EEquipScrapDTO> getListForExport(EEquipScrapSearchDTO searchDTO);
 
+    /**
+     * 功能描述: 根据流程实例ID获取业务ID
+     * @param processInstanceId
+     * @return : java.lang.Long
+     */
+    Long getBusinessDataIdByProcessInstanceId(String processInstanceId);
+
+    /**
+     * 根据ID删除设备报废
+     */
+    @Edit
+    int deleteById(@Param("id") Long id);
+
+    /**
+     * 批量删除设备报废
+     */
+    @Edit
+    int deleteByIds(@Param("ids") List<Long> ids);
 }

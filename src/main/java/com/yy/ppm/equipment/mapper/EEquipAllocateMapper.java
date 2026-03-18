@@ -60,4 +60,20 @@ public interface EEquipAllocateMapper {
      */
     List<EEquipAllocateDTO> getListForExport(EEquipAllocateSearchDTO searchDTO);
 
+    /**
+     * 功能描述: 根据流程实例ID获取业务ID
+     * @param processInstanceId
+     * @return : java.lang.Long
+     */
+    Long getBusinessDataIdByProcessInstanceId(String processInstanceId);
+
+    /**
+     * 根据ID删除设备调拨
+     */
+    int deleteById(@Param("id") Long id);
+
+    /**
+     * 批量删除设备调拨
+     */
+    int deleteByIds(@Param("ids") List<Long> ids);
 }

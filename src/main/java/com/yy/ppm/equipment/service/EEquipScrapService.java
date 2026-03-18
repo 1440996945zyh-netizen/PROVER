@@ -4,6 +4,10 @@ import com.yy.common.page.Pages;
 import com.yy.ppm.equipment.bean.dto.EEquipScrapDTO;
 import com.yy.ppm.equipment.bean.dto.EEquipScrapSearchDTO;
 import com.yy.ppm.equipment.bean.dto.ScrapEquipDTO;
+import com.yy.ppm.equipment.bean.po.EEquipScrapPO;
+import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceDTO;
+
+import java.util.List;
 
 /**
  * @Author: fanxianjin
@@ -37,6 +41,20 @@ public interface EEquipScrapService {
 	 */
 	int confirm(Long id, String flowId);
 
+    /**
+     * 删除设备报废单
+     * @param id
+     * @return
+     */
+    int deleteById(Long id);
+
+    /**
+     * 批量删除设备报废单
+     * @param ids
+     * @return
+     */
+    int deleteByIds(List<Long> ids);
+
 	/**
 	 * 查询报废详情
 	 */
@@ -46,5 +64,20 @@ public interface EEquipScrapService {
 	 * 导出设备报废列表
 	 */
 	byte[] exportList(EEquipScrapSearchDTO searchDTO);
+
+	/**
+	 * 流程提交设备报废申请
+	 */
+	void submitEquipScrap(BpmProcessInstanceDTO dto);
+
+	/**
+	 * 功能描述: 根据流程实例ID获取业务ID
+	 * @return : java.lang.Long
+	 */
+	Long getBusinessDataIdByProcessInstanceId(String processInstanceId);
+
+	int updateStatus(EEquipScrapPO po);
+
+
 
 }

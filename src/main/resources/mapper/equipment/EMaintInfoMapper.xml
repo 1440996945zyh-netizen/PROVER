@@ -544,7 +544,8 @@
         a.APP_NUMBER,
         a.APP_NUMBER || '-' || a.MAINTENANCE_UNIT_NAME AS APP_UNIT_NAME
         FROM E_IC_MAINT_PROJ_APPLY a
-        WHERE a.EQUIP_ID = #{equipId}
+        LEFT JOIN BPM_BUSINESS_INSTANCE t3 ON t3.BUSINESS_DATA_ID = a.ID
+        WHERE a.EQUIP_ID = #{equipId} AND t3.INSTANCE_STATUS = '2'
         AND a.APP_TYPE = #{appType}
         <if test="appNumber != null and appNumber != ''">
             <bind name="appNumberPattern" value="'%' + appNumber + '%'" />

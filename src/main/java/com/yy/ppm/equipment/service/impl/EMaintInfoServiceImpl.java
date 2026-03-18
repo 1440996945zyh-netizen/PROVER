@@ -331,8 +331,8 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
         //只有作废和提报状态的数据可以删除
         Integer status = mapper.selectById(id).getStatus();
         if (status != null) {
-            if (status != 0 && status != 7) {
-                throw new BusinessRuntimeException("只有提报和作废状态的数据可以删除");
+            if (status != 0) {
+                throw new BusinessRuntimeException("只有提报状态的数据可以删除");
             }
         }
         EMaintInfoPO po = new EMaintInfoPO();
