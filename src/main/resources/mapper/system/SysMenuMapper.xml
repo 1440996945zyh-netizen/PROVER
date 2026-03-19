@@ -198,11 +198,6 @@
         A.icon,
         A.create_time,
         A.LINK
-        FROM
-        SYS_MENU A,
-        SYS_ROLE_MENU B,
-        SYS_ROLE_USER C
-        where
         <if test="isAdmin == 1">
             FROM
             SYS_MENU A
