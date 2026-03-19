@@ -50,47 +50,60 @@
     <!-- 根据入库主表ID查询明细列表 -->
     <select id="selectListByWarehouseInId" resultType="com.yy.ppm.equipment.bean.dto.EMaterialWarehouseInDetailDTO">
         SELECT
-            ID,
-            WAREHOUSE_IN_ID,
-            APPLICATION_ID,
-            APPLICATION_DEPT_ID,
-            APPLICATION_DEPT_NAME,
-            PURCHASE_QUANTITY,
-            MATERIAL_NAME,
-            SPECIFICATION,
-            SPECIFICATION_DESC,
-            BRAND,
-            SUPPLIER_ID,
-            SUPPLIER_NAME,
-            WAREHOUSE_IN_QUANTITY,
-            OUT_QUANTITY,
-            REMAINING_QUANTITY,
-            UNIT,
-            UNIT_CODE,
-            TAX_EXCLUDED_UNIT_PRICE,
-            TAX_INCLUDED_UNIT_PRICE,
-            TAX_EXCLUDED_AMOUNT,
-            TAX_INCLUDED_AMOUNT,
-            INVOICED_AMOUNT,
-            UNINVOICED_AMOUNT,
-            TAX_AMOUNT,
-            TAX_RATE,
-            MATERIAL_CODE,
-            MATERIAL_ID,
-            WARRANTY_EXPIRY_DATE,
-            PURCHASER_ID,
-            PURCHASER_NAME,
-            CREATE_BY,
-            CREATE_BY_NAME,
-            CREATE_TIME,
-            UPDATE_BY,
-            UPDATE_BY_NAME,
-            UPDATE_TIME
+            t1.ID,
+            t1.WAREHOUSE_IN_ID,
+            t1.APPLICATION_ID,
+            t1.APPLICATION_DEPT_ID,
+            t1.APPLICATION_DEPT_NAME,
+            t1.PURCHASE_QUANTITY,
+            t1.MATERIAL_NAME,
+            t1.SPECIFICATION,
+            t1.SPECIFICATION_DESC,
+            t1.BRAND,
+            t1.SUPPLIER_ID,
+            t1.SUPPLIER_NAME,
+            NVL(t2.WAREHOUSE_IN_QUANTITY, 0) AS WAREHOUSE_IN_QUANTITY,
+            (t1.PURCHASE_QUANTITY - NVL(t2.WAREHOUSE_IN_QUANTITY, 0)) AS REMAINING_QUANTITY,
+            t1.OUT_QUANTITY,
+            t1.UNIT,
+            t1.UNIT_CODE,
+            t1.TAX_EXCLUDED_UNIT_PRICE,
+            t1.TAX_INCLUDED_UNIT_PRICE,
+            t1.TAX_EXCLUDED_AMOUNT,
+            t1.TAX_INCLUDED_AMOUNT,
+            t1.INVOICED_AMOUNT,
+            t1.UNINVOICED_AMOUNT,
+            t1.TAX_AMOUNT,
+            t1.TAX_RATE,
+            t1.MATERIAL_CODE,
+            t1.MATERIAL_ID,
+            t1.WARRANTY_EXPIRY_DATE,
+            t1.PURCHASER_ID,
+            t1.PURCHASER_NAME,
+            t1.CREATE_BY,
+            t1.CREATE_BY_NAME,
+            t1.CREATE_TIME,
+            t1.UPDATE_BY,
+            t1.UPDATE_BY_NAME,
+            t1.UPDATE_TIME
         FROM
-            E_MATERIAL_WAREHOUSE_IN_DETAIL
+            E_MATERIAL_WAREHOUSE_IN_DETAIL t1
+                LEFT JOIN (
+                SELECT
+                    AD_INNER.id APPLICATION_ID ,
+                    SUM(WID.WAREHOUSE_IN_QUANTITY) AS WAREHOUSE_IN_QUANTITY
+                FROM
+                    E_MATERIAL_WAREHOUSE_IN_DETAIL WID
+                        INNER JOIN E_MATERIAL_APPLICATION_DETAIL AD_INNER ON WID.APPLICATION_ID = AD_INNER.ID
+                WHERE
+                    WID.APPLICATION_ID IS NOT NULL
+                  AND AD_INNER.PURCHASE_DETAIL_ID IS NOT NULL
+                GROUP BY
+                    AD_INNER.id
+            ) t2 ON t1.APPLICATION_ID = t2.APPLICATION_ID
         WHERE
-            WAREHOUSE_IN_ID = #{warehouseInId}
-        ORDER BY CREATE_TIME ASC
+            t1.WAREHOUSE_IN_ID = #{warehouseInId}
+        ORDER BY t1.CREATE_TIME ASC
     </select>
 
     <!-- 批量新增物资入库明细 -->

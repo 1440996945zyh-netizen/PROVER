@@ -306,6 +306,7 @@
             GROUP BY
                 WID.MATERIAL_ID
         ) STOCK ON AD.MATERIAL_ID = STOCK.MATERIAL_ID
+        LEFT JOIN BPM_BUSINESS_INSTANCE t3 ON t3.BUSINESS_DATA_ID = A.ID
         <where>
             A.DEL_FLAG = 0
             AND EXISTS (
@@ -327,7 +328,7 @@
                 AND A.WAREHOUSE_ID = #{warehouseId}
             </if>
             <if test="status != null and status != ''">
-                AND A.STATUS = #{status}
+                and t3.INSTANCE_STATUS = #{status}
             </if>
             <if test="createBy != null">
                 AND A.CREATE_BY = #{createBy}
