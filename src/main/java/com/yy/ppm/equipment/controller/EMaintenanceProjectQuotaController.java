@@ -102,9 +102,6 @@ public class EMaintenanceProjectQuotaController {
         final String methodName = "EMaintenanceProjectQuotaController:delete";
         LOGGER.enter(methodName + "[start]", "id:" + id);
 
-
-
-
         service.delete(id);
 
         LOGGER.exit(methodName + "[end]");
