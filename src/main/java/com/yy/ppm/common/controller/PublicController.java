@@ -93,7 +93,6 @@ public class PublicController {
 
         List<String> typeList = new ArrayList<>();
         if (isNotBlank(types)) {
-
             typeList = Arrays.asList(types.split(","));
         }
         typeList = typeList.stream().filter(v1 -> isNotBlank(v1)).collect(Collectors.toList());
