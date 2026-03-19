@@ -198,6 +198,7 @@
         A.icon,
         A.create_time,
         A.LINK
+
         FROM
             SYS_MENU A,
             SYS_ROLE_MENU B,
@@ -208,6 +209,26 @@
           AND B.MENU_ID = A.ID
           AND A.DATA_TYPE = 'APP'
           AND A.status =  0
+
+        <if test="isAdmin == 1">
+            FROM
+            SYS_MENU A
+            WHERE
+            A.DATA_TYPE = 'APP'
+            AND A.status =  0
+        </if>
+        <if test="isAdmin != 1">
+            FROM
+            SYS_MENU A,
+            SYS_ROLE_MENU B,
+            SYS_ROLE_USER C
+            where
+            C.USER_ID = #{userId}
+            AND C.ROLE_ID = B.ROLE_ID
+            AND B.MENU_ID = A.ID
+            AND A.DATA_TYPE = 'APP'
+            AND A.status =  0
+        </if>
         order by parent_id, order_num
     </select>
 
