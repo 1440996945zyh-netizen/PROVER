@@ -367,8 +367,8 @@ public class EMaterialOutApplicationServiceImpl implements EMaterialOutApplicati
 //            }
 //        }
 
-        // 只查询审核通过的申请（状态为'3'）
-        searchDTO.setStatus("3");
+        // 只查询审核通过的申请（状态为'2'）
+        searchDTO.setStatus("2");
 
         // 使用一个SQL查询主表和明细（包含库存数量）
         Pages<EMaterialOutApplicationDTO> result = PageHelperUtils.limit(searchDTO, () -> mapper.selectListWithDetails(searchDTO));
