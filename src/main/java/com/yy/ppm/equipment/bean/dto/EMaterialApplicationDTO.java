@@ -3,6 +3,7 @@ package com.yy.ppm.equipment.bean.dto;
 import com.yy.ppm.equipment.bean.po.EMaterialApplicationPO;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -25,5 +26,7 @@ public class EMaterialApplicationDTO extends EMaterialApplicationPO {
     private String processStatus;
     private String processStatusLabel;
     private String procInstId;
+
+    private BigDecimal availableInventory;
 }
 

@@ -311,7 +311,7 @@ public class EMaterialOutApplicationServiceImpl implements EMaterialOutApplicati
             if (totalQuantity.compareTo(stockQuantity) > 0) {
                 String materialName = materialNameMap.getOrDefault(materialId, "未知物资");
                 throw new BusinessRuntimeException(
-                    String.format("物资【%s】的申请数量（%s）+ 已出库数量（%s）= %s，超过了库存数量（%s）",
+                    String.format("物资【%s】的申请数量（%s）+ 已申请数量（%s）= %s，超过了库存数量（%s）",
                         materialName,
                         totalApplicationQuantity,
                         outQuantity,

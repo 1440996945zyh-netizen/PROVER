@@ -16,8 +16,10 @@ import com.yy.ppm.equipment.bean.po.EMaterialApplicationPO;
 import com.yy.ppm.equipment.bean.po.EMaterialApplicationDetailPO;
 import com.yy.ppm.equipment.mapper.EMaterialApplicationDetailMapper;
 import com.yy.ppm.equipment.mapper.EMaterialApplicationMapper;
+import com.yy.ppm.equipment.mapper.EMaterialOutApplicationDetailMapper;
 import com.yy.ppm.equipment.mapper.EMaterialWarehouseInDetailMapper;
 import com.yy.ppm.equipment.service.EMaterialApplicationService;
+import com.yy.ppm.equipment.service.EMaterialWarehouseInService;
 import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceDTO;
 import com.yy.ppm.flowable.service.BpmProcessInstanceService;
 import lombok.RequiredArgsConstructor;
@@ -61,6 +63,13 @@ public class EMaterialApplicationServiceImpl implements EMaterialApplicationServ
 
     @Resource
     BpmProcessInstanceService bpmProcessInstanceService;
+
+    @Resource
+    private EMaterialOutApplicationDetailMapper eMaterialOutApplicationDetailMapper;
+
+    @Resource
+    private EMaterialWarehouseInService warehouseInService;
+
 
     /**
      * 查询物资申报列表（分页）
@@ -306,12 +315,39 @@ public class EMaterialApplicationServiceImpl implements EMaterialApplicationServ
                 searchDTO.setCreateBy(userInfo.getId());
             }
         }
-        
-        // 只查询审核通过的申报（状态为'3'）
-        searchDTO.setStatus("3");
+
+
         
         // 使用一个SQL查询主表和明细（包含库存数量）
         Pages<EMaterialApplicationDTO> result = PageHelperUtils.limit(searchDTO, () -> mapper.selectListWithDetails(searchDTO));
+
+        for (EMaterialApplicationDTO page : result.getPages()) {
+
+
+
+
+            page.getDetailList().stream().forEach(detail -> {
+
+
+                // 查询库存数量
+                java.math.BigDecimal stockQuantity = warehouseInService.getStockQuantity(detail.getMaterialCodeId(), searchDTO.getWarehouseId());
+                if (stockQuantity == null) {
+                    stockQuantity = java.math.BigDecimal.ZERO;
+                }
+
+                // 查询已出库数量（已审批通过的出库申请明细的申请数量总和）
+                java.math.BigDecimal outQuantity = eMaterialOutApplicationDetailMapper.selectOutQuantityByMaterialAndWarehouse(detail.getMaterialCodeId(), searchDTO.getWarehouseId(), null);
+                if (outQuantity == null) {
+                    outQuantity = java.math.BigDecimal.ZERO;
+                }
+                if ((stockQuantity.subtract(outQuantity)).compareTo(java.math.BigDecimal.ZERO) > 0){
+                    detail.setAvailableInventory(stockQuantity.subtract(outQuantity));
+                }else {
+                    detail.setAvailableInventory(java.math.BigDecimal.ZERO);
+                }
+            });
+
+        }
         
         return result;
     }

@@ -42,5 +42,6 @@ public interface EMaterialWarehouseInService {
      * @return 库存数量
      */
     java.math.BigDecimal getStockQuantity(Long materialId, Long warehouseId);
+    java.math.BigDecimal getAvailableInventory(Long materialId, Long warehouseId);
 }
 

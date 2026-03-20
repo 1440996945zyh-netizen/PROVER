@@ -177,15 +177,20 @@
         FROM
             E_MAT_WAREHOUSE_OUT_APP_DETAIL AD
         INNER JOIN E_MAT_WAREHOUSE_OUT_APP A ON AD.WAREHOUSE_OUT_APP_ID = A.ID
+        LEFT JOIN E_MAT_WAREHOUSE_OUT_DETAIL t2 on t2.WAREHOUSE_OUT_APP_DETAIL_ID=AD.ID
+        LEFT JOIN E_MAT_WAREHOUSE_OUT t1 ON t1.ID = t2.WAREHOUSE_OUT_ID
+        LEFT JOIN BPM_BUSINESS_INSTANCE t3 ON t3.BUSINESS_DATA_ID = A.ID
+
         WHERE
             AD.MATERIAL_ID = #{materialId}
             AND A.WAREHOUSE_ID = #{warehouseId}
-            AND A.STATUS = '3'
-            AND AD.DEL_FLAG = 0
+        AND ((t3.INSTANCE_STATUS !='3' AND t3.INSTANCE_STATUS !='4' ) OR  t3.INSTANCE_STATUS IS NULL  )
+        AND AD.DEL_FLAG = 0
             AND A.DEL_FLAG = 0
             <if test="excludeOutApplicationId != null">
                 AND A.ID != #{excludeOutApplicationId}
             </if>
+        and (t1.status!='1' OR t1.STATUS IS NULL )
     </select>
 
 </mapper>

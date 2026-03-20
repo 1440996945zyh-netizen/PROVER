@@ -38,5 +38,10 @@ public class EMaterialApplicationDetailDTO extends EMaterialApplicationDetailPO 
      * 库存数量（根据物资ID和仓库ID查询）
      */
     private java.math.BigDecimal stockQuantity;
+
+    /**
+     * 可用库存数量（根据物资ID和仓库ID查询）
+     */
+    private java.math.BigDecimal availableInventory;
 }
 

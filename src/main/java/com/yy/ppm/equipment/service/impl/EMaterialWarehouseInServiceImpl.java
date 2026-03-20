@@ -16,6 +16,7 @@ import com.yy.ppm.equipment.bean.dto.EMaterialWarehouseInSearchDTO;
 import com.yy.ppm.equipment.bean.po.EMaterialWarehouseInPO;
 import com.yy.ppm.equipment.bean.po.EMaterialWarehouseInDetailPO;
 import com.yy.ppm.equipment.mapper.EMaterialApplicationDetailMapper;
+import com.yy.ppm.equipment.mapper.EMaterialOutApplicationDetailMapper;
 import com.yy.ppm.equipment.mapper.EMaterialWarehouseInDetailMapper;
 import com.yy.ppm.equipment.mapper.EMaterialWarehouseInMapper;
 import com.yy.ppm.equipment.service.EMaterialWarehouseInService;
@@ -61,6 +62,10 @@ public class EMaterialWarehouseInServiceImpl implements EMaterialWarehouseInServ
 
     @Resource
     private SysFileService sysFileService;
+
+    @Resource
+    private EMaterialOutApplicationDetailMapper eMaterialOutApplicationDetailMapper;
+
 
     /**
      * 查询物资入库列表（分页）
@@ -373,6 +378,33 @@ public class EMaterialWarehouseInServiceImpl implements EMaterialWarehouseInServ
         // warehouseId 为 null 时，查询所有仓库的库存总和
         BigDecimal stockQuantity = detailMapper.getStockQuantity(materialId, warehouseId);
         return stockQuantity != null ? stockQuantity : BigDecimal.ZERO;
+    }
+
+    /**
+     * 查询物资库存数量（按物资ID和仓库ID）
+     */
+    @Override
+    public BigDecimal getAvailableInventory(Long materialId, Long warehouseId) {
+
+        java.math.BigDecimal availableInventory = java.math.BigDecimal.ZERO;
+
+        // 查询库存数量
+        java.math.BigDecimal stockQuantity =getStockQuantity(materialId, warehouseId);
+        if (stockQuantity == null) {
+            stockQuantity = java.math.BigDecimal.ZERO;
+        }
+
+        // 查询已出库数量（已审批通过的出库申请明细的申请数量总和）
+        java.math.BigDecimal outQuantity = eMaterialOutApplicationDetailMapper.selectOutQuantityByMaterialAndWarehouse(materialId,warehouseId, null);
+        if (outQuantity == null) {
+            outQuantity = java.math.BigDecimal.ZERO;
+        }
+        if ((stockQuantity.subtract(outQuantity)).compareTo(java.math.BigDecimal.ZERO) > 0) {
+            availableInventory = (stockQuantity.subtract(outQuantity));
+
+
+        }
+        return availableInventory;
     }
 }
 

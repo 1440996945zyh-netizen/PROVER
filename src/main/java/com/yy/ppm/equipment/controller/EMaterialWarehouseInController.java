@@ -134,5 +134,23 @@ public class EMaterialWarehouseInController {
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("查询成功").toResult(stockQuantity);
     }
+
+
+
+    /**
+     * 查询物资可用数量（按物资ID和仓库ID）
+     */
+    @GetMapping("/getAvailableInventory")
+    @PreAuthorize("hasAuthority('equipment:materialWarehouseIn:getAvailableInventory')")
+    public Map<String, Object> getAvailableInventory(@RequestParam("materialId") Long materialId,
+                                                @RequestParam(value = "warehouseId", required = false) Long warehouseId) {
+        final String methodName = "EMaterialWarehouseInController:getStockQuantity";
+        LOGGER.enter(methodName + "[start]", "materialId:" + materialId + ", warehouseId:" + warehouseId);
+
+        java.math.BigDecimal stockQuantity = service.getAvailableInventory(materialId, warehouseId);
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("查询成功").toResult(stockQuantity);
+    }
 }
 
