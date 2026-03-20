@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMaterialWarningConfigMapper">
+
+
+
+    <!-- 查询物资预警配置列表（分页） -->
+    <select id="selectList" resultType="com.yy.ppm.equipment.bean.dto.EMaterialWarningConfigDTO">
+        SELECT
+            T1.ID,
+            T1.MATERIAL_ID,
+            T1.WARNING_THRESHOLD,
+            T1.RECEIVERS,
+            T1.STATUS,
+            DECODE(T1.STATUS, '1', '启用', '0', '禁用', '') AS statusLabel,
+            T1.CREATE_BY,
+            T1.CREATE_TIME,
+            T1.UPDATE_BY,
+            T1.UPDATE_TIME,
+            T2.MATERIAL_NAME,
+            T2.SPECIFICATION_MODEL,
+            T2.BRAND,
+            T2.UNIT_NAME,
+            S1.USER_NAME AS createByName
+        FROM
+            E_MATERIAL_WARNING_CONFIG T1
+        LEFT JOIN E_MATERIAL_CODE T2 ON T1.MATERIAL_ID = T2.ID
+        LEFT JOIN SYS_USER S1 ON T1.CREATE_BY = S1.ID
+    </select>
+    <!-- 根据主键ID查询详情 -->
+    <select id="selectById" resultType="com.yy.ppm.equipment.bean.dto.EMaterialWarningConfigDTO">
+        SELECT
+            T1.ID,
+            T1.MATERIAL_ID,
+            T1.WARNING_THRESHOLD,
+            T1.RECEIVERS,
+            T1.STATUS,
+            T1.CREATE_BY,
+            T1.CREATE_TIME,
+            T1.UPDATE_BY,
+            T1.UPDATE_TIME,
+            T2.MATERIAL_NAME,
+            T2.SPECIFICATION_MODEL,
+            T2.BRAND,
+            T2.UNIT_NAME
+        FROM
+            E_MATERIAL_WARNING_CONFIG T1
+        LEFT JOIN E_MATERIAL_CODE T2 ON T1.MATERIAL_ID = T2.ID
+        WHERE
+            T1.ID = #{id}
+    </select>
+    <!-- 新增物资预警配置 -->
+    <insert id="add" parameterType="com.yy.ppm.equipment.bean.po.EMaterialWarningConfigPO">
+        INSERT INTO E_MATERIAL_WARNING_CONFIG
+        (
+            ID,
+            MATERIAL_ID,
+            WARNING_THRESHOLD,
+            RECEIVERS,
+            STATUS,
+            CREATE_BY,
+            CREATE_TIME
+        )
+        VALUES
+            (
+                #{id,jdbcType=NUMERIC},
+                #{materialId,jdbcType=NUMERIC},
+                #{warningThreshold,jdbcType=NUMERIC},
+                #{receivers,jdbcType=VARCHAR},
+                #{status,jdbcType=VARCHAR},
+                #{loginUserId,jdbcType=NUMERIC},
+                #{now,jdbcType=TIMESTAMP}
+            )
+    </insert>
+    <!-- 修改物资预警配置 -->
+    <update id="update">
+        UPDATE
+            E_MATERIAL_WARNING_CONFIG
+        SET
+            MATERIAL_ID = #{materialId,jdbcType=NUMERIC},
+            WARNING_THRESHOLD = #{warningThreshold,jdbcType=NUMERIC},
+            RECEIVERS = #{receivers,jdbcType=VARCHAR},
+            STATUS = #{status,jdbcType=VARCHAR},
+            UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
+            UPDATE_TIME = #{now,jdbcType=TIMESTAMP}
+        WHERE
+            ID = #{id}
+    </update>
+    <!-- 修改状态 -->
+    <update id="updateStatus">
+        UPDATE
+            E_MATERIAL_WARNING_CONFIG
+        SET
+            STATUS = #{status,jdbcType=VARCHAR},
+            UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
+            UPDATE_TIME = #{now,jdbcType=TIMESTAMP}
+        WHERE
+            ID = #{id}
+    </update>
+    <!-- 删除物资预警配置 -->
+    <delete id="delete">
+        DELETE FROM E_MATERIAL_WARNING_CONFIG WHERE ID = #{id}
+    </delete>
+</mapper>
+
