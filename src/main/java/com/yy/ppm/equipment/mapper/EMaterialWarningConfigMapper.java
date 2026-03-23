@@ -63,4 +63,8 @@ public interface EMaterialWarningConfigMapper {
     void delete(@Param("id") Long id);
 
 
+    /**
+     * 查启用中的预警配置
+     */
+    java.util.List<EMaterialWarningConfigDTO> selectEnabledList();
 }

@@ -112,5 +112,17 @@ public class EMaterialWarningConfigController {
         return Response.SUCCESS.newBuilder().out("删除成功").toResult();
     }
 
+    /**
+     * 生成预警消息
+     */
+    @GetMapping("/generateWarningRecord")
+    public Map<String, Object> generateWarningRecord() {
+        final String methodName = "EMaterialWarningConfigController:generateWarningRecord";
+        LOGGER.enter(methodName + "[start]");
 
+        Integer count = eMaterialWarningConfigService.generateWarningRecord();
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("生成成功").toResult(java.util.Map.of("count", count));
+    }
 }

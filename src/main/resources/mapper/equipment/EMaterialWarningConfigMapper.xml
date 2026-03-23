@@ -108,5 +108,20 @@
     <delete id="delete">
         DELETE FROM E_MATERIAL_WARNING_CONFIG WHERE ID = #{id}
     </delete>
+
+    <!-- 查启用中的预警配置 -->
+    <select id="selectEnabledList" resultType="com.yy.ppm.equipment.bean.dto.EMaterialWarningConfigDTO">
+        SELECT
+            T1.ID,
+            T1.MATERIAL_ID,
+            T1.WARNING_THRESHOLD,
+            T1.RECEIVERS,
+            T1.RECEIVER_NAMES,
+            T1.STATUS,
+            T2.MATERIAL_NAME
+        FROM E_MATERIAL_WARNING_CONFIG T1
+                 LEFT JOIN E_MATERIAL_CODE T2 ON T1.MATERIAL_ID = T2.ID
+        WHERE T1.STATUS = '1'
+    </select>
 </mapper>
 

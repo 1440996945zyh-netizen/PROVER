@@ -43,5 +43,9 @@ public interface EMaterialWarningConfigService {
      */
     void deleteById(Long id);
 
+    /**
+     * 生成预警消息
+     */
+    Integer generateWarningRecord();
 
 }

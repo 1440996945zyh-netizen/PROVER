@@ -6,11 +6,18 @@ import com.yy.common.util.PageHelperUtils;
 import com.yy.ppm.equipment.bean.dto.EMaterialWarningConfigDTO;
 import com.yy.ppm.equipment.bean.dto.EMaterialWarningConfigSearchDTO;
 import com.yy.ppm.equipment.bean.po.EMaterialWarningConfigPO;
+import com.yy.ppm.equipment.bean.po.EMaterialWarningRecordPO;
+import com.yy.ppm.equipment.mapper.EMaterialWarehouseInDetailMapper;
 import com.yy.ppm.equipment.mapper.EMaterialWarningConfigMapper;
+import com.yy.ppm.equipment.mapper.EMaterialWarningRecordMapper;
 import com.yy.ppm.equipment.service.EMaterialWarningConfigService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @author FanQi
@@ -23,6 +30,12 @@ public class EMaterialWarningConfigServiceImpl implements EMaterialWarningConfig
 
    @Autowired
     private EMaterialWarningConfigMapper eMaterialWarningConfigMapper;
+
+    @Autowired
+    private EMaterialWarehouseInDetailMapper eMaterialWarehouseInDetailMapper;
+
+    @Autowired
+    private EMaterialWarningRecordMapper eMaterialWarningRecordMapper;
 
     @Resource
     private Snowflake snowflake;
@@ -79,7 +92,52 @@ public class EMaterialWarningConfigServiceImpl implements EMaterialWarningConfig
         eMaterialWarningConfigMapper.delete(id);
     }
 
+    /**
+     * 扫描预警配置并生成预警消息
+     */
+    @Override
+    public Integer generateWarningRecord() {
+        List<EMaterialWarningConfigDTO> configList = eMaterialWarningConfigMapper.selectEnabledList();
+        if (configList == null || configList.isEmpty()) {
+            return 0;
+        }
 
+        int count = 0;
 
+        for (EMaterialWarningConfigDTO config : configList) {
+            if (config.getMaterialId() == null || config.getWarningThreshold() == null) {
+                continue;
+            }
+
+            // 当前库存 = 未出库数量汇总
+            BigDecimal currentStock = eMaterialWarehouseInDetailMapper.getStockQuantity(config.getMaterialId(), null);
+            if (currentStock == null) {
+                currentStock = BigDecimal.ZERO;
+            }
+
+            // 阈值大于库存，触发预警
+            if (config.getWarningThreshold().compareTo(currentStock) > 0) {
+                // 未处理预警数据不重复插入数据
+                Long exists = eMaterialWarningRecordMapper.countUnhandledByMaterialId(config.getMaterialId());
+                if (exists != null && exists > 0) {
+                    continue;
+                }
+
+                EMaterialWarningRecordPO recordPO = new EMaterialWarningRecordPO();
+                recordPO.setId(snowflake.nextId());
+                recordPO.setMaterialId(config.getMaterialId());
+                recordPO.setMaterialName(config.getMaterialName());
+                recordPO.setCurrentStock(currentStock);
+                recordPO.setWarningThreshold(config.getWarningThreshold());
+                recordPO.setReceivers(config.getReceivers());
+                recordPO.setHandleStatus(0);
+
+                eMaterialWarningRecordMapper.add(recordPO);
+                count++;
+            }
+        }
+
+        return count;
+    }
 
 }
