@@ -28,9 +28,10 @@ public class EMaterialWarningConfigPO extends BasePO {
      */
     private BigDecimal warningThreshold;
     /**
-     * 预警接收人ID
+     * 预警接收人
      */
     private String receivers;
+    private String receiverNames;
     /**
      * 状态 1-启用 0-禁用
      */
