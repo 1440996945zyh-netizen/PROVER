@@ -19,6 +19,8 @@ import com.yy.ppm.equipment.service.MEquipmentSpecialService;
 import com.yy.ppm.equipment.service.MEquipmentSupplyService;
 import com.yy.ppm.common.service.SysFileService;
 import com.yy.ppm.equipment.util.ChangeLogUtil;
+import com.yy.ppm.system.bean.dto.SysUserDTO;
+import com.yy.ppm.system.service.SysUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -59,6 +61,9 @@ public class MEquipmentInfoServiceImpl implements MEquipmentInfoService {
     private SysFileService sysFileService;
 
     @Resource
+    private SysUserService sysUserService;
+
+    @Resource
     private ChangeLogUtil changeLogUtil;
 
     /**
@@ -81,7 +86,13 @@ public class MEquipmentInfoServiceImpl implements MEquipmentInfoService {
         if (dto == null) {
             return null;
         }
-
+        // 查询负责人名称
+        if (dto.getResponsiCode() != null) {
+            SysUserDTO sysUserDTO = sysUserService.getById(dto.getResponsiCode());
+            if (sysUserDTO != null) {
+                dto.setResponsiName(sysUserDTO.getUserName());
+            }
+        }
         // 查询供货信息并映射到DTO（字段映射：productionCode->factoryNumber, equipBuyDate->purchaseTime, equipUseDate->usageTime, supplyCompany->supplierUnit）
         MEquipmentSupplyDTO supplyDTO = supplyService.getByEquipId(id);
         if (supplyDTO != null) {
@@ -350,7 +361,7 @@ public class MEquipmentInfoServiceImpl implements MEquipmentInfoService {
 
         // 获取旧数据用于比较
         MEquipmentInfoDTO oldData = getById(dto.getId());
-
+        oldData.setResponsiName(null);
         // 更新数据
         mapper.update(po);
 
@@ -361,7 +372,9 @@ public class MEquipmentInfoServiceImpl implements MEquipmentInfoService {
     /**
      * 记录设备基本信息变更
      */
-    private void recordBasicInfoChange(Long equipId, MEquipmentInfoDTO oldData, MEquipmentInfoDTO newData) {
+
+    @Override
+    public void recordBasicInfoChange(Long equipId, MEquipmentInfoDTO oldData, MEquipmentInfoDTO newData) {
         if (oldData == null || newData == null) {
             return;
         }
@@ -383,6 +396,10 @@ public class MEquipmentInfoServiceImpl implements MEquipmentInfoService {
         addChangeIfDifferent(changes, "insuranceDate", oldData.getInsuranceDate(), newData.getInsuranceDate(), "保险期限");
         addChangeIfDifferent(changes, "sourceTypeName", oldData.getSourceTypeName(), newData.getSourceTypeName(), "能源类型");
         addChangeIfDifferent(changes, "remark", oldData.getRemark(), newData.getRemark(), "备注");
+        addChangeIfDifferent(changes, "useOrgName", oldData.getUseOrgName(), newData.getUseOrgName(), "所属部门");
+        addChangeIfDifferent(changes, "useCompanyName", oldData.getUseCompanyName(), newData.getUseCompanyName(), "所属单位");
+        addChangeIfDifferent(changes, "equipStateName", oldData.getEquipStateName(), newData.getEquipStateName(), "设备状态");
+        addChangeIfDifferent(changes, "responsiName", oldData.getResponsiName(), newData.getResponsiName(), "负责人");
 
         if (!changes.isEmpty()) {
             changeLogUtil.recordChange(equipId, "BASIC_INFO", changes);

@@ -37,10 +37,7 @@
             END AS processStatusLabel
         FROM
             E_COST_SETTLEMENT_APPLY t1
-        LEFT JOIN (
-            SELECT b.*, ROW_NUMBER() OVER(PARTITION BY BUSINESS_DATA_ID ORDER BY CREATE_TIME DESC, ID DESC) as rn
-            FROM BPM_BUSINESS_INSTANCE b
-        ) t3 ON t3.BUSINESS_DATA_ID = t1.ID AND t3.rn = 1
+        LEFT JOIN BPM_BUSINESS_INSTANCE t3 ON t3.BUSINESS_DATA_ID = t1.ID
         LEFT JOIN  M_DICT_DATA t2 ON t2.DICT_VALUE = t3.INSTANCE_STATUS  AND t2.DICT_TYPE = 'APPROVAL_STATUS'
         <where>
             <if test="settlementNo != null and settlementNo != ''">

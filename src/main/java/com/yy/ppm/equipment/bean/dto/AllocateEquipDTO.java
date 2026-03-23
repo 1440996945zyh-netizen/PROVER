@@ -127,10 +127,20 @@ public class AllocateEquipDTO implements Serializable {
      * 备注
      */
     private String remark;
+    /**
+     * 设备负责人
+     */
+    private Long responsiCode;
+    /**
+     * 设备负责人
+     */
+    private String responsiName;
+
 
     /**
      * 变更历史记录JSON
      */
     private String lastChangeInfo;
+
 
 }

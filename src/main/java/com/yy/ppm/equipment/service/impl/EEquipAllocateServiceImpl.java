@@ -20,9 +20,11 @@ import com.yy.ppm.equipment.mapper.EEquipAllocateMapper;
 import com.yy.ppm.equipment.mapper.MEquipmentInfoMapper;
 import com.yy.ppm.equipment.service.EEquipAllocateHistoryService;
 import com.yy.ppm.equipment.service.EEquipAllocateService;
+import com.yy.ppm.equipment.service.MEquipmentInfoService;
 import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceDTO;
 import com.yy.ppm.flowable.service.BpmProcessInstanceService;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +66,9 @@ public class EEquipAllocateServiceImpl implements EEquipAllocateService {
 
 	@Resource
 	private MEquipmentInfoMapper mEquipmentInfoMapper;
+
+	@Resource
+	private MEquipmentInfoService mEquipmentInfoService;
 
 	@Resource
 	BpmProcessInstanceService bpmProcessInstanceService;
@@ -166,30 +171,44 @@ public class EEquipAllocateServiceImpl implements EEquipAllocateService {
 		final String methodName = "EEquipAllocateServiceImpl:confirm";
 		LOGGER.enter(methodName, "确认调拨，id:" + id);
 
-		EEquipAllocatePO allocatePO = null;
-		if (StringUtils.isNotEmpty(flowId)) {
-			allocatePO = allocateMapper.getByFlowId(flowId);
-		} else {
-			allocatePO = allocateMapper.selectById(id);
-		}
-
-		if (allocatePO == null) {
+		EEquipAllocateDTO allocateDTO = allocateMapper.getById(id);
+		if (allocateDTO == null) {
 			throw new BusinessRuntimeException("调拨申请不存在");
 		}
 
-		List<EEquipAllocateHistoryPO> historyList = allocateHistoryMapper.getHistoryByOrderId(allocatePO.getId());
-
-		if (!historyList.isEmpty()) {
+		List<EEquipAllocateHistoryPO> historyList = allocateHistoryMapper.getHistoryByOrderId(allocateDTO.getId());
+		if (CollectionUtils.isNotEmpty(historyList)) {
 			for (EEquipAllocateHistoryPO history : historyList) {
 				if (StringUtils.isNotEmpty(history.getLastChangeInfo())) {
 					try {
+						MEquipmentInfoDTO mEquipmentInfoDTO = mEquipmentInfoService.getById(history.getEquipId());
 						AllocateEquipDTO equipDTO = JSON.parseObject(history.getLastChangeInfo(), AllocateEquipDTO.class);
+						MEquipmentInfoDTO oldData = new MEquipmentInfoDTO();
+						oldData.setId(equipDTO.getEquipId());
+						oldData.setUseCompanyId(equipDTO.getUseCompanyId());
+						oldData.setUseCompanyName(equipDTO.getUseCompanyName());
+						oldData.setUseOrgId(equipDTO.getUseOrgId());
+						oldData.setUseOrgName(equipDTO.getUseOrgName());
+						oldData.setResponsiCode(mEquipmentInfoDTO.getResponsiCode());
+						oldData.setResponsiName(mEquipmentInfoDTO.getResponsiName());
+						MEquipmentInfoDTO newData = new MEquipmentInfoDTO();
+						newData.setId(equipDTO.getEquipId());
+						newData.setUseCompanyId(allocateDTO.getToCompanyId());
+						newData.setUseCompanyName(allocateDTO.getToCompanyName());
+						newData.setUseOrgId(allocateDTO.getToOrgId());
+						newData.setUseOrgName(allocateDTO.getToOrgName());
+						newData.setResponsiCode(equipDTO.getResponsiCode());
+						newData.setResponsiName(equipDTO.getResponsiName());
+						mEquipmentInfoService.recordBasicInfoChange(equipDTO.getEquipId(), oldData, newData);
+
 						// 更新设备所属单位和部门
 						MEquipmentInfoPO mEquipmentInfoPO = new MEquipmentInfoPO();
 						mEquipmentInfoPO.setId(equipDTO.getEquipId());
-						mEquipmentInfoPO.setUseCompanyId(allocatePO.getToCompanyId());
-						mEquipmentInfoPO.setUseOrgId(allocatePO.getToOrgId());
+						mEquipmentInfoPO.setUseCompanyId(allocateDTO.getToCompanyId());
+						mEquipmentInfoPO.setUseOrgId(allocateDTO.getToOrgId());
+						mEquipmentInfoPO.setResponsiCode(equipDTO.getResponsiCode());
 						mEquipmentInfoMapper.update(mEquipmentInfoPO);
+
 					} catch (Exception e) {
 						LOGGER.error(methodName, "解析设备JSON失败， equipId:" + history.getEquipId());
 					}
@@ -202,7 +221,7 @@ public class EEquipAllocateServiceImpl implements EEquipAllocateService {
 		Date now = new Date();
 
 		EEquipAllocatePO updatePO = new EEquipAllocatePO();
-		updatePO.setId(allocatePO.getId());
+		updatePO.setId(allocateDTO.getId());
 		updatePO.setStatus(2L);
 //		updatePO.setExecuteUser(userId);
 		updatePO.setAllocateFulfilTime(now);

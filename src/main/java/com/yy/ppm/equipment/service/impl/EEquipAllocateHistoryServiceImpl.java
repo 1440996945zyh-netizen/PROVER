@@ -9,6 +9,7 @@ import com.yy.ppm.equipment.bean.po.EEquipAllocateHistoryPO;
 import com.yy.ppm.equipment.mapper.EEquipAllocateHistoryMapper;
 import com.yy.ppm.equipment.service.EEquipAllocateHistoryService;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -71,6 +72,14 @@ public class EEquipAllocateHistoryServiceImpl implements EEquipAllocateHistorySe
 		LOGGER.enter(methodName, "查询调拨设备列表，orderId:" + orderId);
 
 		List<AllocateEquipDTO> list = allocateHistoryMapper.getEquipListByOrderId(orderId);
+		//从lastChangeInfo中提取出来fuzeren
+		if (CollectionUtils.isNotEmpty(list)) {
+			for (AllocateEquipDTO equip : list) {
+				equip.setResponsiName(JSON.parseObject(equip.getLastChangeInfo()).getString("responsiName"));
+				//获取responsiCode
+				equip.setResponsiCode(JSON.parseObject(equip.getLastChangeInfo()).getLong("responsiCode"));
+			}
+		}
 
 		LOGGER.exit(methodName, "查询数量:" + list.size());
 		return list;
