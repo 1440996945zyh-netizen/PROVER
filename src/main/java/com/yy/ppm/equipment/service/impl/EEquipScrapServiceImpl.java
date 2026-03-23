@@ -20,9 +20,11 @@ import com.yy.ppm.equipment.mapper.EEquipScrapMapper;
 import com.yy.ppm.equipment.mapper.MEquipmentInfoMapper;
 import com.yy.ppm.equipment.service.EEquipScrapHistoryService;
 import com.yy.ppm.equipment.service.EEquipScrapService;
+import com.yy.ppm.equipment.service.MEquipmentInfoService;
 import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceDTO;
 import com.yy.ppm.flowable.service.BpmProcessInstanceService;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -64,6 +66,9 @@ public class EEquipScrapServiceImpl implements EEquipScrapService {
 
 	@Resource
 	private MEquipmentInfoMapper mEquipmentInfoMapper;
+
+	@Resource
+	private MEquipmentInfoService mEquipmentInfoService;
 
 	@Resource
 	BpmProcessInstanceService bpmProcessInstanceService;
@@ -166,20 +171,15 @@ public class EEquipScrapServiceImpl implements EEquipScrapService {
 		final String methodName = "EEquipScrapServiceImpl:confirm";
 		LOGGER.enter(methodName, "确认报废，id:" + id);
 
-		EEquipScrapPO scrapPO = null;
-		if (flowId != null && !flowId.isEmpty()) {
-			scrapPO = scrapMapper.getByFlowId(flowId);
-		} else {
-			scrapPO = scrapMapper.selectById(id);
-		}
+		EEquipScrapDTO scrapDTO = scrapMapper.getById(id);
 
-		if (scrapPO == null) {
+		if (scrapDTO == null) {
 			throw new BusinessRuntimeException("报废申请不存在");
 		}
 
-		List<EEquipScrapHistoryPO> historyList = scrapHistoryMapper.getHistoryByOrderId(scrapPO.getId());
+		List<EEquipScrapHistoryPO> historyList = scrapHistoryMapper.getHistoryByOrderId(scrapDTO.getId());
 
-		if (!historyList.isEmpty()) {
+		if (CollectionUtils.isNotEmpty(historyList)) {
 			for (EEquipScrapHistoryPO history : historyList) {
 				if (history.getLastChangeInfo() != null && !history.getLastChangeInfo().isEmpty()) {
 					try {
@@ -191,6 +191,18 @@ public class EEquipScrapServiceImpl implements EEquipScrapService {
 							mEquipmentInfoPO.setId(equipDTO.getEquipId());
 							mEquipmentInfoPO.setEquipStateName("报废");
 							mEquipmentInfoMapper.update(mEquipmentInfoPO);
+
+							// 获取旧数据用于比较
+							MEquipmentInfoDTO oldData = new MEquipmentInfoDTO();
+							oldData.setId(equipDTO.getEquipId());
+							oldData.setEquipState(equipDTO.getEquipState());
+							oldData.setEquipStateName(equipDTO.getEquipStateName());
+							MEquipmentInfoDTO newData = new MEquipmentInfoDTO();
+							newData.setId(equipDTO.getEquipId());
+							newData.setEquipState("05");
+							newData.setEquipStateName("报废");
+							mEquipmentInfoService.recordBasicInfoChange(equipDTO.getEquipId(), oldData, newData);
+
 						}
 					} catch (Exception e) {
 						LOGGER.error(methodName, "解析设备JSON失败， equipId:" + history.getEquipId());
@@ -204,7 +216,7 @@ public class EEquipScrapServiceImpl implements EEquipScrapService {
 		Date now = new Date();
 
 		EEquipScrapPO updatePO = new EEquipScrapPO();
-		updatePO.setId(scrapPO.getId());
+		updatePO.setId(scrapDTO.getId());
 		updatePO.setStatus(2L);
 //		updatePO.setExecuteUser(userId);
 		updatePO.setExecuteFulfilTime(now);

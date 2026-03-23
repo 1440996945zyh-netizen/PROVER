@@ -67,5 +67,15 @@ public interface MEquipmentInfoService {
      * @return 备品备件列表
      */
     List<com.yy.ppm.equipment.bean.dto.EquipmentSpareDTO> getSpareList(String equipId, String materialName, String warehouseName);
+
+    /**
+     * 功能描述: 添加变更记录
+     * @param equipId
+     * @param oldData
+     * @param newData
+     * @return : void
+     */
+    void recordBasicInfoChange(Long equipId, MEquipmentInfoDTO oldData, MEquipmentInfoDTO newData);
+
 }
 

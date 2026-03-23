@@ -40,6 +40,8 @@
         <result column="equipStateName" property="equipStateName"/>
         <result column="remark" property="remark"/>
         <result column="lastChangeInfo" property="lastChangeInfo"/>
+        <result column="responsiCode" property="responsiCode"/>
+        <result column="responsiName" property="responsiName"/>
     </resultMap>
 
     <!-- 新增调拨历史记录 -->
@@ -77,7 +79,7 @@
             (SELECT ID FROM SYS_DEPT WHERE ID = u.PARENT_ID) as useCompanyId,
             (SELECT DEPT_NAME FROM SYS_DEPT WHERE ID = u.PARENT_ID) as useCompanyName,
 --             d.ORG_NAME as useCompanyName,
-            u.DEPT_ID as useOrgId,
+            u.ID as useOrgId,
             u.DEPT_NAME as useOrgName,
             e.EQUIP_STATE as equipState,
             e.EQUIP_STATE_NAME as equipStateName,

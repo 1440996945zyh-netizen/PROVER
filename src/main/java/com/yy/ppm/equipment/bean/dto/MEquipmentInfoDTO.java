@@ -24,6 +24,18 @@ public class MEquipmentInfoDTO extends MEquipmentInfoPO {
     private String useOrgName;
 
     /**
+     * 使用单位名称（关联查询）
+     */
+    private String useCompanyName;
+
+
+    /**
+     * 负责人名称（关联查询）
+     */
+    private String responsiName;
+
+
+    /**
      * 特种设备注册码
      */
     private String particularRegistrationCode;
