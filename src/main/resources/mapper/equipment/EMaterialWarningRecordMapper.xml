@@ -37,4 +37,65 @@
         WHERE MATERIAL_ID = #{materialId}
           AND HANDLE_STATUS = 0
     </select>
+
+    <!-- 主列表 -->
+    <select id="selectList" resultType="com.yy.ppm.equipment.bean.dto.EMaterialWarningRecordDTO">
+        SELECT
+        T1.ID,
+        T1.MATERIAL_ID,
+        T1.MATERIAL_NAME,
+        T1.CURRENT_STOCK,
+        T1.WARNING_THRESHOLD,
+        T1.RECEIVERS,
+        T1.CREATE_TIME,
+        T1.HANDLE_STATUS,
+        T1.HANDLE_TIME,
+        T1.HANDLE_USER_ID,
+        DECODE(T1.HANDLE_STATUS, 0, '未处理', 1, '已处理', '') AS HANDLE_STATUS_LABEL,
+        S1.USER_NAME AS HANDLE_USER_NAME
+        FROM E_MATERIAL_WARNING_RECORD T1
+        LEFT JOIN SYS_USER S1 ON T1.HANDLE_USER_ID = S1.ID
+        WHERE 1 = 1
+        <if test="materialName != null and materialName != ''">
+            AND T1.MATERIAL_NAME LIKE '%' || #{materialName} || '%'
+        </if>
+        <if test="handleStatus != null and handleStatus != ''">
+            AND TO_CHAR(T1.HANDLE_STATUS) = #{handleStatus}
+        </if>
+        ORDER BY T1.HANDLE_STATUS ASC, T1.CREATE_TIME DESC
+    </select>
+
+    <!-- 详情 -->
+    <select id="selectById" resultType="com.yy.ppm.equipment.bean.dto.EMaterialWarningRecordDTO">
+        SELECT
+            T1.ID,
+            T1.MATERIAL_ID,
+            T1.MATERIAL_NAME,
+            T1.CURRENT_STOCK,
+            T1.WARNING_THRESHOLD,
+            T1.RECEIVERS,
+            T1.CREATE_TIME,
+            T1.HANDLE_STATUS,
+            T1.HANDLE_TIME,
+            T1.HANDLE_USER_ID,
+            DECODE(T1.HANDLE_STATUS, 0, '未处理', 1, '已处理', '') AS HANDLE_STATUS_LABEL,
+            S1.USER_NAME AS HANDLE_USER_NAME
+        FROM E_MATERIAL_WARNING_RECORD T1
+                 LEFT JOIN SYS_USER S1 ON T1.HANDLE_USER_ID = S1.ID
+        WHERE T1.ID = #{id}
+    </select>
+
+    <!-- 批量处理 -->
+    <update id="handleBatch">
+        UPDATE E_MATERIAL_WARNING_RECORD
+        SET
+        HANDLE_STATUS = 1,
+        HANDLE_TIME = #{now,jdbcType=TIMESTAMP},
+        HANDLE_USER_ID = #{loginUserId,jdbcType=NUMERIC}
+        WHERE HANDLE_STATUS = 0
+        AND ID IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
 </mapper>

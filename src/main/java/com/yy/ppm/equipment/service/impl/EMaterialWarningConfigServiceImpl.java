@@ -1,6 +1,7 @@
 package com.yy.ppm.equipment.service.impl;
 
 import cn.hutool.core.lang.Snowflake;
+import com.yy.common.log.MicroLogger;
 import com.yy.common.page.Pages;
 import com.yy.common.util.PageHelperUtils;
 import com.yy.ppm.equipment.bean.dto.EMaterialWarningConfigDTO;
@@ -13,7 +14,11 @@ import com.yy.ppm.equipment.mapper.EMaterialWarningRecordMapper;
 import com.yy.ppm.equipment.service.EMaterialWarningConfigService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -28,6 +33,7 @@ import java.util.List;
 @Service
 public class EMaterialWarningConfigServiceImpl implements EMaterialWarningConfigService {
 
+    private static final MicroLogger LOGGER = new MicroLogger(EMaterialWarningConfigServiceImpl.class);
    @Autowired
     private EMaterialWarningConfigMapper eMaterialWarningConfigMapper;
 
@@ -93,10 +99,32 @@ public class EMaterialWarningConfigServiceImpl implements EMaterialWarningConfig
     }
 
     /**
-     * 扫描预警配置并生成预警消息
+     * 服务启动后先跑一次
      */
+    @EventListener(ApplicationReadyEvent.class)
+    public void runAfterStartup() {
+        LOGGER.enter("物资预警启动触发开始");
+        Integer count = generateWarningRecord();
+        LOGGER.exit("物资预警启动触发结束, count:" + count);
+    }
+
+    /**
+     * 每天零点跑一次
+     */
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void scheduledGenerateWarningRecord() {
+        LOGGER.enter("物资预警定时任务开始");
+        Integer count = generateWarningRecord();
+        LOGGER.exit("物资预警定时任务结束, count:" + count);
+    }
+
+    /**
+     * 扫描预警配置，生成预警消息
+     */
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
     @Override
     public Integer generateWarningRecord() {
+        // 只扫启用中的预警配置
         List<EMaterialWarningConfigDTO> configList = eMaterialWarningConfigMapper.selectEnabledList();
         if (configList == null || configList.isEmpty()) {
             return 0;
@@ -115,9 +143,9 @@ public class EMaterialWarningConfigServiceImpl implements EMaterialWarningConfig
                 currentStock = BigDecimal.ZERO;
             }
 
-            // 阈值大于库存，触发预警
+            // 阈值大于库存才触发预警
             if (config.getWarningThreshold().compareTo(currentStock) > 0) {
-                // 未处理预警数据不重复插入数据
+                // 有未处理预警就不重复插
                 Long exists = eMaterialWarningRecordMapper.countUnhandledByMaterialId(config.getMaterialId());
                 if (exists != null && exists > 0) {
                     continue;
@@ -139,5 +167,4 @@ public class EMaterialWarningConfigServiceImpl implements EMaterialWarningConfig
 
         return count;
     }
-
 }
