@@ -111,7 +111,7 @@ public class EMaterialWarningConfigServiceImpl implements EMaterialWarningConfig
     /**
      * 每天零点跑一次
      */
-    @Scheduled(cron = "0 0 0 * * ?")
+//    @Scheduled(cron = "0 0 0 * * ?")
     public void scheduledGenerateWarningRecord() {
         LOGGER.enter("物资预警定时任务开始");
         Integer count = generateWarningRecord();
