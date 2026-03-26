@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class EMEquipRepairUserServiceImpl implements EMEquipRepairUserService {
@@ -71,31 +72,34 @@ public class EMEquipRepairUserServiceImpl implements EMEquipRepairUserService {
                 }
             }
 
-            //新增子表
-            mapper.insertUserDetail( po.getList());
+
         } else {
             mapper.update(po);
 
             //删除子表
             mapper.deleteUserDetail(po.getId());
 
-            for (EMEquipRepairUserDetailDTO userDetailDTO : po.getList()) {
-                //删除附件
-                sysFileService.delete(null,userDetailDTO.getId());
+            if (!CollectionUtils.isEmpty(po.getList())){
+                for (EMEquipRepairUserDetailDTO userDetailDTO : po.getList()) {
+                    //删除附件
+                    sysFileService.delete(null, userDetailDTO.getId());
 
-                userDetailDTO.setId(snowflake.nextId());
-                userDetailDTO.setRepairUserId(po.getId());
+                    userDetailDTO.setId(snowflake.nextId());
+                    userDetailDTO.setRepairUserId(po.getId());
 
-
-
-                // 关联文件
-                if (userDetailDTO.getFileIds() != null && !userDetailDTO.getFileIds().isEmpty()) {
-                    sysFileService.saveFileBusRelation(userDetailDTO.getFileIds(), userDetailDTO.getId());
+                    // 关联文件
+                    if (userDetailDTO.getFileIds() != null && !userDetailDTO.getFileIds().isEmpty()) {
+                        sysFileService.saveFileBusRelation(userDetailDTO.getFileIds(), userDetailDTO.getId());
+                    }
                 }
-            }
+        }
+        }
+
+        if (!CollectionUtils.isEmpty(po.getList())){
             //新增子表
             mapper.insertUserDetail( po.getList());
         }
+
     }
 
     @Override
