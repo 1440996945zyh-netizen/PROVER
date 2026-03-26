@@ -342,6 +342,11 @@ public class SelectServiceImpl implements SelectService {
                     res.add(map);
                 }
                 break;
+
+            // 设备
+            case "EQUIP_INFO" :
+                res = selectMapper.getEqptInfo();
+                break;
             default:
                 break;
         }

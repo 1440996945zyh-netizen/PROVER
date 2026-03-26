@@ -355,5 +355,14 @@
         </if>
     </select>
 
+    <select id="getEqptInfo" resultType="java.util.Map">
+        SELECT
+            ID "value",
+            EQUIP_NAME "label",
+            EQUIP_CODE "code"
+        FROM
+            E_M_EQPT_INFO
+    </select>
+
 </mapper>
 
