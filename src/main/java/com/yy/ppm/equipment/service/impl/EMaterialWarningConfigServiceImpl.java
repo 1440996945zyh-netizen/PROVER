@@ -14,9 +14,6 @@ import com.yy.ppm.equipment.mapper.EMaterialWarningRecordMapper;
 import com.yy.ppm.equipment.service.EMaterialWarningConfigService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +30,6 @@ import java.util.List;
 @Service
 public class EMaterialWarningConfigServiceImpl implements EMaterialWarningConfigService {
 
-    private static final MicroLogger LOGGER = new MicroLogger(EMaterialWarningConfigServiceImpl.class);
    @Autowired
     private EMaterialWarningConfigMapper eMaterialWarningConfigMapper;
 
@@ -98,25 +94,16 @@ public class EMaterialWarningConfigServiceImpl implements EMaterialWarningConfig
         eMaterialWarningConfigMapper.delete(id);
     }
 
-    /**
-     * 服务启动后先跑一次
-     */
-    @EventListener(ApplicationReadyEvent.class)
-    public void runAfterStartup() {
-        LOGGER.enter("物资预警启动触发开始");
-        Integer count = generateWarningRecord();
-        LOGGER.exit("物资预警启动触发结束, count:" + count);
-    }
+//    /**
+//     * 服务启动后先跑一次
+//     */
+//    @EventListener(ApplicationReadyEvent.class)
+//    public void runAfterStartup() {
+//        LOGGER.enter("物资预警启动触发开始");
+//        Integer count = generateWarningRecord();
+//        LOGGER.exit("物资预警启动触发结束, count:" + count);
+//    }
 
-    /**
-     * 每天零点跑一次
-     */
-//    @Scheduled(cron = "0 0 0 * * ?")
-    public void scheduledGenerateWarningRecord() {
-        LOGGER.enter("物资预警定时任务开始");
-        Integer count = generateWarningRecord();
-        LOGGER.exit("物资预警定时任务结束, count:" + count);
-    }
 
     /**
      * 扫描预警配置，生成预警消息
