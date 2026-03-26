@@ -46,6 +46,11 @@ public enum SerialNumberPrefixEnum {
     PROJ_APPLY("XMSQ", "项目维修申请"),
 
     /**
+     * 废旧物资处置
+     */
+    WASTE_DISPOSAL("FJCZ", "废旧物资处置"),
+
+    /**
      * 结算
      */
     SETTLEMENT("JS", "结算");

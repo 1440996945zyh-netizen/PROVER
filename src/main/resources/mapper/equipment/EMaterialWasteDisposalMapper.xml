@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMaterialWasteDisposalMapper">
+    <delete id="deleteDetail">
+        delete from E_MATERIAL_WASTE_DISPOSAL_SUB
+        where
+        PARENT_ID = #{id}
+    </delete>
+    <delete id="deleteById">
+        delete from E_MATERIAL_WASTE_DISPOSAL
+        where
+        ID = #{id}
+    </delete>
+
+    <select id="getList" resultType="com.yy.ppm.equipment.bean.dto.EMaterialWasteDisposalDTO">
+        SELECT
+            t1.ID,
+            t1.DISPOSAL_NUM,
+            t1.DISPOSAL_TITLE,
+            t1.DISPOSAL_TYPE,
+            t1.DISPOSAL_AMOUNT,
+            t1.CREATED_USER,
+            t1.CREATED_TIME,
+            T2.DICT_LABEL
+        FROM E_MATERIAL_WASTE_DISPOSAL t1
+        LEFT JOIN M_DICT_DATA t2 ON t2.DICT_VALUE = t1.DISPOSAL_TYPE AND t2.DICT_TYPE = 'DISPOSAL_TYPE'
+        <where>
+            <if test="disposalTitle != null and disposalTitle != ''">
+                <bind name="disposalTitle" value="'%' + disposalTitle + '%'"/>
+                AND t1.DISPOSAL_TITLE LIKE #{disposalTitle}
+            </if>
+            <if test="disposalNum != null and disposalNum != ''">
+                <bind name="disposalNum" value="'%' + disposalNum + '%'"/>
+                AND t1.t1.DISPOSAL_NUM, LIKE #{disposalNum}
+            </if>
+        </where>
+        order by
+            CREATED_TIME DESC
+</select>
+
+<select id="getById" resultType="com.yy.ppm.equipment.bean.dto.EMaterialWasteDisposalDTO">
+    SELECT
+        ID,
+        DISPOSAL_NUM,
+        DISPOSAL_TITLE,
+        DISPOSAL_TYPE,
+        DISPOSAL_AMOUNT,
+        CREATED_USER,
+        CREATED_TIME
+    FROM E_MATERIAL_WASTE_DISPOSAL
+    where
+    ID = #{id}
+</select>
+
+    <insert id="insert">
+    INSERT INTO E_MATERIAL_WASTE_DISPOSAL (
+                                           ID,
+                                           DISPOSAL_NUM,
+                                           DISPOSAL_TITLE,
+                                           DISPOSAL_TYPE,
+                                           DISPOSAL_AMOUNT,
+                                           CREATED_USER,
+                                           CREATED_TIME
+
+    ) values
+    (
+       #{id},
+       #{disposalNum},
+       #{disposalTitle},
+       #{disposalType},
+       #{disposalAmount},
+       #{loginUserId,jdbcType=NUMERIC},
+       #{now,jdbcType=TIMESTAMP}
+
+    )
+</insert>
+    <insert id="insertDetail">
+        INSERT ALL
+        <foreach collection="list" item="item" index="index">
+            INTO E_MATERIAL_WASTE_DISPOSAL_SUB (
+            ID,
+            PARENT_ID,
+            MATERIAL_ID,
+            MATERIAL_NAME,
+            DISPOSAL_AMOUNT,
+            DISPOSAL_QUANTITY
+            ) VALUES (
+            #{item.id},
+            #{item.parentId},
+            #{item.materialId},
+            #{item.materialName},
+            #{item.disposalAmount},
+            #{item.disposalQuantity}
+            )
+        </foreach>
+        SELECT 1 FROM DUAL
+    </insert>
+
+    <update id="update">
+    update E_MATERIAL_WASTE_DISPOSAL
+    set
+        DISPOSAL_TITLE = #{disposalTitle},
+        DISPOSAL_TYPE = #{disposalType},
+        DISPOSAL_AMOUNT = #{disposalAmount}
+    where
+    ID = #{id}
+</update>
+
+
+    <select id="getDetail" resultType="com.yy.ppm.equipment.bean.po.EMaterialWasteDisposalSubPO">
+        SELECT
+        ID,
+        PARENT_ID,
+        MATERIAL_ID,
+        MATERIAL_NAME,
+        DISPOSAL_AMOUNT,
+        DISPOSAL_QUANTITY
+        FROM E_MATERIAL_WASTE_DISPOSAL_SUB
+        WHERE PARENT_ID = #{id}
+    </select>
+</mapper>
+
