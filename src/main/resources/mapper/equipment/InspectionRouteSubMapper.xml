@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.InspectionRouteSubMapper">
+
+    <resultMap id="BaseResultMap" type="com.yy.ppm.equipment.bean.dto.InspectionRouteSubDTO">
+        <result column="PARENT_ID" property="parentId"/>
+        <result column="EQUIP_ID" property="equipId"/>
+        <result column="SORT_NUM" property="sortNum"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO E_PATROL_ROUTE_SUB (
+            ID,
+            PARENT_ID,
+            EQUIP_ID,
+            SORT_NUM
+        ) VALUES (
+                     #{id},
+                     #{parentId},
+                     #{equipId},
+                     #{sortNum}
+                 )
+    </insert>
+
+    <delete id="deleteByParentId">
+        DELETE FROM E_PATROL_ROUTE_SUB WHERE PARENT_ID = #{parentId}
+    </delete>
+
+    <select id="listByParentId" resultMap="BaseResultMap">
+        SELECT
+            ID,
+            PARENT_ID,
+            EQUIP_ID,
+            SORT_NUM
+        FROM E_PATROL_ROUTE_SUB
+        WHERE PARENT_ID = #{parentId}
+        ORDER BY SORT_NUM
+    </select>
+
+</mapper>

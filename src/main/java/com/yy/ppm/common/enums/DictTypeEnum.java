@@ -115,6 +115,7 @@ public enum DictTypeEnum {
     CURRENCY("CURRENCY", "货币类型"),
     PREPAYMENT_TYPE("PREPAYMENT_TYPE", "预缴类型"),
     CONTRACT_TYPE("CONTRACT_TYPE", "合同类型"),
+    ROUTE_LEVEL("ROUTE_LEVEL", "路线级别"),
     PAY_TYPE("PAY_TYPE", "付费方式"),
     WORK_SCHEDULE("WORK_SCHEDULE", "工班设置"),
     MENU_TYPE("MENU_TYPE", "用户类型"),

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.InspectionRouteMapper">
+
+    <resultMap id="BaseResultMap" type="com.yy.ppm.equipment.bean.dto.InspectionRouteDTO">
+        <id column="ID" property="id"/>
+        <result column="ROUTE_CODE" property="routeCode"/>
+        <result column="ROUTE_NAME" property="routeName"/>
+        <result column="ROUTE_LEVEL" property="routeLevel"/>
+        <result column="CREATE_BY" property="createBy"/>
+        <result column="CREATE_TIME" property="createTime"/>
+        <result column="UPDATE_BY" property="updateBy"/>
+        <result column="UPDATE_TIME" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        ID,
+        ROUTE_CODE,
+        ROUTE_NAME,
+        ROUTE_LEVEL,
+        CREATE_BY,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_TIME
+    </sql>
+
+    <select id="getList" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM E_PATROL_ROUTE
+        WHERE 1=1
+        <if test="routeCode != null and routeCode != ''">
+            <bind name="routeCodeLike" value="'%' + routeCode + '%'"/>
+            AND ROUTE_CODE LIKE #{routeCodeLike}
+        </if>
+        <if test="routeName != null and routeName != ''">
+            <bind name="routeNameLike" value="'%' + routeName + '%'"/>
+            AND ROUTE_NAME LIKE #{routeNameLike}
+        </if>
+        <if test="routeLevel != null and routeLevel != ''">
+            AND ROUTE_LEVEL = #{routeLevel}
+        </if>
+        ORDER BY CREATE_TIME DESC
+    </select>
+
+    <select id="getDetail" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM E_PATROL_ROUTE
+        WHERE ID = #{id}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO E_PATROL_ROUTE (
+            ID,
+            ROUTE_CODE,
+            ROUTE_NAME,
+            ROUTE_LEVEL,
+            CREATE_BY,
+            CREATE_TIME
+        ) VALUES (
+                     #{id},
+                     #{routeCode},
+                     #{routeName},
+                     #{routeLevel},
+                     #{loginUserId},
+                     #{now}
+                 )
+    </insert>
+
+    <update id="update">
+        UPDATE E_PATROL_ROUTE
+        SET
+            ROUTE_CODE = #{routeCode},
+            ROUTE_NAME = #{routeName},
+            ROUTE_LEVEL = #{routeLevel},
+            UPDATE_BY = #{loginUserId},
+            UPDATE_TIME = #{now}
+        WHERE ID = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM E_PATROL_ROUTE WHERE ID = #{id}
+    </delete>
+
+    <select id="getAllList" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM E_PATROL_ROUTE
+        ORDER BY CREATE_TIME DESC
+    </select>
+
+</mapper>
