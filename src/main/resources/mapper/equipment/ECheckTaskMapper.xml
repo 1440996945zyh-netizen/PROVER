@@ -57,6 +57,7 @@
 
 <select id="getListAPP" resultType="com.yy.ppm.equipment.bean.po.InspectionPlanTaskPO">
     SELECT
+    distinct
     t1.ID,
     t1.EQUIP_ID,
     t1.EQUIP_NAME,
@@ -76,6 +77,7 @@
     FROM
     E_CHECK_TASK T1
     LEFT JOIN E_CHECK_PLAN T2 ON T2.ID = T1.EQUIP_PLAN_ID
+    LEFT JOIN E_CHECK_TASK_ITEM T3 ON T3.EQUIP_TASK_ID = T1.ID
     where
     1=1
     <if test="startTime != null and startTime != ''">
@@ -102,6 +104,12 @@
     <if test="equipName != null and equipName != ''">
         <bind name="equipNameLike" value="'%'+equipName+'%'"/>
         and t1.EQUIP_NAME like #{equipNameLike}
+    </if>
+    <if test="equipInstitutionId != null and equipInstitutionId != ''">
+        and t3.EQUIP_INSTITUTION_ID = #{equipInstitutionId}
+    </if>
+    <if test="equipUnitId != null and equipUnitId != ''">
+        and t3.EQUIP_UNIT_ID = #{equipUnitId}
     </if>
     order by
     t1.CREATE_TIME DESC
@@ -161,6 +169,9 @@
     E_CHECK_TASK_ITEM
     where
     EQUIP_TASK_ID = #{id}
+    <if test="equipInstitutionId != null and equipInstitutionId != ''">
+        and EQUIP_INSTITUTION_ID = #{equipInstitutionId}
+    </if>
 </select>
 
 <select id="getUnitById" resultType="java.util.Map">
@@ -176,6 +187,9 @@
     EQUIP_TASK_ID = #{id}
     <if test="equipInstitutionId != null and equipInstitutionId != ''">
         and EQUIP_INSTITUTION_ID = #{equipInstitutionId}
+    </if>
+    <if test="equipUnitId != null and equipUnitId != ''">
+        and EQUIP_UNIT_ID = #{equipUnitId}
     </if>
 </select>
 

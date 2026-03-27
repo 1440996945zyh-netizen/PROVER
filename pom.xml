@@ -540,6 +540,16 @@
             <artifactId>javase</artifactId>
             <version>3.4.1</version>
         </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+            <version>5.5.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itext-asian</artifactId>
+            <version>5.2.0</version>
+        </dependency>
 
         <dependency>
             <groupId>org.quartz-scheduler</groupId>

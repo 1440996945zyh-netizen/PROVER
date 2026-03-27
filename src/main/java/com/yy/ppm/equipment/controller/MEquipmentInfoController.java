@@ -3,16 +3,12 @@ package com.yy.ppm.equipment.controller;
 import com.yy.common.enums.Response;
 import com.yy.common.log.MicroLogger;
 import com.yy.common.page.Pages;
-import com.yy.ppm.equipment.bean.dto.EquipmentIndicatorDTO;
-import com.yy.ppm.equipment.bean.dto.EquipmentIndicatorSearchDTO;
-import com.yy.ppm.equipment.bean.dto.EquipmentMaintenanceDTO;
-import com.yy.ppm.equipment.bean.dto.EquipmentMaintenanceSearchDTO;
-import com.yy.ppm.equipment.bean.dto.MEquipmentInfoDTO;
-import com.yy.ppm.equipment.bean.dto.MEquipmentInfoSearchDTO;
+import com.yy.common.util.SecurityUtils;
+import com.yy.ppm.equipment.bean.dto.*;
 import com.yy.ppm.equipment.service.EquipmentIndicatorService;
 import com.yy.ppm.equipment.service.EquipmentMaintenanceService;
 import com.yy.ppm.equipment.service.MEquipmentInfoService;
-import com.yy.ppm.equipment.bean.dto.EquipmentSpareDTO;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -241,6 +237,25 @@ public class MEquipmentInfoController {
 
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
+    }
+
+    /**
+     * 根据设备id导出设备二维码
+     */
+    @PostMapping("/export/qrCode")
+    @PreAuthorize("hasAuthority('equipment:equipmentInfo:exportQRCode')")
+    public void getEquipQRCode(@RequestBody EquipQrCodeIdReqDTO dto, HttpServletResponse response) {
+        final String methodName = "MEquipmentInfoController:getEquipQRCode";
+        LOGGER.enter(methodName + "[start]", "dto:" + dto);
+
+        try {
+            String userAccount = SecurityUtils.getLoginUserName();
+            service.getEquipQRCode(response, userAccount, dto);
+        } catch (Exception e) {
+            LOGGER.error(methodName, "导出二维码错误:" + e.getMessage());
+        }
+
+        LOGGER.exit(methodName + "[end]");
     }
 }
 

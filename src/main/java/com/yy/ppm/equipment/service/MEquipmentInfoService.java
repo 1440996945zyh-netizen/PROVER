@@ -1,9 +1,11 @@
 package com.yy.ppm.equipment.service;
 
 import com.yy.common.page.Pages;
+import com.yy.ppm.equipment.bean.dto.EquipQrCodeIdReqDTO;
 import com.yy.ppm.equipment.bean.dto.EquipmentSelectDTO;
 import com.yy.ppm.equipment.bean.dto.MEquipmentInfoDTO;
 import com.yy.ppm.equipment.bean.dto.MEquipmentInfoSearchDTO;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.List;
 
@@ -77,5 +79,12 @@ public interface MEquipmentInfoService {
      */
     void recordBasicInfoChange(Long equipId, MEquipmentInfoDTO oldData, MEquipmentInfoDTO newData);
 
+    /**
+     * 根据设备id导出设备二维码
+     * @param response 输出流
+     * @param userAccount 用户账号
+     * @param equipQrCodeIdReqDTO 请求参数
+     */
+    void getEquipQRCode(HttpServletResponse response, String userAccount, EquipQrCodeIdReqDTO equipQrCodeIdReqDTO);
 }
 

@@ -30,6 +30,19 @@ import org.springframework.transaction.annotation.Transactional;
 import jakarta.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import com.yy.common.log.MicroLogger;
+import com.alibaba.fastjson2.JSON;
+import com.yy.ppm.equipment.bean.dto.EquipQrCodeIdReqDTO;
+import com.yy.ppm.equipment.bean.dto.EquipQrCodeInfoDTO;
+import com.yy.ppm.equipment.bean.dto.QrCodeDataDTO;
+import com.yy.ppm.equipment.bean.dto.MEquipmentTypeDTO;
+import com.yy.ppm.equipment.service.MEquipmentTypeService;
+import com.yy.ppm.equipment.util.QRCodeUtil;
+import com.yy.ppm.equipment.util.PdfFileUtil;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 设备台账信息Service业务层处理
@@ -66,6 +79,14 @@ public class MEquipmentInfoServiceImpl implements MEquipmentInfoService {
     @Resource
     private ChangeLogUtil changeLogUtil;
 
+    @Resource
+    private MEquipmentTypeService typeService;
+
+    /**
+     * 日志组件
+     */
+    private static final MicroLogger LOGGER = new MicroLogger(MEquipmentInfoServiceImpl.class);
+
     /**
      * 查询设备台账信息列表（分页）
      */
@@ -87,12 +108,12 @@ public class MEquipmentInfoServiceImpl implements MEquipmentInfoService {
             return null;
         }
         // 查询负责人名称
-        if (dto.getResponsiCode() != null) {
-            SysUserDTO sysUserDTO = sysUserService.getById(dto.getResponsiCode());
-            if (sysUserDTO != null) {
-                dto.setResponsiName(sysUserDTO.getUserName());
-            }
-        }
+//        if (dto.getResponsiCode() != null) {
+//            SysUserDTO sysUserDTO = sysUserService.getById(dto.getResponsiCode());
+//            if (sysUserDTO != null) {
+//                dto.setResponsiName(sysUserDTO.getUserName());
+//            }
+//        }
         // 查询供货信息并映射到DTO（字段映射：productionCode->factoryNumber, equipBuyDate->purchaseTime, equipUseDate->usageTime, supplyCompany->supplierUnit）
         MEquipmentSupplyDTO supplyDTO = supplyService.getByEquipId(id);
         if (supplyDTO != null) {
@@ -176,9 +197,9 @@ public class MEquipmentInfoServiceImpl implements MEquipmentInfoService {
         if (dto.getEquipState() == null) {
             throw new BusinessRuntimeException("设备状态不能为空");
         }
-//        if (dto.getUseCompanyId() == null) {
-//            throw new BusinessRuntimeException("所属单位不能为空");
-//        }
+        if (dto.getUseCompanyId() == null) {
+            throw new BusinessRuntimeException("所属单位不能为空");
+        }
         if (dto.getUseOrgId() == null) {
             throw new BusinessRuntimeException("所属部门不能为空");
         }
@@ -321,6 +342,9 @@ public class MEquipmentInfoServiceImpl implements MEquipmentInfoService {
         if (dto.getEquipState() == null) {
             throw new BusinessRuntimeException("设备状态不能为空");
         }
+        if (dto.getUseCompanyId() == null) {
+            throw new BusinessRuntimeException("所属单位不能为空");
+        }
         if (dto.getUseOrgId() == null) {
             throw new BusinessRuntimeException("所属部门不能为空");
         }
@@ -351,6 +375,7 @@ public class MEquipmentInfoServiceImpl implements MEquipmentInfoService {
         po.setUnit(dto.getUnit());
         po.setUnitName(dto.getUnitName());
         po.setInsuranceDate(dto.getInsuranceDate());
+        po.setUseCompanyId(dto.getUseCompanyId());
         po.setUseOrgId(dto.getUseOrgId());
         po.setResponsiCode(dto.getResponsiCode());
         po.setIsParticular(dto.getIsParticular());
@@ -361,7 +386,6 @@ public class MEquipmentInfoServiceImpl implements MEquipmentInfoService {
 
         // 获取旧数据用于比较
         MEquipmentInfoDTO oldData = getById(dto.getId());
-        oldData.setResponsiName(null);
         // 更新数据
         mapper.update(po);
 
@@ -533,6 +557,7 @@ public class MEquipmentInfoServiceImpl implements MEquipmentInfoService {
         }
     }
 
+
     /**
      * 格式化日期
      */
@@ -654,6 +679,105 @@ public class MEquipmentInfoServiceImpl implements MEquipmentInfoService {
     @Override
     public List<com.yy.ppm.equipment.bean.dto.EquipmentSpareDTO> getSpareList(String equipId, String materialName, String warehouseName) {
         return warehouseInDetailMapper.selectSpareListByEquipId(equipId, materialName, warehouseName);
+    }
+
+    /**
+     * 根据设备id导出设备二维码
+     */
+    @Override
+    public void getEquipQRCode(HttpServletResponse response, String userAccount, EquipQrCodeIdReqDTO dto) {
+        final String methodName = "MEquipmentInfoServiceImpl:getEquipQRCode";
+        LOGGER.enter(methodName, "导出设备二维码");
+
+        List<QrCodeDataDTO> qrCodeDataList = new ArrayList<>();
+        if (dto.getEquipIdList() == null || dto.getEquipIdList().isEmpty()) {
+            throw new BusinessRuntimeException("导出失败，请选择设备");
+        }
+
+        try {
+            for (Long equipId : dto.getEquipIdList()) {
+                MEquipmentInfoDTO equip = getById(equipId);
+                if (equip == null) {
+                    continue;
+                }
+
+                // 1. 生成设备主二维码内容
+                EquipQrCodeInfoDTO qrInfo = new EquipQrCodeInfoDTO();
+                qrInfo.setEquipId(equip.getId());
+//                qrInfo.setEquipBigCategoryId(equip.getEquipBigCategoryId());
+//                qrInfo.setEquipMiddleCategoryId(equip.getEquipMiddleCategoryId());
+//                qrInfo.setEquipSmallCategoryId(equip.getEquipSmallCategoryId());
+
+                String content = JSON.toJSONString(qrInfo);
+                byte[] qrCodeBytes = QRCodeUtil.createQRCode(content, 140, 140);
+
+                String title = equip.getEquipName();
+                if (equip.getAssetsNo() != null) {
+                    title = equip.getAssetsNo() + "\n" + title;
+                }
+                qrCodeDataList.add(new QrCodeDataDTO(title, qrCodeBytes));
+
+                // 2. 生成部位/部件二维码 (如果存在)
+                if (equip.getEquipSmallCategoryId() != null) {
+                   List<MEquipmentTypeDTO> allTree = typeService.partsTree(new MEquipmentTypeDTO());
+                    List<MEquipmentTypeDTO> positions = allTree.stream()
+                            .filter(item -> equip.getEquipSmallCategoryId().equals(item.getId()))
+                            .findFirst()
+                            .map(MEquipmentTypeDTO::getChildren)
+                            .orElseGet(java.util.ArrayList::new);
+                    if (positions != null && !positions.isEmpty()) {
+                        for (MEquipmentTypeDTO position : positions) {
+                            // 生成部位二维码
+                            EquipQrCodeInfoDTO posQrInfo = new EquipQrCodeInfoDTO();
+                            posQrInfo.setEquipId(equip.getId());
+                            posQrInfo.setEquipBigCategoryId(equip.getEquipBigCategoryId());
+                            posQrInfo.setEquipMiddleCategoryId(equip.getEquipMiddleCategoryId());
+                            posQrInfo.setEquipSmallCategoryId(equip.getEquipSmallCategoryId());
+                            posQrInfo.setEquipInstitutionId(position.getId());
+                            posQrInfo.setEquipInstitutionName(position.getTypeName());
+
+                            byte[] posQrCodeBytes = QRCodeUtil.createQRCode(JSON.toJSONString(posQrInfo), 140, 140);
+                            qrCodeDataList.add(new QrCodeDataDTO(equip.getEquipName() + "(" + position.getTypeName() + ")", posQrCodeBytes));
+
+                            // 生成部件二维码 (子级)
+                            List<MEquipmentTypeDTO> parts = position.getChildren();
+                            if (parts != null && !parts.isEmpty()) {
+                                for (MEquipmentTypeDTO part : parts) {
+                                    EquipQrCodeInfoDTO partQrInfo = new EquipQrCodeInfoDTO();
+                                    partQrInfo.setEquipId(equip.getId());
+                                    partQrInfo.setEquipBigCategoryId(equip.getEquipBigCategoryId());
+                                    partQrInfo.setEquipMiddleCategoryId(equip.getEquipMiddleCategoryId());
+                                    partQrInfo.setEquipSmallCategoryId(equip.getEquipSmallCategoryId());
+                                    partQrInfo.setEquipInstitutionId(position.getId());
+                                    partQrInfo.setEquipInstitutionName(position.getTypeName());
+                                    partQrInfo.setEquipUnitId(part.getId());
+                                    partQrInfo.setEquipUnitName(part.getTypeName());
+
+                                    byte[] partQrCodeBytes = QRCodeUtil.createQRCode(JSON.toJSONString(partQrInfo), 140, 140);
+                                    qrCodeDataList.add(new QrCodeDataDTO(equip.getEquipName() + "(" + position.getTypeName() + "-" + part.getTypeName() + ")", partQrCodeBytes));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 3. 输出PDF
+            String rawFileName = "设备二维码.pdf";
+            String fileName = URLEncoder.encode(rawFileName, StandardCharsets.UTF_8.name());
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"; filename*=utf-8''" + fileName);
+
+            try (OutputStream os = response.getOutputStream()) {
+                PdfFileUtil.generateQrCodePdf(qrCodeDataList, os);
+                os.flush();
+            }
+        } catch (Exception e) {
+            LOGGER.error(methodName, "生成二维码PDF失败:" + e.getMessage());
+            throw new BusinessRuntimeException("生成二维码PDF失败: " + e.getMessage());
+        }
+
+        LOGGER.exit(methodName, "生成数量:" + qrCodeDataList.size());
     }
 }
 
