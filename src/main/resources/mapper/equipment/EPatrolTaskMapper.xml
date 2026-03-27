@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EPatrolTaskMapper">
+
+    <!-- 巡检任务列表 (PC) -->
+    <select id="selectTaskList" resultType="com.yy.ppm.equipment.bean.po.EPatrolTaskPO">
+        SELECT
+            t1.ID,
+            t1.PLAN_ID,
+            t1.ROUTE_ID,
+            t1.PATROL_ID,
+            t1.PATROL_NAME,
+            t1.START_DATE,
+            t1.END_DATE,
+            t1.STATUS,
+            t1.CREATE_BY,
+            t1.CREATE_BY_NAME,
+            t1.CREATE_TIME,
+            t2.ROUTE_CODE,
+            t2.ROUTE_NAME,
+            t2.ROUTE_LEVEL,
+            t3.PLAN_CODE,
+            t3.PLAN_NAME
+        FROM
+            E_PATROL_TASK t1
+            LEFT JOIN E_PATROL_ROUTE t2 on t2.ID = t1.ROUTE_ID
+            LEFT JOIN E_PATROL_PLAN t3 on t3.PLAN_ID = t1.PLAN_ID
+
+        <where>
+            <if test="startTime != null and startTime != ''">
+                AND t1.START_DATE >= TO_DATE(#{startTime}, 'yyyy-MM-dd')
+            </if>
+            <if test="endTime != null and endTime != ''">
+                AND t1.START_DATE &lt;= TO_DATE(#{endTime}, 'yyyy-MM-dd')
+            </if>
+            <if test="patrolName != null and patrolName != ''">
+                <bind name="patrolNameLike" value="'%' + patrolName + '%'"/>
+                AND t1.PATROL_NAME LIKE #{patrolNameLike}
+            </if>
+            <if test="status != null">
+                AND t1.STATUS = #{status}
+            </if>
+        </where>
+        ORDER BY t1.CREATE_TIME DESC
+    </select>
+
+    <!-- 巡检任务详情 (子表信息 - 分页) -->
+    <select id="selectSubTaskPage" resultType="com.yy.ppm.equipment.bean.po.EPatrolTaskSubPO">
+        SELECT
+            t1.PARENT_ID,
+            t1.EQUIP_ID,
+            t1.EQUIP_NAME,
+            t1.CHECK_CONTENT,
+            t1.QUALIFY_CONDITION,
+            t1.CHECK_METHOD,
+            t1.STATUS,
+            t1.IS_ABNORMAL,
+            t1.IS_REPAIR,
+            t2.PATROL_NAME,
+            t6.FILE_IDS,
+        FROM
+            E_PATROL_TASK_SUB t1
+        LEFT JOIN E_PATROL_TASK t2 on t2.ID = t1.PARENT_ID
+        LEFT JOIN (
+        select
+        BUSINESS_ID,
+        LISTAGG(FILE_ID, ',') WITHIN GROUP ( ORDER BY FILE_ID ) FILE_IDS
+        from
+        SYS_FILE_BUSINESS
+        group by
+        BUSINESS_ID
+        )t6 ON t1.ID = t6.BUSINESS_ID
+        WHERE
+            t1.PARENT_ID = #{id}
+            <if test="equipId != null">
+                AND t1.EQUIP_ID = #{equipId}
+            </if>
+            <if test="equipName != null and equipName != ''">
+                <bind name="equipNameLike" value="'%' + equipName + '%'"/>
+                AND t1.EQUIP_NAME LIKE #{equipNameLike}
+            </if>
+            <if test="status != null">
+                AND t1.STATUS = #{status}
+            </if>
+    </select>
+
+</mapper>
