@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EPatrolPlanMapper">
+
+    <select id="getList" resultType="com.yy.ppm.equipment.bean.dto.EPatrolPlanDTO">
+        SELECT
+            ID,
+            PLAN_CODE,
+            PLAN_NAME,
+            ROUTE_ID,
+            PATROL_TYPE,
+            INITIAL_DATE,
+            SET_DATE,
+            IS_SINGLE,
+            PATROL_ID,
+            PATROL_NAME,
+            RECENTLY_TASK_DATE,
+            STATUS,
+            CREATE_BY,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_TIME,
+            TIME_LIMIT
+        FROM
+            E_PATROL_PLAN
+        WHERE
+            1 = 1
+        <if test="planCode != null and planCode != ''">
+            <bind name="planCode" value="'%' + planCode + '%'"/>
+            AND PLAN_CODE LIKE #{planCode}
+        </if>
+        <if test="planName != null and planName != ''">
+            <bind name="planName" value="'%' + planName + '%'"/>
+            AND PLAN_NAME LIKE #{planName}
+        </if>
+        <if test="routeId != null">
+            AND ROUTE_ID = #{routeId}
+        </if>
+        <if test="patrolType != null and patrolType != ''">
+            AND PATROL_TYPE = #{patrolType}
+        </if>
+
+</select>
+
+<select id="getById" resultType="com.yy.ppm.equipment.bean.dto.EPatrolPlanDTO">
+    SELECT
+        ID,
+        PLAN_CODE,
+        PLAN_NAME,
+        ROUTE_ID,
+        PATROL_TYPE,
+        INITIAL_DATE,
+        SET_DATE,
+        IS_SINGLE,
+        PATROL_ID,
+        PATROL_NAME,
+        RECENTLY_TASK_DATE,
+        STATUS,
+        CREATE_BY,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_TIME,
+        TIME_LIMIT
+    FROM
+        E_PATROL_PLAN
+    WHERE
+        ID = #{id}
+</select>
+    <select id="getpatrolPlanList" resultType="com.yy.ppm.equipment.bean.dto.EPatrolPlanDTO">
+        SELECT
+        ID,
+        PLAN_CODE,
+        PLAN_NAME,
+        ROUTE_ID,
+        PATROL_TYPE,
+        INITIAL_DATE,
+        SET_DATE,
+        IS_SINGLE,
+        PATROL_ID,
+        PATROL_NAME,
+        RECENTLY_TASK_DATE,
+        STATUS,
+        CREATE_BY,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_TIME,
+        TIME_LIMIT
+    FROM
+        E_PATROL_PLAN
+        WHERE
+        STATUS = 1
+        AND( IS_SINGLE ='2' OR RECENTLY_TASK_DATE IS  NULL)
+    </select>
+    <select id="getrouteSubList" resultType="com.yy.ppm.equipment.bean.dto.InspectionRouteSubDTO">
+        SELECT
+        ID,
+        PARENT_ID,
+        EQUIP_ID,
+        SORT_NUM
+    FROM
+        E_INSPECTION_ROUTE_SUB
+    WHERE
+        PARENT_ID = #{routeId}
+    </select>
+    <select id="getRouteList" resultType="com.yy.ppm.equipment.bean.dto.InspectionRouteDTO">
+        select
+            ID,
+            ROUTE_CODE,
+            ROUTE_NAME,
+            ROUTE_LEVEL,
+            CREATE_BY,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_TIME
+            FROM E_PATROL_ROUTE
+        where
+            1=1
+        <if test="routeName != null and routeName != ''">
+            <bind name="routeNameLike" value="'%' + routeName + '%'"/>
+            AND ROUTE_NAME LIKE #{routeNameLike}
+        </if>
+    </select>
+
+    <insert id="insert">
+    INSERT INTO E_PATROL_PLAN (
+                               ID,
+                               PLAN_CODE,
+                               PLAN_NAME,
+                               ROUTE_ID,
+                               PATROL_TYPE,
+                               INITIAL_DATE,
+                               SET_DATE,
+                               IS_SINGLE,
+                               PATROL_ID,
+                               PATROL_NAME,
+                               RECENTLY_TASK_DATE,
+                               STATUS,
+                               CREATE_BY,
+                                CREATE_TIME,
+                               TIME_LIMIT
+
+    ) values
+          (
+            #{id},
+            #{planCode},
+            #{planName},
+            #{routeId},
+            #{patrolType},
+            #{initialDate},
+            #{setDate},
+            #{isSingle},
+            #{patrolId},
+            #{patrolName},
+            #{recentlyTaskDate},
+            #{status},
+            #{loginUserId,jdbcType=BIGINT},
+            #{now,jdbcType=TIMESTAMP},
+            #{timeLimit}
+          )
+
+</insert>
+    <insert id="insertTaskList">
+        INSERT INTO E_PATROL_TASK(
+                ID,
+                PLAN_ID,
+                ROUTE_ID,
+                PATROL_ID,
+                PATROL_NAME,
+                START_TIME,
+                END_TIME,
+                STATUS,
+                CREATE_BY,
+                CREATE_TIME
+        )
+        (
+        <foreach collection="list" item="item" separator="union all">
+            select
+                #{item.id},
+                #{item.planId},
+                #{item.routeId},
+                #{item.patrolId},
+                #{item.patrolName},
+                #{item.startTime},
+                #{item.endTime},
+                #{item.status},
+                #{item.loginUserId,jdbcType=BIGINT},
+                #{item.now,jdbcType=TIMESTAMP}
+
+            from dual
+        </foreach>
+        )
+    </insert>
+    <insert id="insertTaskItemList">
+        INSERT INTO E_PATROL_TASK_SUB(
+                                      ID,
+                                      EQUIP_ID,
+                                      EQUIP_NAME,
+                                      STATUS ,
+                                      IS_ABNORMAL,
+                                      IS_REPAIR
+        )
+
+        (
+        <foreach collection="list" item="item" separator="union all">
+            select
+                #{item.id},
+                #{item.equipId},
+                #{item.equipName},
+                #{item.status},
+                #{item.isAbnormal},
+                #{item.isRepair}
+
+                from dual
+        </foreach>
+        )
+    </insert>
+
+
+    <update id="update">
+    update E_PATROL_PLAN
+    set
+        PLAN_CODE = #{planCode},
+        PLAN_NAME = #{planName},
+        ROUTE_ID = #{routeId},
+        PATROL_TYPE = #{patrolType},
+        INITIAL_DATE = #{initialDate},
+        SET_DATE = #{setDate},
+        IS_SINGLE = #{isSingle},
+        PATROL_ID = #{patrolId},
+        PATROL_NAME = #{patrolName},
+        RECENTLY_TASK_DATE = #{recentlyTaskDate},
+        STATUS = #{status},
+        TIME_LIMIT = #{timeLimit},
+        UPDATE_BY = #{loginUserId,jdbcType=BIGINT},
+        UPDATE_TIME = #{now,jdbcType=TIMESTAMP}
+    where
+    ID = #{id}
+</update>
+
+<update id="deleteById">
+    DELETE FROM E_PATROL_PLAN WHERE ID = #{id}
+</update>
+    <update id="updatePlanList">
+        UPDATE E_PATROL_PLAN
+        SET
+        STARECENTLY_TASK_DATETUS = #{now,jdbcType=TIMESTAMP}
+        WHERE
+        ID IN
+        <foreach item="item" collection="list" separator="," open="(" close=")" index="index">
+            #{item.id}
+        </foreach>
+    </update>
+</mapper>
+
