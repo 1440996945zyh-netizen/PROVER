@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.PatrolStandardMapper">
+
+    <select id="selectList" resultType="com.yy.ppm.equipment.bean.dto.PatrolStandardDTO">
+        SELECT
+        t.ID            AS id,
+        t.STANDARD_CODE AS standardCode,
+        t.STANDARD_NAME AS standardName,
+        t.EQPT_ID       AS eqptId,
+        t.CREATE_BY     AS createBy,
+        t.CREATE_TIME   AS createTime,
+        t.UPDATE_BY     AS updateBy,
+        t.UPDATE_TIME   AS updateTime
+        FROM E_PATROL_STANDARD t
+        WHERE 1 = 1
+        <if test="standardCode != null and standardCode != ''">
+            AND t.STANDARD_CODE LIKE '%' || #{standardCode} || '%'
+        </if>
+        <if test="standardName != null and standardName != ''">
+            AND t.STANDARD_NAME LIKE '%' || #{standardName} || '%'
+        </if>
+        ORDER BY t.CREATE_TIME DESC, t.ID DESC
+    </select>
+
+    <select id="selectById" resultType="com.yy.ppm.equipment.bean.dto.PatrolStandardDTO">
+        SELECT
+            t.ID            AS id,
+            t.STANDARD_CODE AS standardCode,
+            t.STANDARD_NAME AS standardName,
+            t.EQPT_ID       AS eqptId,
+            t.CREATE_BY     AS createBy,
+            t.CREATE_TIME   AS createTime,
+            t.UPDATE_BY     AS updateBy,
+            t.UPDATE_TIME   AS updateTime
+        FROM E_PATROL_STANDARD t
+        WHERE t.ID = #{id}
+    </select>
+
+    <select id="selectSubListByParentId" resultType="com.yy.ppm.equipment.bean.po.PatrolStandardSubPO">
+        SELECT
+            PARENT_ID          AS parentId,
+            CHECK_CONTENT      AS checkContent,
+            QUALIFY_CONDITION  AS qualifyCondition,
+            CHECK_METHOD       AS checkMethod
+        FROM E_PATROL_STANDARD_SUB
+        WHERE PARENT_ID = #{parentId}
+    </select>
+
+    <insert id="add">
+        INSERT INTO E_PATROL_STANDARD (
+            ID,
+            STANDARD_CODE,
+            STANDARD_NAME,
+            EQPT_ID,
+            CREATE_BY,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_TIME
+        ) VALUES (
+                     #{id},
+                     #{standardCode},
+                     #{standardName},
+                     #{eqptId},
+                     #{loginUserId},
+                     #{now},
+                     #{loginUserId},
+                     #{now}
+                 )
+    </insert>
+
+    <update id="update">
+        UPDATE E_PATROL_STANDARD
+        SET STANDARD_CODE = #{standardCode},
+            STANDARD_NAME = #{standardName},
+            EQPT_ID = #{eqptId},
+            UPDATE_BY = #{loginUserId},
+            UPDATE_TIME = #{now}
+        WHERE ID = #{id}
+    </update>
+
+    <insert id="insertSubBatch">
+        INSERT INTO E_PATROL_STANDARD_SUB (
+        PARENT_ID,
+        CHECK_CONTENT,
+        QUALIFY_CONDITION,
+        CHECK_METHOD
+        )
+        <foreach collection="list" item="item" separator=" union all ">
+            SELECT
+            #{parentId},
+            #{item.checkContent},
+            #{item.qualifyCondition},
+            #{item.checkMethod}
+            FROM dual
+        </foreach>
+    </insert>
+
+    <delete id="deleteSubByParentId">
+        DELETE FROM E_PATROL_STANDARD_SUB
+        WHERE PARENT_ID = #{parentId}
+    </delete>
+
+    <delete id="delete">
+        DELETE FROM E_PATROL_STANDARD
+        WHERE ID = #{id}
+    </delete>
+</mapper>
