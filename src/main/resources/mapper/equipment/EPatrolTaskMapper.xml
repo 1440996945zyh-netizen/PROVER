@@ -26,7 +26,7 @@
         FROM
             E_PATROL_TASK t1
             LEFT JOIN E_PATROL_ROUTE t2 on t2.ID = t1.ROUTE_ID
-            LEFT JOIN E_PATROL_PLAN t3 on t3.PLAN_ID = t1.PLAN_ID
+            LEFT JOIN E_PATROL_PLAN t3 on t3.ID = t1.PLAN_ID
 
         <where>
             <if test="startTime != null and startTime != ''">
