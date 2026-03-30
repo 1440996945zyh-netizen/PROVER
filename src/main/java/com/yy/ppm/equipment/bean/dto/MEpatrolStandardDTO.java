@@ -16,6 +16,9 @@ public class MEpatrolStandardDTO extends MEpatrolStandardPO {
 
     private static final long serialVersionUID = 1L;
 
+    /** 设备名称 */
+    private String eqptName;
+
     /** 子表 */
     private List<MEpatrolStandardSubPO> subList;
 }

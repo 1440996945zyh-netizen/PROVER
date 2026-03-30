@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -87,11 +86,14 @@ public class MEpatrolStandardServiceImpl implements MEpatrolStandardService {
         if (StringUtils.isBlank(dto.getStandardCode())) {
             throw new BusinessRuntimeException("标准编号不能为空");
         }
+        if (!dto.getStandardCode().matches("\\d+")) {
+            throw new BusinessRuntimeException("标准编号只能输入数字");
+        }
         if (StringUtils.isBlank(dto.getStandardName())) {
             throw new BusinessRuntimeException("标准名称不能为空");
         }
         if (StringUtils.isBlank(dto.getEqptId())) {
-            throw new BusinessRuntimeException("设备ID不能为空");
+            throw new BusinessRuntimeException("设备名称不能为空");
         }
         if (dto.getSubList() == null || dto.getSubList().isEmpty()) {
             throw new BusinessRuntimeException("请填写子表数据");

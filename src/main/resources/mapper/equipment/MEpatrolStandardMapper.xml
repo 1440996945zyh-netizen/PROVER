@@ -8,11 +8,13 @@
         t.STANDARD_CODE AS standardCode,
         t.STANDARD_NAME AS standardName,
         t.EQPT_ID       AS eqptId,
+        e.EQUIP_NAME    AS eqptName,
         t.CREATE_BY     AS createBy,
         t.CREATE_TIME   AS createTime,
         t.UPDATE_BY     AS updateBy,
         t.UPDATE_TIME   AS updateTime
         FROM E_PATROL_STANDARD t
+        LEFT JOIN E_M_EQPT_INFO e ON TO_CHAR(e.ID) = t.EQPT_ID AND e.DEL_FLAG = 0
         WHERE 1 = 1
         <if test="standardCode != null and standardCode != ''">
             AND t.STANDARD_CODE LIKE '%' || #{standardCode} || '%'
@@ -29,11 +31,13 @@
             t.STANDARD_CODE AS standardCode,
             t.STANDARD_NAME AS standardName,
             t.EQPT_ID       AS eqptId,
+            e.EQUIP_NAME    AS eqptName,
             t.CREATE_BY     AS createBy,
             t.CREATE_TIME   AS createTime,
             t.UPDATE_BY     AS updateBy,
             t.UPDATE_TIME   AS updateTime
         FROM E_PATROL_STANDARD t
+                 LEFT JOIN E_M_EQPT_INFO e ON TO_CHAR(e.ID) = t.EQPT_ID AND e.DEL_FLAG = 0
         WHERE t.ID = #{id}
     </select>
 
