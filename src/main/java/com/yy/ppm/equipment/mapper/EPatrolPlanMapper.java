@@ -28,10 +28,13 @@ public interface EPatrolPlanMapper {
 
     List<InspectionRouteSubDTO> getrouteSubList(Long routeId);
 
-    void updatePlanList(List<EPatrolPlanPO> planList);
+    @Edit
+    void updatePlanList(@Param("list") List<EPatrolPlanPO> planList);
 
+    @Edit
     void insertTaskList(@Param("list") List<EPatrolTaskPO> taskList);
 
+    @Edit
     void insertTaskItemList(@Param("list") List<EPatrolTaskSubPO> taskItemList);
 
     List<InspectionRouteDTO> getRouteList(InspectionRouteDTO searchDTO);

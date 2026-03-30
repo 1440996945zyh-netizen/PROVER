@@ -18,4 +18,11 @@ public class InspectionRouteSubDTO {
     private Long equipId;
 
     private String sortNum;
+
+    private String equipName;
+
+    private String checkContent;
+    private String qualifyCondition;
+    private String checkMethod;
+
 }

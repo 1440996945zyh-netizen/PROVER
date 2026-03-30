@@ -20,6 +20,12 @@ public class EPatrolTaskSubPO extends BasePO {
 
     private static final long serialVersionUID = 1L;
 
+
+
+    /** ID */
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long id;
+
     /** 巡检任务主表ID */
     @JsonSerialize(using = ToStringSerializer.class)
     private Long parentId;

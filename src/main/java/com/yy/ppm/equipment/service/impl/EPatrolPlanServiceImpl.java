@@ -8,6 +8,7 @@ import com.yy.common.page.PageParameter;
 import com.yy.common.page.Pages;
 import com.yy.common.util.DateUtils;
 import com.yy.common.util.PageHelperUtils;
+import com.yy.common.util.SecurityUtils;
 import com.yy.framework.exception.BusinessRuntimeException;
 import com.yy.ppm.common.mapper.SysFileMapper;
 import com.yy.ppm.common.service.SysFileService;
@@ -19,10 +20,12 @@ import com.yy.ppm.equipment.service.EMEquipRepairUserService;
 import com.yy.ppm.equipment.service.EPatrolPlanService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+
 
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
@@ -43,6 +46,9 @@ public class EPatrolPlanServiceImpl implements EPatrolPlanService {
     private EPatrolPlanMapper ePatrolPlanMapper;
     @Resource
     private Snowflake snowflake;
+
+
+
 
 
     @Override
@@ -92,7 +98,7 @@ public class EPatrolPlanServiceImpl implements EPatrolPlanService {
     /**
      * 定时新增点检任务
      */
-//    @Scheduled(cron="0 0 0 * * ?")
+    @Scheduled(cron="0 0 0 * * ?")
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
     public void patrolTimeTask () {
         LOGGER.enter("定时新增巡检任务开始");
@@ -123,30 +129,26 @@ public class EPatrolPlanServiceImpl implements EPatrolPlanService {
             }
             // 周 -- 判断今天是否大于开始日期并且今天与所选择的日期（周一到周天）相同
 
-            if ("2".equals(po.getPatrolType()) && toDate(today1).compareTo(po.getInitialDate()) >= 0) {
+            if ("2".equals(po.getPatrolType()) && toDate(today1).compareTo(po.getInitialDate()) <= 0) {
                 // 判断今天是星期几
                 DayOfWeek dayOfWeek = getDayOfWeek(today);
                 int day = dayOfWeek.getValue(); // 1=周一, 7=周日
                 if (day != Integer.parseInt(po.getSetDate())) {
                     continue;
                 }
-            }else {
-                continue;
             }
 
             // 月 -- 判断今天是否大于截止日期并且今天与所选择的日期（1号到30号）相同
-            if ("3".equals(po.getPatrolType()) && toDate(today1).compareTo(po.getInitialDate()) >= 0) {
+            if ("3".equals(po.getPatrolType()) && toDate(today1).compareTo(po.getInitialDate()) <= 0) {
                 // 获取今天是几号（1到31之间的数字）
                 int dayOfMonth = today1.getDayOfMonth();
                 if (dayOfMonth != Integer.parseInt(po.getSetDate())) {
                     continue;
                 }
-            }else {
-                continue;
             }
 
             // 年 判断是不是一月一号 并且当前时间大于结束时间
-            if ("4".equals(po.getPatrolType())  && toDate(today1).compareTo(po.getInitialDate()) >= 0) {
+            if ("4".equals(po.getPatrolType())  && toDate(today1).compareTo(po.getInitialDate()) <= 0) {
                 // 获取月份（1-12）
                 int month = today1.getMonthValue();
                 // 获取日（1-31）
@@ -154,14 +156,12 @@ public class EPatrolPlanServiceImpl implements EPatrolPlanService {
                 if ((month != 1 && day != 1)) {
                     continue;
                 }
-            }else {
-                continue;
             }
 
 
             //巡检计划
             patrolPlanPO.setId(po.getId());
-            po.setRecentlyTaskDate(new Date());
+            patrolPlanPO.setRecentlyTaskDate(new Date());
 
             planList.add(patrolPlanPO);
 
@@ -174,6 +174,9 @@ public class EPatrolPlanServiceImpl implements EPatrolPlanService {
             patrolTaskPO.setStartDate(new Date());
             patrolTaskPO.setEndDate(DateUtils.addDays(new Date(), Integer.parseInt(po.getTimeLimit())-1));
             patrolTaskPO.setStatus(0);
+            patrolTaskPO.setCreateBy(1L);
+            patrolTaskPO.setCreateTime(new Date());
+            patrolTaskPO.setCreateByName("定时任务新增");
 
             taskList.add(patrolTaskPO);
 
@@ -181,12 +184,18 @@ public class EPatrolPlanServiceImpl implements EPatrolPlanService {
             List<InspectionRouteSubDTO> routeList = ePatrolPlanMapper.getrouteSubList(po.getRouteId());
 
             for (InspectionRouteSubDTO item : routeList) {
+
                  EPatrolTaskSubPO taskItemPO = new EPatrolTaskSubPO();
                  taskItemPO.setParentId(patrolTaskPO.getId());
                  taskItemPO.setEquipId(item.getEquipId());
+                 taskItemPO.setEquipName(item.getEquipName());
+                 taskItemPO.setCheckContent(item.getCheckContent());
+                 taskItemPO.setQualifyCondition(item.getQualifyCondition());
+                 taskItemPO.setCheckMethod(item.getCheckMethod());
                  taskItemPO.setStatus(0);
                  taskItemPO.setIsAbnormal(0);
                  taskItemPO.setIsRepair(0);
+                 taskItemPO.setId(snowflake.nextId());
 
                  taskItemList.add(taskItemPO);
             }
