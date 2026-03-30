@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.yy.ppm.equipment.mapper.PatrolStandardMapper">
+<mapper namespace="com.yy.ppm.equipment.mapper.MEpatrolStandardMapper">
 
-    <select id="selectList" resultType="com.yy.ppm.equipment.bean.dto.PatrolStandardDTO">
+    <select id="selectList" resultType="com.yy.ppm.equipment.bean.dto.MEpatrolStandardDTO">
         SELECT
         t.ID            AS id,
         t.STANDARD_CODE AS standardCode,
@@ -23,7 +23,7 @@
         ORDER BY t.CREATE_TIME DESC, t.ID DESC
     </select>
 
-    <select id="selectById" resultType="com.yy.ppm.equipment.bean.dto.PatrolStandardDTO">
+    <select id="selectById" resultType="com.yy.ppm.equipment.bean.dto.MEpatrolStandardDTO">
         SELECT
             t.ID            AS id,
             t.STANDARD_CODE AS standardCode,
@@ -37,7 +37,7 @@
         WHERE t.ID = #{id}
     </select>
 
-    <select id="selectSubListByParentId" resultType="com.yy.ppm.equipment.bean.po.PatrolStandardSubPO">
+    <select id="selectSubListByParentId" resultType="com.yy.ppm.equipment.bean.po.MEpatrolStandardSubPO">
         SELECT
             PARENT_ID          AS parentId,
             CHECK_CONTENT      AS checkContent,

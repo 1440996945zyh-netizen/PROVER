@@ -5,10 +5,10 @@ import com.yy.common.page.PageParameter;
 import com.yy.common.page.Pages;
 import com.yy.common.util.PageHelperUtils;
 import com.yy.framework.exception.BusinessRuntimeException;
-import com.yy.ppm.equipment.bean.dto.PatrolStandardDTO;
-import com.yy.ppm.equipment.bean.po.PatrolStandardSubPO;
-import com.yy.ppm.equipment.mapper.PatrolStandardMapper;
-import com.yy.ppm.equipment.service.PatrolStandardService;
+import com.yy.ppm.equipment.bean.dto.MEpatrolStandardDTO;
+import com.yy.ppm.equipment.bean.po.MEpatrolStandardSubPO;
+import com.yy.ppm.equipment.mapper.MEpatrolStandardMapper;
+import com.yy.ppm.equipment.service.MEpatrolStandardService;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -22,26 +22,26 @@ import java.util.List;
  * 巡检标准
  */
 @Service
-public class PatrolStandardServiceImpl implements PatrolStandardService {
+public class MEpatrolStandardServiceImpl implements MEpatrolStandardService {
 
     @Resource
-    private PatrolStandardMapper patrolStandardMapper;
+    private MEpatrolStandardMapper patrolStandardMapper;
 
     @Resource
     private Snowflake snowflake;
 
     @Override
-    public Pages<PatrolStandardDTO> getList(PatrolStandardDTO searchDTO, PageParameter parameter) {
-        PatrolStandardDTO dto = searchDTO == null ? new PatrolStandardDTO() : searchDTO;
+    public Pages<MEpatrolStandardDTO> getList(MEpatrolStandardDTO searchDTO, PageParameter parameter) {
+        MEpatrolStandardDTO dto = searchDTO == null ? new MEpatrolStandardDTO() : searchDTO;
         return PageHelperUtils.limit(parameter, () -> patrolStandardMapper.selectList(dto));
     }
 
     @Override
-    public PatrolStandardDTO getById(Long id) {
+    public MEpatrolStandardDTO getById(Long id) {
         if (id == null) {
             throw new BusinessRuntimeException("id不能为空");
         }
-        PatrolStandardDTO dto = patrolStandardMapper.selectById(id);
+        MEpatrolStandardDTO dto = patrolStandardMapper.selectById(id);
         if (dto == null) {
             return null;
         }
@@ -51,7 +51,7 @@ public class PatrolStandardServiceImpl implements PatrolStandardService {
 
     @Override
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
-    public void add(PatrolStandardDTO dto) {
+    public void add(MEpatrolStandardDTO dto) {
         checkParam(dto, false);
         dto.setId(snowflake.nextId());
         patrolStandardMapper.add(dto);
@@ -60,7 +60,7 @@ public class PatrolStandardServiceImpl implements PatrolStandardService {
 
     @Override
     @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
-    public void update(PatrolStandardDTO dto) {
+    public void update(MEpatrolStandardDTO dto) {
         checkParam(dto, true);
         patrolStandardMapper.update(dto);
         patrolStandardMapper.deleteSubByParentId(dto.getId());
@@ -77,7 +77,7 @@ public class PatrolStandardServiceImpl implements PatrolStandardService {
         patrolStandardMapper.delete(id);
     }
 
-    private void checkParam(PatrolStandardDTO dto, boolean checkId) {
+    private void checkParam(MEpatrolStandardDTO dto, boolean checkId) {
         if (dto == null) {
             throw new BusinessRuntimeException("参数不能为空");
         }
@@ -96,7 +96,7 @@ public class PatrolStandardServiceImpl implements PatrolStandardService {
         if (dto.getSubList() == null || dto.getSubList().isEmpty()) {
             throw new BusinessRuntimeException("请填写子表数据");
         }
-        for (PatrolStandardSubPO item : dto.getSubList()) {
+        for (MEpatrolStandardSubPO item : dto.getSubList()) {
             if (item == null) {
                 throw new BusinessRuntimeException("子表数据不能为空");
             }
@@ -112,7 +112,7 @@ public class PatrolStandardServiceImpl implements PatrolStandardService {
         }
     }
 
-    private void saveSubList(Long parentId, List<PatrolStandardSubPO> subList) {
+    private void saveSubList(Long parentId, List<MEpatrolStandardSubPO> subList) {
         if (subList == null || subList.isEmpty()) {
             return;
         }

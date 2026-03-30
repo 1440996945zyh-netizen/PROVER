@@ -11,7 +11,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class PatrolStandardPO extends BasePO {
+public class MEpatrolStandardPO extends BasePO {
 
     private static final long serialVersionUID = 1L;
 

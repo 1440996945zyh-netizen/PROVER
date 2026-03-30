@@ -6,8 +6,8 @@ import com.yy.common.log.MicroLogger;
 import com.yy.common.page.PageParameter;
 import com.yy.common.page.Pages;
 import com.yy.framework.annotation.Log;
-import com.yy.ppm.equipment.bean.dto.PatrolStandardDTO;
-import com.yy.ppm.equipment.service.PatrolStandardService;
+import com.yy.ppm.equipment.bean.dto.MEpatrolStandardDTO;
+import com.yy.ppm.equipment.service.MEpatrolStandardService;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -19,21 +19,21 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/internal/patrolStandard")
-public class PatrolStandardController {
+public class MEpatrolStandardController {
 
-    private static final MicroLogger LOGGER = new MicroLogger(PatrolStandardController.class);
+    private static final MicroLogger LOGGER = new MicroLogger(MEpatrolStandardController.class);
 
     @Resource
-    private PatrolStandardService patrolStandardService;
+    private MEpatrolStandardService patrolStandardService;
 
     /** 列表 */
     @GetMapping("/getList")
     @PreAuthorize("hasAuthority('equipment:patrolStandard:query')")
-    public Map<String, Object> getList(PatrolStandardDTO searchDTO, PageParameter parameter) {
+    public Map<String, Object> getList(MEpatrolStandardDTO searchDTO, PageParameter parameter) {
         final String methodName = "PatrolStandardController:getList";
         LOGGER.enter(methodName + "[start]", "searchDTO:" + searchDTO + ", parameter:" + parameter);
 
-        Pages<PatrolStandardDTO> result = patrolStandardService.getList(searchDTO, parameter);
+        Pages<MEpatrolStandardDTO> result = patrolStandardService.getList(searchDTO, parameter);
 
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
@@ -46,7 +46,7 @@ public class PatrolStandardController {
         final String methodName = "PatrolStandardController:getById";
         LOGGER.enter(methodName + "[start]", "id:" + id);
 
-        PatrolStandardDTO result = patrolStandardService.getById(id);
+        MEpatrolStandardDTO result = patrolStandardService.getById(id);
 
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
@@ -56,7 +56,7 @@ public class PatrolStandardController {
     @PostMapping("/add")
     @Log(value = OperateTypeEnum.INSERT, title = "新增巡检标准")
     @PreAuthorize("hasAuthority('equipment:patrolStandard:add')")
-    public Map<String, Object> add(@RequestBody PatrolStandardDTO dto) {
+    public Map<String, Object> add(@RequestBody MEpatrolStandardDTO dto) {
         final String methodName = "PatrolStandardController:add";
         LOGGER.enter(methodName + "[start]", "dto:" + dto);
 
@@ -70,7 +70,7 @@ public class PatrolStandardController {
     @PutMapping("/update")
     @Log(value = OperateTypeEnum.UPDATE, title = "修改巡检标准")
     @PreAuthorize("hasAuthority('equipment:patrolStandard:update')")
-    public Map<String, Object> update(@RequestBody PatrolStandardDTO dto) {
+    public Map<String, Object> update(@RequestBody MEpatrolStandardDTO dto) {
         final String methodName = "PatrolStandardController:update";
         LOGGER.enter(methodName + "[start]", "dto:" + dto);
 

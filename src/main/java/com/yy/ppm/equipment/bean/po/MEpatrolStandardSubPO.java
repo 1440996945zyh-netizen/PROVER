@@ -8,7 +8,7 @@ import java.io.Serializable;
  * 巡检标准子表
  */
 @Data
-public class PatrolStandardSubPO implements Serializable {
+public class MEpatrolStandardSubPO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
