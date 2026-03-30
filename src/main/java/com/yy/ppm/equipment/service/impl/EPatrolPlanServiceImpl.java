@@ -86,6 +86,12 @@ public class EPatrolPlanServiceImpl implements EPatrolPlanService {
         if (id == null) {
             throw new BusinessRuntimeException("请选择一条数据删除");
         }
+        EPatrolPlanDTO searchDTO = new EPatrolPlanDTO();
+        searchDTO.setId(id);
+        EPatrolPlanDTO po = ePatrolPlanMapper.getById(searchDTO);
+        if (null!=po.getRecentlyTaskDate()){
+            throw new BusinessRuntimeException("请先删除该计划下的任务");
+        }
         ePatrolPlanMapper.deleteById(id);
     }
 

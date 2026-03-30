@@ -78,6 +78,8 @@ public class EPatrolPlanPO extends BasePO implements Serializable {
     /**
      * 最近生成任务时间
      */
+    @JsonFormat(timezone="GMT+8",pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date recentlyTaskDate;
 
     /**
