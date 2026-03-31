@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.HomeMapper">
+
+    <select id="getMaintIfon" resultType="java.util.Map">
+        SELECT
+            SUM(CASE WHEN STATUS = 0 THEN 1 ELSE 0 END) AS "dpg",
+            SUM(CASE WHEN STATUS = 2 THEN 1 ELSE 0 END) AS "wxz" ,
+            SUM(CASE WHEN STATUS = 4 THEN 1 ELSE 0 END) AS "dys",
+            COUNT(*) AS "sumCount"
+        FROM E_MAINT_INFO
+        WHERE DEL_FLAG = 0
+    </select>
+    <select id="getPatrolTask" resultType="java.util.Map">
+        SELECT
+            SUM(CASE WHEN STATUS = 0 THEN 1 ELSE 0 END) AS "wj",
+            SUM(CASE WHEN STATUS = 2 THEN 1 ELSE 0 END) AS "yj"
+        FROM E_PATROL_TASK
+
+    </select>
+    <select id="getCheckPlan" resultType="java.util.Map">
+        SELECT
+            SUM(CASE WHEN STATUS = 0 THEN 1 ELSE 0 END) AS "wj",
+            SUM(CASE WHEN STATUS = 2 THEN 1 ELSE 0 END) AS "yj"
+        FROM E_CHECK_TASK
+
+    </select>
+    <select id="ePmMaintainTask" resultType="java.util.Map">
+        SELECT
+            SUM(CASE WHEN PLAN_TYPE = '1' AND STATUS = 0 THEN 1 ELSE 0 END) AS "drh",
+            SUM(CASE WHEN PLAN_TYPE = '1' AND STATUS = 2 THEN 1 ELSE 0 END) AS "yrh",
+            SUM(CASE WHEN PLAN_TYPE = '2' AND STATUS = 0 THEN 1 ELSE 0 END) AS "dby",
+            SUM(CASE WHEN PLAN_TYPE = '2' AND STATUS = 2 THEN 1 ELSE 0 END) AS "yby"
+        FROM E_PM_MAINTAIN_TASK
+
+    </select>
+    <select id="eMaintIfonType" resultType="java.util.Map">
+        SELECT
+            SUM(CASE WHEN DISPATCH_TYPE_CODE = 1 THEN 1 ELSE 0 END) AS "nxgd",
+            SUM(CASE WHEN DISPATCH_TYPE_CODE = 2 THEN 1 ELSE 0 END) AS "dbgd" ,
+            SUM(CASE WHEN DISPATCH_TYPE_CODE = 3 THEN 1 ELSE 0 END) AS "degd",
+            SUM(CASE WHEN DISPATCH_TYPE_CODE = 4 THEN 1 ELSE 0 END) AS "fdegd"
+
+        FROM E_MAINT_INFO
+        WHERE DEL_FLAG = 0
+    </select>
+    <select id="eMaintIfonToday" resultType="java.util.Map">
+
+        SELECT
+            SUM(CASE WHEN STATUS = 0 THEN 1 ELSE 0 END) AS "ytj",
+            SUM(CASE WHEN STATUS = 1 THEN 1 ELSE 0 END) AS "ypg" ,
+            SUM(CASE WHEN STATUS = 4 THEN 1 ELSE 0 END) AS "ywc"
+        FROM E_MAINT_INFO
+        WHERE DEL_FLAG = 0
+        AND TO_CHAR(CREATE_TIME, 'yyyy-MM-dd') >= TO_CHAR(#{date}, 'yyyy-MM-dd')
+
+    </select>
+    <select id="getEqptInfo" resultType="java.util.Map">
+        SELECT
+            SUM(CASE WHEN EQUIP_BIG_CATEGORY_ID = '1991387653882384384' THEN 1 ELSE 0 END) AS "zxjx",
+            SUM(CASE WHEN EQUIP_BIG_CATEGORY_ID = '1991387191070298112' THEN 1 ELSE 0 END) AS "cl" ,
+            SUM(CASE WHEN EQUIP_BIG_CATEGORY_ID = '1991387224960274432' THEN 1 ELSE 0 END) AS "cb",
+            SUM(CASE WHEN EQUIP_BIG_CATEGORY_ID = '1991387706986467328' THEN 1 ELSE 0 END) AS "dlsb"
+        FROM E_M_EQPT_INFO
+        WHERE DEL_FLAG = 0
+
+    </select>
+    <select id="getEqptStatus" resultType="java.util.Map">
+        SELECT
+            SUM(CASE WHEN EQUIP_STATE  = '01' THEN 1 ELSE 0 END) AS "zy",
+            SUM(CASE WHEN EQUIP_STATE = '02' THEN 1 ELSE 0 END) AS "zx" ,
+            SUM(CASE WHEN EQUIP_STATE = '05' THEN 1 ELSE 0 END) AS "ty",
+            SUM(CASE WHEN EQUIP_STATE = '06' THEN 1 ELSE 0 END) AS "bf"
+        FROM E_M_EQPT_INFO
+        WHERE DEL_FLAG = 0
+
+    </select>
+
+
+</mapper>
+
