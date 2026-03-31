@@ -30,7 +30,6 @@ public class HomeController {
      * 首页获取数据
      */
     @GetMapping("/getHomeMap")
-    @PreAuthorize("hasAuthority('equipment:home:getHomeMap')")
     public Map<String, Object> getHomeMap() {
         final String methodName = "MEquipmentOperationController:getList";
         LOGGER.enter(methodName + "[start]", "searchDTO:");
