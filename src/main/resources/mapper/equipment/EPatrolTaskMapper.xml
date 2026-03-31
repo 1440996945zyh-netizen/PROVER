@@ -51,18 +51,23 @@
         SELECT
             t1.PARENT_ID,
             t1.EQUIP_ID,
-            t1.EQUIP_NAME,
             t1.CHECK_CONTENT,
             t1.QUALIFY_CONDITION,
             t1.CHECK_METHOD,
             t1.STATUS,
             t1.IS_ABNORMAL,
             t1.IS_REPAIR,
+            t1.REMARK,
             t2.PATROL_NAME,
             t6.FILE_IDS,
+            t7.STANDARD_NAME,
+            t7.STANDARD_CODE,
+            t3.EQUIP_NAME
         FROM
             E_PATROL_TASK_SUB t1
         LEFT JOIN E_PATROL_TASK t2 on t2.ID = t1.PARENT_ID
+        LEFT JOIN E_M_EQPT_INFO t3 on t3.ID = t1.EQUIP_ID
+        LEFT JOIN E_PATROL_STANDARD t7 ON t7.EQPT_ID = t1.EQUIP_ID
         LEFT JOIN (
         select
         BUSINESS_ID,
@@ -79,11 +84,154 @@
             </if>
             <if test="equipName != null and equipName != ''">
                 <bind name="equipNameLike" value="'%' + equipName + '%'"/>
-                AND t1.EQUIP_NAME LIKE #{equipNameLike}
+                AND t3.EQUIP_NAME LIKE #{equipNameLike}
             </if>
             <if test="status != null">
                 AND t1.STATUS = #{status}
             </if>
     </select>
+
+    <!-- 根据任务ID查询设备 -->
+    <select id="selectEquipmentByTaskId" resultType="java.util.Map">
+        SELECT
+            t1.EQUIP_ID "equipId",
+            t3.EQUIP_NAME "equipName"
+        FROM
+            E_PATROL_TASK_SUB t1
+        LEFT JOIN E_M_EQPT_INFO t3 on t3.ID = t1.EQUIP_ID
+        WHERE
+            t1.PARENT_ID = #{id}
+            <if test="equipId != null">
+                AND t1.EQUIP_ID = #{equipId}
+            </if>
+        GROUP BY t1.EQUIP_ID, t3.EQUIP_NAME
+    </select>
+
+    <!-- 根据任务ID和设备ID查询子表记录 -->
+    <select id="selectTaskItemById" resultType="com.yy.ppm.equipment.bean.po.EPatrolTaskSubPO">
+        SELECT
+            t1.ID,
+            t1.PARENT_ID,
+            t1.EQUIP_ID,
+            t3.EQUIP_NAME,
+            t1.CHECK_CONTENT,
+            t1.QUALIFY_CONDITION,
+            t1.CHECK_METHOD,
+            t1.STATUS,
+            t1.IS_ABNORMAL,
+            t1.IS_REPAIR,
+            t1.REMARK,
+            t6.FILE_IDS,
+            t7.STANDARD_NAME,
+            t7.STANDARD_CODE
+        FROM
+            E_PATROL_TASK_SUB t1
+        LEFT JOIN E_M_EQPT_INFO t3 on t3.ID = t1.EQUIP_ID
+        LEFT JOIN E_PATROL_STANDARD t7 ON t7.EQPT_ID = t1.EQUIP_ID
+        LEFT JOIN (
+            SELECT
+                BUSINESS_ID,
+                LISTAGG(FILE_ID, ',') WITHIN GROUP ( ORDER BY FILE_ID ) FILE_IDS
+            FROM
+                SYS_FILE_BUSINESS
+            GROUP BY
+                BUSINESS_ID
+        )t6 ON t1.ID = t6.BUSINESS_ID
+        WHERE
+            t1.PARENT_ID = #{id}
+            <if test="equipId != null">
+                AND t1.EQUIP_ID = #{equipId}
+            </if>
+    </select>
+
+    <!-- 批量更新任务子表 -->
+    <update id="updateTaskSubList">
+        begin
+        <foreach collection="list" item="item" separator=" ">
+            UPDATE
+            E_PATROL_TASK_SUB
+            SET
+            IS_ABNORMAL = #{item.isAbnormal,jdbcType=INTEGER},
+            STATUS = 1,
+            IS_REPAIR = #{item.isRepair,jdbcType=INTEGER},
+            REMARK = #{item.remark,jdbcType=VARCHAR}
+            <where>
+                ID = #{item.id,jdbcType=BIGINT}
+            </where>;
+        </foreach>
+        end;
+    </update>
+
+    <!-- 查询是否存在未检(0:待检)任务 -->
+    <select id="getUncheckedSubTaskCount" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM
+            E_PATROL_TASK_SUB
+        WHERE
+            PARENT_ID = #{parentId}
+            AND IS_ABNORMAL = 0
+    </select>
+    <select id="getListAPP" resultType="com.yy.ppm.equipment.bean.po.EPatrolTaskPO">
+        SELECT
+        distinct
+        t1.ID,
+        t1.PLAN_ID,
+        t1.ROUTE_ID,
+        t1.PATROL_ID,
+        t1.PATROL_NAME,
+        t1.START_DATE,
+        t1.END_DATE,
+        t1.STATUS,
+        t1.CREATE_BY,
+        t1.CREATE_BY_NAME,
+        t1.CREATE_TIME,
+        t2.ROUTE_CODE,
+        t2.ROUTE_NAME,
+        t2.ROUTE_LEVEL,
+        t3.PLAN_CODE,
+        t3.PLAN_NAME
+        FROM
+        E_PATROL_TASK t1
+        LEFT JOIN E_PATROL_ROUTE t2 on t2.ID = t1.ROUTE_ID
+        LEFT JOIN E_PATROL_PLAN t3 on t3.ID = t1.PLAN_ID
+        LEFT JOIN E_PATROL_TASK_SUB t4 on t4.PARENT_ID = t1.ID
+        <where>
+            <if test="startTime != null and startTime != ''">
+                AND t1.START_DATE >= TO_DATE(#{startTime}, 'yyyy-MM-dd')
+            </if>
+            <if test="endTime != null and endTime != ''">
+                AND t1.START_DATE &lt;= TO_DATE(#{endTime}, 'yyyy-MM-dd')
+            </if>
+            <if test="patrolName != null and patrolName != ''">
+                <bind name="patrolNameLike" value="'%' + patrolName + '%'"/>
+                AND t1.PATROL_NAME LIKE #{patrolNameLike}
+            </if>
+            <if test="routeName != null and routeName != ''">
+                <bind name="routeNameLike" value="'%' + routeName + '%'"/>
+                AND t2.ROUTE_NAME LIKE #{routeNameLike}
+            </if>
+            <if test="planName != null and planName != ''">
+                <bind name="planNameLike" value="'%' + planName + '%'"/>
+                AND t3.PLAN_NAME LIKE #{planNameLike}
+            </if>
+            <if test="status != null and status != ''">
+                and instr( #{status}, t1.STATUS) > 0
+            </if>
+            <if test="equipId != null and equipId != ''">
+                and t4.EQUIP_ID = #{equipId}
+            </if>
+        </where>
+        ORDER BY t1.CREATE_TIME DESC
+    </select>
+
+    <!-- 更新主表状态 -->
+    <update id="updateTaskStatus">
+        UPDATE E_PATROL_TASK
+        SET
+            STATUS = #{status}
+        WHERE
+            ID = #{taskId}
+    </update>
 
 </mapper>

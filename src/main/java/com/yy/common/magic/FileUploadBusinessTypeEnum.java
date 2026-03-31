@@ -43,7 +43,7 @@ public enum FileUploadBusinessTypeEnum {
     MAINT_INFO_IMAGE("MAINT_INFO_IMAGE", "", "设备维保图片"),
     MAINT_INFO_IMAGE_END("MAINT_INFO_IMAGE_END", "", "设备维修完成图片"),
     EQUIPMENT_PANORAMA("EQUIPMENT_PANORAMA", "", "设备台账全景图"),
-    EQUIPMENT_TASK("EQUIPMENT_TASK", "", "点检/保养任务"),
+    EQUIPMENT_TASK("EQUIPMENT_TASK", "", "点检/保养/巡检任务"),
     MATERIAL_WAREHOUSE_IN_FILE("MATERIAL_WAREHOUSE_IN_FILE", "", "物资入库附件"),
     E_M_EQPT_FILE("E_M_EQPT_FILE", "", "设备资料文件"),
     E_M_EQUIP_REPAIR_USER("E_M_EQUIP_REPAIR_USER", "", "设备维修人员证书");

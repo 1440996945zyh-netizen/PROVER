@@ -46,6 +46,12 @@ public class EPatrolTaskSubPO extends BasePO {
     /** 检查方法 */
     private String checkMethod;
 
+    /** 标准名称 */
+    private String standardName;
+
+    /** 标准编号 */
+    private String standardCode;
+
     /** 巡检状态 0未检 1已检 */
     private Integer status;
 
@@ -55,6 +61,9 @@ public class EPatrolTaskSubPO extends BasePO {
     /** 是否报修 0否 1是 */
     private Integer isRepair;
 
+    /** 备注 */
+    private String remark;
+
     /** 巡检员姓名 */
     private String patrolName;
 
@@ -62,5 +71,5 @@ public class EPatrolTaskSubPO extends BasePO {
     private String fileIds;
 
     /** 附件列表 (非数据库字段，用于展示) */
-    private List<SysFileDTO> attachmentList;
+    private List<SysFileDTO> mattachmentInfoList;
 }

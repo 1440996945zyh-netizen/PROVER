@@ -242,6 +242,10 @@ management:
   health:
     rabbit:
       enabled: false
+#Dify配置
+dify:
+  url: http://114.215.173.72:10005/v1
+  key: app-oUrmwL25BFYxsjUm3AK65q5d
 
 #pagehelper
 pagehelper:

@@ -139,7 +139,7 @@ spring:
           - name: 测试_queues
             routing-key: exchange_cs
             exchange: rabbitmq测试  # 关联的交换机名称
-            enabled: true  # 启用监听
+            enabled: false  # 启用监听
 #mybatis-plus
 mybatis-plus:
   mapper-locations: classpath*:mapper/**/*Mapper.xml
@@ -248,6 +248,11 @@ management:
   health:
     rabbit:
       enabled: false
+
+#Dify配置
+dify:
+  url: http://114.215.173.72:10005/v1
+  key: app-oUrmwL25BFYxsjUm3AK65q5d
 
 #pagehelper
 pagehelper:

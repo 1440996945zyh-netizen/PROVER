@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.chat.mapper.SysAgentMapper">
+
+    <resultMap id="BaseResultMap" type="com.yy.ppm.chat.bean.po.SysAgentPO">
+        <id column="ID" property="id"/>
+        <result column="AGENT_NAME" property="agentName"/>
+        <result column="INTRODUCTION" property="introduction"/>
+        <result column="AVATAR" property="avatar"/>
+        <result column="STATUS" property="status"/>
+        <result column="API_KEY" property="apiKey"/>
+        <result column="AGENT_SORT" property="agentSort"/>
+        <result column="CREATE_BY" property="createBy"/>
+        <result column="CREATE_BY_NAME" property="createByName"/>
+        <result column="CREATE_TIME" property="createTime"/>
+        <result column="UPDATE_BY" property="updateBy"/>
+        <result column="UPDATE_BY_NAME" property="updateByName"/>
+        <result column="UPDATE_TIME" property="updateTime"/>
+        <result column="TYPE" property="type"/>
+        <result column="AGENT_CODE" property="agentCode"/>
+    </resultMap>
+
+    <select id="listByStatus" resultMap="BaseResultMap">
+        SELECT ID, AGENT_NAME, INTRODUCTION, AVATAR, STATUS, API_KEY, AGENT_SORT,
+               CREATE_BY, CREATE_BY_NAME, CREATE_TIME, UPDATE_BY, UPDATE_BY_NAME, UPDATE_TIME,
+                TYPE,AGENT_CODE
+        FROM SYS_AGENT
+        <where>
+            TYPE = 1
+            <if test="status != null and status != ''">
+                AND STATUS = #{status}
+            </if>
+        </where>
+        ORDER BY AGENT_SORT, ID
+    </select>
+
+    <select id="getList" resultMap="BaseResultMap"
+            parameterType="com.yy.ppm.chat.bean.dto.AgentSearchDTO">
+        SELECT ID, AGENT_NAME, INTRODUCTION, AVATAR, STATUS, API_KEY, AGENT_SORT,
+               CREATE_BY, CREATE_BY_NAME, CREATE_TIME, UPDATE_BY, UPDATE_BY_NAME, UPDATE_TIME,
+                TYPE,AGENT_CODE
+        FROM SYS_AGENT
+        <where>
+            <if test="agentName != null and agentName != ''">
+                <bind name="agentNameLike" value="'%' + agentName + '%'"/>
+                AND AGENT_NAME LIKE #{agentNameLike}
+            </if>
+            <if test="status != null and status != ''">
+                AND STATUS = #{status}
+            </if>
+        </where>
+        ORDER BY AGENT_SORT, ID
+    </select>
+
+    <select id="getById" resultMap="BaseResultMap">
+        SELECT ID, AGENT_NAME, INTRODUCTION, AVATAR, STATUS, API_KEY, AGENT_SORT,
+               CREATE_BY, CREATE_BY_NAME, CREATE_TIME, UPDATE_BY, UPDATE_BY_NAME, UPDATE_TIME,
+                TYPE,AGENT_CODE
+        FROM SYS_AGENT
+        WHERE ID = #{id}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO SYS_AGENT (ID, AGENT_NAME, INTRODUCTION, AVATAR, STATUS, API_KEY, AGENT_SORT, CREATE_BY, CREATE_BY_NAME, CREATE_TIME,TYPE,AGENT_CODE)
+        VALUES (#{id}, #{agentName}, #{introduction}, #{avatar}, #{status}, #{apiKey}, #{agentSort}, #{createBy}, #{createByName}, #{createTime},#{type},#{agentCode})
+    </insert>
+
+    <update id="update">
+        UPDATE SYS_AGENT
+        SET AGENT_NAME = #{agentName}, INTRODUCTION = #{introduction}, AVATAR = #{avatar},
+            STATUS = #{status}, API_KEY = #{apiKey}, AGENT_SORT = #{agentSort},
+            UPDATE_BY = #{updateBy}, UPDATE_BY_NAME = #{updateByName}, UPDATE_TIME = #{updateTime},
+            TYPE = #{type},AGENT_CODE=#{agentCode}
+        WHERE ID = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM SYS_AGENT WHERE ID = #{id}
+    </delete>
+
+    <select id="getAgentByAgentCode" resultType="com.yy.ppm.chat.bean.dto.AgentDTO">
+        SELECT
+        ID,
+        AGENT_NAME,
+        INTRODUCTION,
+        AVATAR,
+        STATUS,
+        API_KEY,
+        AGENT_SORT,
+        CREATE_BY,
+        CREATE_BY_NAME,
+        CREATE_TIME,
+        UPDATE_BY,
+        UPDATE_BY_NAME,
+        UPDATE_TIME,
+        TYPE,
+        AGENT_CODE
+        FROM SYS_AGENT
+        <where>
+            <if test="dataSource != null and dataSource != ''">
+                AGENT_CODE = #{dataSource}
+            </if>
+        </where>
+        ORDER BY AGENT_SORT, ID
+    </select>
+</mapper>

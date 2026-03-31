@@ -38,17 +38,21 @@ public class EPatrolTaskSearchDTO extends BasePO {
     private String patrolName;
 
     /** 状态 */
-    private Integer status;
+    private String status;
 
-    /** 查询开始时间 (字符串格式，用于MyBatis判断) */
+    /** 查询开始时间*/
     private String startTime;
 
-    /** 查询结束时间 (字符串格式，用于MyBatis判断) */
+    /** 查询结束时间 */
     private String endTime;
-    
-    /** 设备ID (用于子表查询过滤) */
+
+    /** 设备ID */
     private Long equipId;
-    
-    /** 设备名称 (用于子表查询或主列表模糊查询) */
+
+    /** 设备名称  */
     private String equipName;
+    /** 巡检路线名称 */
+    private String routeName;
+    /** 计划名称 */
+    private String planName;
 }
