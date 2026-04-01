@@ -33,15 +33,19 @@ public class LoginServiceImpl implements LoginService {
      */
     private static final MicroLogger LOGGER = new MicroLogger(LoginServiceImpl.class);
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
+    private final SysLoginLogMapper sysLoginLogMapper;
+    private final Snowflake snowflake;
 
-
-    @Autowired
-    private SysLoginLogMapper sysLoginLogMapper;
-
-    @Autowired
-    private Snowflake snowflake;
+    public LoginServiceImpl(
+            AuthenticationManager authenticationManager,
+            SysLoginLogMapper sysLoginLogMapper,
+            Snowflake snowflake
+    ) {
+        this.authenticationManager = authenticationManager;
+        this.sysLoginLogMapper = sysLoginLogMapper;
+        this.snowflake = snowflake;
+    }
 
     @Autowired
     private HttpServletRequest request;
@@ -90,7 +94,7 @@ public class LoginServiceImpl implements LoginService {
         }
 
         // 停用的场合
-        if (CommonEnum.IsUsed.UNUSED.getCode().equals(accountDTO.getStatus())) {
+        if (CommonEnum.IsUsed.UNUSED.getCode().equals(accountDTO.getStatus().toString())) {
             mLoginLog.setStatus("失败");
             mLoginLog.setErrorMsg("账户已停用");
             sysLoginLogMapper.insert(mLoginLog);

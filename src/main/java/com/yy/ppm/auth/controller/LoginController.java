@@ -62,21 +62,22 @@ public class LoginController {
 	@Value("${yy.token.expires}")
 	private short expires;
 
-	@Autowired
-	private LoginService loginService;
-
-	@Autowired
-	private AuthService authService;
-
-	@Autowired
-	private RedisTemplate<String, String> redisTemplate;
-
 	@Value("${spring.application.name}")
 	private String applicationName;
 
-	@Autowired
-	private SecurityUtils securityUtils;
+	private final LoginService loginService;
+	private final AuthService authService;
+	private final RedisTemplate<String, String> redisTemplate;
 
+	public LoginController(
+			LoginService loginService,
+			AuthService authService,
+			RedisTemplate<String, String> redisTemplate
+	) {
+		this.loginService = loginService;
+		this.authService = authService;
+		this.redisTemplate = redisTemplate;
+	}
 	/**
 	 * 系统登录 PC端
 	 *
