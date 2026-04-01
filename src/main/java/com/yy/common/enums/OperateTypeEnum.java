@@ -39,7 +39,7 @@ public enum OperateTypeEnum {
 
     public static String getByValue(String code) {
         for (OperateTypeEnum item : values()) {
-            if (item.getCode() == code) {
+            if (item.getCode().equals(code)) {
                 return item.getComment();
             }
         }
