@@ -28,7 +28,6 @@ build-sonar:
     - [ Console ]::OutputEncoding = [System.Text.Encoding]::UTF8
 
     - Set-Location $env:CI_PROJECT_DIR
-    - Write-Host "Working in: $(Get-Location)"
     - if (-not (Test-Path "pom.xml")) { Write-Error "pom.xml not found!"; exit 1 }
   script:
     - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
