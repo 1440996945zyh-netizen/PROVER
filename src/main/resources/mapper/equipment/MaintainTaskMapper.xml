@@ -222,6 +222,7 @@
     t1.REMARK,
     t2.EQUIP_ID,
     t2.EQUIP_NAME,
+    t2.PLAN_TYPE,
     t1.STATUS,
     t1.EQUIP_TYPE,
     t1.IS_REPAIR

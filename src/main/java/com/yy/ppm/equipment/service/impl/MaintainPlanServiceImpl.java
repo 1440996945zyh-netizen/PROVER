@@ -79,6 +79,7 @@ public class MaintainPlanServiceImpl implements MaintainPlanService {
             MaintainTaskPO maintainTaskPO = new MaintainTaskPO();
             maintainTaskPO.setId(snowflake.nextId());
             maintainTaskPO.setEquipPlanId(dto.getId());
+            maintainTaskPO.setPlanType(dto.getPlanType());
             maintainTaskPO.setEquipId(dto.getEquipId());
             maintainTaskPO.setEquipName(dto.getEquipName());
             maintainTaskPO.setInspectorId(dto.getInspectorId());
@@ -294,6 +295,7 @@ public class MaintainPlanServiceImpl implements MaintainPlanService {
             }
             maintainTaskPO.setId(snowflake.nextId());
             maintainTaskPO.setEquipPlanId(po.getId());
+            maintainTaskPO.setPlanType(po.getPlanType());
             maintainTaskPO.setEquipId(po.getEquipId());
             maintainTaskPO.setEquipName(po.getEquipName());
             maintainTaskPO.setStartDate(toDate(today1));

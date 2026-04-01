@@ -128,4 +128,9 @@ public class MaintainTaskItemPO extends BasePO {
     private Integer isRepair;
     /** 附件 */
     private List<SysFileDTO> mattachmentInfoList;
+
+    /**
+     * 计划类型
+     */
+    private String planType;
 }
