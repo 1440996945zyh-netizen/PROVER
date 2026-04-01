@@ -57,8 +57,10 @@ public class BpmProcessListenerServiceImpl implements BpmProcessListenerService 
 
     private static final MicroLogger LOGGER = new MicroLogger(BpmProcessListenerServiceImpl.class);
 
-    @Autowired
-    private Snowflake snowflake;
+    private final Snowflake snowflake;
+    public BpmProcessListenerServiceImpl(Snowflake snowflake){
+        this.snowflake = snowflake;
+    }
 
     @Resource
     private BpmProcessListenerMapper bpmProcessListenerMapper;

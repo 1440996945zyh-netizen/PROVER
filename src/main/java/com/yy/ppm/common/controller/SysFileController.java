@@ -52,15 +52,21 @@ public class SysFileController {
      **/
     private static final int MAX_FILE_SIZE = 1024 * 1024 * 5 * 20;
 
-    @Autowired
-    private SysFileService sysFileService;
-
-    @Autowired
-    private Snowflake snowflake;
 
     @Resource
     private MinioConfig minIoConfig;
 
+    private final SysFileService sysFileService;
+
+    private final Snowflake snowflake;
+
+    public SysFileController(
+            SysFileService sysFileService,
+            Snowflake snowflake
+    ){
+        this.snowflake = snowflake;
+        this.sysFileService = sysFileService;
+    }
     /**
      * 文件上传
      *
@@ -139,7 +145,7 @@ public class SysFileController {
             String fileName = fileObject.getOriginalFilename();
             Long id = snowflake.nextId();
             String saveName = id + fileName;
-            String path = "" == route ? bucketDate : (route + "/" + bucketDate);
+            String path = "".equals(route) ? bucketDate : (route + "/" + bucketDate);
             minIoConfig.putObject(bucketName, path + saveName, fileObject.getInputStream());
 
             SysFileDTO sysFilePo = new SysFileDTO();

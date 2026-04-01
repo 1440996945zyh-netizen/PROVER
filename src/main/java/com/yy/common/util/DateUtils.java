@@ -237,7 +237,7 @@ public final class DateUtils {
      **/
     public static int roundUpDay(DateTime start, DateTime end) {
         long millis = timeDiffMillis(start, end);
-        BigDecimal bb = new BigDecimal(millis).multiply(new BigDecimal(1.0)).divide(new BigDecimal(CommonEnum.MillisUnit.DAY.getMillis()), BigDecimal.ROUND_UP);
+        BigDecimal bb = new BigDecimal(millis).multiply(new BigDecimal("1.0")).divide(new BigDecimal(CommonEnum.MillisUnit.DAY.getMillis()), BigDecimal.ROUND_UP);
         return bb.intValue();
     }
 
@@ -265,7 +265,7 @@ public final class DateUtils {
      **/
     public static int round(long millis, CommonEnum.MillisUnit millisUnitEnum) {
         long round = Math.round(millis * 1.0 / (millisUnitEnum.getMillis()));
-        return Long.valueOf(round).intValue();
+        return (int) round;
     }
 
     /**

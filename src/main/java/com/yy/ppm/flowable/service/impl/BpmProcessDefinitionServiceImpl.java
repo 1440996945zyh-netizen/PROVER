@@ -58,8 +58,10 @@ public class BpmProcessDefinitionServiceImpl implements BpmProcessDefinitionServ
     @Resource
     private SysUserService sysUserService;
 
-    @Autowired
-    private Snowflake snowflake;
+    private final Snowflake snowflake;
+    public BpmProcessDefinitionServiceImpl(Snowflake snowflake) {
+        this.snowflake = snowflake;
+    }
 
     /**
      * 获得流程定义编号对应的 ProcessDefinition

@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.yy.common.page.Pages;
 import com.yy.common.util.PageConverterUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -36,7 +37,9 @@ public class BeanUtils {
     public static <S, T> List<T> toBean(List<S> source, Class<T> targetType, Consumer<T> peek) {
         List<T> list = toBean(source, targetType);
         if (list != null) {
-            list.forEach(peek);
+            if(peek !=null){
+                list.forEach(peek);
+            }
         }
         return list;
     }

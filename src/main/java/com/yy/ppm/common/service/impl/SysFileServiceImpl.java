@@ -6,6 +6,7 @@ import com.yy.framework.config.MinioConfig;
 import com.yy.ppm.common.bean.dto.SysFileDTO;
 import com.yy.ppm.common.bean.po.SysFilePO;
 import com.yy.ppm.common.mapper.SysFileMapper;
+import com.yy.ppm.common.service.CommonService;
 import com.yy.ppm.common.service.SysFileService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +34,10 @@ public class SysFileServiceImpl implements SysFileService {
     @Resource
     private MinioConfig minioConfig;
 
-    @Autowired
-    private Snowflake snowflake;
+    private final Snowflake snowflake;
+    public SysFileServiceImpl(Snowflake snowflake) {
+        this.snowflake = snowflake;
+    }
 
     /**
      * 保存文件上传明细

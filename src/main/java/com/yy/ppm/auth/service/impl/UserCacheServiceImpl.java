@@ -3,6 +3,8 @@ package com.yy.ppm.auth.service.impl;
 import com.yy.common.enums.RedisEnum;
 import com.yy.common.log.MicroLogger;
 import com.yy.common.util.str.StringUtil;
+import com.yy.ppm.auth.service.AuthService;
+import com.yy.ppm.auth.service.LoginService;
 import com.yy.ppm.auth.service.UserCacheService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +30,12 @@ public class UserCacheServiceImpl implements UserCacheService {
 	 */
 	private static final MicroLogger LOGGER = new MicroLogger(UserCacheServiceImpl.class);
 
-	@Autowired
-	private RedisTemplate<String, String> redisTemplate;
+	private final RedisTemplate<String, String> redisTemplate;
+
+	public UserCacheServiceImpl(RedisTemplate<String, String> redisTemplate) {
+		this.redisTemplate = redisTemplate;
+	}
+
 
 	@Override
 	public void cleanCacheByAccNo(String accNo) {

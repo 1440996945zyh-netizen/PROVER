@@ -1504,7 +1504,7 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         List<Task> childTaskList = getAllChildTaskList(task);
         childTaskList.add(task);
         // 2.2 更新子任务为已取消
-        String cancelReason = StrUtil.format("任务被取消，原因：由于[{}]操作[减签]，", cancelUser.getUserName());
+        String cancelReason = StrUtil.format("任务被取消，原因：由于[{}]操作[减签]，", cancelUser!=null ? cancelUser.getUserName():null);
         childTaskList.forEach(childTask -> updateTaskStatusAndReason(childTask.getId(), BpmTaskStatusEnum.CANCEL.getStatus(), cancelReason));
         // 2.3 删除任务和所有子任务
         taskService.deleteTasks(convertList(childTaskList, Task::getId));
@@ -1512,7 +1512,7 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         // 3. 记录日志到父任务中。先记录日志是因为，通过 handleParentTask 方法之后，任务可能被完成了，并且不存在了，会报异常，所以先记录
         SysUserDTO user = sysUserService.getById(userId);
         taskService.addComment(task.getParentTaskId(), task.getProcessInstanceId(), BpmCommentTypeEnum.SUB_SIGN.getType(),
-                StrUtil.format(BpmCommentTypeEnum.SUB_SIGN.getComment(), user.getUserName(), cancelUser.getUserName()));
+                StrUtil.format(BpmCommentTypeEnum.SUB_SIGN.getComment(), user.getUserName(), cancelUser!=null ? cancelUser.getUserName():null));
 
         // 4. 处理当前任务的父任务
         handleParentTaskIfSign(task.getParentTaskId());

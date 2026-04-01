@@ -300,17 +300,21 @@ public class CollectionUtils {
             return null;
         }
         assert !from.isEmpty(); // 断言，避免告警
-        T t = from.stream().max(Comparator.comparing(valueFunc)).get();
-        return valueFunc.apply(t);
+        return from.stream()
+                .max(Comparator.comparing(valueFunc))
+                .map(valueFunc)
+                .orElse(null);
     }
 
     public static <T, V extends Comparable<? super V>> V getMinValue(List<T> from, Function<T, V> valueFunc) {
         if (CollUtil.isEmpty(from)) {
             return null;
         }
-        assert from.size() > 0; // 断言，避免告警
-        T t = from.stream().min(Comparator.comparing(valueFunc)).get();
-        return valueFunc.apply(t);
+        assert !from.isEmpty(); // 断言，避免告警
+        return from.stream()
+                .min(Comparator.comparing(valueFunc))
+                .map(valueFunc)
+                .orElse(null);
     }
 
     public static <T, V extends Comparable<? super V>> T getMinObject(List<T> from, Function<T, V> valueFunc) {
@@ -318,7 +322,9 @@ public class CollectionUtils {
             return null;
         }
         assert from.size() > 0; // 断言，避免告警
-        return from.stream().min(Comparator.comparing(valueFunc)).get();
+        return from.stream()
+                .min(Comparator.comparing(valueFunc))
+                .orElse(null);
     }
 
     public static <T, V extends Comparable<? super V>> V getSumValue(Collection<T> from, Function<T, V> valueFunc,

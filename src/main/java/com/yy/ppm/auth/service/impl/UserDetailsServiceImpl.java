@@ -12,12 +12,15 @@ import com.yy.framework.exception.BusinessRuntimeException;
 import com.yy.ppm.auth.bean.dto.UserInfo;
 import com.yy.ppm.auth.bean.dto.UserAuthorizeInfo;
 import com.yy.ppm.auth.mapper.AuthMapper;
+import com.yy.ppm.auth.service.AuthService;
+import com.yy.ppm.auth.service.LoginService;
 import com.yy.ppm.auth.service.UserCacheService;
 import com.yy.ppm.system.bean.dto.SysLoginLogDTO;
 import com.yy.ppm.system.mapper.SysDeptMapper;
 import com.yy.ppm.system.mapper.SysLoginLogMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -40,11 +43,18 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Resource
     SysLoginLogMapper sysLoginLogMapper;
     @Autowired
-    private UserCacheService userCacheService;
-    @Autowired
-    private Snowflake snowflake;
-    @Autowired
     private HttpServletRequest request;
+
+
+    private final UserCacheService userCacheService;
+    private final Snowflake snowflake;
+    public UserDetailsServiceImpl(
+            Snowflake snowflake,
+            UserCacheService userCacheService
+    ) {
+        this.userCacheService = userCacheService;
+        this.snowflake = snowflake;
+    }
 
     @Override
     public UserAuthorizeInfo loadUserByUsername(String accNo) throws UsernameNotFoundException {

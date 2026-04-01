@@ -33,8 +33,11 @@ public class RouterController {
      **/
     private static final MicroLogger LOGGER = new MicroLogger(RouterController.class);
 
-    @Autowired
-    private RouterService routerService;
+    private final RouterService routerService;
+
+    public RouterController(RouterService routerService) {
+        this.routerService = routerService;
+    }
 
     /**
      * 获取首页左侧菜单列表

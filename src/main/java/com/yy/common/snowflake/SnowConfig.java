@@ -19,8 +19,11 @@ public class SnowConfig {
 
     private Integer workId;
 
-    @Autowired
-    private SnowflakeIp snowflakeIp; // 由 @ConfigurationProperties 自动注入
+    private final SnowflakeIp snowflakeIp;
+
+    public SnowConfig(SnowflakeIp snowflakeIp){
+        this.snowflakeIp = snowflakeIp;
+    }
 
     @Bean
     public Snowflake snowflake() {

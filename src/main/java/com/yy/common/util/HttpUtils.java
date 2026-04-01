@@ -129,7 +129,7 @@ public class HttpUtils
                 }
                 retries++;
                 log.warn("请求返回空结果，重试 {}/{}", retries, MAX_RETRIES);
-                Thread.sleep(500 * retries);
+                Thread.sleep(500L * retries);
             } catch (Exception e) {
                 retries++;
                 log.warn("请求失败，重试 {}/{}，错误: {}", retries, MAX_RETRIES, e.getMessage());
@@ -137,7 +137,7 @@ public class HttpUtils
                     throw new RuntimeException("HTTP请求失败", e);
                 }
                 try {
-                    Thread.sleep(1000 * retries);
+                    Thread.sleep(1000L * retries);
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
                 }
@@ -225,8 +225,14 @@ public class HttpUtils
         try
         {
             log.info("sendSSLPost - {}", urlNameString);
-            SSLContext sc = SSLContext.getInstance("SSL");
-            sc.init(null, new TrustManager[] { new TrustAnyTrustManager() }, new java.security.SecureRandom());
+
+            // ==================== 修复部分开始 ====================
+            // 使用系统默认 SSL 验证（安全、会校验证书）
+            SSLContext sc = SSLContext.getInstance("TLS");
+            // 【删除了不安全的 TrustAnyTrustManager】
+            sc.init(null, null, new java.security.SecureRandom());
+            // ==================== 修复部分结束 ====================
+
             URL console = new URL(urlNameString);
             HttpsURLConnection conn = (HttpsURLConnection) console.openConnection();
             conn.setRequestProperty("accept", "*/*");
@@ -236,18 +242,21 @@ public class HttpUtils
             conn.setRequestProperty("contentType", "utf-8");
             conn.setDoOutput(true);
             conn.setDoInput(true);
+
             conn.setSSLSocketFactory(sc.getSocketFactory());
-            conn.setHostnameVerifier(new TrustAnyHostnameVerifier());
+
+            // ==================== 修复部分 ====================
+            // 【删除了不安全的 TrustAnyHostnameVerifier】
+            // 启用系统默认域名校验
+            // ==================== 修复部分 ====================
+
             conn.connect();
             InputStream is = conn.getInputStream();
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
-            String ret = "";
+            BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+            String ret;
             while ((ret = br.readLine()) != null)
             {
-                if (ret != null && !ret.trim().equals(""))
-                {
-                    result.append(new String(ret.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8));
-                }
+                result.append(ret.trim());
             }
             log.info("recv - {}", result);
             conn.disconnect();
@@ -272,31 +281,86 @@ public class HttpUtils
         return result.toString();
     }
 
-    private static class TrustAnyTrustManager implements X509TrustManager
-    {
-        @Override
-        public void checkClientTrusted(X509Certificate[] chain, String authType)
-        {
-        }
+    //以下代码存在安全问题，不可使用
+//    public static String sendSSLPost(String url, String param)
+//    {
+//        StringBuilder result = new StringBuilder();
+//        String urlNameString = url + "?" + param;
+//        try
+//        {
+//            log.info("sendSSLPost - {}", urlNameString);
+//            SSLContext sc = SSLContext.getInstance("SSL");
+//            sc.init(null, new TrustManager[] { new TrustAnyTrustManager() }, new java.security.SecureRandom());
+//            URL console = new URL(urlNameString);
+//            HttpsURLConnection conn = (HttpsURLConnection) console.openConnection();
+//            conn.setRequestProperty("accept", "*/*");
+//            conn.setRequestProperty("connection", "Keep-Alive");
+//            conn.setRequestProperty("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
+//            conn.setRequestProperty("Accept-Charset", "utf-8");
+//            conn.setRequestProperty("contentType", "utf-8");
+//            conn.setDoOutput(true);
+//            conn.setDoInput(true);
+//            conn.setSSLSocketFactory(sc.getSocketFactory());
+//            conn.setHostnameVerifier(new TrustAnyHostnameVerifier());
+//            conn.connect();
+//            InputStream is = conn.getInputStream();
+//            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+//            String ret = "";
+//            while ((ret = br.readLine()) != null)
+//            {
+//                if (ret != null && !ret.trim().equals(""))
+//                {
+//                    result.append(new String(ret.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8));
+//                }
+//            }
+//            log.info("recv - {}", result);
+//            conn.disconnect();
+//            br.close();
+//        }
+//        catch (ConnectException e)
+//        {
+//            log.error("调用HttpUtils.sendSSLPost ConnectException, url=" + url + ",param=" + param, e);
+//        }
+//        catch (SocketTimeoutException e)
+//        {
+//            log.error("调用HttpUtils.sendSSLPost SocketTimeoutException, url=" + url + ",param=" + param, e);
+//        }
+//        catch (IOException e)
+//        {
+//            log.error("调用HttpUtils.sendSSLPost IOException, url=" + url + ",param=" + param, e);
+//        }
+//        catch (Exception e)
+//        {
+//            log.error("调用HttpsUtil.sendSSLPost Exception, url=" + url + ",param=" + param, e);
+//        }
+//        return result.toString();
+//    }
+//
+//    private static class TrustAnyTrustManager implements X509TrustManager
+//    {
+//        @Override
+//        public void checkClientTrusted(X509Certificate[] chain, String authType)
+//        {
+//        }
+//
+//        @Override
+//        public void checkServerTrusted(X509Certificate[] chain, String authType)
+//        {
+//        }
+//
+//        @Override
+//        public X509Certificate[] getAcceptedIssuers()
+//        {
+//            return new X509Certificate[] {};
+//        }
+//    }
 
-        @Override
-        public void checkServerTrusted(X509Certificate[] chain, String authType)
-        {
-        }
-
-        @Override
-        public X509Certificate[] getAcceptedIssuers()
-        {
-            return new X509Certificate[] {};
-        }
-    }
-
-    private static class TrustAnyHostnameVerifier implements HostnameVerifier
-    {
-        @Override
-        public boolean verify(String hostname, SSLSession session)
-        {
-            return true;
-        }
-    }
+//    private static class TrustAnyHostnameVerifier implements HostnameVerifier
+//    {
+//        @Override
+//        public boolean verify(String hostname, SSLSession session)
+//        {
+//            return true;
+//        }
+//    }
 }

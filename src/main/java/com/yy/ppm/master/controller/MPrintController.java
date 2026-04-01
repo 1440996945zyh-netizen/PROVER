@@ -50,9 +50,6 @@ public class MPrintController {
     @Resource
     MPrintService mPrintService;
 
-    @Autowired
-    private CommonService commonService;
-
     /**
      * 新增
      *

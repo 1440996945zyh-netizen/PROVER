@@ -121,8 +121,6 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
     @Resource
     private SysDeptService sysDeptService;
 
-    @Autowired
-    private IdentityService identityService;
 
     @Resource
     private BpmBusinessInstanceMapper bpmBusinessInstanceMapper;
@@ -137,8 +135,16 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
     private SysFileMapper sysFileMapper;
 
 
-    @Autowired
-    private Snowflake snowflake;
+    private final IdentityService identityService;
+
+    private final Snowflake snowflake;
+    public BpmProcessInstanceServiceImpl(
+            IdentityService identityService,
+            Snowflake snowflake
+    ){
+        this.identityService = identityService;
+        this.snowflake = snowflake;
+    }
 
     // ========== Query 查询相关方法 ==========
 

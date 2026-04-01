@@ -17,6 +17,9 @@
     <description>扬奕软件Java基础框架</description>
 
     <properties>
+        <sonar.projectKey>yy-framework_yy-framework-api_85325cdb-89a9-4d80-86d4-66be8c9c646d</sonar.projectKey>
+        <sonar.projectName>yy--framework-api</sonar.projectName>
+        <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

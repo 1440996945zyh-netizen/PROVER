@@ -61,10 +61,19 @@ public class BpmProcessInstanceCopyServiceImpl implements BpmProcessInstanceCopy
     @Resource
     @Lazy // 延迟加载，避免循环依赖
     private BpmProcessDefinitionService processDefinitionService;
-    @Autowired
-    private SysUserService sysUserService;
-    @Autowired
-    private Snowflake snowflake;
+
+    private final SysUserService sysUserService;
+
+    private final Snowflake snowflake;
+
+    public BpmProcessInstanceCopyServiceImpl(
+            SysUserService sysUserService,
+            Snowflake snowflake
+    ){
+        this.sysUserService = sysUserService;
+        this.snowflake = snowflake;
+    }
+
 
     /**
      * 【管理员】流程实例的抄送
