@@ -3,7 +3,9 @@ image: maven:3-eclipse-temurin-17
 variables:
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
-  GIT_CLEAN_FLAGS: none     # 不让 Runner 自动删（避免报错）
+  GIT_CONFIG_GLOBAL: |
+    [core]
+      longpaths = true
 stages:
   - build-sonar
 
@@ -12,15 +14,14 @@ build-sonar:
   stage: build-sonar
 
 
-  cache:
-    policy: pull-push
-    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
-    paths:
-      - "${SONAR_USER_HOME}/cache"
-      - sonar-scanner/
+#  cache:
+#    policy: pull-push
+#    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
+#    paths:
+#      - "${SONAR_USER_HOME}/cache"
+#      - sonar-scanner/
 
   script:
-    - git config --global core.longpaths true
     - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
   allow_failure: true
   rules:
