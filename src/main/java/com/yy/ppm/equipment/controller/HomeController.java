@@ -46,7 +46,7 @@ public class HomeController {
      * 首页获取工单趋势
      */
     @GetMapping("/getMaintInfo")
-    public Map<String, Object> getMaintInfo(@RequestBody HomeDTO homeDTO) {
+    public Map<String, Object> getMaintInfo(HomeDTO homeDTO) {
         final String methodName = "MEquipmentOperationController:getList";
         LOGGER.enter(methodName + "[start]", "searchDTO:");
 

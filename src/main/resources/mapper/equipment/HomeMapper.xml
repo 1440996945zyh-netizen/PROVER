@@ -58,9 +58,9 @@
     <select id="eMaintIfonToday" resultType="java.util.Map">
 
         SELECT
-            SUM(CASE WHEN STATUS != 7 THEN 1 ELSE 0 END) AS "ytj",
-            SUM(CASE WHEN STATUS != 0 AND STATUS !=7 THEN 1 ELSE 0 END) AS "ypg" ,
-            SUM(CASE WHEN STATUS = 5 THEN 1 ELSE 0 END) AS "ywc"
+            SUM(CASE WHEN SOURCE =1 THEN 1 ELSE 0 END) AS "sbwx",
+            SUM(CASE WHEN SOURCE =2 THEN 1 ELSE 0 END) AS "ddjh" ,
+            SUM(CASE WHEN SOURCE =3 THEN 1 ELSE 0 END) AS "rhjh"
         FROM E_MAINT_INFO
         WHERE DEL_FLAG = 0
         AND TO_CHAR(CREATE_TIME, 'yyyy-MM-dd') >= TO_CHAR(#{date}, 'yyyy-MM-dd')
@@ -90,7 +90,7 @@
     <select id="getMainInfo" resultType="com.yy.ppm.equipment.bean.dto.HomeDTO">
         SELECT
             COUNT(*) AS "tbs",
-            SUM(CASE WHEN STATUS in(0,1,2,3,4) THEN 1 ELSE 0 END) AS "jxz",
+            SUM(CASE WHEN STATUS in(1,2,4) THEN 1 ELSE 0 END) AS "jxz",
             SUM(CASE WHEN STATUS = 5 THEN 1 ELSE 0 END) AS "ywc",
             to_char(CREATE_TIME,'yyyy-MM-dd') AS "createDate"
         FROM E_MAINT_INFO
