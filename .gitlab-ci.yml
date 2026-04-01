@@ -3,6 +3,9 @@ image: maven:3-eclipse-temurin-17
 variables:
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+  SONAR_HOST_URL: "http://114.55.226.181:9002/"
+  SONAR_TOKEN: "sqp_9ae93907f74c7ca4fcbede512e997c7f5ec2c279"
+  SONAR_PROJECT_KEY: "yy-framework_yy-framework-api_85325cdb-89a9-4d80-86d4-66be8c9c646d"
   GIT_CONFIG_GLOBAL: |
     [core]
       longpaths = true
@@ -23,6 +26,10 @@ build-sonar:
   script:
     - cd D:/gitlab-runner/builds/UUZGLxcD_/0/gitlab2/yy-framework/yy-framework-api
     - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+      -Dsonar.host.url=$SONAR_HOST_URL
+      -Dsonar.projectKey=$SONAR_PROJECT_KEY
+      -Dsonar.login=$SONAR_TOKEN
+      -Dsonar.java.binaries=target/classes
   allow_failure: true
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
