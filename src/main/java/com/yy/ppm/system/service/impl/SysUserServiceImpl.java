@@ -145,7 +145,8 @@ public class SysUserServiceImpl implements SysUserService {
 		if(sysUserDTO.getSortNum() == null){
 			sysUserDTO.setSortNum(Long.valueOf(baseService.getNextValue("sys_user","sort_num",null)));
 		}
-		if(sysUserDTO.getFileIds().size()>1){
+		//文件ID空指针防护：先判断是否为null，再判断size
+		if (sysUserDTO.getFileIds() != null && sysUserDTO.getFileIds().size() > 1) {
 			throw new BusinessRuntimeException("只能上传一个签名文件");
 		}
 
@@ -299,8 +300,19 @@ public class SysUserServiceImpl implements SysUserService {
 		SysUserDTO sysUserDTO = sysUserMapper.getById(securityUtils.getLoginUserId());
 		// 拷贝
 		BeanUtils.copyProperties(sysUserDTO, profileDTO);
+
 		// 是否超级管理员
 		profileDTO.setAdmin("1".equals(sysUserDTO.getIsSuperadminLabel()));
+		profileDTO.setUserId(sysUserDTO.getId());
+		profileDTO.setUserName(sysUserDTO.getUserAccount());
+		profileDTO.setNickName(sysUserDTO.getUserName());
+		profileDTO.setAdmin("1".equals(sysUserDTO.getIsSuperadmin()));
+		profileDTO.setDeptId(sysUserDTO.getDeptId());
+		profileDTO.setStatus(sysUserDTO.getStatus().toString());
+		profileDTO.setEmail(sysUserDTO.getEmail());
+		profileDTO.setPhonenumber(sysUserDTO.getTel());
+		profileDTO.setSex(sysUserDTO.getSex().toString());
+
 		// 获取部门信息
 		profileDTO.setDept(sysDeptMapper.getById(sysUserDTO.getDeptId()));
 		// 获取角色信息

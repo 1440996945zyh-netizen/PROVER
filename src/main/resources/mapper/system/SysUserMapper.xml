@@ -73,11 +73,13 @@
             A.POST_CODE,
             A.POST_NAME,
             A.UNIT_TYPE_CODE,
-            A.UNIT_TYPE_NAME
+            A.UNIT_TYPE_NAME,
+            A.TEL,
+            A.MOBILE
         FROM
             SYS_USER A
         <where>
-            a.ID = #{id,jdbcType=BIGINT}
+            A.ID = #{id,jdbcType=BIGINT}
         </where>
     </select>
 

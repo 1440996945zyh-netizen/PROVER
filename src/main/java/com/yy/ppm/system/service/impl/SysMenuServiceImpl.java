@@ -101,7 +101,7 @@ public class SysMenuServiceImpl implements SysMenuService {
             //id
             sysMenuDTO.setId(snowflake.nextId());
             // 如果是目录，设置样式为Layout
-            if("M".equals(sysMenuDTO.getMenuType()) && "0".equals(sysMenuDTO.getParentId())){
+            if("M".equals(sysMenuDTO.getMenuType()) && sysMenuDTO.getParentId() == 0){
                 sysMenuDTO.setComponent("Layout");
             }
             // 如果是按钮 判断当前菜单下的按钮权限标识不能重复
