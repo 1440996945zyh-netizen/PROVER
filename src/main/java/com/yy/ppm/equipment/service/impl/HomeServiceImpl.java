@@ -58,6 +58,8 @@ public class HomeServiceImpl implements HomeService {
         //用户id
         Long userId = securityUtils.getUserInfo().getId();
 
+        Long companyId = securityUtils.getUserInfo().getDeptId();
+
 
         //设备维修派工单map
         Map<String, Object> eMaintInfo =homeMapper.getMaintInfo(userId);
