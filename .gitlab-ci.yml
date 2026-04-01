@@ -21,6 +21,7 @@ build-sonar:
       - sonar-scanner/
 
   script:
+    - cd "${CI_PROJECT_DIR}" #GIT_CLEAN_FLAGS: none GIT_STRATEGY: fetch 因为加了这两个所以要手动进入项目目录
     - rmdir /s /q .sonar 2>nul || true   # 安全删除旧缓存
     - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
   allow_failure: true
