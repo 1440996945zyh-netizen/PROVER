@@ -6,6 +6,7 @@ variables:
   GIT_CONFIG_GLOBAL: |
     [core]
       longpaths = true
+  GIT_CLEAN_FLAGS: -fdx #Skip the files which can't be deleted
 stages:
   - build-sonar
 
@@ -22,6 +23,7 @@ build-sonar:
       - sonar-scanner/
 
   script:
+    - git config --global core.longpaths true
     - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
   allow_failure: true
   rules:
