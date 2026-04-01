@@ -21,7 +21,6 @@ build-sonar:
 
   script:
     - git config --global core.longpaths true
-    - powershell "Remove-Item -Path .sonar -Recurse -Force -ErrorAction SilentlyContinue"
     - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
   allow_failure: true
   rules:
