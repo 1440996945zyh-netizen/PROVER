@@ -94,7 +94,7 @@ public class LoginServiceImpl implements LoginService {
         }
 
         // 停用的场合
-        if (CommonEnum.IsUsed.UNUSED.getCode().equals(accountDTO.getStatus().toString())) {
+        if (accountDTO.getStatus()!=null && CommonEnum.IsUsed.UNUSED.getCode().equals(accountDTO.getStatus().toString())) {
             mLoginLog.setStatus("失败");
             mLoginLog.setErrorMsg("账户已停用");
             sysLoginLogMapper.insert(mLoginLog);
