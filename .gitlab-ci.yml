@@ -5,7 +5,7 @@ variables:
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
   SONAR_HOST_URL: "http://114.55.226.181:9002/"
   SONAR_TOKEN: "sqp_9ae93907f74c7ca4fcbede512e997c7f5ec2c279"
-  SONAR_PROJECT_KEY: "yy-framework_yy-framework-api_85325cdb-89a9-4d80-86d4-66be8c9c646d"
+#  SONAR_PROJECT_KEY: "yy-framework_yy-framework-api_85325cdb-89a9-4d80-86d4-66be8c9c646d"
 
 stages:
   - build-sonar
@@ -23,10 +23,10 @@ build-sonar:
       - sonar-scanner/
   script:
     - cd D:/gitlab-runner/builds/UUZGLxcD_/0/gitlab2/yy-framework/yy-framework-api
-    - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
-      -Dsonar.host.url=$SONAR_HOST_URL
-      -Dsonar.projectKey=$SONAR_PROJECT_KEY
-      -Dsonar.login=$SONAR_TOKEN
+    - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+      -Dsonar.host.url=$SONAR_HOST_URL \
+#      -Dsonar.projectKey=$SONAR_PROJECT_KEY
+      -Dsonar.login=$SONAR_TOKEN \
       -Dsonar.java.binaries=target/classes
   allow_failure: true
   rules:
