@@ -20,6 +20,7 @@ build-sonar:
       - sonar-scanner/
 
   script:
+    - cd "${CI_PROJECT_DIR}"
     - rmdir /s /q .sonar 2>nul || true   # 安全删除旧缓存
     - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
   allow_failure: true
