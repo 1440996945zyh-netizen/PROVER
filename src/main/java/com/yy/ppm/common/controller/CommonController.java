@@ -27,8 +27,10 @@ public class CommonController {
 	 **/
 	private static final MicroLogger LOGGER = new MicroLogger(CommonController.class);
 
-	@Autowired
-	private CommonService baseService;
+	private final CommonService baseService;
+	public CommonController(CommonService baseService) {
+		this.baseService = baseService;
+	}
 
 	/**
 	 * 删除

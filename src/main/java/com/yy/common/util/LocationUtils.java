@@ -48,7 +48,7 @@ public class LocationUtils {
         } catch (IOException e) {
             throw new IORuntimeException(e);
         } finally {
-            boolean bool = tempFile.delete();
+            tempFile.delete();
         }
     });
 

@@ -53,13 +53,17 @@ public class LogAspect {
     @Autowired
     private HttpServletRequest request;
 
-    @Autowired
-    private Snowflake snowflake;
+
+    private final Snowflake snowflake;
+
+    public LogAspect(Snowflake snowflake){
+        this.snowflake = snowflake;
+    }
 
     private static final Logger logger = LoggerFactory.getLogger(LogAspect.class);
 
     /** 计算操作消耗时间 */
-    private static final ThreadLocal<Long> TIME_THREADLOCAL = new NamedThreadLocal<Long>("Cost Time");
+    private static final ThreadLocal<Long> TIME_THREADLOCAL = new ThreadLocal<>();
 
 //    @Value("${yyy.mqSwitch}")
     private Boolean mqSwitch = false;

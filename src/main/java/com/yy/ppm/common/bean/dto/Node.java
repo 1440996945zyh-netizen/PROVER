@@ -8,6 +8,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 树状结构顶层元素
@@ -47,22 +48,15 @@ public class Node implements Serializable {
 
     @Override
     public final boolean equals(Object otherObject) {
-        if (otherObject == null) {
-            return false;
-        }
-
         if (this == otherObject) {
             return true;
         }
-
-        Node otherNode = (Node) otherObject;
-        if (getClass() != otherNode.getClass()) {
+        if (otherObject == null || getClass() != otherObject.getClass()) {
             return false;
         }
 
-        EqualsBuilder builder = new EqualsBuilder();
-        builder.append(this.id, otherNode.id);
-        return builder.isEquals();
+        Node otherNode = (Node) otherObject;
+        return Objects.equals(this.id, otherNode.id);
     }
 
     @Override
