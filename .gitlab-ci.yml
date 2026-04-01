@@ -3,7 +3,6 @@ image: maven:3-eclipse-temurin-17
 variables:
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
-  GIT_NON_BARE: "true"  # 让 Runner 不强制清理整个目录，跳过删不掉的文件
   GIT_CONFIG_GLOBAL: |
     [core]
       longpaths = true
@@ -23,6 +22,7 @@ build-sonar:
       - sonar-scanner/
 
   script:
+    - rmdir /s /q .sonar 2>nul || true #手动删除，否则长路径文件缓存删除报错
     - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
   allow_failure: true
   rules:
