@@ -3,7 +3,9 @@ image: maven:3-eclipse-temurin-17
 variables:
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
-
+  GIT_CONFIG_GLOBAL: |
+    [core]
+      longpaths = true
 stages:
   - build-sonar
 
@@ -20,7 +22,6 @@ build-sonar:
       - sonar-scanner/
 
   script:
-    - git config --global core.longpaths true
     - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
   allow_failure: true
   rules:
