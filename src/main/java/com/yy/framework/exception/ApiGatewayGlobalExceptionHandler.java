@@ -85,11 +85,11 @@ public class ApiGatewayGlobalExceptionHandler {
 		final String methodName = "constraintViolationException";
 		// Fix:处理自定义消息
 		StringBuilder message = new StringBuilder();
-		for (ConstraintViolation<?> violation : exception.getConstraintViolations()) {
-			message.append(violation.getMessageTemplate());
-			break;
-		}
-
+//		for (ConstraintViolation<?> violation : exception.getConstraintViolations()) {
+//			message.append(violation.getMessageTemplate());
+//			break;
+//		}
+		message.append(exception.getConstraintViolations().stream().findFirst().map(ConstraintViolation::getMessageTemplate));
 		LOGGER.error(methodName,
 				"账号: " +  loginAccount()  + ", 业务数据校验异常message: " + StringUtil.getErrorText(exception)); //+ ShiroUtils.getAccNo()
 		return Response.FAIL.newBuilder().addGateWayCode(GateWayCode.E0200)

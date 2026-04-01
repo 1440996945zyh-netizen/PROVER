@@ -29,8 +29,11 @@ public class SysLoginLogController {
 	 **/
 	private static final MicroLogger LOGGER = new MicroLogger(SysLoginLogController.class);
 
-    @Autowired
-    private SysLoginLogService sysLoginLogService;
+    private final SysLoginLogService sysLoginLogService;
+
+    public SysLoginLogController(SysLoginLogService sysLoginLogService){
+        this.sysLoginLogService = sysLoginLogService;
+    }
 
     /**
      * 获取列表（翻页）

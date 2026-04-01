@@ -36,9 +36,6 @@ public class SysMenuServiceImpl implements SysMenuService {
      */
     private static final MicroLogger LOGGER = new MicroLogger(SysMenuServiceImpl.class);
 
-    @Autowired
-    private Snowflake snowflake;
-
     @Resource
     private SecurityUtils securityUtils;
 
@@ -48,8 +45,14 @@ public class SysMenuServiceImpl implements SysMenuService {
     @Resource
     private CommonMapper baseMapper;
 
-    @Autowired
-    private UserCacheService userCacheService;
+
+    private final UserCacheService userCacheService;
+    private final Snowflake snowflake;
+
+    public SysMenuServiceImpl(UserCacheService userCacheService,Snowflake snowflake){
+        this.userCacheService = userCacheService;
+        this.snowflake = snowflake;
+    }
 
     @Override
     public SysMenuDTO getDetailById(Long id) {

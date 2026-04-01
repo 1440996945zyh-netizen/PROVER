@@ -31,8 +31,12 @@ public class SysParameterController {
     /**
      * 服务对象
      */
-    @Autowired
-    private SysParameterService sysParameterService;
+
+    private final SysParameterService sysParameterService;
+
+    public SysParameterController(SysParameterService sysParameterService){
+        this.sysParameterService = sysParameterService;
+    }
 
     /**
      * 根据实体类筛选数据列表

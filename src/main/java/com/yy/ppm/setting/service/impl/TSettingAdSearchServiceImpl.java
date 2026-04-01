@@ -33,8 +33,11 @@ public class TSettingAdSearchServiceImpl implements TSettingAdSearchService {
      /**
       * 雪花算法
       **/
-     @Autowired
-     private Snowflake snowflake;
+     private final Snowflake snowflake;
+
+     public TSettingAdSearchServiceImpl(Snowflake snowflake){
+         this.snowflake = snowflake;
+     }
 
     /**
      * 获取列表（翻页）

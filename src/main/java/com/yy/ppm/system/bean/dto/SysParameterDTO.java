@@ -7,6 +7,7 @@ import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * 系统参数(SysParameter)DTO
@@ -46,7 +47,15 @@ public class SysParameterDTO extends SysParameterPO implements Serializable {
         }
         return  false;
     }
-
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                super.getParamCd(),
+                super.getParamNm(),
+                super.getParamVal(),
+                super.getRemark()
+        );
+    }
 
 
     private boolean equalsStr(String str1, String str2){
@@ -58,13 +67,13 @@ public class SysParameterDTO extends SysParameterPO implements Serializable {
         }
         return false;
     }
-/*    @Override
-    public int hashCode() {
-        int result = 17;
-        result = 31 * result + (name == null ? 0 : name.hashCode());
-        result = 31 * result + (age == null ? 0 : age.hashCode());
-        return result;
-    }*/
+//   @Override
+//    public int hashCode() {
+//        int result = 17;
+//        result = 31 * result + (name == null ? 0 : name.hashCode());
+//        result = 31 * result + (age == null ? 0 : age.hashCode());
+//        return result;
+//    }
 
 
 }

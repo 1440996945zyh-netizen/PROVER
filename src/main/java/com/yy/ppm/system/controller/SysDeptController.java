@@ -24,9 +24,12 @@ public class SysDeptController {
     /**
      * 服务对象
      */
-    @Autowired
-    private SysDeptService deptService;
 
+    private final SysDeptService deptService;
+
+    public SysDeptController(SysDeptService deptService){
+        this.deptService = deptService;
+    }
     /**
      * 获取部门列表
      */

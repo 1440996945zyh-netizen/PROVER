@@ -18,8 +18,11 @@ import java.util.Map;
 @Validated
 public class QuartzJobController {
 
-    @Autowired
-    private QuartzJobService quartzJobService;
+
+    private final QuartzJobService quartzJobService;
+    public QuartzJobController(QuartzJobService quartzJobService){
+        this.quartzJobService = quartzJobService;
+    }
 
     /**
      * 添加http类型job
@@ -79,7 +82,7 @@ public class QuartzJobController {
 
         quartzJobService.pauseJob(jobName, jobGroup);
 
-        return Response.SUCCESS.newBuilder().out(true ? "暂停成功" : "暂停失败").toResult();
+        return Response.SUCCESS.newBuilder().out("暂停成功").toResult();
     }
 
     /**
@@ -93,7 +96,7 @@ public class QuartzJobController {
                               @RequestParam(name = "jobGroup") String jobGroup) {
 
         quartzJobService.resumeJob(jobName, jobGroup);
-        return Response.SUCCESS.newBuilder().out(true ? "恢复成功" : "恢复失败").toResult();
+        return Response.SUCCESS.newBuilder().out("恢复成功").toResult();
     }
 
     /**
@@ -107,7 +110,7 @@ public class QuartzJobController {
                               @RequestParam(name = "jobGroup") String jobGroup) {
 
         quartzJobService.deleteJob(jobName, jobGroup);
-        return Response.SUCCESS.newBuilder().out(true ? "删除成功" : "删除失败").toResult();
+        return Response.SUCCESS.newBuilder().out("删除成功").toResult();
     }
 
     /**
@@ -123,6 +126,6 @@ public class QuartzJobController {
                               @RequestParam(name = "cronExpression") String cronExpression) {
 
         quartzJobService.updateCronExpression(jobName, jobGroup, cronExpression);
-        return Response.SUCCESS.newBuilder().out(true ? "更新成功" : "更新失败").toResult();
+        return Response.SUCCESS.newBuilder().out("更新成功").toResult();
     }
 }

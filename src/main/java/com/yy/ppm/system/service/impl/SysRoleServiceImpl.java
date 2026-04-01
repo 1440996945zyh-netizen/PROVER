@@ -48,9 +48,6 @@ public class SysRoleServiceImpl implements SysRoleService {
      */
     private static final MicroLogger LOGGER = new MicroLogger(SysRoleServiceImpl.class);
 
-    @Autowired
-    private Snowflake snowflake;
-
     @Resource
     private SysRoleMapper sysRoleMapper;
 
@@ -65,6 +62,13 @@ public class SysRoleServiceImpl implements SysRoleService {
 
     @Resource
     private UserCacheService userCacheService;
+
+    private final Snowflake snowflake;
+
+    public SysRoleServiceImpl(Snowflake snowflake){
+        this.snowflake = snowflake;
+    }
+
 
     /**
      * 列表查询

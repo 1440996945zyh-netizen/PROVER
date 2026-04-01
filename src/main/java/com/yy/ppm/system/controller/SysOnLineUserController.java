@@ -34,8 +34,12 @@ public class SysOnLineUserController {
      **/
     private static final MicroLogger LOGGER = new MicroLogger(SysOnLineUserController.class);
 
-    @Autowired
-    private SysOnLineUserService sysOnLineUserService;
+
+    private final SysOnLineUserService sysOnLineUserService;
+
+    public SysOnLineUserController(SysOnLineUserService sysOnLineUserService){
+        this.sysOnLineUserService = sysOnLineUserService;
+    }
 
     /**
      * 查询

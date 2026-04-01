@@ -24,10 +24,6 @@ public class SysParameterLogServiceImpl  implements SysParameterLogService {
      * 日志组件
      */
     private static final MicroLogger LOGGER = new MicroLogger(SysParameterLogServiceImpl.class);
-
-    @Autowired
-    private Snowflake snowflake;
-
     @Resource
     private SysParameterLogMapper sysParameterLogMapper;
 

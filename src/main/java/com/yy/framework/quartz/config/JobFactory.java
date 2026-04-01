@@ -14,8 +14,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class JobFactory extends AdaptableJobFactory {
 
-    @Autowired
-    private AutowireCapableBeanFactory beanFactory;
+    private final AutowireCapableBeanFactory beanFactory;
+
+    public JobFactory(AutowireCapableBeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
+    }
 
     @Override
     protected Object createJobInstance(final TriggerFiredBundle bundle) throws Exception {

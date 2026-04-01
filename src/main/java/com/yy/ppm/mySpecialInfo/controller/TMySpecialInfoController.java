@@ -25,9 +25,12 @@ public class TMySpecialInfoController {
 	 **/
 	private static final MicroLogger LOGGER = new MicroLogger(TMySpecialInfoController.class);
 
-    @Autowired
-    private TMySpecialInfoService tMySpecialInfoService;
 
+    private final TMySpecialInfoService tMySpecialInfoService;
+
+    public TMySpecialInfoController(TMySpecialInfoService tMySpecialInfoService){
+        this.tMySpecialInfoService = tMySpecialInfoService;
+    }
 
     /**
      * 查询单条记录

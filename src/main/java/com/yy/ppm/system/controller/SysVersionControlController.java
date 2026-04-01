@@ -51,15 +51,19 @@ public class SysVersionControlController {
 	 **/
 	private static final MicroLogger LOGGER = new MicroLogger(SysVersionControlController.class);
 
-    @Autowired
-    private SysVersionControlService sysVersionControlService;
-
     @Resource
     private MinioConfig minIoConfig;
 
+
+	private final SysVersionControlService sysVersionControlService;
+
+	public SysVersionControlController(SysVersionControlService sysVersionControlService){
+		this.sysVersionControlService = sysVersionControlService;
+	}
+
     /**
      * 列表查询
-     * @param sysUserSearchDTO
+     * @param
      * @return
      */
 	@GetMapping("/getlist")

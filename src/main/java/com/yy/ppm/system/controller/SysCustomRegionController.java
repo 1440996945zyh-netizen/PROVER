@@ -27,8 +27,12 @@ public class SysCustomRegionController {
 	 **/
 	private static final MicroLogger LOGGER = new MicroLogger(SysCustomRegionController.class);
 
-    @Autowired
-    private SysCustomRegionService sysCustomRegionService;
+
+    private final SysCustomRegionService sysCustomRegionService;
+
+    public SysCustomRegionController(SysCustomRegionService sysCustomRegionService){
+        this.sysCustomRegionService = sysCustomRegionService;
+    }
 
     /**
      * 获取列表（翻页）

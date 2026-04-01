@@ -42,17 +42,18 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     AuthMapper authMapper;
     @Resource
     SysLoginLogMapper sysLoginLogMapper;
-    @Autowired
-    private HttpServletRequest request;
 
 
+    private final HttpServletRequest request;
     private final UserCacheService userCacheService;
     private final Snowflake snowflake;
     public UserDetailsServiceImpl(
             Snowflake snowflake,
+            HttpServletRequest request,
             UserCacheService userCacheService
     ) {
         this.userCacheService = userCacheService;
+        this.request = request;
         this.snowflake = snowflake;
     }
 
