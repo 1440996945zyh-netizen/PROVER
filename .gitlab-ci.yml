@@ -16,19 +16,12 @@ build-sonar:
   stage: build-sonar
 
 
-#  cache:
-#    policy: pull-push
-#    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
-#    paths:
-#      - "${SONAR_USER_HOME}/cache"
-#      - sonar-scanner/
-  before_script:
-    # 设置编码
-    - chcp 65001
-    - [ Console ]::OutputEncoding = [System.Text.Encoding]::UTF8
-
-    - Set-Location $env:CI_PROJECT_DIR
-    - if (-not (Test-Path "pom.xml")) { Write-Error "pom.xml not found!"; exit 1 }
+  cache:
+    policy: pull-push
+    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
+    paths:
+      - "${SONAR_USER_HOME}/cache"
+      - sonar-scanner/
   script:
     - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
   allow_failure: true
