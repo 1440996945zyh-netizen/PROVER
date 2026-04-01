@@ -51,9 +51,6 @@ public class MDictController {
     @Resource
     MDictService dictService;
 
-    @Autowired
-    private CommonService commonService;
-
     /**
      * 新增字典类型
      *
