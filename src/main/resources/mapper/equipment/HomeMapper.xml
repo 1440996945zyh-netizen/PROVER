@@ -58,9 +58,12 @@
     <select id="eMaintIfonToday" resultType="java.util.Map">
 
         SELECT
-            SUM(CASE WHEN SOURCE =1 THEN 1 ELSE 0 END) AS "sbwx",
-            SUM(CASE WHEN SOURCE =2 THEN 1 ELSE 0 END) AS "ddjh" ,
-            SUM(CASE WHEN SOURCE =3 THEN 1 ELSE 0 END) AS "rhjh"
+            SUM(CASE WHEN SOURCE =1 THEN 1 ELSE 0 END) AS "tb",
+            SUM(CASE WHEN SOURCE =2 THEN 1 ELSE 0 END) AS "pg" ,
+            SUM(CASE WHEN SOURCE =3 THEN 1 ELSE 0 END) AS "dj",
+            SUM(CASE WHEN SOURCE =4 THEN 1 ELSE 0 END) AS "rh",
+            SUM(CASE WHEN SOURCE =5 THEN 1 ELSE 0 END) AS "by",
+            SUM(CASE WHEN SOURCE =6 THEN 1 ELSE 0 END) AS "xj",
         FROM E_MAINT_INFO
         WHERE DEL_FLAG = 0
         AND TO_CHAR(CREATE_TIME, 'yyyy-MM-dd') >= TO_CHAR(#{date}, 'yyyy-MM-dd')
