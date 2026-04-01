@@ -12,8 +12,11 @@ import java.text.MessageFormat;
 @Component
 public class MessageUtils {
 
-    @Autowired
-    private Environment env;
+    private final Environment env;
+
+    public MessageUtils(Environment env){
+        this.env = env;
+    }
 
     /**
      * 根据Key获得资源文件内容
