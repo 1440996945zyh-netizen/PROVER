@@ -22,6 +22,7 @@ build-sonar:
 #      - sonar-scanner/
 
   script:
+    - cd "${CI_PROJECT_DIR}"
     - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
   allow_failure: true
   rules:
