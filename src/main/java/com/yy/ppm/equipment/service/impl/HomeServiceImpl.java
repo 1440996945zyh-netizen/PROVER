@@ -7,8 +7,10 @@ import com.yy.common.page.PageParameter;
 import com.yy.common.page.Pages;
 import com.yy.common.util.DateUtils;
 import com.yy.common.util.PageHelperUtils;
+import com.yy.common.util.SecurityUtils;
 import com.yy.framework.exception.BusinessRuntimeException;
 import com.yy.ppm.equipment.bean.dto.EPatrolPlanDTO;
+import com.yy.ppm.equipment.bean.dto.HomeDTO;
 import com.yy.ppm.equipment.bean.dto.InspectionRouteDTO;
 import com.yy.ppm.equipment.bean.dto.InspectionRouteSubDTO;
 import com.yy.ppm.equipment.bean.po.EPatrolPlanPO;
@@ -41,6 +43,9 @@ public class HomeServiceImpl implements HomeService {
     private HomeMapper homeMapper;
 
 
+    @Resource
+    private SecurityUtils securityUtils;
+
 
 
 
@@ -50,25 +55,28 @@ public class HomeServiceImpl implements HomeService {
 
         Map<String, Object> homeMap = new HashMap<>();
 
+        //用户id
+        Long userId = securityUtils.getUserInfo().getId();
+
 
         //设备维修派工单map
-        Map<String, Object> eMaintInfo =homeMapper.getMaintIfon();
+        Map<String, Object> eMaintInfo =homeMapper.getMaintInfo(userId);
 
         //巡检任务
-        Map<String, Object> ePatrolTask =homeMapper.getPatrolTask();
+        Map<String, Object> ePatrolTask =homeMapper.getPatrolTask(userId);
 
 
         //点检任务
-        Map<String, Object> eCheckPlan =homeMapper.getCheckPlan();
+        Map<String, Object> eCheckPlan =homeMapper.getCheckPlan(userId);
 
         //润滑保养任务
-        Map<String, Object> ePmMaintainTask =homeMapper.ePmMaintainTask();
+        Map<String, Object> ePmMaintainTask =homeMapper.ePmMaintainTask(userId);
 
         //派工单类型统计
-        Map<String, Object> eMaintIfonType =homeMapper.eMaintIfonType();
+        Map<String, Object> eMaintIfonType =homeMapper.eMaintIfonType(userId);
 
         //派工单今日统计
-        Map<String, Object> eMaintIfonToday =homeMapper.eMaintIfonToday(new Date());
+        Map<String, Object> eMaintIfonToday =homeMapper.eMaintIfonToday(new Date(),userId);
 
         //获取设备统计
         Map<String, Object> mEqptInfo =homeMapper.getEqptInfo();
@@ -88,6 +96,40 @@ public class HomeServiceImpl implements HomeService {
 
 
         return homeMap;
+    }
+
+    @Override
+    public List<HomeDTO> getMainInfo(HomeDTO homeDTO) {
+
+
+        homeDTO.setId(securityUtils.getUserInfo().getId());
+        List<HomeDTO> homeDTOList= homeMapper.getMainInfo(homeDTO);
+
+        if (!CollectionUtils.isEmpty(homeDTOList)){
+
+            int sumTb = 0;
+            int sumWc = 0;
+            String wcl="";
+
+            for (HomeDTO homeDTO1 : homeDTOList) {
+                sumTb += homeDTO1.getTbs();
+                sumWc += homeDTO1.getYwc();
+            }
+
+            if (sumTb!=0){
+                double percent = (double) sumWc / sumTb * 100;
+                wcl = String.format("%.2f%%", percent);
+            }
+            homeDTOList.get(0).setSumTb(sumTb);
+            homeDTOList.get(0).setSumWc(sumWc);
+            homeDTOList.get(0).setWcl(wcl);
+
+        }
+
+
+
+
+        return homeDTOList;
     }
 
 }

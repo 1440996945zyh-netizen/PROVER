@@ -4,7 +4,7 @@
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yy.ppm.equipment.mapper.HomeMapper">
 
-    <select id="getMaintIfon" resultType="java.util.Map">
+    <select id="getMaintInfo" resultType="java.util.Map">
         SELECT
             SUM(CASE WHEN STATUS = 0 THEN 1 ELSE 0 END) AS "dpg",
             SUM(CASE WHEN STATUS = 2 THEN 1 ELSE 0 END) AS "wxz" ,
@@ -12,12 +12,15 @@
             COUNT(*) AS "sumCount"
         FROM E_MAINT_INFO
         WHERE DEL_FLAG = 0
+        AND(MAINT_LEADER_ID=#{id} or DISPATCHER_ID= #{id} or CREATE_BY= #{id} or ACCEPTER_ID= #{id})
     </select>
     <select id="getPatrolTask" resultType="java.util.Map">
         SELECT
             SUM(CASE WHEN STATUS = 0 THEN 1 ELSE 0 END) AS "wj",
             SUM(CASE WHEN STATUS = 2 THEN 1 ELSE 0 END) AS "yj"
         FROM E_PATROL_TASK
+        where
+            PATROL_ID=#{id}
 
     </select>
     <select id="getCheckPlan" resultType="java.util.Map">
@@ -25,6 +28,8 @@
             SUM(CASE WHEN STATUS = 0 THEN 1 ELSE 0 END) AS "wj",
             SUM(CASE WHEN STATUS = 2 THEN 1 ELSE 0 END) AS "yj"
         FROM E_CHECK_TASK
+        where
+            INSPECTOR_ID=#{id}
 
     </select>
     <select id="ePmMaintainTask" resultType="java.util.Map">
@@ -34,6 +39,8 @@
             SUM(CASE WHEN PLAN_TYPE = '2' AND STATUS = 0 THEN 1 ELSE 0 END) AS "dby",
             SUM(CASE WHEN PLAN_TYPE = '2' AND STATUS = 2 THEN 1 ELSE 0 END) AS "yby"
         FROM E_PM_MAINTAIN_TASK
+        where
+            INSPECTOR_ID=#{id}
 
     </select>
     <select id="eMaintIfonType" resultType="java.util.Map">
@@ -45,16 +52,19 @@
 
         FROM E_MAINT_INFO
         WHERE DEL_FLAG = 0
+         AND(MAINT_LEADER_ID=#{id} or DISPATCHER_ID= #{id} or CREATE_BY= #{id} or ACCEPTER_ID= #{id})
+
     </select>
     <select id="eMaintIfonToday" resultType="java.util.Map">
 
         SELECT
-            SUM(CASE WHEN STATUS = 0 THEN 1 ELSE 0 END) AS "ytj",
-            SUM(CASE WHEN STATUS = 1 THEN 1 ELSE 0 END) AS "ypg" ,
-            SUM(CASE WHEN STATUS = 4 THEN 1 ELSE 0 END) AS "ywc"
+            SUM(CASE WHEN STATUS != 7 THEN 1 ELSE 0 END) AS "ytj",
+            SUM(CASE WHEN STATUS != 0 AND STATUS !=7 THEN 1 ELSE 0 END) AS "ypg" ,
+            SUM(CASE WHEN STATUS = 5 THEN 1 ELSE 0 END) AS "ywc"
         FROM E_MAINT_INFO
         WHERE DEL_FLAG = 0
         AND TO_CHAR(CREATE_TIME, 'yyyy-MM-dd') >= TO_CHAR(#{date}, 'yyyy-MM-dd')
+        AND(MAINT_LEADER_ID=#{id} or DISPATCHER_ID= #{id} or CREATE_BY= #{id} or ACCEPTER_ID= #{id})
 
     </select>
     <select id="getEqptInfo" resultType="java.util.Map">
@@ -76,6 +86,19 @@
         FROM E_M_EQPT_INFO
         WHERE DEL_FLAG = 0
 
+    </select>
+    <select id="getMainInfo" resultType="com.yy.ppm.equipment.bean.dto.HomeDTO">
+        SELECT
+            COUNT(*) AS "tbs",
+            SUM(CASE WHEN STATUS in(0,1,2,3,4) THEN 1 ELSE 0 END) AS "jxz",
+            SUM(CASE WHEN STATUS = 5 THEN 1 ELSE 0 END) AS "ywc",
+            to_char(CREATE_TIME,'yyyy-MM-dd') AS "createDate"
+        FROM E_MAINT_INFO
+        WHERE DEL_FLAG = 0
+        AND CREATE_TIME>= #{startTime}
+        AND CREATE_TIME &lt;= #{endTime}
+        AND(MAINT_LEADER_ID=#{id} or DISPATCHER_ID= #{id} or CREATE_BY= #{id} or ACCEPTER_ID= #{id})
+        GROUP BY  to_char(CREATE_TIME,'yyyy-MM-dd')
     </select>
 
 

@@ -3,9 +3,9 @@ package com.yy.ppm.equipment.controller;
 
 import com.yy.common.enums.Response;
 import com.yy.common.log.MicroLogger;
+import com.yy.ppm.equipment.bean.dto.HomeDTO;
 import com.yy.ppm.equipment.service.HomeService;
 import jakarta.annotation.Resource;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,6 +35,22 @@ public class HomeController {
         LOGGER.enter(methodName + "[start]", "searchDTO:");
 
         Map<String, Object> homeMap= homeService.getList();
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("查询成功").toResult(homeMap);
+    }
+
+
+
+    /**
+     * 首页获取工单趋势
+     */
+    @GetMapping("/getMaintInfo")
+    public Map<String, Object> getMaintInfo(@RequestBody HomeDTO homeDTO) {
+        final String methodName = "MEquipmentOperationController:getList";
+        LOGGER.enter(methodName + "[start]", "searchDTO:");
+
+        List<HomeDTO>homeMap= homeService.getMainInfo(homeDTO);
 
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("查询成功").toResult(homeMap);
