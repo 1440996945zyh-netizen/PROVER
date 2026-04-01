@@ -16,8 +16,11 @@ import java.util.Date;
 @Component
 public class JobUtil {
 
-    @Autowired
-    private Scheduler scheduler;
+    private final Scheduler scheduler;
+
+    public JobUtil(Scheduler scheduler){
+        this.scheduler = scheduler;
+    }
 
     /**
      * 根据jobName和jobGroup生成triggerKey

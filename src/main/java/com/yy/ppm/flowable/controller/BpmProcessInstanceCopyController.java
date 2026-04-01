@@ -86,7 +86,7 @@ public class BpmProcessInstanceCopyController {
         for (BpmProcessInstanceCopyPO copy : pageResult.getPages()) {
             BpmProcessInstanceCopyDTO copyVO = BeanUtils.toBean(copy, BpmProcessInstanceCopyDTO.class);
             // 补充启动人信息
-            MapUtils.findAndThen(userMap, Long.valueOf(copy.getCreateBy()),
+            MapUtils.findAndThen(userMap, copy.getCreateBy(),
                     user -> copyVO.setStartUser(BeanUtils.toBean(user, UserSimpleBaseDTO.class)));
             // 补充创建人信息
             MapUtils.findAndThen(userMap, copy.getStartUserId(),

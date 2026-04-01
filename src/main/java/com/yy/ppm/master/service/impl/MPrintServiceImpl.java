@@ -39,8 +39,11 @@ public class MPrintServiceImpl implements MPrintService {
     /**
      * 雪花算法
      **/
-    @Autowired
-    private Snowflake snowflake;
+    private final Snowflake snowflake;
+
+    public MPrintServiceImpl(Snowflake snowflake){
+        this.snowflake = snowflake;
+    }
 
     @Resource
     private MPrintMapper mPrintMapper;

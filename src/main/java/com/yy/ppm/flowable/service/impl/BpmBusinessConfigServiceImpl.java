@@ -30,8 +30,10 @@ public class BpmBusinessConfigServiceImpl implements BpmBusinessConfigService {
 
     private static final MicroLogger LOGGER = new MicroLogger(BpmBusinessConfigServiceImpl.class);
 
-    @Autowired
-    private Snowflake snowflake;
+    private final Snowflake snowflake;
+    public BpmBusinessConfigServiceImpl(Snowflake snowflake) {
+        this.snowflake = snowflake;
+    }
 
     @Resource
     private BpmBusinessConfigMapper bpmBusinessConfigMapper;

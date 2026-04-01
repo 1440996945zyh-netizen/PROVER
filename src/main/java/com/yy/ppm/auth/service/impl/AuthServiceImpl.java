@@ -9,9 +9,11 @@ import com.yy.framework.exception.BusinessRuntimeException;
 import com.yy.ppm.auth.bean.dto.UserInfo;
 import com.yy.ppm.auth.mapper.AuthMapper;
 import com.yy.ppm.auth.service.AuthService;
+import com.yy.ppm.auth.service.LoginService;
 import com.yy.ppm.auth.service.UserCacheService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
@@ -32,11 +34,15 @@ public class AuthServiceImpl implements AuthService {
     @Resource
     AuthMapper authMapper;
 
-    @Autowired
-    private UserCacheService userCacheService;
-
-    @Autowired
-    private SecurityUtils securityUtils;
+    private final UserCacheService userCacheService;
+    private final SecurityUtils securityUtils;
+    public AuthServiceImpl(
+            UserCacheService userCacheService,
+            SecurityUtils securityUtils
+    ) {
+        this.userCacheService = userCacheService;
+        this.securityUtils = securityUtils;
+    }
 
     @Override
     public UserInfo verifyAcc(String accNo, String accPwd, String ip, long uqMark) {
@@ -53,7 +59,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         // 停用的场合
-        if (CommonEnum.IsUsed.UNUSED.getCode().equals(account.getStatus())) {
+        if (CommonEnum.IsUsed.UNUSED.getCode().equals(account.getStatus().toString())) {
             LOGGER.warn("账户已停用~");
             throw new BusinessRuntimeException("账户已停用~");
         }

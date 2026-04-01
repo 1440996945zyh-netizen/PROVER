@@ -42,17 +42,23 @@ public class MDictServiceImpl implements MDictService {
     /**
      * 雪花算法
      **/
-    @Autowired
-    private Snowflake snowflake;
+    private final Snowflake snowflake;
+
+    private final CommonService commonService;
+
+    public MDictServiceImpl(
+            CommonService commonService,
+            Snowflake snowflake
+    ){
+        this.commonService = commonService;
+        this.snowflake = snowflake;
+    }
 
     @Resource
     private MDictMapper dictMapper;
 
     @Resource
     private CommonMapper commonMapper;
-
-    @Autowired
-    private CommonService commonService;
 
     /**
      * 查询字典类型列表

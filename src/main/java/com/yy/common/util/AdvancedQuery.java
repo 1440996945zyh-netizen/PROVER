@@ -187,11 +187,7 @@ public class AdvancedQuery  {
                 return String.format("%s <= #{%s.value}", columnName, paramPrefix);
 
             case "empty":
-                if (DATABASE_MYSQL.equals(databaseType)) {
-                    return String.format("(%s IS NULL OR %s = '')", columnName, columnName);
-                } else {
-                    return String.format("(%s IS NULL OR %s = '')", columnName, columnName);
-                }
+                return String.format("(%s IS NULL OR %s = '')", columnName, columnName);
 
             case "notEmpty":
                 if (DATABASE_MYSQL.equals(databaseType)) {

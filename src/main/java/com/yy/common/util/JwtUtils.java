@@ -1,5 +1,6 @@
 package com.yy.common.util;
 
+import cn.hutool.core.util.StrUtil;
 import com.yy.common.jwt.Jwt;
 import org.springframework.data.redis.core.RedisTemplate;
 
@@ -55,9 +56,19 @@ public final class JwtUtils {
      * @author
      **/
     public static boolean remoteVerifyToken(String token) {
+        if (StrUtil.isBlank(token)) {
+            return false;
+        }
         Jwt.JwtBean bean = parseToken(token);
+        if (bean == null || bean.getExpiresDate() <= System.currentTimeMillis()) {
+            return false;
+        }
         RedisTemplate<String, String> redisTemplate = SpringUtils.getBean("redisTemplate");
-        return redisTemplate.opsForValue().setIfAbsent(token, "true",
-                (bean.getExpiresDate() - System.currentTimeMillis()) / 1000 + 60, TimeUnit.SECONDS);
+        try {
+            return redisTemplate.opsForValue().setIfAbsent(token, "true",
+                    (bean.getExpiresDate() - System.currentTimeMillis()) / 1000 + 60, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

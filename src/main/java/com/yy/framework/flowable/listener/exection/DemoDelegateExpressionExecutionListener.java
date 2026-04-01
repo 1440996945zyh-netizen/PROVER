@@ -1,5 +1,6 @@
 package com.yy.framework.flowable.listener.exection;
 
+import com.yy.common.flowable.constants.BpmnVariableConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.common.engine.api.delegate.Expression;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -22,7 +23,6 @@ public class DemoDelegateExpressionExecutionListener implements JavaDelegate {
     public void execute(DelegateExecution execution) {
         log.info("[execute][execution({}) 被调用！变量有：{}]", execution.getId(),
                 execution.getCurrentFlowableListener().getFieldExtensions());
-
         // 获取字段值
         if (version != null) {
             Object versionValue = version.getValue(execution);
