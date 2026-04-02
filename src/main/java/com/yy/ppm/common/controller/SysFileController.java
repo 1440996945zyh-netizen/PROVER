@@ -25,6 +25,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotBlank;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
@@ -85,13 +86,13 @@ public class SysFileController {
 
         // 参数校验
         Map<String, Object> errorResponse = validateBasicParams(fileArray, businessType);
-        if (errorResponse != null) {
+        if (!StringUtil.isEmpty(errorResponse)) {
             return errorResponse;
         }
 
         // 文件批量校验
         errorResponse = validateFiles(fileArray);
-        if (errorResponse != null) {
+        if (!StringUtil.isEmpty(errorResponse)) {
             return errorResponse;
         }
 
@@ -105,7 +106,7 @@ public class SysFileController {
         sysFileService.save(fileList);
 
         // 构建响应结果
-        Map<String, Object> result = buildUploadResult(fileList, bucketName);
+        Map<String, Object> result = buildUploadResult(fileList);
         LOGGER.exit(methodName, "上传文件[end]");
         return Response.SUCCESS.newBuilder().toResult(result);
     }
@@ -136,28 +137,29 @@ public class SysFileController {
                     .toResult();
         }
 
-        return null;
+        return new HashMap<>();
     }
 
     /**
      * 批量校验文件（大小、类型、文件名长度）
      */
-    private Map<String, Object> validateFiles(MultipartFile[] fileArray) throws Exception {
+    private Map<String, Object> validateFiles(MultipartFile[] fileArray) throws IOException {
         for (MultipartFile file : fileArray) {
             Map<String, Object> errorResponse = validateSingleFile(file);
             if (errorResponse != null) {
                 return errorResponse;
             }
         }
-        return null;
+        return new HashMap<>();
     }
 
     /**
      * 校验单个文件
      */
-    private Map<String, Object> validateSingleFile(MultipartFile file) throws Exception {
+    private Map<String, Object> validateSingleFile(MultipartFile file) throws IOException {
         // 校验文件名长度
-        if (file.getOriginalFilename() != null && file.getOriginalFilename().length() > 100) {
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename != null && originalFilename.length() > 100) {
             LOGGER.warn("文件名过长~");
             return Response.FAIL.newBuilder()
                     .addGateWayCode(Response.GateWayCode.E0403)
@@ -181,7 +183,7 @@ public class SysFileController {
                     .toResult();
         }
 
-        return null;
+        return new HashMap<>();
     }
 
     /**
@@ -256,11 +258,11 @@ public class SysFileController {
     /**
      * 构建上传结果
      */
-    private Map<String, Object> buildUploadResult(List<SysFileDTO> fileList, String bucketName) {
+    private Map<String, Object> buildUploadResult(List<SysFileDTO> fileList) {
         Map<String, Object> result = new HashMap<>();
         result.put("files", fileList);
 
-        String[] urls = generateFileUrls(fileList, bucketName);
+        String[] urls = generateFileUrls(fileList);
         result.put("urls", urls);
 
         return result;
@@ -269,7 +271,7 @@ public class SysFileController {
     /**
      * 生成文件访问URL
      */
-    private String[] generateFileUrls(List<SysFileDTO> fileList, String bucketName) {
+    private String[] generateFileUrls(List<SysFileDTO> fileList) {
         String[] urls = new String[fileList.size()];
         String minioUrl = minIoConfig.getMinioUrl();
 

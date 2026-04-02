@@ -152,10 +152,8 @@ public class LogAspect {
         String url ="";
         if(attributes!=null  && attributes.getRequest().getRequestURL()!=null){
             url =  attributes.getRequest().getRequestURL().substring(21);
-        }
-        oper.setOperUrl(url);
-        //设置请求方式
-        if(attributes.getRequest()!=null){
+            oper.setOperUrl(url);
+            //设置请求方式
             oper.setRequestMethod(attributes.getRequest().getMethod());
         }
         //设置ip地址

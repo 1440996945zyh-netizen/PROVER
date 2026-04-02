@@ -43,8 +43,11 @@ public class SysOnLineUserServiceImpl implements SysOnLineUserService {
         List<SysUserDTO> userList = sysOnLineUserMapper.getList(accountList, userAccount, userName);
 
         for (SysUserDTO user:userList) {
-            Long score = redisTemplate.opsForZSet().score(applicationName + ":"
-                        + RedisEnum.ONLINE_ACCOUNTS_PC.getCode(), user.getUserAccount()).longValue();
+            Double scoreValue = redisTemplate.opsForZSet().score(
+                    applicationName + ":" + RedisEnum.ONLINE_ACCOUNTS_PC.getCode(),
+                    user.getUserAccount()
+            );
+            Long score = scoreValue != null ? scoreValue.longValue() : 0L;
             Date lastRequestTime = new Date(score);
             user.setLastRequestTime(lastRequestTime);
 
