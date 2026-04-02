@@ -1,5 +1,6 @@
 package com.yy.ppm.equipment.mapper;
 
+import com.yy.ppm.equipment.bean.dto.EMaterialWarningRecordDTO;
 import com.yy.ppm.equipment.bean.dto.HomeDTO;
 import org.apache.ibatis.annotations.Param;
 
@@ -26,4 +27,7 @@ public interface HomeMapper {
     Map<String, Object> getEqptStatus(Long deptId);
 
     List<HomeDTO> getMainInfo(HomeDTO homeDTO);
+
+    List<EMaterialWarningRecordDTO> getWarningRecord();
+
 }

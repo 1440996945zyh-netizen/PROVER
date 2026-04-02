@@ -9,10 +9,7 @@ import com.yy.common.util.DateUtils;
 import com.yy.common.util.PageHelperUtils;
 import com.yy.common.util.SecurityUtils;
 import com.yy.framework.exception.BusinessRuntimeException;
-import com.yy.ppm.equipment.bean.dto.EPatrolPlanDTO;
-import com.yy.ppm.equipment.bean.dto.HomeDTO;
-import com.yy.ppm.equipment.bean.dto.InspectionRouteDTO;
-import com.yy.ppm.equipment.bean.dto.InspectionRouteSubDTO;
+import com.yy.ppm.equipment.bean.dto.*;
 import com.yy.ppm.equipment.bean.po.EPatrolPlanPO;
 import com.yy.ppm.equipment.bean.po.EPatrolTaskPO;
 import com.yy.ppm.equipment.bean.po.EPatrolTaskSubPO;
@@ -132,6 +129,13 @@ public class HomeServiceImpl implements HomeService {
 
 
         return homeDTOList;
+    }
+
+    @Override
+    public List<EMaterialWarningRecordDTO> getWarningRecord() {
+
+        List<EMaterialWarningRecordDTO> warningRecordList= homeMapper.getWarningRecord();
+        return warningRecordList;
     }
 
 }

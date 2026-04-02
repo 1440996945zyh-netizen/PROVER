@@ -3,6 +3,7 @@ package com.yy.ppm.equipment.controller;
 
 import com.yy.common.enums.Response;
 import com.yy.common.log.MicroLogger;
+import com.yy.ppm.equipment.bean.dto.EMaterialWarningRecordDTO;
 import com.yy.ppm.equipment.bean.dto.HomeDTO;
 import com.yy.ppm.equipment.service.HomeService;
 import jakarta.annotation.Resource;
@@ -54,6 +55,21 @@ public class HomeController {
 
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("查询成功").toResult(homeMap);
+    }
+
+
+    /**
+     * 首页获取预警信息
+     */
+    @GetMapping("/getWarningRecord")
+    public Map<String, Object> getWarningRecord() {
+        final String methodName = "MEquipmentOperationController:getList";
+        LOGGER.enter(methodName + "[start]", "searchDTO:");
+
+        List<EMaterialWarningRecordDTO>list= homeService.getWarningRecord();
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("查询成功").toResult(list);
     }
 
 

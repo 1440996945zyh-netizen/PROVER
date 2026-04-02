@@ -1,5 +1,6 @@
 package com.yy.ppm.equipment.service;
 
+import com.yy.ppm.equipment.bean.dto.EMaterialWarningRecordDTO;
 import com.yy.ppm.equipment.bean.dto.HomeDTO;
 
 import java.util.List;
@@ -9,4 +10,7 @@ public interface HomeService {
     Map<String, Object> getList();
 
     List<HomeDTO> getMainInfo(HomeDTO homeDTO);
+
+    List<EMaterialWarningRecordDTO> getWarningRecord();
+
 }

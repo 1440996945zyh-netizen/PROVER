@@ -119,6 +119,26 @@
         ) t ON day_list.createDate = t.createDate
         ORDER BY day_list.createDate ASC
     </select>
+    <select id="getWarningRecord" resultType="com.yy.ppm.equipment.bean.dto.EMaterialWarningRecordDTO">
+        SELECT * FROM (
+        SELECT
+        ID,
+        MATERIAL_ID,
+        MATERIAL_NAME,
+        CURRENT_STOCK,
+        HANDLE_STATUS,
+        HANDLE_USER_ID,
+        WARNING_THRESHOLD,
+        RECEIVERS,
+        CREATE_TIME
+        FROM
+        E_MATERIAL_WARNING_RECORD
+        WHERE
+        HANDLE_STATUS = 0
+        ORDER BY CREATE_TIME ASC
+        )
+        WHERE ROWNUM &lt;= 5
+    </select>
     <!--    <select id="getMainInfo" resultType="com.yy.ppm.equipment.bean.dto.HomeDTO">-->
 <!--        SELECT-->
 <!--            COUNT(*) AS "tbs",-->
