@@ -3,6 +3,7 @@ package com.yy.common.util;
 import cn.hutool.core.util.StrUtil;
 import com.yy.common.jwt.Jwt;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 
 import java.util.concurrent.TimeUnit;
 
@@ -64,11 +65,13 @@ public final class JwtUtils {
             return false;
         }
         RedisTemplate<String, String> redisTemplate = SpringUtils.getBean("redisTemplate");
-        try {
-            return redisTemplate.opsForValue().setIfAbsent(token, "true",
-                    (bean.getExpiresDate() - System.currentTimeMillis()) / 1000 + 60, TimeUnit.SECONDS);
-        } catch (Exception e) {
+
+        ValueOperations<String, String> valueOps = redisTemplate.opsForValue();
+
+        if (valueOps == null) {
             return false;
         }
+        return redisTemplate.opsForValue().setIfAbsent(token, "true",
+                (bean.getExpiresDate() - System.currentTimeMillis()) / 1000 + 60, TimeUnit.SECONDS);
     }
 }

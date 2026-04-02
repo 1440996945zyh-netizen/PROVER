@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ArrayUtil;
 import com.google.common.collect.ImmutableMap;
+import com.yy.common.util.str.StringUtil;
 
 import java.util.*;
 import java.util.function.*;
@@ -311,6 +312,9 @@ public class CollectionUtils {
             return null;
         }
         assert !from.isEmpty(); // 断言，避免告警
+        if(StringUtil.isEmpty(from)){
+            throw new IllegalArgumentException("form不能为空");
+        }
         return from.stream()
                 .min(Comparator.comparing(valueFunc))
                 .map(valueFunc)

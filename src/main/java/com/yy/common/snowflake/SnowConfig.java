@@ -2,7 +2,6 @@ package com.yy.common.snowflake;
 
 import cn.hutool.core.lang.Snowflake;
 import com.yy.common.util.str.StringUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
