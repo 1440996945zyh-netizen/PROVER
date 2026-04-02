@@ -31,8 +31,12 @@ public class TSettingAdSearchController {
 	 **/
 	private static final MicroLogger LOGGER = new MicroLogger(TSettingAdSearchController.class);
 
-    @Autowired
-    private TSettingAdSearchService tSettingAdSearchService;
+
+    private final TSettingAdSearchService tSettingAdSearchService;
+
+    public TSettingAdSearchController(TSettingAdSearchService tSettingAdSearchService){
+        this.tSettingAdSearchService = tSettingAdSearchService;
+    }
 
     /**测试定时任务*/
      @GetMapping("/test")
@@ -40,7 +44,7 @@ public class TSettingAdSearchController {
         final String methodName = "TSettingAdSearchController:test";
 		boolean flag = false;
         if(params.get(ScheduleTaskEnum.SCHEDULE_TASK_KEY.getKey()).equals(ScheduleTaskEnum.SCHEDULE_TASK_KEY.getValue())){
-
+            flag = true;
             System.out.println("执行定时任务");
         }
 

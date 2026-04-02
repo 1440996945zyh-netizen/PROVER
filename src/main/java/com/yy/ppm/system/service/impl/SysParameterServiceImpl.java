@@ -37,20 +37,21 @@ public class SysParameterServiceImpl implements SysParameterService {
      */
     private static final MicroLogger LOGGER = new MicroLogger(SysParameterServiceImpl.class);
 
-    @Autowired
-    private Snowflake snowflake;
-
     @Resource
     private SysParameterMapper sysParameterMapper;
 
     @Resource
     private SysParameterLogMapper sysParameterLogMapper;
 
-    @Autowired
-    private CommonMapper commonMapper;
 
-    @Autowired
-    private SecurityUtils securityUtils;
+    private final SecurityUtils securityUtils;
+
+    private final Snowflake snowflake;
+
+    public SysParameterServiceImpl(SecurityUtils securityUtils,Snowflake snowflake){
+        this.snowflake = snowflake;
+        this.securityUtils = securityUtils;
+    }
 
     @Override
     public List<SysParameterDTO> getList(SysParameterDTO sysParameterDTO) {

@@ -15,8 +15,11 @@ import java.util.Map;
 @Validated
 public class WsMessageController {
 
-    @Autowired
-    private WsMessageService wsMessageService;
+
+    private final WsMessageService wsMessageService;
+    public WsMessageController(WsMessageService wsMessageService){
+        this.wsMessageService = wsMessageService;
+    }
 
     /**
      * 新增离线消息

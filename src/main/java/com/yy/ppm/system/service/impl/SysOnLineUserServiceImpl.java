@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLOutput;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -21,13 +22,16 @@ import java.util.stream.Collectors;
 @Service
 public class SysOnLineUserServiceImpl implements SysOnLineUserService {
 
-    @Autowired
-    private RedisTemplate<String, String> redisTemplate;
-    @Autowired
-    private SysOnLineUserMapper sysOnLineUserMapper;
     @Value("${spring.application.name}")
     private String applicationName;
 
+    private final RedisTemplate<String, String> redisTemplate;
+    private final SysOnLineUserMapper sysOnLineUserMapper;
+
+    public SysOnLineUserServiceImpl(RedisTemplate<String, String> redisTemplate,SysOnLineUserMapper sysOnLineUserMapper){
+        this.redisTemplate = redisTemplate;
+        this.sysOnLineUserMapper = sysOnLineUserMapper;
+    }
     /**
      * 查询在线用户
      * @return
@@ -41,8 +45,15 @@ public class SysOnLineUserServiceImpl implements SysOnLineUserService {
         List<SysUserDTO> userList = sysOnLineUserMapper.getList(accountList, userAccount, userName);
 
         for (SysUserDTO user:userList) {
-            Long score = redisTemplate.opsForZSet().score(applicationName + ":"
-                    + RedisEnum.ONLINE_ACCOUNTS_PC.getCode(), user.getUserAccount()).longValue();
+            Long score = 0L;
+            try{
+
+                score = redisTemplate.opsForZSet().score(applicationName + ":"
+                        + RedisEnum.ONLINE_ACCOUNTS_PC.getCode(), user.getUserAccount()).longValue();
+            }catch (Exception e){
+                System.out.println("系统异常"+ e);
+            };
+
             Date lastRequestTime = new Date(score);
             user.setLastRequestTime(lastRequestTime);
 

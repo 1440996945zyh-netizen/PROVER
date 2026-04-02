@@ -28,21 +28,9 @@ import jakarta.annotation.Resource;
 @Configuration
 public class WebSecurityConfig {
 
-    /**
-     * Jwt过滤器
-     */
-    @Autowired
-    private JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
 
     @Resource
     private WhiteList whiteList;
-
-    /**
-     * 跨域过滤器
-     */
-    @Autowired
-    private CrosFilter crosFilter;
-
     /**
      * 自定义用户登录
      */
@@ -50,16 +38,38 @@ public class WebSecurityConfig {
     private UserDetailsService userDetailsService;
 
     /**
+     * Jwt过滤器
+     */
+    private final JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
+
+    /**
+     * 跨域过滤器
+     */
+    private final CrosFilter crosFilter;
+
+    /**
      * 自定义密码验证
      */
-    @Autowired
-    private CustomPasswordEncoder customPasswordEncoder;
+    private final CustomPasswordEncoder customPasswordEncoder;
 
     /**
      * 退出成功处理
      */
-    @Autowired
-    private CustomLogoutSuccessHandler customLogoutSuccessHandler;
+    private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
+
+    /**
+     * 构造器注入
+     */
+    public WebSecurityConfig(
+            JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter,
+            CrosFilter crosFilter,
+            CustomPasswordEncoder customPasswordEncoder,
+            CustomLogoutSuccessHandler customLogoutSuccessHandler) {
+        this.jwtAuthenticationTokenFilter = jwtAuthenticationTokenFilter;
+        this.crosFilter = crosFilter;
+        this.customPasswordEncoder = customPasswordEncoder;
+        this.customLogoutSuccessHandler = customLogoutSuccessHandler;
+    }
 
     // 获取AuthenticationManager（认证管理器），登录时认证使用。
     @Bean

@@ -12,7 +12,9 @@ import com.yy.ppm.auth.bean.dto.UserInfo;
 import com.yy.ppm.auth.bean.dto.UserAuthorizeInfo;
 import com.yy.ppm.auth.service.LoginService;
 import com.yy.ppm.system.bean.dto.SysLoginLogDTO;
+import com.yy.ppm.system.bean.dto.SysUserDTO;
 import com.yy.ppm.system.mapper.SysLoginLogMapper;
+import com.yy.ppm.system.mapper.SysUserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -35,15 +37,18 @@ public class LoginServiceImpl implements LoginService {
 
     private final AuthenticationManager authenticationManager;
     private final SysLoginLogMapper sysLoginLogMapper;
+    private final SysUserMapper sysUserMapper;
     private final Snowflake snowflake;
 
     public LoginServiceImpl(
             AuthenticationManager authenticationManager,
             SysLoginLogMapper sysLoginLogMapper,
+            SysUserMapper sysUserMapper,
             Snowflake snowflake
     ) {
         this.authenticationManager = authenticationManager;
         this.sysLoginLogMapper = sysLoginLogMapper;
+        this.sysUserMapper = sysUserMapper;
         this.snowflake = snowflake;
     }
 
@@ -93,6 +98,8 @@ public class LoginServiceImpl implements LoginService {
             throw new BusinessRuntimeException("账号或密码错误~");
         }
 
+        SysUserDTO userDTO = sysUserMapper.getById(accountDTO.getId());
+        accountDTO.setStatus(userDTO.getStatus());
         // 停用的场合
         if (CommonEnum.IsUsed.UNUSED.getCode().equals(accountDTO.getStatus().toString())) {
             mLoginLog.setStatus("失败");

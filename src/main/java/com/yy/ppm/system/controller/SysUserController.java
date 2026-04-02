@@ -46,15 +46,17 @@ public class SysUserController {
 	 * 日志组件
 	 **/
 	private static final MicroLogger LOGGER = new MicroLogger(SysUserController.class);
-
-	@Autowired
-	private SysUserService sysUserService;
-
-	@Autowired
-	private CommonService baseService;
-
 	@Resource
 	private SecurityUtils securityUtils;
+
+
+	private final SysUserService sysUserService;
+
+	private final CommonService baseService;
+	public SysUserController(SysUserService sysUserService,CommonService baseService){
+		this.sysUserService =sysUserService;
+		this.baseService = baseService;
+	}
 
 	/**
 	 * 根据实体类筛选数据列表

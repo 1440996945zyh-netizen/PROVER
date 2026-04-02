@@ -2,10 +2,13 @@ package com.yy.ppm.system.service.impl;
 
 import java.util.List;
 
+import com.yy.ppm.auth.service.UserCacheService;
+import com.yy.ppm.common.service.CommonService;
 import jakarta.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,17 +34,25 @@ public class SysVersionControlServiceImpl implements SysVersionControlService {
 	 */
 	private static final MicroLogger LOGGER = new MicroLogger(SysVersionControlServiceImpl.class);
 
-	@Autowired
-    private SysVersionControlMapper sysVersionControlMapper;
+    private final SysVersionControlMapper sysVersionControlMapper;
 
-    @Autowired
-	private CommonMapper baseMapper;
+	private final CommonMapper baseMapper;
 
-	@Autowired
-    private SysFileMapper sysFileMapper;
+    private final SysFileMapper sysFileMapper;
 
-	@Autowired
-	private Snowflake snowflake;
+	private final Snowflake snowflake;
+
+	public SysVersionControlServiceImpl(
+			SysVersionControlMapper sysVersionControlMapper,
+			CommonMapper baseMapper,
+			SysFileMapper sysFileMapper,
+			Snowflake snowflake
+	){
+		this.sysVersionControlMapper = sysVersionControlMapper;
+		this.baseMapper = baseMapper;
+		this.sysFileMapper = sysFileMapper;
+		this.snowflake = snowflake;
+	}
 
 	@Override
 	public SysVersionControlPO getVersion(String versionType) {

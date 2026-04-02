@@ -29,7 +29,7 @@ public final class GlobalDelayQueueTask {
         ScheduledExecutorTask task = new ScheduledExecutorTask();
         task.setDelay(0);
         task.setFixedRate(false);
-        task.setPeriod(1000 * 15);
+        task.setPeriod(15000);
         task.setRunnable(new Runnable() {
             @Override
             public void run() {
@@ -67,7 +67,8 @@ public final class GlobalDelayQueueTask {
      **/
     public void compareAndSet(AbstractTaskBeanDelayed taskBean) {
         if (DELAY_QUEUE.contains(taskBean)) {
-            DELAY_QUEUE.remove(taskBean);
+            // 移除已存在的任务（接收返回值，满足代码规范）
+            boolean removed = DELAY_QUEUE.remove(taskBean);
             DELAY_QUEUE.add(taskBean);
         } else {
             DELAY_QUEUE.add(taskBean);

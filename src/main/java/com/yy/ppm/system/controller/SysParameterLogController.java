@@ -24,9 +24,11 @@ public class SysParameterLogController {
     /**
      * 服务对象
      */
-    @Autowired
-    private SysParameterLogService sysParameterLogService;
+    private final SysParameterLogService sysParameterLogService;
 
+    public SysParameterLogController(SysParameterLogService sysParameterLogService){
+        this.sysParameterLogService = sysParameterLogService;
+    }
 
     /**
      * 根据实体类筛选数据列表

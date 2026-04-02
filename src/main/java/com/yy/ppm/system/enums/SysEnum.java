@@ -2,6 +2,8 @@ package com.yy.ppm.system.enums;
 
 import lombok.Getter;
 
+import java.util.Objects;
+
 /**
  * 系统管理类枚举
  */
@@ -41,7 +43,7 @@ public interface SysEnum {
 
         public static String getByValue(String code) {
             for (MenuType item : values()) {
-                if (item.getCode() == code) {
+                if (Objects.equals(item.getCode(), code)) {
                     return item.getValue();
                 }
             }

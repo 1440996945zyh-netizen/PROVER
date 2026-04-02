@@ -36,9 +36,6 @@ public class SysDeptServiceImpl implements SysDeptService {
      */
     private static final MicroLogger LOGGER = new MicroLogger(SysDeptServiceImpl.class);
 
-    @Autowired
-    private Snowflake snowflake;
-
     @Resource
     private SysDeptMapper deptMapper;
 
@@ -47,6 +44,13 @@ public class SysDeptServiceImpl implements SysDeptService {
 
     @Resource
     private CommonMapper commonMapper;
+
+
+    private final Snowflake snowflake;
+
+    public SysDeptServiceImpl(Snowflake snowflake){
+        this.snowflake = snowflake;
+    }
 
     /**
      * 查询部门管理数据
@@ -103,7 +107,10 @@ public class SysDeptServiceImpl implements SysDeptService {
             dept.setDeptNo(commonService.getAutoNum(AutoNumEnum.BusinessAutoEnum.DEPT, info.getDeptNo()));
         }
         // 父类ids，多个逗号隔开。
-        dept.setParentIds(info.getParentIds() + "," + dept.getParentId());
+        if(info != null){
+            dept.setParentIds(info.getParentIds() + "," + dept.getParentId());
+        }
+
         dept.setId(snowflake.nextId());
         return deptMapper.insertDept(dept);
 

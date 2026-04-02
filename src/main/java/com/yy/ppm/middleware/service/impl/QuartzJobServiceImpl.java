@@ -17,6 +17,7 @@ import com.yy.ppm.middleware.bean.dto.HttpJobDetailSearchDTO;
 import com.yy.ppm.middleware.bean.dto.HttpJobLogsDTO;
 import com.yy.ppm.middleware.bean.dto.HttpJobLogsSearchDTO;
 import com.yy.ppm.middleware.mapper.QuartzJobMapper;
+import com.yy.ppm.middleware.service.WsMessageService;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.*;
@@ -30,8 +31,6 @@ import java.util.Map;
 @Service
 public class QuartzJobServiceImpl implements QuartzJobService {
 
-    @Autowired
-    private Scheduler scheduler;
     @Resource
     private JobUtil jobUtil;
     @Resource
@@ -39,6 +38,10 @@ public class QuartzJobServiceImpl implements QuartzJobService {
     @Resource
     private QuartzJobMapper quartzJobMapper;
 
+    private final Scheduler scheduler;
+    public QuartzJobServiceImpl(Scheduler scheduler){
+        this.scheduler = scheduler;
+    }
     /**
      * 添加http类型job
      *

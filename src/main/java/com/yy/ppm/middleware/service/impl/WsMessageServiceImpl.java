@@ -17,9 +17,6 @@ public class WsMessageServiceImpl implements WsMessageService {
     @Resource
     WsMessageMapper wsMessageMapper;
 
-    @Autowired
-    private Snowflake snowflake;
-
     /**
      * 新增离线消息
      * @param wsOfflineMessagePO

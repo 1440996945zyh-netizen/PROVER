@@ -33,8 +33,11 @@ public class SysMenuController {
     /**
      * 服务对象
      */
-    @Autowired
-    private SysMenuService sysMenuService;
+    private final SysMenuService sysMenuService;
+
+    public SysMenuController(SysMenuService sysMenuService){
+        this.sysMenuService = sysMenuService;
+    }
 
     /**
      * 根据parentid获取菜单

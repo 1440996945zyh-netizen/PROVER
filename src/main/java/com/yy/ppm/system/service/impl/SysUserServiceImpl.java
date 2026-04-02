@@ -57,9 +57,6 @@ public class SysUserServiceImpl implements SysUserService {
 	 */
 	private static final MicroLogger LOGGER = new MicroLogger(SysUserServiceImpl.class);
 
-	@Autowired
-	private Snowflake snowflake;
-
 	@Resource
 	private SecurityUtils securityUtils;
 
@@ -71,19 +68,30 @@ public class SysUserServiceImpl implements SysUserService {
 	@Resource
 	private CommonMapper baseMapper;
 
-	@Autowired
-	private RedisTemplate<String, String> redisTemplate;
-
-	@Autowired
-	private UserCacheService userCacheService;
-
-	@Autowired
-	private CommonService baseService;
 	@Resource
 	private SysFileService sysFileService;
 	@Resource
 	private SelectMapper selectMapper;
 
+	private final RedisTemplate<String, String> redisTemplate;
+
+	private final UserCacheService userCacheService;
+
+	private final CommonService baseService;
+
+	private final Snowflake snowflake;
+
+	public SysUserServiceImpl(
+			RedisTemplate<String, String> redisTemplate,
+			UserCacheService userCacheService,
+			CommonService baseService,
+			Snowflake snowflake
+	){
+		this.redisTemplate = redisTemplate;
+		this.userCacheService = userCacheService;
+		this.baseService = baseService;
+		this.snowflake = snowflake;
+	}
 	@Override
 	public Pages<SysUserDTO> getList(SysUserSearchDTO sysUserSearchDTO) {
 		final String methodName = "SysUserServiceImpl:getList";

@@ -31,8 +31,11 @@ public class SysOperLogController {
     /**
      * 服务对象
      */
-    @Autowired
-    private SysOperLogService sysOperLogService;
+    private final SysOperLogService sysOperLogService;
+
+    public SysOperLogController(SysOperLogService sysOperLogService){
+        this.sysOperLogService = sysOperLogService;
+    }
 
     /**
      * 查询
