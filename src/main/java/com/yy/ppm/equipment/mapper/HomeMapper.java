@@ -19,11 +19,11 @@ public interface HomeMapper {
 
     Map<String, Object> eMaintIfonType(Long id);
 
-    Map<String, Object> eMaintIfonToday(@Param("date") Date date,@Param("id")Long id);
+    Map<String, Object> eMaintIfonToday(@Param("id")Long id);
 
-    Map<String, Object> getEqptInfo();
+    Map<String, Object> getEqptInfo( Long deptId);
 
-    Map<String, Object> getEqptStatus();
+    Map<String, Object> getEqptStatus(Long deptId);
 
     List<HomeDTO> getMainInfo(HomeDTO homeDTO);
 }
