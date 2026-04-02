@@ -3,6 +3,8 @@ package com.yy.common.util;
 import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.io.IoUtil;
 import org.lionsoul.ip2region.xdb.Searcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
@@ -17,6 +19,7 @@ import java.io.InputStream;
  */
 public class LocationUtils {
 
+    private static final Logger log = LoggerFactory.getLogger(LocationUtils.class);
     public static Lazy<Searcher> SEARCHER = new Lazy<>(() -> {
         ClassPathResource resource = new ClassPathResource("xdbs/ip2region.xdb");
 
@@ -48,7 +51,9 @@ public class LocationUtils {
         } catch (IOException e) {
             throw new IORuntimeException(e);
         } finally {
-            tempFile.delete();
+            if (!tempFile.delete()) {
+                log.warn("Failed to delete file: {}",tempFile);
+            }
         }
     });
 

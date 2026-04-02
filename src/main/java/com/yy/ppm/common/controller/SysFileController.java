@@ -86,13 +86,13 @@ public class SysFileController {
 
         // 参数校验
         Map<String, Object> errorResponse = validateBasicParams(fileArray, businessType);
-        if (!StringUtil.isEmpty(errorResponse)) {
+        if (!errorResponse.isEmpty()) {
             return errorResponse;
         }
 
         // 文件批量校验
         errorResponse = validateFiles(fileArray);
-        if (!StringUtil.isEmpty(errorResponse)) {
+        if (!errorResponse.isEmpty()) {
             return errorResponse;
         }
 

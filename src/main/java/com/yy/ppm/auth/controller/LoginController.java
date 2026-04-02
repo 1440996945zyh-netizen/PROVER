@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -110,10 +111,13 @@ public class LoginController {
 		System.out.println("#########"+Decrypt_psw);
 		account.setPasswd(Decrypt_psw);
 
-		if (result.hasErrors() && result.getFieldError()!=null) {
-			String msg = result.getFieldError().getDefaultMessage();
-			LOGGER.warn("登录校验失败,msg: " + msg);
-			return Response.FAIL.newBuilder().addGateWayCode(GateWayCode.E0200).out(msg).toResult(environmental);
+		if (result.hasErrors()) {
+			FieldError fieldError = result.getFieldError();
+			if (fieldError != null) {
+				String msg = fieldError.getDefaultMessage();
+				LOGGER.warn("登录校验失败,msg: " + msg);
+				return Response.FAIL.newBuilder().addGateWayCode(GateWayCode.E0200).out(msg).toResult(environmental);
+			}
 		}
 
 		long currentTime = System.currentTimeMillis();
@@ -162,10 +166,14 @@ public class LoginController {
 		final String methodName = "LoginController:login";
 		LOGGER.enter(methodName, "APP登录请求[start],account: " + account);
 
-		if (result.hasErrors() && result.getFieldError()!=null) {
-			String msg = result.getFieldError().getDefaultMessage();
-			LOGGER.warn("登录校验失败,msg: " + msg);
-			return Response.FAIL.newBuilder().addGateWayCode(GateWayCode.E0200).out(msg).toResult();
+		if (result.hasErrors()) {
+			FieldError fieldError = result.getFieldError();
+			if (fieldError != null) {
+				String msg = fieldError.getDefaultMessage();
+				LOGGER.warn("登录校验失败,msg: " + msg);
+				return Response.FAIL.newBuilder().addGateWayCode(GateWayCode.E0200).out(msg).toResult();
+			}
+
 		}
 		if(account.getPasswd().length() > 20){
 			RSAUtils rsa = new RSAUtils();
@@ -223,10 +231,13 @@ public class LoginController {
 		final String methodName = "LoginController:login";
 		LOGGER.enter(methodName, "APP登录请求[start],account: " + account);
 
-		if (result.hasErrors() && result.getFieldError()!=null) {
-			String msg = result.getFieldError().getDefaultMessage();
-			LOGGER.warn("登录校验失败,msg: " + msg);
-			return Response.FAIL.newBuilder().addGateWayCode(GateWayCode.E0200).out(msg).toResult();
+		if (result.hasErrors()) {
+			FieldError fieldError = result.getFieldError();
+			if (fieldError != null) {
+				String msg = fieldError.getDefaultMessage();
+				LOGGER.warn("登录校验失败,msg: " + msg);
+				return Response.FAIL.newBuilder().addGateWayCode(GateWayCode.E0200).out(msg).toResult();
+			}
 		}
 
 		long currentTime = System.currentTimeMillis();
@@ -277,10 +288,13 @@ public class LoginController {
 		final String methodName = "LoginController:loginRunPlie";
 		LOGGER.enter(methodName, "跑垛机登录请求[start],account: " + account);
 
-		if (result.hasErrors() && result.getFieldError()!=null) {
-			String msg = result.getFieldError().getDefaultMessage();
-			LOGGER.warn("登录校验失败,msg: " + msg);
-			return Response.FAIL.newBuilder().addGateWayCode(GateWayCode.E0200).out(msg).toResult();
+		if (result.hasErrors()) {
+			FieldError fieldError = result.getFieldError();
+			if (fieldError != null) {
+				String msg = fieldError.getDefaultMessage();
+				LOGGER.warn("登录校验失败,msg: " + msg);
+				return Response.FAIL.newBuilder().addGateWayCode(GateWayCode.E0200).out(msg).toResult();
+			}
 		}
 
 		long currentTime = System.currentTimeMillis();

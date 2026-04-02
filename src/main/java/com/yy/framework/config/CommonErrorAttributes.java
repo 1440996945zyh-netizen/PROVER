@@ -26,15 +26,15 @@ public class CommonErrorAttributes extends DefaultErrorAttributes {
         // 替代原来的 includeStackTrace：判断是否包含栈跟踪
         boolean includeStackTrace = options.isIncluded(ErrorAttributeOptions.Include.STACK_TRACE);
         // 原有逻辑调整（如果涉及 includeStackTrace 的判断，改用上面的变量）
-        this.addStatus(errorAttributes, webRequest);
+        this.addStatusThis(errorAttributes, webRequest);
         errorAttributes.put("success", false);
         // 如需处理栈跟踪，可继续调用 addErrorDetails 等方法
         // this.addErrorDetails(errorAttributes, webRequest, includeStackTrace);
         return errorAttributes;
     }
 
-    private void addStatus(Map<String, Object> errorAttributes, RequestAttributes requestAttributes) {
-        Integer status = (Integer)this.getAttribute(requestAttributes, "jakarta.servlet.error.status_code");
+    private void addStatusThis(Map<String, Object> errorAttributes, RequestAttributes requestAttributes) {
+        Integer status = (Integer)this.getAttributeThis(requestAttributes, "jakarta.servlet.error.status_code");
         if (status == null) {
             errorAttributes.put("code", 999);
         } else {
@@ -47,11 +47,11 @@ public class CommonErrorAttributes extends DefaultErrorAttributes {
         }
     }
 
-    private <T> T getAttribute(RequestAttributes requestAttributes, String name) {
+    private <T> T getAttributeThis(RequestAttributes requestAttributes, String name) {
         return (T) requestAttributes.getAttribute(name, 0);
     }
 
-    private void addErrorDetails(Map<String, Object> errorAttributes, WebRequest webRequest, boolean includeStackTrace) {
+    private void addErrorDetailsThis(Map<String, Object> errorAttributes, WebRequest webRequest, boolean includeStackTrace) {
         Throwable error = this.getError(webRequest);
         if (error != null) {
             while(true) {
@@ -64,7 +64,7 @@ public class CommonErrorAttributes extends DefaultErrorAttributes {
             }
         }
 
-        Object message = this.getAttribute(webRequest, "jakarta.servlet.error.message");
+        Object message = this.getAttributeThis(webRequest, "jakarta.servlet.error.message");
         if ((!StringUtils.isEmpty(message) || errorAttributes.get("message") == null) && !(error instanceof BindingResult)) {
             errorAttributes.put("msg", StringUtils.isEmpty(message) ? "No message available" : message);
         }
@@ -72,7 +72,7 @@ public class CommonErrorAttributes extends DefaultErrorAttributes {
     }
 
     private void addErrorMessage(Map<String, Object> errorAttributes, Throwable error) {
-        BindingResult result = this.extractBindingResult(error);
+        BindingResult result = this.extractBindingResultThis(error);
         if (result == null) {
             errorAttributes.put("msg", error.getMessage());
         } else {
@@ -85,7 +85,7 @@ public class CommonErrorAttributes extends DefaultErrorAttributes {
         }
     }
 
-    private BindingResult extractBindingResult(Throwable error) {
+    private BindingResult extractBindingResultThis(Throwable error) {
         if (error instanceof BindingResult) {
             return (BindingResult)error;
         } else {

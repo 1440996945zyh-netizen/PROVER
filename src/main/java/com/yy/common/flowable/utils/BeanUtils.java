@@ -51,7 +51,7 @@ public class BeanUtils {
             return null;
         }
         List<T> list = toBean(source.getPages(), targetType);
-        if (peek != null && StringUtil.isNotEmpty(list)) {
+        if (peek != null && !list.isEmpty()) {
             list.forEach(peek);
         }
         return PageConverterUtils.convert(list, source.getPageNum(), source.getPageSize(), source.getTotalNum());

@@ -4,65 +4,50 @@ import cn.hutool.core.exceptions.UtilException;
 import com.yy.framework.annotation.ThreadSafe;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-/**
- * 实例延迟加载
- *
- * @Author linqi
- * @Description
- * @Date 2023-02-23 15:43
- */
 @ThreadSafe
 public final class Lazy<T> {
 
-    private volatile T value;
-
-    private volatile Supplier<T> factory;
-
-    private boolean inited;
-
-    private final Object lock = new Object();
+    private final AtomicReference<T> valueRef = new AtomicReference<>();
+    private final Supplier<T> factory;   // factory 不可变，无需 volatile
 
     /**
      * 创建一个从提供的工厂获取其值的Lazy实例
-     *
-     * @param factory
      */
     public Lazy(Supplier<T> factory) {
         this.factory = factory;
     }
 
     /**
-     * 创建一个包含给定值的Lazy实例
-     *
-     * @param value
+     * 创建一个包含给定值的Lazy实例（已初始化）
      */
     public Lazy(T value) {
-        this.value = value;
-        this.inited = true;
+        this.factory = null;
+        this.valueRef.set(value);
     }
 
     /**
-     * 惰性求值
-     *
-     * @return
+     * 惰性求值（线程安全，无锁快速路径）
      */
     public T get() {
-        if (inited) {
-            return value;
+        T val = valueRef.get();
+        if (val != null) {
+            return val;
         }
 
-        if (factory == null) {
-            throw new UtilException("Lazy实例化异常");
-        }
-
-        synchronized (lock) {
-            if (!inited) {
-                value = factory.get();
-                inited = true;
+        // 未初始化，需要同步创建
+        synchronized (this) {
+            val = valueRef.get();
+            if (val == null) {
+                if (factory == null) {
+                    throw new UtilException("Lazy实例化异常");
+                }
+                val = factory.get();
+                valueRef.set(val);
             }
-            return value;
+            return val;
         }
     }
 

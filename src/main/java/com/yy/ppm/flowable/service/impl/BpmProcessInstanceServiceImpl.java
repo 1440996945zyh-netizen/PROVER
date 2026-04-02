@@ -286,7 +286,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
 
 
         // 移除运行中的节点，运行中的节点无需预测
-        if (CollUtil.isNotEmpty(runActivityNodes)) {
+        if (runActivityNodes != null && CollUtil.isNotEmpty(runActivityNodes)) {
             runActivityNodes.forEach( activityNode -> needSimulateTaskDefKeysByReturn.remove(activityNode.getId()));
         }
 
