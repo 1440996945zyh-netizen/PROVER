@@ -3,13 +3,9 @@ package com.yy.framework.config;
 import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.WebRequest;
 
-import jakarta.servlet.ServletException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
@@ -50,49 +46,5 @@ public class CommonErrorAttributes extends DefaultErrorAttributes {
     private <T> T getAttributeThis(RequestAttributes requestAttributes, String name) {
         return (T) requestAttributes.getAttribute(name, 0);
     }
-
-    private void addErrorDetailsThis(Map<String, Object> errorAttributes, WebRequest webRequest, boolean includeStackTrace) {
-        Throwable error = this.getError(webRequest);
-        if (error != null) {
-            while(true) {
-                if (!(error instanceof ServletException) || error.getCause() == null) {
-                    this.addErrorMessage(errorAttributes, error);
-                    break;
-                }
-
-                error = error.getCause();
-            }
-        }
-
-        Object message = this.getAttributeThis(webRequest, "jakarta.servlet.error.message");
-        if ((!StringUtils.isEmpty(message) || errorAttributes.get("message") == null) && !(error instanceof BindingResult)) {
-            errorAttributes.put("msg", StringUtils.isEmpty(message) ? "No message available" : message);
-        }
-
-    }
-
-    private void addErrorMessage(Map<String, Object> errorAttributes, Throwable error) {
-        BindingResult result = this.extractBindingResultThis(error);
-        if (result == null) {
-            errorAttributes.put("msg", error.getMessage());
-        } else {
-            if (result.hasErrors()) {
-                errorAttributes.put("msg", "Validation failed for object='" + result.getObjectName() + "'. Error count: " + result.getErrorCount());
-            } else {
-                errorAttributes.put("msg", "No errors");
-            }
-
-        }
-    }
-
-    private BindingResult extractBindingResultThis(Throwable error) {
-        if (error instanceof BindingResult) {
-            return (BindingResult)error;
-        } else {
-            return error instanceof MethodArgumentNotValidException ? ((MethodArgumentNotValidException)error).getBindingResult() : null;
-        }
-    }
-
-
 
 }

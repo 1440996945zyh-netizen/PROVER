@@ -67,6 +67,6 @@ public final class JwtUtils {
 
         Boolean result = redisTemplate.opsForValue().setIfAbsent(token, "true",
                 (bean.getExpiresDate() - System.currentTimeMillis()) / 1000 + 60, TimeUnit.SECONDS);
-        return result != null ? result : false;
+        return Boolean.TRUE.equals(result);
     }
 }

@@ -112,7 +112,7 @@ public final class DistributedLock {
 
     private void before() {
         Boolean result = store.opsForValue().setIfAbsent(this.key, "true", this.timeout, TimeUnit.SECONDS);
-        boolean bool = result != null ? result : false;
+        boolean bool = Boolean.TRUE.equals(result);
         if (!bool) {
             throw new ConcurrentException(StringUtils.defaultIfBlank(this.tips, "并发异常，请联系管理员！"));
         }
