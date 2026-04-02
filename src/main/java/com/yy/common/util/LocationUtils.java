@@ -1,19 +1,16 @@
 package com.yy.common.util;
 
 import cn.hutool.core.io.IORuntimeException;
-import cn.hutool.core.io.IoUtil;
 import org.lionsoul.ip2region.xdb.Searcher;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.PosixFilePermissions;
 
 /**
  * @Author linqi
@@ -21,15 +18,15 @@ import java.nio.file.StandardCopyOption;
  * @Date 2023-06-30 11:05
  */
 public class LocationUtils {
-
-    private static final Logger log = LoggerFactory.getLogger(LocationUtils.class);
     private static final Lazy<Searcher> SEARCHER = new Lazy<>(() -> {
         ClassPathResource resource = new ClassPathResource("xdbs/ip2region.xdb");
         Path tempPath = null;
 
         try (InputStream inputStream = resource.getInputStream()) {
             // 创建临时文件
-            tempPath = Files.createTempFile("ip2region", ".xdb");
+            tempPath = Files.createTempFile("ip2region", ".xdb",
+                    PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"))
+            );
 
             // 复制资源到临时文件
             Files.copy(inputStream, tempPath, StandardCopyOption.REPLACE_EXISTING);
