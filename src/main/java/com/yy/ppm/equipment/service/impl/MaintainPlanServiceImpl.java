@@ -265,7 +265,7 @@ public class MaintainPlanServiceImpl implements MaintainPlanService {
                 int month = today1.getMonthValue();
                 // 获取日（1-31）
                 int day = today1.getDayOfMonth();
-                if ((month != 1 && day != 1) || toDate(today1).compareTo(po.getInitialDate())==0) {
+                if ((month != Integer.parseInt(po.getSetDate()) && day != 1) || toDate(today1).compareTo(po.getInitialDate())==0) {
                     continue;
                 }
             }

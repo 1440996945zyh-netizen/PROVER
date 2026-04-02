@@ -159,7 +159,7 @@ public class EPatrolPlanServiceImpl implements EPatrolPlanService {
                 int month = today1.getMonthValue();
                 // 获取日（1-31）
                 int day = today1.getDayOfMonth();
-                if ((month != 1 && day != 1)) {
+                if ((month != Integer.parseInt(po.getSetDate()) && day != 1)) {
                     continue;
                 }
             }
