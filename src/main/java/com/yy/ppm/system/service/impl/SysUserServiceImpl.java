@@ -71,7 +71,6 @@ public class SysUserServiceImpl implements SysUserService {
 	@Resource
 	private SelectMapper selectMapper;
 
-	private final RedisTemplate<String, String> redisTemplate;
 
 	private final UserCacheService userCacheService;
 
@@ -80,12 +79,10 @@ public class SysUserServiceImpl implements SysUserService {
 	private final Snowflake snowflake;
 
 	public SysUserServiceImpl(
-			RedisTemplate<String, String> redisTemplate,
 			UserCacheService userCacheService,
 			CommonService baseService,
 			Snowflake snowflake
 	){
-		this.redisTemplate = redisTemplate;
 		this.userCacheService = userCacheService;
 		this.baseService = baseService;
 		this.snowflake = snowflake;

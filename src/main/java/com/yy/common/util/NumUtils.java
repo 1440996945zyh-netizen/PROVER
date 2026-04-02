@@ -1,14 +1,11 @@
 package com.yy.common.util;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.Collection;
-
-import com.yy.common.enums.CommonConstants;
 
 /**
  * @author S.hirano

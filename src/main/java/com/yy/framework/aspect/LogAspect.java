@@ -149,13 +149,15 @@ public class LogAspect {
 
         //设置url
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        String URL ="";
-        if(attributes!=null && attributes.getRequest()!=null && attributes.getRequest().getRequestURL()!=null){
-            URL =  attributes.getRequest().getRequestURL().substring(21);
+        String url ="";
+        if(attributes!=null  && attributes.getRequest().getRequestURL()!=null){
+            url =  attributes.getRequest().getRequestURL().substring(21);
         }
-        oper.setOperUrl(URL);
+        oper.setOperUrl(url);
         //设置请求方式
-        oper.setRequestMethod(attributes.getRequest().getMethod());
+        if(attributes.getRequest()!=null){
+            oper.setRequestMethod(attributes.getRequest().getMethod());
+        }
         //设置ip地址
         String ip = HttpRequestUtils.getRemoteAddrIp(this.request);
         oper.setOperIp(ip);
@@ -227,11 +229,10 @@ public class LogAspect {
      */
     private void setRequestValue(JoinPoint joinPoint, SysOperLogPO oper) {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-//        Map<String, String[]> map = attributes.getRequest().getParameterMap();
-        if (attributes == null || attributes.getRequest() == null) {
+        if (attributes == null) {
             return;
         }
-        Map<String, String[]> map = request.getParameterMap();
+        Map<String, String[]> map = attributes.getRequest().getParameterMap();
         if (map.size() != 0) {
             String params = JSONObject.toJSONString(map);
             oper.setOperParam(JSONObject.toJSONString(map));

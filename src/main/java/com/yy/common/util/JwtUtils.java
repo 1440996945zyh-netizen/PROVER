@@ -3,7 +3,6 @@ package com.yy.common.util;
 import cn.hutool.core.text.CharSequenceUtil;
 import com.yy.common.jwt.Jwt;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 
 import java.util.concurrent.TimeUnit;
 

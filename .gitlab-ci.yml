@@ -14,11 +14,6 @@ stages:
 
 build-sonar:
   stage: build-sonar
-  #重新定义值，因为出现了取不到的情况
-  variables:
-    SONAR_HOST_URL: "http://114.55.226.181:9002"
-    SONAR_PROJECT_KEY: "yy-framework_yy-framework-api_85325cdb-89a9-4d80-86d4-66be8c9c646d"
-    SONAR_TOKEN: "sqp_9ae93907f74c7ca4fcbede512e997c7f5ec2c279"
 
   cache:
     policy: pull-push
@@ -30,6 +25,7 @@ build-sonar:
     - echo "SONAR_HOST_URL=${SONAR_HOST_URL}"  # 添加这行查看实际值（未打印，可能是runner的问题）
     - cd D:/gitlab-runner/builds/UUZGLxcD_/0/gitlab2/yy-framework/yy-framework-api
 #    - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar "-Dsonar.host.url=${SONAR_HOST_URL}" "-Dsonar.projectKey=${SONAR_PROJECT_KEY}" "-Dsonar.login=${SONAR_TOKEN}" "-Dsonar.java.binaries=target/classes"
+    #可能是runner的问题，${}取不到值，先写死
     - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar "-Dsonar.host.url=http://114.55.226.181:9002" "-Dsonar.projectKey=yy-framework_yy-framework-api_85325cdb-89a9-4d80-86d4-66be8c9c646d" "-Dsonar.login=sqp_9ae93907f74c7ca4fcbede512e997c7f5ec2c279" "-Dsonar.java.binaries=target/classes"
   allow_failure: true
   rules:
