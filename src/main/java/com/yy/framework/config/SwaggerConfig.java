@@ -22,8 +22,11 @@ public class SwaggerConfig {
     /**
      * 系统基础配置
      */
-    @Autowired
-    private ProjectConfig projectConfig;
+    private final ProjectConfig projectConfig;
+
+    public SwaggerConfig(ProjectConfig projectConfig){
+        this.projectConfig = projectConfig;
+    }
 
     /**
      * 是否开启swagger

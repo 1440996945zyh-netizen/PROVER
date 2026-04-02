@@ -67,8 +67,7 @@ public final class GlobalDelayQueueTask {
      **/
     public void compareAndSet(AbstractTaskBeanDelayed taskBean) {
         if (DELAY_QUEUE.contains(taskBean)) {
-            // 移除已存在的任务（接收返回值，满足代码规范）
-            boolean removed = DELAY_QUEUE.remove(taskBean);
+            DELAY_QUEUE.remove(taskBean);
             DELAY_QUEUE.add(taskBean);
         } else {
             DELAY_QUEUE.add(taskBean);

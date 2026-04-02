@@ -39,21 +39,22 @@ public class LoginServiceImpl implements LoginService {
     private final SysLoginLogMapper sysLoginLogMapper;
     private final SysUserMapper sysUserMapper;
     private final Snowflake snowflake;
+    private final HttpServletRequest request;
 
     public LoginServiceImpl(
             AuthenticationManager authenticationManager,
             SysLoginLogMapper sysLoginLogMapper,
             SysUserMapper sysUserMapper,
+            HttpServletRequest request,
             Snowflake snowflake
     ) {
         this.authenticationManager = authenticationManager;
         this.sysLoginLogMapper = sysLoginLogMapper;
         this.sysUserMapper = sysUserMapper;
         this.snowflake = snowflake;
+        this.request = request;
     }
 
-    @Autowired
-    private HttpServletRequest request;
 
     /**
      * 登录

@@ -48,8 +48,7 @@ public class LocationUtils {
         } catch (IOException e) {
             throw new IORuntimeException(e);
         } finally {
-            //报错
-            boolean tag = tempFile.delete();
+            tempFile.delete();
         }
     });
 

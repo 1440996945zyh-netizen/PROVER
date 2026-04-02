@@ -112,7 +112,7 @@ public class LoginController {
 		System.out.println("#########"+Decrypt_psw);
 		account.setPasswd(Decrypt_psw);
 
-		if (result.hasErrors()) {
+		if (result.hasErrors() && result.getFieldError()!=null) {
 			String msg = result.getFieldError().getDefaultMessage();
 			LOGGER.warn("登录校验失败,msg: " + msg);
 			return Response.FAIL.newBuilder().addGateWayCode(GateWayCode.E0200).out(msg).toResult(environmental);
@@ -164,7 +164,7 @@ public class LoginController {
 		final String methodName = "LoginController:login";
 		LOGGER.enter(methodName, "APP登录请求[start],account: " + account);
 
-		if (result.hasErrors()) {
+		if (result.hasErrors() && result.getFieldError()!=null) {
 			String msg = result.getFieldError().getDefaultMessage();
 			LOGGER.warn("登录校验失败,msg: " + msg);
 			return Response.FAIL.newBuilder().addGateWayCode(GateWayCode.E0200).out(msg).toResult();
@@ -225,7 +225,7 @@ public class LoginController {
 		final String methodName = "LoginController:login";
 		LOGGER.enter(methodName, "APP登录请求[start],account: " + account);
 
-		if (result.hasErrors()) {
+		if (result.hasErrors() && result.getFieldError()!=null) {
 			String msg = result.getFieldError().getDefaultMessage();
 			LOGGER.warn("登录校验失败,msg: " + msg);
 			return Response.FAIL.newBuilder().addGateWayCode(GateWayCode.E0200).out(msg).toResult();
@@ -279,7 +279,7 @@ public class LoginController {
 		final String methodName = "LoginController:loginRunPlie";
 		LOGGER.enter(methodName, "跑垛机登录请求[start],account: " + account);
 
-		if (result.hasErrors()) {
+		if (result.hasErrors() && result.getFieldError()!=null) {
 			String msg = result.getFieldError().getDefaultMessage();
 			LOGGER.warn("登录校验失败,msg: " + msg);
 			return Response.FAIL.newBuilder().addGateWayCode(GateWayCode.E0200).out(msg).toResult();

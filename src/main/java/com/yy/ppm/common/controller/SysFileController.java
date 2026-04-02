@@ -155,7 +155,9 @@ public class SysFileController {
             sysFilePo.setFilePath(path);
             sysFilePo.setFileSaveName(saveName);
             sysFilePo.setFileName(fileName);
-            sysFilePo.setFileSuffix(fileName.substring(fileName.indexOf(".") + 1));
+            if(fileName !=null){
+                sysFilePo.setFileSuffix(fileName.substring(fileName.indexOf(".") + 1));
+            }
             fileList.add(sysFilePo);
         }
 

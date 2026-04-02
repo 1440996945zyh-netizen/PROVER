@@ -3,6 +3,7 @@ package com.yy.framework.aspect;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import jakarta.annotation.Resource;
@@ -50,14 +51,14 @@ public class LogAspect {
     @Resource
     private SecurityUtils securityUtils;
 
-    @Autowired
-    private HttpServletRequest request;
 
+    private final HttpServletRequest request;
 
     private final Snowflake snowflake;
 
-    public LogAspect(Snowflake snowflake){
+    public LogAspect(Snowflake snowflake,HttpServletRequest request){
         this.snowflake = snowflake;
+        this.request = request;
     }
 
     private static final Logger logger = LoggerFactory.getLogger(LogAspect.class);
@@ -151,7 +152,10 @@ public class LogAspect {
 
         //设置url
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        String URL = attributes.getRequest().getRequestURL().substring(21);
+        String URL ="";
+        if(attributes!=null && attributes.getRequest()!=null && attributes.getRequest().getRequestURL()!=null){
+            URL =  attributes.getRequest().getRequestURL().substring(21);
+        }
         oper.setOperUrl(URL);
         //设置请求方式
         oper.setRequestMethod(attributes.getRequest().getMethod());
@@ -187,6 +191,7 @@ public class LogAspect {
         }else{
             sysOperLogMapper.insert(oper);
         }
+        TIME_THREADLOCAL.remove();
     }
 
     /**
@@ -225,7 +230,11 @@ public class LogAspect {
      */
     private void setRequestValue(JoinPoint joinPoint, SysOperLogPO oper) {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        Map<String, String[]> map = attributes.getRequest().getParameterMap();
+//        Map<String, String[]> map = attributes.getRequest().getParameterMap();
+        if (attributes == null || attributes.getRequest() == null) {
+            return;
+        }
+        Map<String, String[]> map = request.getParameterMap();
         if (map.size() != 0) {
             String params = JSONObject.toJSONString(map);
             oper.setOperParam(JSONObject.toJSONString(map));
