@@ -66,7 +66,6 @@
             SUM(CASE WHEN SOURCE =6 THEN 1 ELSE 0 END) AS "xj"
         FROM E_MAINT_INFO
         WHERE DEL_FLAG = 0
-        AND TO_CHAR(CREATE_TIME, 'yyyy-MM-dd') >= TO_CHAR(#{date}, 'yyyy-MM-dd')
         AND(MAINT_LEADER_ID=#{id} or DISPATCHER_ID= #{id} or CREATE_BY= #{id} or ACCEPTER_ID= #{id})
 
     </select>
@@ -78,6 +77,7 @@
             SUM(CASE WHEN EQUIP_BIG_CATEGORY_ID = '1991387706986467328' THEN 1 ELSE 0 END) AS "dlsb"
         FROM E_M_EQPT_INFO
         WHERE DEL_FLAG = 0
+        AND (USE_COMPANY_ID=#{deptId} or USE_ORG_ID=#{deptId})
 
     </select>
     <select id="getEqptStatus" resultType="java.util.Map">
@@ -88,21 +88,50 @@
             SUM(CASE WHEN EQUIP_STATE = '06' THEN 1 ELSE 0 END) AS "bf"
         FROM E_M_EQPT_INFO
         WHERE DEL_FLAG = 0
+        AND (USE_COMPANY_ID=#{deptId} or USE_ORG_ID=#{deptId})
+
 
     </select>
     <select id="getMainInfo" resultType="com.yy.ppm.equipment.bean.dto.HomeDTO">
         SELECT
-            COUNT(*) AS "tbs",
-            SUM(CASE WHEN STATUS in(1,2,4) THEN 1 ELSE 0 END) AS "jxz",
-            SUM(CASE WHEN STATUS = 5 THEN 1 ELSE 0 END) AS "ywc",
-            to_char(CREATE_TIME,'yyyy-MM-dd') AS "createDate"
+        day_list.createDate,
+        NVL(t.tbs, 0) AS tbs,
+        NVL(t.jxz, 0) AS jxz,
+        NVL(t.ywc, 0) AS ywc
+        FROM (
+        SELECT
+        TO_CHAR(CAST(#{startTime} AS DATE) + LEVEL - 1, 'yyyy-MM-dd') AS createDate
+        FROM DUAL
+        CONNECT BY LEVEL &lt;= CAST(#{endTime} AS DATE) - CAST(#{startTime} AS DATE) + 1
+        ) day_list
+        LEFT JOIN (
+        SELECT
+        TO_CHAR(CREATE_TIME, 'yyyy-MM-dd') AS createDate,
+        COUNT(*) AS tbs,
+        SUM(CASE WHEN STATUS IN(1,2,4) THEN 1 ELSE 0 END) AS jxz,
+        SUM(CASE WHEN STATUS = 5 THEN 1 ELSE 0 END) AS ywc
         FROM E_MAINT_INFO
         WHERE DEL_FLAG = 0
-        AND CREATE_TIME>= #{startTime}
+        AND CREATE_TIME >= #{startTime}
         AND CREATE_TIME &lt;= #{endTime}
-        AND(MAINT_LEADER_ID=#{id} or DISPATCHER_ID= #{id} or CREATE_BY= #{id} or ACCEPTER_ID= #{id})
-        GROUP BY  to_char(CREATE_TIME,'yyyy-MM-dd')
+        AND (MAINT_LEADER_ID = #{id} OR DISPATCHER_ID = #{id} OR CREATE_BY = #{id} OR ACCEPTER_ID = #{id})
+        GROUP BY TO_CHAR(CREATE_TIME, 'yyyy-MM-dd')
+        ) t ON day_list.createDate = t.createDate
+        ORDER BY day_list.createDate ASC
     </select>
+    <!--    <select id="getMainInfo" resultType="com.yy.ppm.equipment.bean.dto.HomeDTO">-->
+<!--        SELECT-->
+<!--            COUNT(*) AS "tbs",-->
+<!--            SUM(CASE WHEN STATUS in(1,2,4) THEN 1 ELSE 0 END) AS "jxz",-->
+<!--            SUM(CASE WHEN STATUS = 5 THEN 1 ELSE 0 END) AS "ywc",-->
+<!--            to_char(CREATE_TIME,'yyyy-MM-dd') AS "createDate"-->
+<!--        FROM E_MAINT_INFO-->
+<!--        WHERE DEL_FLAG = 0-->
+<!--        AND CREATE_TIME>= #{startTime}-->
+<!--        AND CREATE_TIME &lt;= #{endTime}-->
+<!--        AND(MAINT_LEADER_ID=#{id} or DISPATCHER_ID= #{id} or CREATE_BY= #{id} or ACCEPTER_ID= #{id})-->
+<!--        GROUP BY  to_char(CREATE_TIME,'yyyy-MM-dd')-->
+<!--    </select>-->
 
 
 </mapper>

@@ -58,7 +58,7 @@ public class HomeServiceImpl implements HomeService {
         //用户id
         Long userId = securityUtils.getUserInfo().getId();
 
-        Long companyId = securityUtils.getUserInfo().getDeptId();
+        Long deptId = securityUtils.getUserInfo().getDeptId();
 
 
         //设备维修派工单map
@@ -78,13 +78,13 @@ public class HomeServiceImpl implements HomeService {
         Map<String, Object> eMaintIfonType =homeMapper.eMaintIfonType(userId);
 
         //派工单今日统计
-        Map<String, Object> eMaintIfonToday =homeMapper.eMaintIfonToday(new Date(),userId);
+        Map<String, Object> eMaintIfonToday =homeMapper.eMaintIfonToday(userId);
 
         //获取设备统计
-        Map<String, Object> mEqptInfo =homeMapper.getEqptInfo();
+        Map<String, Object> mEqptInfo =homeMapper.getEqptInfo(deptId);
 
         //获取设备状态统计
-        Map<String, Object> mEqptStatus =homeMapper.getEqptStatus();
+        Map<String, Object> mEqptStatus =homeMapper.getEqptStatus(deptId);
 
         homeMap.put("eMaintInfo",eMaintInfo);
         homeMap.put("ePatrolTask",ePatrolTask);
