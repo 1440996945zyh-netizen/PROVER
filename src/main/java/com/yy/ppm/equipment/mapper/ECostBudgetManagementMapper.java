@@ -56,15 +56,17 @@ public interface ECostBudgetManagementMapper {
      * 校验同一年份下费用类型是否重复
      *
      * 使用场景：
-     * 1. 新增时校验 year + costType 是否已存在
-     * 2. 修改时校验 year + costType 是否与其他记录重复
+     * 1. 新增时校验 year + maintenanceUnitId + costType 是否已存在
+     * 2. 修改时校验 year + maintenanceUnitId + costType 是否与其他记录重复
      *
      * @param year 年份
+     * @param maintenanceUnitId 维修单位ID
      * @param costType 费用类型
      * @param id 当前记录ID，修改时用于排除自己；新增时可传 null
      * @return 重复数量
      */
     Long countDuplicate(@Param("year") String year,
+                        @Param("maintenanceUnitId") Long maintenanceUnitId,
                         @Param("costType") String costType,
                         @Param("id") Long id);
 }

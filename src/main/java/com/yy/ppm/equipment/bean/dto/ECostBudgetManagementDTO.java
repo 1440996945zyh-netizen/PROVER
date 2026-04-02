@@ -31,6 +31,17 @@ public class ECostBudgetManagementDTO extends BasePO implements Serializable {
     private String year;
 
     /**
+     * 维修单位ID
+     * 这里存维修单位表的 externalCompanyId
+     */
+    private Long maintenanceUnitId;
+
+    /**
+     * 维修单位名称
+     */
+    private String maintenanceUnitName;
+
+    /**
      * 费用类型
      * 1：维修费
      * 2：材料费

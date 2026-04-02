@@ -7,15 +7,17 @@
             parameterType="com.yy.ppm.equipment.bean.dto.ECostBudgetManagementDTO"
             resultType="com.yy.ppm.equipment.bean.dto.ECostBudgetManagementDTO">
         SELECT
-        t.ID          AS id,
-        t.YEAR        AS year,
-        t.COST_TYPE   AS costType,
-        d.DICT_LABEL  AS costTypeName,
-        t.AMOUNT      AS amount,
-        t.CREATE_BY   AS createBy,
-        t.CREATE_TIME AS createTime,
-        t.UPDATE_BY   AS updateBy,
-        t.UPDATE_TIME AS updateTime
+        t.ID                   AS id,
+        t.YEAR                 AS year,
+        t.MAINTENANCE_UNIT_ID  AS maintenanceUnitId,
+        t.MAINTENANCE_UNIT_NAME AS maintenanceUnitName,
+        t.COST_TYPE            AS costType,
+        d.DICT_LABEL           AS costTypeName,
+        t.AMOUNT               AS amount,
+        t.CREATE_BY            AS createBy,
+        t.CREATE_TIME          AS createTime,
+        t.UPDATE_BY            AS updateBy,
+        t.UPDATE_TIME          AS updateTime
         FROM E_COST_BUDGET_MANAGEMENT t
         LEFT JOIN M_DICT_DATA d
         ON d.DICT_TYPE = 'EXPENSE_TYPE'
@@ -33,18 +35,20 @@
 
     <select id="selectById" resultType="com.yy.ppm.equipment.bean.dto.ECostBudgetManagementDTO">
         SELECT
-            t.ID          AS id,
-            t.YEAR        AS year,
-            t.COST_TYPE   AS costType,
-            d.DICT_LABEL  AS costTypeName,
-            t.AMOUNT      AS amount,
-            t.CREATE_BY   AS createBy,
-            t.CREATE_TIME AS createTime,
-            t.UPDATE_BY   AS updateBy,
-            t.UPDATE_TIME AS updateTime
+            t.ID                    AS id,
+            t.YEAR                  AS year,
+            t.MAINTENANCE_UNIT_ID   AS maintenanceUnitId,
+            t.MAINTENANCE_UNIT_NAME AS maintenanceUnitName,
+            t.COST_TYPE             AS costType,
+            d.DICT_LABEL            AS costTypeName,
+            t.AMOUNT                AS amount,
+            t.CREATE_BY             AS createBy,
+            t.CREATE_TIME           AS createTime,
+            t.UPDATE_BY             AS updateBy,
+            t.UPDATE_TIME           AS updateTime
         FROM E_COST_BUDGET_MANAGEMENT t
                  LEFT JOIN M_DICT_DATA d
-                           ON d.DICT_TYPE = ''
+                           ON d.DICT_TYPE = 'EXPENSE_TYPE'
                                AND d.DICT_VALUE = t.COST_TYPE
                                AND d.STATUS = '1'
         WHERE t.ID = #{id}
@@ -54,6 +58,8 @@
         INSERT INTO E_COST_BUDGET_MANAGEMENT (
             ID,
             YEAR,
+            MAINTENANCE_UNIT_ID,
+            MAINTENANCE_UNIT_NAME,
             COST_TYPE,
             AMOUNT,
             CREATE_BY,
@@ -63,6 +69,8 @@
         ) VALUES (
                      #{id},
                      #{year},
+                     #{maintenanceUnitId},
+                     #{maintenanceUnitName},
                      #{costType},
                      #{amount},
                      #{loginUserId},
@@ -74,11 +82,13 @@
 
     <update id="update">
         UPDATE E_COST_BUDGET_MANAGEMENT
-        SET YEAR        = #{year},
-            COST_TYPE   = #{costType},
-            AMOUNT      = #{amount},
-            UPDATE_BY   = #{loginUserId},
-            UPDATE_TIME = #{now}
+        SET YEAR                  = #{year},
+            MAINTENANCE_UNIT_ID   = #{maintenanceUnitId},
+            MAINTENANCE_UNIT_NAME = #{maintenanceUnitName},
+            COST_TYPE             = #{costType},
+            AMOUNT                = #{amount},
+            UPDATE_BY             = #{loginUserId},
+            UPDATE_TIME           = #{now}
         WHERE ID = #{id}
     </update>
 
@@ -91,6 +101,7 @@
         SELECT COUNT(1)
         FROM E_COST_BUDGET_MANAGEMENT t
         WHERE t.YEAR = #{year}
+        AND t.MAINTENANCE_UNIT_ID = #{maintenanceUnitId}
         AND t.COST_TYPE = #{costType}
         <if test="id != null">
             AND t.ID &lt;&gt; #{id}

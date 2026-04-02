@@ -22,9 +22,10 @@ import java.math.BigDecimal;
  *
  * 核心业务规则：
  * 1. 年份不能为空，且必须为4位数字
- * 2. 费用类型不能为空
- * 3. 预算金额不能为空，且不能小于0
- * 4. 同一个年份下，费用类型不允许重复
+ * 2. 维修单位不能为空
+ * 3. 费用类型不能为空
+ * 4. 预算金额不能为空，且不能小于0
+ * 5. 同一个年份下，同维修单位的费用类型不允许重复
  */
 @RequiredArgsConstructor
 @Service
@@ -133,6 +134,14 @@ public class ECostBudgetManagementServiceImpl implements ECostBudgetManagementSe
             throw new BusinessRuntimeException("年份格式不正确，请输入4位年份");
         }
 
+        // 校验维修单位
+        if (dto.getMaintenanceUnitId() == null) {
+            throw new BusinessRuntimeException("维修单位不能为空");
+        }
+        if (StringUtils.isBlank(dto.getMaintenanceUnitName())) {
+            throw new BusinessRuntimeException("维修单位名称不能为空");
+        }
+
         // 校验费用类型
         if (StringUtils.isBlank(dto.getCostType())) {
             throw new BusinessRuntimeException("费用类型不能为空");
@@ -146,11 +155,11 @@ public class ECostBudgetManagementServiceImpl implements ECostBudgetManagementSe
             throw new BusinessRuntimeException("预算金额不能小于0");
         }
 
-        // 校验同一年份下费用类型是否重复
-        // 修改时需要排除自己，所以传当前id
-        Long count = mapper.countDuplicate(dto.getYear(), dto.getCostType(), isUpdate ? dto.getId() : null);
+        // 同一年份下，同一个维修单位的同一费用类型只能有一条
+        // 修改时要排除自己
+        Long count = mapper.countDuplicate(dto.getYear(), dto.getMaintenanceUnitId(), dto.getCostType(), isUpdate ? dto.getId() : null);
         if (count != null && count > 0) {
-            throw new BusinessRuntimeException("同一个年份下不允许费用类型相同");
+            throw new BusinessRuntimeException("同一个年份下，同维修单位的费用类型不允许重复");
         }
     }
 }
