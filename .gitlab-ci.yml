@@ -23,7 +23,7 @@ build-sonar:
       - "${SONAR_USER_HOME}/cache"
       - sonar-scanner/
   script:
-    - cd D:/gitlab-runner/builds/UUZGLxcD_/0/gitlab2/yy-framework/yy-framework-api
+#    - cd D:/gitlab-runner/builds/UUZGLxcD_/0/gitlab2/yy-framework/yy-framework-api
     - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar "-Dsonar.host.url=${SONAR_HOST_URL}" "-Dsonar.projectKey=${SONAR_PROJECT_KEY}" "-Dsonar.login=${SONAR_TOKEN}" "-Dsonar.java.binaries=target/classes"
   allow_failure: true
   rules:
