@@ -7,7 +7,6 @@ import com.yy.ppm.system.bean.dto.SysMenuDTO;
 import com.yy.ppm.system.bean.dto.SysMenuSearchDTO;
 import com.yy.ppm.system.bean.dto.TreeSelectDTO;
 import com.yy.ppm.system.service.SysMenuService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;

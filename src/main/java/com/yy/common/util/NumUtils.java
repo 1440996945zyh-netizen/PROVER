@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.Collection;
 
@@ -186,13 +187,9 @@ public class NumUtils implements Serializable {
 			return true;
 		}
 
-		try {
-			byts = str.getBytes(CommonConstants.UTF_8);
-		} catch (UnsupportedEncodingException e) {
-			bValid = false;
-		}
+        byts = str.getBytes(StandardCharsets.UTF_8);
 
-        if (byts!=null && byts.length != str.length()) {
+        if (byts.length != str.length()) {
 			bValid = false;
 		}
 		return bValid;
@@ -381,7 +378,7 @@ public class NumUtils implements Serializable {
 
 		keisu = Math.pow(Integer.parseInt("10"), Math.abs(pos));
 		keisu2 = Math.pow(keisu, 2);
-		keisu3 = Math.pow(Float.parseFloat("0.1"), Math.abs(pos) + 2L);
+		keisu3 = Math.pow(0.1d, Math.abs(pos) + 2.0d);
 
 		if (val < 0) {
 			keisu3 *= -1;
@@ -412,7 +409,7 @@ public class NumUtils implements Serializable {
 
 		keisu = Math.pow(Integer.parseInt("10"), Math.abs(pos));
 		keisu2 = Math.pow(keisu, 2);
-		keisu3 = Math.pow(Float.parseFloat("0.1"), Math.abs(pos) + 2L);
+		keisu3 = Math.pow(0.1d, Math.abs(pos) + 2.0d);
 
 		if (val < 0) {
 			keisu3 *= -1;
@@ -448,7 +445,7 @@ public class NumUtils implements Serializable {
 			bd2 = bd1.setScale(0, BigDecimal.ROUND_HALF_UP);
 		}
 		BigDecimal bd3 = BigDecimal.valueOf(Math.abs(doubleValue)
-                + Math.pow(Float.parseFloat("0.1"), Math.abs(position) + 2L));
+                + Math.pow(0.1d, Math.abs(position) + 2.0d));
 		BigDecimal bd4 = bd3.multiply(bd2);
 		//BigDecimal bd5 = bd4.setScale(1,BigDecimal.ROUND_HALF_UP);
 		BigDecimal bd6 = bd4.setScale(0, mode); //bd5.setScale(0,mode);

@@ -9,13 +9,10 @@ import com.yy.ppm.example.bean.dto.BpmApplicationExampleDTO;
 import com.yy.ppm.example.bean.dto.BpmApplicationExampleSearchDTO;
 import com.yy.ppm.example.mapper.BpmApplicationExampleMapper;
 import com.yy.ppm.example.service.BpmApplicationExampleService;
-import com.yy.ppm.flowable.bean.dto.BpmBusinessInstanceDTO;
 import com.yy.ppm.flowable.bean.dto.BpmProcessInstanceDTO;
 import com.yy.ppm.flowable.service.BpmProcessInstanceService;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
-import org.flowable.engine.runtime.ProcessInstance;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;

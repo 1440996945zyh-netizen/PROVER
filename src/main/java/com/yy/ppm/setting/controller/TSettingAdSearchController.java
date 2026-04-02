@@ -9,7 +9,6 @@ import com.yy.ppm.common.enums.ScheduleTaskEnum;
 import com.yy.ppm.setting.bean.dto.TSettingAdSearchDTO;
 import com.yy.ppm.setting.bean.dto.TSettingAdSearchSearchDTO;
 import com.yy.ppm.setting.service.TSettingAdSearchService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

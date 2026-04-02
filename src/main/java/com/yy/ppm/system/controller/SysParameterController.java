@@ -4,7 +4,6 @@ import com.yy.common.enums.Response;
 import com.yy.common.log.MicroLogger;
 import com.yy.ppm.system.bean.dto.SysParameterDTO;
 import com.yy.ppm.system.service.SysParameterService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;

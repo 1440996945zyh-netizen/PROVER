@@ -6,10 +6,8 @@ import com.yy.framework.config.MinioConfig;
 import com.yy.ppm.common.bean.dto.SysFileDTO;
 import com.yy.ppm.common.bean.po.SysFilePO;
 import com.yy.ppm.common.mapper.SysFileMapper;
-import com.yy.ppm.common.service.CommonService;
 import com.yy.ppm.common.service.SysFileService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

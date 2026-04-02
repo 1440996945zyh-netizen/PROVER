@@ -16,7 +16,6 @@ import com.yy.ppm.common.bean.po.SysFilePO;
 import com.yy.ppm.common.service.SysFileService;
 import com.yy.ppm.system.enums.SysEnum;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,6 +23,8 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotBlank;
+
+import java.io.File;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
@@ -145,7 +146,7 @@ public class SysFileController {
             String fileName = fileObject.getOriginalFilename();
             Long id = snowflake.nextId();
             String saveName = id + fileName;
-            String path = "".equals(route) ? bucketDate : (route + "/" + bucketDate);
+            String path = "".equals(route) ? bucketDate : (route + File.separator + bucketDate);
             minIoConfig.putObject(bucketName, path + saveName, fileObject.getInputStream());
 
             SysFileDTO sysFilePo = new SysFileDTO();

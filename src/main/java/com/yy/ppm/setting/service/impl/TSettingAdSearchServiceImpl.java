@@ -8,7 +8,6 @@ import com.yy.ppm.setting.bean.dto.TSettingAdSearchSearchDTO;
 import com.yy.ppm.setting.mapper.TSettingAdSearchMapper;
 import com.yy.ppm.setting.service.TSettingAdSearchService;
 import jakarta.annotation.Resource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 

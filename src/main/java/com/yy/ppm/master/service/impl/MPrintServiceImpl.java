@@ -2,26 +2,17 @@ package com.yy.ppm.master.service.impl;
 
 import cn.hutool.core.lang.Snowflake;
 import com.yy.common.log.MicroLogger;
-import com.yy.common.page.PageParameter;
 import com.yy.common.page.Pages;
-import com.yy.common.util.MapUtils;
 import com.yy.common.util.PageHelperUtils;
-import com.yy.common.util.str.StringUtil;
 import com.yy.framework.exception.BusinessRuntimeException;
-import com.yy.ppm.common.bean.dto.CheckDTO;
-import com.yy.ppm.common.mapper.CommonMapper;
-import com.yy.ppm.common.service.CommonService;
 import com.yy.ppm.master.bean.dto.*;
 
 import com.yy.ppm.master.mapper.MPrintMapper;
 import com.yy.ppm.master.service.MPrintService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**

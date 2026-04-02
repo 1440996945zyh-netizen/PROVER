@@ -36,10 +36,8 @@ public class BeanUtils {
 
     public static <S, T> List<T> toBean(List<S> source, Class<T> targetType, Consumer<T> peek) {
         List<T> list = toBean(source, targetType);
-        if (list != null) {
-            if(peek !=null){
-                list.forEach(peek);
-            }
+        if (list != null && peek !=null) {
+            list.forEach(peek);
         }
         return list;
     }

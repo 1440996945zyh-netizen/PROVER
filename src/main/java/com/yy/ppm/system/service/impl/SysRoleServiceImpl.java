@@ -4,7 +4,6 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Snowflake;
 import com.google.api.client.util.Lists;
 import com.google.common.collect.Maps;
-import com.yy.common.flowable.constants.ErrorCodeConstants;
 import com.yy.common.flowable.enums.CommonStatusEnum;
 import com.yy.common.log.MicroLogger;
 import com.yy.common.page.Pages;
@@ -22,7 +21,6 @@ import com.yy.ppm.system.mapper.SysRoleMapper;
 import com.yy.ppm.system.service.SysMenuService;
 import com.yy.ppm.system.service.SysRoleService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

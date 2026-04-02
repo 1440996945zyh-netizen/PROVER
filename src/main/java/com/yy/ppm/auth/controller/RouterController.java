@@ -8,7 +8,6 @@ import com.yy.common.util.JwtUtils;
 import com.yy.ppm.auth.bean.dto.RouterDTO;
 import com.yy.ppm.auth.service.RouterService;
 import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

@@ -11,11 +11,8 @@ import com.yy.ppm.system.bean.dto.SysMenuDTO;
 import com.yy.ppm.system.bean.dto.SysMenuSearchDTO;
 import com.yy.ppm.system.bean.dto.TreeSelectDTO;
 import com.yy.ppm.system.mapper.SysMenuMapper;
-import com.yy.ppm.system.mapper.SysRoleMapper;
 import com.yy.ppm.system.service.SysMenuService;
-import com.yy.ppm.system.service.SysRoleService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

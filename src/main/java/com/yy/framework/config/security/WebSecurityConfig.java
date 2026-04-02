@@ -1,10 +1,7 @@
 package com.yy.framework.config.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -31,11 +28,6 @@ public class WebSecurityConfig {
 
     @Resource
     private WhiteList whiteList;
-    /**
-     * 自定义用户登录
-     */
-    @Resource
-    private UserDetailsService userDetailsService;
 
     /**
      * Jwt过滤器
@@ -53,22 +45,15 @@ public class WebSecurityConfig {
     private final CustomPasswordEncoder customPasswordEncoder;
 
     /**
-     * 退出成功处理
-     */
-    private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
-
-    /**
      * 构造器注入
      */
     public WebSecurityConfig(
             JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter,
             CrosFilter crosFilter,
-            CustomPasswordEncoder customPasswordEncoder,
-            CustomLogoutSuccessHandler customLogoutSuccessHandler) {
+            CustomPasswordEncoder customPasswordEncoder) {
         this.jwtAuthenticationTokenFilter = jwtAuthenticationTokenFilter;
         this.crosFilter = crosFilter;
         this.customPasswordEncoder = customPasswordEncoder;
-        this.customLogoutSuccessHandler = customLogoutSuccessHandler;
     }
 
     // 获取AuthenticationManager（认证管理器），登录时认证使用。
