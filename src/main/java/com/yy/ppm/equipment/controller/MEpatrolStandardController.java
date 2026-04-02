@@ -12,6 +12,7 @@ import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -92,6 +93,19 @@ public class MEpatrolStandardController {
 
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("删除成功").toResult();
+    }
+    /**
+     * 获取设备下拉数据源
+     */
+    @GetMapping("/getEqptOptions")
+    public Map<String, Object> getEqptOptions() {
+        final String methodName = "PatrolStandardController:getEqptOptions";
+        LOGGER.enter(methodName + "[start]");
+
+        List<Map<String, Object>> options = patrolStandardService.getEqptOptions();
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("查询成功").toResult(options);
     }
 }
 

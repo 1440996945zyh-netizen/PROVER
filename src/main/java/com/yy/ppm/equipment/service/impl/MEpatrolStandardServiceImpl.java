@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 巡检标准
@@ -119,6 +120,10 @@ public class MEpatrolStandardServiceImpl implements MEpatrolStandardService {
             return;
         }
         patrolStandardMapper.insertSubBatch(parentId, subList);
+    }
+    @Override
+    public List<Map<String, Object>> getEqptOptions() {
+        return patrolStandardMapper.selectEqptOptions();
     }
 }
 

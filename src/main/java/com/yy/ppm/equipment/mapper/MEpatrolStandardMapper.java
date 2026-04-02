@@ -7,6 +7,7 @@ import com.yy.ppm.equipment.bean.po.MEpatrolStandardSubPO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 巡检标准
@@ -31,4 +32,6 @@ public interface MEpatrolStandardMapper {
 
     @Edit
     void delete(@Param("id") Long id);
+
+    List<Map<String, Object>> selectEqptOptions();
 }
