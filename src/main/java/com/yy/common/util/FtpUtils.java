@@ -68,20 +68,19 @@ public class FtpUtils {
             System.out.println("上传文件成功");
         } catch (Exception e) {
             System.out.println("上传文件失败");
-            e.printStackTrace();
         } finally {
             if (ftpClient.isConnected()) {
                 try {
                     ftpClient.disconnect();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    System.out.println("连接失败");
                 }
             }
             if (null != inputStream) {
                 try {
                     inputStream.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    System.out.println("inputStream.close() feature");
                 }
             }
         }
@@ -125,20 +124,19 @@ public class FtpUtils {
             System.out.println("下载文件成功");
         } catch (Exception e) {
             System.out.println("下载文件失败");
-            e.printStackTrace();
         } finally {
             if (ftpClient.isConnected()) {
                 try {
                     ftpClient.disconnect();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    System.out.println("服务器连接失败");
                 }
             }
             if (null != os) {
                 try {
                     os.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    System.out.println("os.close() feature");
                 }
             }
         }
@@ -168,9 +166,9 @@ public class FtpUtils {
             System.out.println("connect successfull...ftp服务器:" + this.hostname
                     + ":" + this.port);
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            System.out.println("MalformedURLException:" + e);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("IOException：" + e);
         }
     }
 
@@ -247,7 +245,7 @@ public class FtpUtils {
                 System.out.println("进入文件夹" + directory + " 失败！开始创建文件夹");
             }
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            System.out.println("IOException：" + ioe);
         }
         return flag;
     }
@@ -291,7 +289,7 @@ public class FtpUtils {
                 System.out.println("创建文件夹" + dir + " 失败！");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Exception：" + e);
         }
         return flag;
     }
