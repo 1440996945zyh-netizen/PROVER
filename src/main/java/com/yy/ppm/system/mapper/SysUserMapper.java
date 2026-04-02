@@ -89,4 +89,6 @@ public interface SysUserMapper {
 	 * @return
 	 */
     Set<Long> getUserPostIdListByPostKey(@Param("list") Set<String> postKeys);
+
+	SysUserDTO getByAccount(String userAccount);
 }

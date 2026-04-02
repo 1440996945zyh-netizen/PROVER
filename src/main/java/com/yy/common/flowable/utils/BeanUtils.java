@@ -3,6 +3,7 @@ package com.yy.common.flowable.utils;
 import cn.hutool.core.bean.BeanUtil;
 import com.yy.common.page.Pages;
 import com.yy.common.util.PageConverterUtils;
+import com.yy.common.util.str.StringUtil;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -52,7 +53,7 @@ public class BeanUtils {
             return null;
         }
         List<T> list = toBean(source.getPages(), targetType);
-        if (peek != null) {
+        if (peek != null && StringUtil.isNotEmpty(list)) {
             list.forEach(peek);
         }
         return PageConverterUtils.convert(list, source.getPageNum(), source.getPageSize(), source.getTotalNum());

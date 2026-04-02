@@ -81,6 +81,34 @@
         </where>
     </select>
 
+    <!-- 根据USER_ACCOUNT查询数据 -->
+    <select id="getByAccount" resultType="com.yy.ppm.system.bean.dto.SysUserDTO" parameterType="java.lang.String">
+        SELECT
+        A.ID,
+        A.USER_ACCOUNT,
+        A.PASSWD,
+        A.USER_NAME,
+        A.SEX,
+        A.DEPT_ID,
+        A.IS_SUPERADMIN,
+        A.MOBILE,
+        A.EMAIL,
+        A.STATUS,
+        A.PSD_UPD_DATE,
+        A.SORT_NUM,
+        A.REMARK,
+        A.IS_LABOR,
+        A.POST_CODE,
+        A.POST_NAME,
+        A.UNIT_TYPE_CODE,
+        A.UNIT_TYPE_NAME
+        FROM
+        SYS_USER A
+        <where>
+            a.USER_ACCOUNT = #{userAccount}
+        </where>
+    </select>
+
     <!-- 新增 -->
     <insert id="insert" parameterType="com.yy.ppm.system.bean.dto.SysUserDTO">
         INSERT INTO SYS_USER(

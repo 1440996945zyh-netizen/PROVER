@@ -71,7 +71,7 @@ public class LoginServiceImpl implements LoginService {
         // 插入登录日志
         SysLoginLogDTO mLoginLog = new SysLoginLogDTO();
         mLoginLog.setId(snowflake.nextId());
-        mLoginLog.setUserId(accountDTO.getId());
+
         mLoginLog.setAccNo(accountDTO.getUserAccount());
         mLoginLog.setUserName(accountDTO.getUserName());
         mLoginLog.setCommonInfo(mLoginLog);
@@ -98,8 +98,10 @@ public class LoginServiceImpl implements LoginService {
             throw new BusinessRuntimeException("账号或密码错误~");
         }
 
-        SysUserDTO userDTO = sysUserMapper.getById(accountDTO.getId());
+        SysUserDTO userDTO = sysUserMapper.getByAccount(accountDTO.getUserAccount());
         accountDTO.setStatus(userDTO.getStatus());
+
+        mLoginLog.setUserId(userDTO.getId());
         // 停用的场合
         if (CommonEnum.IsUsed.UNUSED.getCode().equals(accountDTO.getStatus().toString())) {
             mLoginLog.setStatus("失败");
