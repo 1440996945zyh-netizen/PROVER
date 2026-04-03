@@ -3,6 +3,7 @@ package com.yy.common.util;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
+import org.apache.commons.net.ftp.FTPSClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -14,7 +15,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
-import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 
 public class FtpUtils {
@@ -148,10 +148,9 @@ public class FtpUtils {
      * @date 2018-4-24
      */
     public void initFtpClient() throws IOException {
-        ftpClient = new FTPClient();
-        ftpClient.setControlEncoding("utf-8");
-        ftpClient.setConnectTimeout(5000);
-        ftpClient.setSoTimeout(30000);
+        FTPSClient ftpsClient = new FTPSClient();
+        ftpsClient.execPBSZ(0);   // 设置保护缓冲区大小
+        ftpsClient.execPROT("P"); // 保护数据传输通道
 
         try {
             ftpClient.connect(hostname, Integer.parseInt(port));
