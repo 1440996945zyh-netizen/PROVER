@@ -85,7 +85,7 @@ public class WebSecurityConfig {
         http.addFilterBefore(crosFilter, JwtAuthenticationTokenFilter.class);
 
         http
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)// NOSONAR 前后端分离JWT认证，CSRF防护冗余
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> {
                     // 1. 白名单URL允许匿名访问
