@@ -12,6 +12,7 @@ import com.yy.ppm.equipment.bean.dto.InspectionPlanDTO;
 import com.yy.ppm.equipment.bean.dto.InspectionPlanTaskDTO;
 import com.yy.ppm.equipment.bean.po.*;
 import com.yy.ppm.equipment.mapper.InspectionPlanMapper;
+import com.yy.ppm.equipment.service.EPatrolPlanService;
 import com.yy.ppm.equipment.service.InspectionPlanService;
 import jakarta.annotation.Resource;
 import org.joda.time.DateTime;
@@ -33,6 +34,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.yy.ppm.equipment.service.impl.EPatrolPlanServiceImpl.toDate;
+
 @Component("InspectionPlanServiceImpl")
 @Service
 public class InspectionPlanServiceImpl implements InspectionPlanService {
@@ -44,6 +47,10 @@ public class InspectionPlanServiceImpl implements InspectionPlanService {
     private InspectionPlanMapper inspectionPlanMapper;
     @Resource
     private Snowflake snowflake;
+
+
+    @Autowired
+    private EPatrolPlanService ePatrolPlanService;
 
     @Override
     public Pages<InspectionPlanPO> queryAll(InspectionPlanDTO inspectionPlanDTO, PageParameter parameter) {
@@ -78,54 +85,77 @@ public class InspectionPlanServiceImpl implements InspectionPlanService {
             // 新增点检计划子表
             inspectionPlanMapper.insertPlanItem(dto.getItemList());
 
-            // 生成点检任务 -- 主表
-            InspectionPlanTaskPO inspectionPlanTaskPO = new InspectionPlanTaskPO();
-            inspectionPlanTaskPO.setId(snowflake.nextId());
-            inspectionPlanTaskPO.setEquipPlanId(dto.getId());
-            inspectionPlanTaskPO.setEquipId(dto.getEquipId());
-            inspectionPlanTaskPO.setEquipName(dto.getEquipName());
-            inspectionPlanTaskPO.setInspectorId(dto.getInspectorId());
-            inspectionPlanTaskPO.setInspectorName(dto.getInspectorName());
+            //  周期类
             boolean flag = Stream.of("1","2","3","4").anyMatch(v -> v.equals(dto.getEquipType()));
-            if (flag){ // 使用时间作为判断条件
-                inspectionPlanTaskPO.setStartDate(dto.getInitialDate());
-            } else { // 不使用时间作为判断条件
-                dto.setInitialDate(toDate(LocalDate.now()));
-                inspectionPlanTaskPO.setStartDate(toDate(LocalDate.now()));
-                inspectionPlanTaskPO.setInitialNumber(dto.getInitialNumber());
-                inspectionPlanTaskPO.setDeadlineNumber(dto.getInitialNumber().add(new BigDecimal(dto.getCycle())));
-                dto.setDeadlineNumber(inspectionPlanTaskPO.getDeadlineNumber());
-            }
-            inspectionPlanTaskPO.setEndDate(DateUtils.addDays(dto.getInitialDate(),Integer.parseInt(dto.getTimeLimit())-1));
-            dto.setDeadlineDate(inspectionPlanTaskPO.getEndDate());
+            boolean isInsert = false;
 
-            // 生成点检任务 -- 子表
-            List<InspectionPlanTaskItemPO> taskItemList = new ArrayList<>();
-            dto.getItemList().stream().forEach(v -> {
-                InspectionPlanTaskItemPO inspectionPlanTaskItemPO = new InspectionPlanTaskItemPO();
-                inspectionPlanTaskItemPO.setId(snowflake.nextId());
-                inspectionPlanTaskItemPO.setStandardId(v.getStandardId());
-                inspectionPlanTaskItemPO.setEquipTaskId(inspectionPlanTaskPO.getId());
-                inspectionPlanTaskItemPO.setEquipPlanId(dto.getId());
-                inspectionPlanTaskItemPO.setEquipPlanItemId(v.getId());
-                inspectionPlanTaskItemPO.setEquipSmallCategoryId(v.getEquipSmallCategoryId());
-                inspectionPlanTaskItemPO.setEquipSmallCategoryName(v.getEquipSmallCategoryName());
-                inspectionPlanTaskItemPO.setEquipInstitutionId(v.getEquipInstitutionId());
-                inspectionPlanTaskItemPO.setEquipInstitutionName(v.getEquipInstitutionName());
-                inspectionPlanTaskItemPO.setEquipUnitId(v.getEquipUnitId());
-                inspectionPlanTaskItemPO.setEquipUnitName(v.getEquipUnitName());
-                inspectionPlanTaskItemPO.setContent(v.getContent());
-                inspectionPlanTaskItemPO.setStandard(v.getStandard());
-                inspectionPlanTaskItemPO.setEquipType(v.getEquipType());
-                taskItemList.add(inspectionPlanTaskItemPO);
-            });
+            //当前时间
+            LocalDate today1 = LocalDate.now();
+            //判断当前时候是否等于初始时间
+            if (!flag || toDate(today1).compareTo(dto.getInitialDate()) == 0  ) {
+
+                if (flag && ePatrolPlanService.isCreateTask(dto.getEquipType(), dto.getInitialDate(),dto.getSetDate())){ // 是周期
+                    isInsert = true;
+                }else if (!flag && dto.getInitialNumber().divideAndRemainder(new BigDecimal(dto.getCycle()))[1].compareTo(BigDecimal.ZERO)==0){
+
+                    isInsert = true;
+
+                }
+
+
+                if (isInsert){
+                    // 生成点检任务 -- 主表
+                    InspectionPlanTaskPO inspectionPlanTaskPO = new InspectionPlanTaskPO();
+                    inspectionPlanTaskPO.setId(snowflake.nextId());
+                    inspectionPlanTaskPO.setEquipPlanId(dto.getId());
+                    inspectionPlanTaskPO.setEquipId(dto.getEquipId());
+                    inspectionPlanTaskPO.setEquipName(dto.getEquipName());
+                    inspectionPlanTaskPO.setInspectorId(dto.getInspectorId());
+                    inspectionPlanTaskPO.setInspectorName(dto.getInspectorName());
+                    if (flag){ // 使用时间作为判断条件
+                        inspectionPlanTaskPO.setStartDate(dto.getInitialDate());
+                    } else { // 不使用时间作为判断条件
+                        dto.setInitialDate(toDate(LocalDate.now()));
+                        inspectionPlanTaskPO.setStartDate(toDate(LocalDate.now()));
+                        inspectionPlanTaskPO.setInitialNumber(dto.getInitialNumber());
+                        inspectionPlanTaskPO.setDeadlineNumber(dto.getInitialNumber().add(new BigDecimal(dto.getCycle())));
+                        dto.setDeadlineNumber(inspectionPlanTaskPO.getDeadlineNumber());
+                    }
+                    inspectionPlanTaskPO.setEndDate(DateUtils.addDays(dto.getInitialDate(),Integer.parseInt(dto.getTimeLimit())-1));
+                    dto.setDeadlineDate(inspectionPlanTaskPO.getEndDate());
+                    dto.setRecentlyTaskDate(new Date());
+
+                    // 生成点检任务 -- 子表
+                    List<InspectionPlanTaskItemPO> taskItemList = new ArrayList<>();
+                    dto.getItemList().stream().forEach(v -> {
+                        InspectionPlanTaskItemPO inspectionPlanTaskItemPO = new InspectionPlanTaskItemPO();
+                        inspectionPlanTaskItemPO.setId(snowflake.nextId());
+                        inspectionPlanTaskItemPO.setStandardId(v.getStandardId());
+                        inspectionPlanTaskItemPO.setEquipTaskId(inspectionPlanTaskPO.getId());
+                        inspectionPlanTaskItemPO.setEquipPlanId(dto.getId());
+                        inspectionPlanTaskItemPO.setEquipPlanItemId(v.getId());
+                        inspectionPlanTaskItemPO.setEquipSmallCategoryId(v.getEquipSmallCategoryId());
+                        inspectionPlanTaskItemPO.setEquipSmallCategoryName(v.getEquipSmallCategoryName());
+                        inspectionPlanTaskItemPO.setEquipInstitutionId(v.getEquipInstitutionId());
+                        inspectionPlanTaskItemPO.setEquipInstitutionName(v.getEquipInstitutionName());
+                        inspectionPlanTaskItemPO.setEquipUnitId(v.getEquipUnitId());
+                        inspectionPlanTaskItemPO.setEquipUnitName(v.getEquipUnitName());
+                        inspectionPlanTaskItemPO.setContent(v.getContent());
+                        inspectionPlanTaskItemPO.setStandard(v.getStandard());
+                        inspectionPlanTaskItemPO.setEquipType(v.getEquipType());
+                        taskItemList.add(inspectionPlanTaskItemPO);
+                    });
+                    // 新增点检任务
+                    inspectionPlanMapper.insertPlanTask(inspectionPlanTaskPO);
+                    // 新增点检任务子表
+                    inspectionPlanMapper.insertPlanTaskItem(taskItemList);
+                }
+            }
+
 
             // 新增点检计划
             inspectionPlanMapper.insert(dto);
-            // 新增点检任务
-            inspectionPlanMapper.insertPlanTask(inspectionPlanTaskPO);
-            // 新增点检任务子表
-            inspectionPlanMapper.insertPlanTaskItem(taskItemList);
+
         } else {
             boolean flag = Stream.of("1","2","3","4").anyMatch(v -> v.equals(dto.getEquipType()));
             if (flag){ // 使用时间作为判断条件
@@ -229,37 +259,34 @@ public class InspectionPlanServiceImpl implements InspectionPlanService {
             // 点检计划
             InspectionPlanPO inspectionPlanPO = new InspectionPlanPO();
             // TODO 判断每个类型 决定需不需要继续走下去
-            // 日 当前时间小于结束时间
-            if ("1".equals(po.getEquipType()) && toDate(today1).compareTo(po.getDeadlineDate()) <= 0) {
+
+
+            if (flag){
+            //判断当前时间是否小于开始日期 小于跳过不新增
+            if (toDate(today1).compareTo(po.getInitialDate()) < 0) {
                 continue;
-            }
-            // 周 -- 判断今天是否大于截止日期并且今天与所选择的日期（周一到周天）相同
-            if ("2".equals(po.getEquipType()) && toDate(today1).compareTo(po.getDeadlineDate()) >= 0) {
+            }else if ("2".equals(po.getEquipType())) {  // 周 -- 判断今天是否大于开始日期并且今天与所选择的日期（周一到周天）相同
                 // 判断今天是星期几
                 DayOfWeek dayOfWeek = getDayOfWeek(today);
                 int day = dayOfWeek.getValue(); // 1=周一, 7=周日
-                if (day != Integer.parseInt(po.getSetDate()) || toDate(today1).compareTo(po.getInitialDate())==0) {
+                if (day != Integer.parseInt(po.getSetDate())) {
                     continue;
                 }
-            }
-            // 月 -- 判断今天是否大于截止日期并且今天与所选择的日期（1号到30号）相同
-            if ("3".equals(po.getEquipType()) && toDate(today1).compareTo(po.getDeadlineDate()) >= 0) {
+            }else if ("3".equals(po.getEquipType()) ) {      // 月 -- 判断今天是否大于截止日期并且今天与所选择的日期（1号到30号）相同
                 // 获取今天是几号（1到31之间的数字）
                 int dayOfMonth = today1.getDayOfMonth();
-                if (dayOfMonth != Integer.parseInt(po.getSetDate()) || toDate(today1).compareTo(po.getInitialDate())==0) {
+                if (dayOfMonth != Integer.parseInt(po.getSetDate())) {
                     continue;
                 }
-            }
-            // 年 判断是不是一月一号 并且当前时间大于结束时间
-            if ("4".equals(po.getEquipType())  && toDate(today1).compareTo(po.getDeadlineDate()) >= 0) {
+            }else if ("4".equals(po.getEquipType()) ) {     // 年 判断是不是一月一号 并且当前时间大于结束时间
                 // 获取月份（1-12）
                 int month = today1.getMonthValue();
                 // 获取日（1-31）
                 int day = today1.getDayOfMonth();
-                if ((month !=Integer.parseInt(po.getSetDate()) && day != 1) || toDate(today1).compareTo(po.getInitialDate())==0) {
+                if ((month != Integer.parseInt(po.getSetDate()) && day != 1)) {
                     continue;
                 }
-            }
+            }}
             // 在功能中获取该设备的或者其他类型的台时、里程、吨数等数据
             if (!flag) {
                 // 计数器 -- 如果相同设备条件下，录入的台时、里程等小于点检截止数据跳过本次循环不生成新任务

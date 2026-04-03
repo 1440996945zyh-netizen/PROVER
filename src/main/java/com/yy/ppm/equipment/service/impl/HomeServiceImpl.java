@@ -53,9 +53,12 @@ public class HomeServiceImpl implements HomeService {
         Map<String, Object> homeMap = new HashMap<>();
 
         //用户id
-        Long userId = securityUtils.getUserInfo().getId();
+        Long userId = securityUtils.getUserInfo().getIsSuperadmin().equals("1")?null:securityUtils.getUserInfo().getId();
 
-        Long deptId = securityUtils.getUserInfo().getDeptId();
+        Long deptId = securityUtils.getUserInfo().getIsSuperadmin().equals("1")?null:securityUtils.getUserInfo().getDeptId();
+
+
+
 
 
         //设备维修派工单map

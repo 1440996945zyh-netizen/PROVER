@@ -126,7 +126,7 @@
     #{timeLimit},
     #{initialNumber},
     #{deadlineNumber},
-    #{now},
+    #{recentlyTaskDate},
     #{loginUserId},
     #{loginUserName},
     #{now}

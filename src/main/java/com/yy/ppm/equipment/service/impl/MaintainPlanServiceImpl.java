@@ -11,7 +11,9 @@ import com.yy.framework.exception.BusinessRuntimeException;
 import com.yy.ppm.equipment.bean.dto.EquipSmallCategorySelectDTO;
 import com.yy.ppm.equipment.bean.dto.MaintainPlanDTO;
 import com.yy.ppm.equipment.bean.po.*;
+import com.yy.ppm.equipment.mapper.EPatrolPlanMapper;
 import com.yy.ppm.equipment.mapper.MaintainPlanMapper;
+import com.yy.ppm.equipment.service.EPatrolPlanService;
 import com.yy.ppm.equipment.service.MaintainPlanService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,10 @@ public class MaintainPlanServiceImpl implements MaintainPlanService {
     private MaintainPlanMapper mapper;
     @Resource
     private Snowflake snowflake;
+
+
+    @Autowired
+    private EPatrolPlanService ePatrolPlanService;
 
     @Override
     public Pages<MaintainPlanPO> queryAll(MaintainPlanDTO maintainPlanDTO, PageParameter parameter) {
@@ -75,6 +81,26 @@ public class MaintainPlanServiceImpl implements MaintainPlanService {
 
             // 新增子表
             mapper.insertPlanItem(dto.getItemList());
+            //  周期类
+            boolean flag = Stream.of("1","2","3","4").anyMatch(v -> v.equals(dto.getEquipType()));
+            boolean isInsert = false;
+
+            //当前时间
+            LocalDate today1 = LocalDate.now();
+            //判断当前时候是否等于初始时间
+            if (!flag || toDate(today1).compareTo(dto.getInitialDate()) == 0  ) {
+
+            if (flag && ePatrolPlanService.isCreateTask(dto.getEquipType(), dto.getInitialDate(),dto.getSetDate())){ // 是周期
+                isInsert = true;
+            }else if (!flag && dto.getInitialNumber().divideAndRemainder(new BigDecimal(dto.getCycle()))[1].compareTo(BigDecimal.ZERO)==0){
+
+                isInsert = true;
+
+            }
+
+
+            if (isInsert){
+
             // 生成保养任务 -- 主表
             MaintainTaskPO maintainTaskPO = new MaintainTaskPO();
             maintainTaskPO.setId(snowflake.nextId());
@@ -84,9 +110,9 @@ public class MaintainPlanServiceImpl implements MaintainPlanService {
             maintainTaskPO.setEquipName(dto.getEquipName());
             maintainTaskPO.setInspectorId(dto.getInspectorId());
             maintainTaskPO.setInspectorName(dto.getInspectorName());
-            boolean flag = Stream.of("1","2","3","4").anyMatch(v -> v.equals(dto.getEquipType()));
+
             if (flag){ // 使用时间作为判断条件
-                maintainTaskPO.setStartDate(dto.getInitialDate());
+                dto.setRecentlyTaskDate( new Date());
             } else { // 不使用时间作为判断条件
                 dto.setInitialDate(toDate(LocalDate.now()));
                 maintainTaskPO.setStartDate(toDate(LocalDate.now()));
@@ -96,8 +122,9 @@ public class MaintainPlanServiceImpl implements MaintainPlanService {
             }
             maintainTaskPO.setEndDate(DateUtils.addDays(dto.getInitialDate(),Integer.parseInt(dto.getTimeLimit())-1));
             dto.setDeadlineDate(maintainTaskPO.getEndDate());
+            maintainTaskPO.setStartDate(dto.getInitialDate());
 
-            // 生成保养任务 -- 子表
+                // 生成保养任务 -- 子表
             List<MaintainTaskItemPO> taskItemList = new ArrayList<>();
             dto.getItemList().stream().forEach(v -> {
                 MaintainTaskItemPO maintainTaskItemPO = new MaintainTaskItemPO();
@@ -117,12 +144,20 @@ public class MaintainPlanServiceImpl implements MaintainPlanService {
                 maintainTaskItemPO.setEquipType(v.getEquipType());
                 taskItemList.add(maintainTaskItemPO);
             });
+                // 新增点检任务
+                mapper.insertPlanTask(maintainTaskPO);
+                // 新增点检任务子表
+                mapper.insertPlanTaskItem(taskItemList);
+
+
+
+            }
+
+            }
             // 新增主表
             mapper.insert(dto);
-            // 新增点检任务
-            mapper.insertPlanTask(maintainTaskPO);
-            // 新增点检任务子表
-            mapper.insertPlanTaskItem(taskItemList);
+
+
         } else {
             boolean flag = Stream.of("1","2","3","4").anyMatch(v -> v.equals(dto.getEquipType()));
             if (flag){ // 使用时间作为判断条件
@@ -238,37 +273,12 @@ public class MaintainPlanServiceImpl implements MaintainPlanService {
             // 润滑保养计划
             MaintainPlanPO maintainPlanPO = new MaintainPlanPO();
             // TODO 判断每个类型 决定需不需要继续走下去
-            // 日 当前时间小于结束时间
-            if ("1".equals(po.getEquipType()) && toDate(today1).compareTo(po.getDeadlineDate()) <= 0) {
-                continue;
-            }
-            // 周 -- 判断今天是否大于截止日期并且今天与所选择的日期（周一到周天）相同
-            if ("2".equals(po.getEquipType()) && toDate(today1).compareTo(po.getDeadlineDate()) >= 0) {
-                // 判断今天是星期几
-                DayOfWeek dayOfWeek = getDayOfWeek(today);
-                int day = dayOfWeek.getValue(); // 1=周一, 7=周日
-                if (day != Integer.parseInt(po.getSetDate()) || toDate(today1).compareTo(po.getInitialDate())==0) {
-                    continue;
-                }
-            }
-            // 月 -- 判断今天是否大于截止日期并且今天与所选择的日期（1号到30号）相同
-            if ("3".equals(po.getEquipType()) && toDate(today1).compareTo(po.getDeadlineDate()) >= 0) {
-                // 获取今天是几号（1到31之间的数字）
-                int dayOfMonth = today1.getDayOfMonth();
-                if (dayOfMonth != Integer.parseInt(po.getSetDate()) || toDate(today1).compareTo(po.getInitialDate())==0) {
-                    continue;
-                }
-            }
-            // 年 判断是不是一月一号 并且当前时间大于结束时间
-            if ("4".equals(po.getEquipType())  && toDate(today1).compareTo(po.getDeadlineDate()) >= 0) {
-                // 获取月份（1-12）
-                int month = today1.getMonthValue();
-                // 获取日（1-31）
-                int day = today1.getDayOfMonth();
-                if ((month != Integer.parseInt(po.getSetDate()) && day != 1) || toDate(today1).compareTo(po.getInitialDate())==0) {
-                    continue;
-                }
-            }
+            if (flag){
+               if (!ePatrolPlanService.isCreateTask(po.getEquipType(), po.getInitialDate(),po.getSetDate())){
+                   continue;
+               };
+               }
+
             // 在功能中获取该设备的或者其他类型的台时、里程、吨数等数据
             if (!flag) {
                 // 计数器 -- 如果相同设备条件下，录入的台时、里程等小于点检截止数据跳过本次循环不生成新任务

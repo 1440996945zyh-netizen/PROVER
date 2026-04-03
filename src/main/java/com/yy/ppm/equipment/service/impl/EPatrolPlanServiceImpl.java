@@ -3,20 +3,14 @@ package com.yy.ppm.equipment.service.impl;
 
 import cn.hutool.core.lang.Snowflake;
 import com.yy.common.log.MicroLogger;
-import com.yy.common.magic.FileUploadBusinessTypeEnum;
 import com.yy.common.page.PageParameter;
 import com.yy.common.page.Pages;
 import com.yy.common.util.DateUtils;
 import com.yy.common.util.PageHelperUtils;
-import com.yy.common.util.SecurityUtils;
 import com.yy.framework.exception.BusinessRuntimeException;
-import com.yy.ppm.common.mapper.SysFileMapper;
-import com.yy.ppm.common.service.SysFileService;
 import com.yy.ppm.equipment.bean.dto.*;
 import com.yy.ppm.equipment.bean.po.*;
-import com.yy.ppm.equipment.mapper.EMEquipRepairUserMapper;
 import com.yy.ppm.equipment.mapper.EPatrolPlanMapper;
-import com.yy.ppm.equipment.service.EMEquipRepairUserService;
 import com.yy.ppm.equipment.service.EPatrolPlanService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,14 +21,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 
-import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Stream;
 
 @Service
 public class EPatrolPlanServiceImpl implements EPatrolPlanService {
@@ -72,6 +64,76 @@ public class EPatrolPlanServiceImpl implements EPatrolPlanService {
         // 新增
         if (po.getId() == null) {
             po.setId(snowflake.nextId());
+            //当前日期
+            LocalDate today1 = LocalDate.now();
+
+
+            if (toDate(today1).compareTo(po.getInitialDate()) == 0) {
+                if (isCreateTask(po.getPatrolType(), po.getInitialDate(),po.getSetDate())){
+
+
+                    //巡检任务 - 主
+                    List<EPatrolTaskPO> taskList = new ArrayList<>();
+                    //巡检任务 - 子
+                    List<EPatrolTaskSubPO> taskItemList = new ArrayList<>();
+
+                    // 生成巡检任务 -- 主表
+                    EPatrolTaskPO patrolTaskPO = new EPatrolTaskPO();
+
+                    //巡检任务
+                    patrolTaskPO.setId(snowflake.nextId());
+                    patrolTaskPO.setPlanId(po.getId().toString());
+                    patrolTaskPO.setRouteId(po.getRouteId().toString());
+                    patrolTaskPO.setPatrolId(po.getPatrolId());
+                    patrolTaskPO.setPatrolName(po.getPatrolName());
+                    patrolTaskPO.setStartDate(new Date());
+                    patrolTaskPO.setEndDate(DateUtils.addDays(new Date(), Integer.parseInt(po.getTimeLimit())-1));
+                    patrolTaskPO.setStatus(0);
+                    patrolTaskPO.setCreateBy(1L);
+                    patrolTaskPO.setCreateTime(new Date());
+                    patrolTaskPO.setCreateByName("定时任务新增");
+
+                    taskList.add(patrolTaskPO);
+
+                    //巡检任务 - 子
+                    List<InspectionRouteSubDTO> routeList = ePatrolPlanMapper.getrouteSubList(po.getRouteId());
+
+                    for (InspectionRouteSubDTO item : routeList) {
+
+                        EPatrolTaskSubPO taskItemPO = new EPatrolTaskSubPO();
+                        taskItemPO.setParentId(patrolTaskPO.getId());
+                        taskItemPO.setEquipId(item.getEquipId());
+                        taskItemPO.setEquipName(item.getEquipName());
+                        taskItemPO.setCheckContent(item.getCheckContent());
+                        taskItemPO.setQualifyCondition(item.getQualifyCondition());
+                        taskItemPO.setCheckMethod(item.getCheckMethod());
+                        taskItemPO.setStatus(0);
+                        taskItemPO.setIsAbnormal(0);
+                        taskItemPO.setIsRepair(0);
+                        taskItemPO.setId(snowflake.nextId());
+
+                        taskItemList.add(taskItemPO);
+                    }
+
+                    //新增巡检任务
+                    if (!CollectionUtils.isEmpty(taskList)){
+                        ePatrolPlanMapper.insertTaskList(taskList);
+                    }
+                    //新增巡检任务 - 子
+                    if (!CollectionUtils.isEmpty(taskItemList)){
+                        ePatrolPlanMapper.insertTaskItemList(taskItemList);
+                    }
+
+                    //任务创建时间
+
+                    po.setRecentlyTaskDate(new Date());
+
+                }
+
+            }
+
+
+
             ePatrolPlanMapper.insert(po);
 
         } else {
@@ -112,8 +174,7 @@ public class EPatrolPlanServiceImpl implements EPatrolPlanService {
         //查询需要轮询的巡检计划
         List<EPatrolPlanDTO> patrolPlanList = ePatrolPlanMapper.getpatrolPlanList();
 
-        Date today = new Date();
-        LocalDate today1 = LocalDate.now();
+
         //巡检计划
         List<EPatrolPlanPO> planList = new ArrayList<>();
         //巡检任务 - 主
@@ -124,87 +185,58 @@ public class EPatrolPlanServiceImpl implements EPatrolPlanService {
 
         for (EPatrolPlanDTO po : patrolPlanList) {
 
-            // 生成巡检任务 -- 主表
-            EPatrolTaskPO patrolTaskPO = new EPatrolTaskPO();
-            //巡检计划表
-            EPatrolPlanPO patrolPlanPO = new EPatrolPlanPO();
+        // 判断是否生成任务
+            if (isCreateTask(po.getPatrolType(), po.getInitialDate(),po.getSetDate())){
 
-            // 日 当前时间小于开始时间
-            if ("1".equals(po.getPatrolType()) && toDate(today1).compareTo(po.getInitialDate()) <= 0) {
-                continue;
-            }
-            // 周 -- 判断今天是否大于开始日期并且今天与所选择的日期（周一到周天）相同
+                // 生成巡检任务 -- 主表
+                EPatrolTaskPO patrolTaskPO = new EPatrolTaskPO();
+                //巡检计划表
+                EPatrolPlanPO patrolPlanPO = new EPatrolPlanPO();
 
-            if ("2".equals(po.getPatrolType()) && toDate(today1).compareTo(po.getInitialDate()) <= 0) {
-                // 判断今天是星期几
-                DayOfWeek dayOfWeek = getDayOfWeek(today);
-                int day = dayOfWeek.getValue(); // 1=周一, 7=周日
-                if (day != Integer.parseInt(po.getSetDate())) {
-                    continue;
+
+                //巡检计划
+                patrolPlanPO.setId(po.getId());
+                patrolPlanPO.setRecentlyTaskDate(new Date());
+
+                planList.add(patrolPlanPO);
+
+                //巡检任务
+                patrolTaskPO.setId(snowflake.nextId());
+                patrolTaskPO.setPlanId(po.getId().toString());
+                patrolTaskPO.setRouteId(po.getRouteId().toString());
+                patrolTaskPO.setPatrolId(po.getPatrolId());
+                patrolTaskPO.setPatrolName(po.getPatrolName());
+                patrolTaskPO.setStartDate(new Date());
+                patrolTaskPO.setEndDate(DateUtils.addDays(new Date(), Integer.parseInt(po.getTimeLimit())-1));
+                patrolTaskPO.setStatus(0);
+                patrolTaskPO.setCreateBy(1L);
+                patrolTaskPO.setCreateTime(new Date());
+                patrolTaskPO.setCreateByName("定时任务新增");
+
+                taskList.add(patrolTaskPO);
+
+                //巡检任务 - 子
+                List<InspectionRouteSubDTO> routeList = ePatrolPlanMapper.getrouteSubList(po.getRouteId());
+
+                for (InspectionRouteSubDTO item : routeList) {
+
+                    EPatrolTaskSubPO taskItemPO = new EPatrolTaskSubPO();
+                    taskItemPO.setParentId(patrolTaskPO.getId());
+                    taskItemPO.setEquipId(item.getEquipId());
+                    taskItemPO.setEquipName(item.getEquipName());
+                    taskItemPO.setCheckContent(item.getCheckContent());
+                    taskItemPO.setQualifyCondition(item.getQualifyCondition());
+                    taskItemPO.setCheckMethod(item.getCheckMethod());
+                    taskItemPO.setStatus(0);
+                    taskItemPO.setIsAbnormal(0);
+                    taskItemPO.setIsRepair(0);
+                    taskItemPO.setId(snowflake.nextId());
+
+                    taskItemList.add(taskItemPO);
                 }
+
             }
 
-            // 月 -- 判断今天是否大于截止日期并且今天与所选择的日期（1号到30号）相同
-            if ("3".equals(po.getPatrolType()) && toDate(today1).compareTo(po.getInitialDate()) <= 0) {
-                // 获取今天是几号（1到31之间的数字）
-                int dayOfMonth = today1.getDayOfMonth();
-                if (dayOfMonth != Integer.parseInt(po.getSetDate())) {
-                    continue;
-                }
-            }
-
-            // 年 判断是不是一月一号 并且当前时间大于结束时间
-            if ("4".equals(po.getPatrolType())  && toDate(today1).compareTo(po.getInitialDate()) <= 0) {
-                // 获取月份（1-12）
-                int month = today1.getMonthValue();
-                // 获取日（1-31）
-                int day = today1.getDayOfMonth();
-                if ((month != Integer.parseInt(po.getSetDate()) && day != 1)) {
-                    continue;
-                }
-            }
-
-
-            //巡检计划
-            patrolPlanPO.setId(po.getId());
-            patrolPlanPO.setRecentlyTaskDate(new Date());
-
-            planList.add(patrolPlanPO);
-
-            //巡检任务
-            patrolTaskPO.setId(snowflake.nextId());
-            patrolTaskPO.setPlanId(po.getId().toString());
-            patrolTaskPO.setRouteId(po.getRouteId().toString());
-            patrolTaskPO.setPatrolId(po.getPatrolId());
-            patrolTaskPO.setPatrolName(po.getPatrolName());
-            patrolTaskPO.setStartDate(new Date());
-            patrolTaskPO.setEndDate(DateUtils.addDays(new Date(), Integer.parseInt(po.getTimeLimit())-1));
-            patrolTaskPO.setStatus(0);
-            patrolTaskPO.setCreateBy(1L);
-            patrolTaskPO.setCreateTime(new Date());
-            patrolTaskPO.setCreateByName("定时任务新增");
-
-            taskList.add(patrolTaskPO);
-
-            //巡检任务 - 子
-            List<InspectionRouteSubDTO> routeList = ePatrolPlanMapper.getrouteSubList(po.getRouteId());
-
-            for (InspectionRouteSubDTO item : routeList) {
-
-                 EPatrolTaskSubPO taskItemPO = new EPatrolTaskSubPO();
-                 taskItemPO.setParentId(patrolTaskPO.getId());
-                 taskItemPO.setEquipId(item.getEquipId());
-                 taskItemPO.setEquipName(item.getEquipName());
-                 taskItemPO.setCheckContent(item.getCheckContent());
-                 taskItemPO.setQualifyCondition(item.getQualifyCondition());
-                 taskItemPO.setCheckMethod(item.getCheckMethod());
-                 taskItemPO.setStatus(0);
-                 taskItemPO.setIsAbnormal(0);
-                 taskItemPO.setIsRepair(0);
-                 taskItemPO.setId(snowflake.nextId());
-
-                 taskItemList.add(taskItemPO);
-            }
 
         }
 
@@ -224,6 +256,47 @@ public class EPatrolPlanServiceImpl implements EPatrolPlanService {
 
         LOGGER.exit("定时新增巡检任务结束");
     }
+
+
+      public Boolean isCreateTask(String patrolType, Date initialDate, String setDate) {
+
+
+        Date today = new Date();
+        LocalDate today1 = LocalDate.now();
+
+        Boolean flag = true;
+
+        //判断当前时间是否小于计划开始日期 小于跳过不新增
+        if (toDate(today1).compareTo(initialDate) < 0) {
+            flag = false;
+        }else if ("2".equals(patrolType)) {  // 周 -- 判断今天是否大于开始日期并且今天与所选择的日期（周一到周天）相同
+            // 判断今天是星期几
+            DayOfWeek dayOfWeek = getDayOfWeek(today);
+            int day = dayOfWeek.getValue(); // 1=周一, 7=周日
+            if (day != Integer.parseInt(setDate)) {
+                flag = false;
+            }
+        }else if ("3".equals(patrolType) ) {      // 月 -- 判断今天是否大于截止日期并且今天与所选择的日期（1号到30号）相同
+            // 获取今天是几号（1到31之间的数字）
+            int dayOfMonth = today1.getDayOfMonth();
+            if (dayOfMonth != Integer.parseInt(setDate)) {
+                flag = false;
+            }
+        }else if ("4".equals(patrolType) ) {     // 年 判断是不是一月一号 并且当前时间大于结束时间
+            // 获取月份（1-12）
+            int month = today1.getMonthValue();
+            // 获取日（1-31）
+            int day = today1.getDayOfMonth();
+            if ((month != Integer.parseInt(setDate) && day != 1)) {
+                flag = false;
+            }
+        }
+
+        return flag;
+    }
+
+
+
 
 
     /**
