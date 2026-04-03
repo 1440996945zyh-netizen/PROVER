@@ -1,19 +1,14 @@
 package com.yy.common.util;
 
-import com.yy.framework.config.CustomsConfig;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import jakarta.annotation.Resource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -23,6 +18,8 @@ import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 
 public class FtpUtils {
+
+    private static final Logger log = LoggerFactory.getLogger(FtpUtils.class);
     public FTPClient ftpClient = null;
 
     private static String hostname;
@@ -73,14 +70,14 @@ public class FtpUtils {
                 try {
                     ftpClient.disconnect();
                 } catch (IOException e) {
-                    System.out.println("连接失败");
+                    log.warn("连接失败");
                 }
             }
             if (null != inputStream) {
                 try {
                     inputStream.close();
                 } catch (IOException e) {
-                    System.out.println("inputStream.close() feature");
+                    log.warn("inputStream.close() feature");
                 }
             }
         }
@@ -129,14 +126,14 @@ public class FtpUtils {
                 try {
                     ftpClient.disconnect();
                 } catch (IOException e) {
-                    System.out.println("服务器连接失败");
+                    log.warn("服务器连接失败");
                 }
             }
             if (null != os) {
                 try {
                     os.close();
                 } catch (IOException e) {
-                    System.out.println("os.close() feature");
+                    log.warn("os.close() feature");
                 }
             }
         }
@@ -166,9 +163,9 @@ public class FtpUtils {
             System.out.println("connect successfull...ftp服务器:" + this.hostname
                     + ":" + this.port);
         } catch (MalformedURLException e) {
-            System.out.println("MalformedURLException:" + e);
+            log.warn("MalformedURLException:" + e);
         } catch (IOException e) {
-            System.out.println("IOException：" + e);
+            log.warn("IOException：" + e);
         }
     }
 
@@ -245,7 +242,7 @@ public class FtpUtils {
                 System.out.println("进入文件夹" + directory + " 失败！开始创建文件夹");
             }
         } catch (IOException ioe) {
-            System.out.println("IOException：" + ioe);
+            log.warn("IOException：" + ioe);
         }
         return flag;
     }
@@ -289,7 +286,7 @@ public class FtpUtils {
                 System.out.println("创建文件夹" + dir + " 失败！");
             }
         } catch (Exception e) {
-            System.out.println("Exception：" + e);
+            log.warn("Exception：" + e);
         }
         return flag;
     }
