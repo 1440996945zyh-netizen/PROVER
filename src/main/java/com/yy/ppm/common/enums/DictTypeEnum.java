@@ -137,7 +137,8 @@ public enum DictTypeEnum {
     MAT_CODE("MAT_CODE", "采购类型"),
     EXPENSE_TYPE("EXPENSE_TYPE", "维修费用类型"),
     E_ZS_TYPE("E_ZS_TYPE", "特种设备证书类型"),
-    FILE_TYPE("FILE_TYPE", "设备资料类型"),;
+    FILE_TYPE("FILE_TYPE", "设备资料类型"),
+    E_PROJECT("E_PROJECT", "证书作业项目"),;
 
     private final String type;
 
