@@ -163,9 +163,9 @@ public class FtpUtils {
             System.out.println("connect successfull...ftp服务器:" + this.hostname
                     + ":" + this.port);
         } catch (MalformedURLException e) {
-            log.warn("MalformedURLException:" + e);
+            log.warn("MalformedURLException: { }" , e);
         } catch (IOException e) {
-            log.warn("IOException：" + e);
+            log.warn("IOException：" , e);
         }
     }
 
@@ -242,7 +242,7 @@ public class FtpUtils {
                 System.out.println("进入文件夹" + directory + " 失败！开始创建文件夹");
             }
         } catch (IOException ioe) {
-            log.warn("IOException：" + ioe);
+            log.warn("IOException：" , ioe);
         }
         return flag;
     }
@@ -286,7 +286,7 @@ public class FtpUtils {
                 System.out.println("创建文件夹" + dir + " 失败！");
             }
         } catch (Exception e) {
-            log.warn("Exception：" + e);
+            log.warn("Exception：" , e);
         }
         return flag;
     }
