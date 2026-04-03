@@ -147,25 +147,33 @@ public class FtpUtils {
      * @author jinsh
      * @date 2018-4-24
      */
-    public void initFtpClient() {
+    public void initFtpClient() throws IOException {
         ftpClient = new FTPClient();
         ftpClient.setControlEncoding("utf-8");
+        ftpClient.setConnectTimeout(5000);
+        ftpClient.setSoTimeout(30000);
+
         try {
-            System.out.println("connecting...ftp服务器:" + this.hostname + ":"
-                    + this.port);
-            ftpClient.connect(hostname, Integer.parseInt(port)); // 连接ftp服务器
-            ftpClient.login(userName, password); // 登录ftp服务器
-            int replyCode = ftpClient.getReplyCode(); // 是否成功登录服务器
-            if (!FTPReply.isPositiveCompletion(replyCode)) {
-                System.out.println("connect failed...ftp服务器:" + this.hostname
-                        + ":" + this.port);
+            ftpClient.connect(hostname, Integer.parseInt(port));
+            ftpClient.enterLocalPassiveMode();
+
+            if (!ftpClient.login(userName, password)) {
+                ftpClient.disconnect();
+                throw new SecurityException("FTP login failed for user: " + userName);
             }
-            System.out.println("connect successfull...ftp服务器:" + this.hostname
-                    + ":" + this.port);
-        } catch (MalformedURLException e) {
-            log.warn("MalformedURLException: { }" , e);
+
+            int replyCode = ftpClient.getReplyCode();
+            if (!FTPReply.isPositiveCompletion(replyCode)) {
+                ftpClient.disconnect();
+                throw new IOException("FTP server refused connection, reply code: " + replyCode);
+            }
+
+            log.info("Connected to FTP server: {}:{}", hostname, port);
         } catch (IOException e) {
-            log.warn("IOException：" , e);
+            if (ftpClient.isConnected()) {
+                ftpClient.disconnect();
+            }
+            throw e;
         }
     }
 

@@ -1,6 +1,8 @@
 package com.yy.framework.config.rabbitMq;
 
 import com.rabbitmq.client.Channel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 @Configuration
 @EnableConfigurationProperties(RabbitConsumerServersConfig.class)
 public class MultiServerRabbitConsumerConfig {
+    private static final Logger log = LoggerFactory.getLogger(MultiServerRabbitConsumerConfig.class);
 
     private final RabbitConsumerServersConfig consumerServersConfig;
     private final MessageStorageService storageService;
@@ -51,7 +54,7 @@ public class MultiServerRabbitConsumerConfig {
                 System.out.println("成功连接到RabbitMQ服务器: " + server.getServerId());
             } catch (Exception e) {
                 System.err.println("无法连接到RabbitMQ服务器: " + server.getServerId());
-                e.printStackTrace();
+                log.warn("无法连接到RabbitMQ服务器: " ,e);
             }
 
             factories.put(server.getServerId(), factory);

@@ -993,11 +993,13 @@ public class Convert
                 p = digit[integerPart % 10] + unit[1][j] + p;
                 integerPart = integerPart / 10;
             }
-            s = p.replaceAll("(?>零.)*零$", "").replaceAll("^$", "零") + unit[0][i] + s;
+
+            s = p.replaceAll("零.*?零$", "").replaceAll("^$", "零") + unit[0][i] + s;
         }
-        return  head + s.replaceAll("(?:零.)+零元", "元")
-                .replaceFirst("(?:零.)+", "")
-                .replaceAll("(?:零.)+", "零")
+
+        return head + s.replaceAll("零.*?零元", "元")
+                .replaceFirst("零.*?", "")
+                .replaceAll("零.*?", "零")
                 .replaceAll("^整$", "零元整");
     }
 }

@@ -58,7 +58,7 @@ public class LogAspect {
         this.request = request;
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(LogAspect.class);
+    private static final Logger log = LoggerFactory.getLogger(LogAspect.class);
 
     /** 计算操作消耗时间 */
     private static final ThreadLocal<Long> TIME_THREADLOCAL = new ThreadLocal<>();
@@ -142,7 +142,7 @@ public class LogAspect {
                 oper.setTitle(method.getAnnotation(Log.class).title());
             }
         } catch (NoSuchMethodException ex) {
-            ex.printStackTrace();
+            log.warn("NoSuchMethodException",ex);
             oper.setBusinessType("未设置操作类型");
             oper.setTitle("未设置业务名称");
         }

@@ -531,7 +531,6 @@ public class SysFileController {
                     "attachment;filename=" + URLEncoder.encode(templateFileName, "UTF-8"));
             response.getOutputStream().write(fileByteArray);
         } catch (Exception e) {
-            e.printStackTrace();
             throw new BusinessRuntimeException("下载模板异常！");
         }
         LOGGER.exit(methodName + "result:" + templateFileName);

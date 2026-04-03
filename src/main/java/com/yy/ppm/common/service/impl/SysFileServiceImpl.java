@@ -198,7 +198,6 @@ public class SysFileServiceImpl implements SysFileService {
                     minioConfig.createBucket(destBucketName);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
                 LOGGER.error("创建桶失败~");
             }
             //拷贝文件

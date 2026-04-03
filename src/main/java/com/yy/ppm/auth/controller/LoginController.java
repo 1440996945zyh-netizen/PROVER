@@ -12,6 +12,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import com.google.common.collect.Maps;
 import com.yy.common.util.RSAUtils;
 import com.yy.common.util.SpringContextUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
@@ -54,7 +56,7 @@ public class LoginController {
 	 * 日志组件
 	 **/
 	private static final MicroLogger LOGGER = new MicroLogger(LoginController.class);
-
+	private static final Logger log = LoggerFactory.getLogger(LoginController.class);
 	/**
 	 * token超时时间,单位/分钟
 	 **/
@@ -102,9 +104,9 @@ public class LoginController {
 		try {
 			rsaPrivateKey = RSAUtils.getPrivateKey(privateKey);
 		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+			log.warn("NoSuchAlgorithmException" , e);
 		} catch (InvalidKeySpecException e) {
-			e.printStackTrace();
+			log.warn("InvalidKeySpecException" , e);
 		}
 		// 使用私钥解密经过前端加密用户输入的密文
 		String Decrypt_psw = RSAUtils.privateDecrypt(account.getPasswd(), rsaPrivateKey);
