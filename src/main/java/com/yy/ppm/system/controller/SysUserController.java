@@ -173,10 +173,10 @@ public class SysUserController {
 	 * @param sysUserDTO
 	 * @return
 	 */
-	@PutMapping("/updatephone")
+	@PutMapping("/updatePhone")
 	@PreAuthorize("hasAuthority('system:user:query')")
 	@Log(title = "修改手机号", value = OperateTypeEnum.UPDATE)
-	public Map<String, Object> updatePhone(SysUserDTO sysUserDTO) {
+	public Map<String, Object> updatePhone(@RequestBody SysUserDTO sysUserDTO) {
 		final String methodName = "SysUserController:updatePhone";
 		LOGGER.enter(methodName + "[start]", "sysUserDTO:" + sysUserDTO);
 
@@ -194,10 +194,10 @@ public class SysUserController {
 	 * @param sysUserDTO
 	 * @return
 	 */
-	@PutMapping("/updateemail")
+	@PutMapping("/updateEmail")
 	@PreAuthorize("hasAuthority('system:user:query')")
 	@Log(title = "修改邮箱", value = OperateTypeEnum.UPDATE)
-	public Map<String, Object> updateEmail(SysUserDTO sysUserDTO) {
+	public Map<String, Object> updateEmail(@RequestBody SysUserDTO sysUserDTO) {
 		final String methodName = "SysUserController:updateEmail";
 		LOGGER.enter(methodName + "[start]", "sysUserDTO:" + sysUserDTO);
 

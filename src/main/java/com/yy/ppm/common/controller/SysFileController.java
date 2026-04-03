@@ -316,6 +316,9 @@ public class SysFileController {
         String path = sysFilePO.getFilePath();
         String saveName = sysFilePO.getFileSaveName();
         byte[] fileByteArray = minIoConfig.getObject(bucketName, path + saveName);
+        if(StringUtil.isEmpty(fileByteArray)){
+            throw new BusinessRuntimeException("不存在的附件~");
+        }
         resp.setHeader("content-disposition",
                 "attachment;filename=" + URLEncoder.encode(sysFilePO.getFileName(), "UTF-8"));
         try (OutputStream outputStream = resp.getOutputStream()) {
