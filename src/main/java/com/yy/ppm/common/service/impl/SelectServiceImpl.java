@@ -93,6 +93,9 @@ public class SelectServiceImpl implements SelectService {
             case "VOYAGE" :
                 res = selectMapper.getVoyageList(selectCommonSearch);
                 break;
+            case "USER" :
+                res = selectMapper.getUserRemoteList(selectCommonSearch);
+                break;
             default:
                 break;
         }

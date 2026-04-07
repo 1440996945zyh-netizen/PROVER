@@ -88,4 +88,6 @@ public interface SelectMapper {
 
     List<Map<String, Object>> listContract(Map<String, Object> params);
 
+
+    List<Map<String, Object>> getUserRemoteList(SelecSearchDTO dto);
 }
