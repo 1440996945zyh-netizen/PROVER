@@ -325,7 +325,7 @@ public class InspectionPlanServiceImpl implements InspectionPlanService {
                 inspectionPlanPO.setDeadlineNumber(inspectionPlanTaskPO.getDeadlineNumber());
             }
             inspectionPlanTaskPO.setCreateBy(1L);
-            inspectionPlanTaskPO.setCreateByName("定时任务新增");
+            inspectionPlanTaskPO.setCreateByName("定时任务");
             inspectionPlanTaskPO.setCreateTime(new Date());
             taskList.add(inspectionPlanTaskPO);
 
@@ -349,7 +349,7 @@ public class InspectionPlanServiceImpl implements InspectionPlanService {
                     inspectionPlanTaskItemPO.setStandard(itemPO.getStandard());
                     inspectionPlanTaskItemPO.setEquipType(itemPO.getEquipType());
                     inspectionPlanTaskItemPO.setCreateBy(1L);
-                    inspectionPlanTaskItemPO.setCreateByName("定时任务新增");
+                    inspectionPlanTaskItemPO.setCreateByName("定时任务");
                     inspectionPlanTaskItemPO.setCreateTime(new Date());
                     taskItemList.add(inspectionPlanTaskItemPO);
                 }

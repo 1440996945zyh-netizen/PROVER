@@ -91,7 +91,7 @@ public class EPatrolPlanServiceImpl implements EPatrolPlanService {
                     patrolTaskPO.setStatus(0);
                     patrolTaskPO.setCreateBy(1L);
                     patrolTaskPO.setCreateTime(new Date());
-                    patrolTaskPO.setCreateByName("定时任务新增");
+                    patrolTaskPO.setCreateByName("定时任务");
 
                     taskList.add(patrolTaskPO);
 
@@ -211,7 +211,7 @@ public class EPatrolPlanServiceImpl implements EPatrolPlanService {
                 patrolTaskPO.setStatus(0);
                 patrolTaskPO.setCreateBy(1L);
                 patrolTaskPO.setCreateTime(new Date());
-                patrolTaskPO.setCreateByName("定时任务新增");
+                patrolTaskPO.setCreateByName("定时任务");
 
                 taskList.add(patrolTaskPO);
 

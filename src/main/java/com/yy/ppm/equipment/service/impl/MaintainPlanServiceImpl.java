@@ -318,7 +318,7 @@ public class MaintainPlanServiceImpl implements MaintainPlanService {
                 maintainPlanPO.setDeadlineNumber(maintainTaskPO.getDeadlineNumber());
             }
             maintainTaskPO.setCreateBy(1L);
-            maintainTaskPO.setCreateByName("定时任务新增");
+            maintainTaskPO.setCreateByName("定时任务");
             maintainTaskPO.setCreateTime(new Date());
             taskList.add(maintainTaskPO);
 
@@ -342,7 +342,7 @@ public class MaintainPlanServiceImpl implements MaintainPlanService {
                     maintainTaskItemPO.setStandard(itemPO.getStandard());
                     maintainTaskItemPO.setEquipType(itemPO.getEquipType());
                     maintainTaskItemPO.setCreateBy(1L);
-                    maintainTaskItemPO.setCreateByName("定时任务新增");
+                    maintainTaskItemPO.setCreateByName("定时任务");
                     maintainTaskItemPO.setCreateTime(new Date());
                     taskItemList.add(maintainTaskItemPO);
                 }
