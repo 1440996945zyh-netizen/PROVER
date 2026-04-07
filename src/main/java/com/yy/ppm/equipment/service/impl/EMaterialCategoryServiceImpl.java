@@ -156,10 +156,10 @@ public class EMaterialCategoryServiceImpl implements EMaterialCategoryService {
             if (po.getSortOrder() == null) {
                 po.setSortOrder(0);
             }
-            if (po.getIsLaborProtection() == null) {
-                po.setIsLaborProtection(0);
-            }
-            
+//            if (po.getIsLaborProtection() == null) {
+//                po.setIsLaborProtection(0);
+//            }
+
             // 如果是二级或三级类别，需要自动生成编码
             if (dto.getCategoryLevel() != null && (dto.getCategoryLevel() == 2 || dto.getCategoryLevel() == 3)) {
                 // 获取父级信息（重新查询，确保获取最新的codeCount）
@@ -170,7 +170,7 @@ public class EMaterialCategoryServiceImpl implements EMaterialCategoryService {
                 if (parent.getCategoryCode() == null || parent.getCategoryCode().trim().isEmpty()) {
                     throw new BusinessRuntimeException("父级类别编码为空，无法生成子级编码");
                 }
-                
+
                 // 从数据库中重新查询父级的codeCount（不使用前端传递的值）
                 Integer parentCodeCount = parent.getCodeCount();
                 if (parentCodeCount == null) {
@@ -179,10 +179,10 @@ public class EMaterialCategoryServiceImpl implements EMaterialCategoryService {
                 if (parentCodeCount < 0) {
                     throw new BusinessRuntimeException("父级编码序号无效");
                 }
-                
+
                 // 先加1，得到新的编码序号
                 Integer newCodeCount = parentCodeCount + 1;
-                
+
                 // 格式化newCodeCount：0-9补0为00-09，10以上不补
                 String formattedCodeCount;
                 if (newCodeCount < 10) {
@@ -190,17 +190,17 @@ public class EMaterialCategoryServiceImpl implements EMaterialCategoryService {
                 } else {
                     formattedCodeCount = String.valueOf(newCodeCount);
                 }
-                
+
                 // 生成编码：父级编码 + '-' + formattedCodeCount
                 String generatedCode = parent.getCategoryCode() + "-" + formattedCodeCount;
                 po.setCategoryCode(generatedCode);
-                
+
                 // 验证生成的编码是否重复
                 int codeCountCheck = mapper.countByCode(generatedCode, null);
                 if (codeCountCheck > 0) {
                     throw new BusinessRuntimeException("生成的编码已存在，编码必须全表唯一");
                 }
-                
+
                 // 更新父级的codeCount为加1后的值
                 mapper.updateParentCodeCount(dto.getParentId(), newCodeCount);
             } else {
@@ -215,11 +215,11 @@ public class EMaterialCategoryServiceImpl implements EMaterialCategoryService {
                     }
                 }
             }
-            
+
             // 设置codeCount（新增时默认为0，不管几级分类都是0）
             // 只有新增子级时，才会更新父级的codeCount
             po.setCodeCount(0);
-            
+
             mapper.insert(po);
         } else {
             // 修改
@@ -230,7 +230,7 @@ public class EMaterialCategoryServiceImpl implements EMaterialCategoryService {
                     throw new BusinessRuntimeException("该类别下存在子级，不能修改分类级别");
                 }
             }
-            
+
             // 验证编码不能重复（如果编码不为空）
             if (dto.getCategoryCode() != null && !dto.getCategoryCode().trim().isEmpty()) {
                 int codeCount = mapper.countByCode(
@@ -241,7 +241,7 @@ public class EMaterialCategoryServiceImpl implements EMaterialCategoryService {
                     throw new BusinessRuntimeException("已存在相同的类别编码，编码必须全表唯一");
                 }
             }
-            
+
             mapper.update(po);
         }
     }
