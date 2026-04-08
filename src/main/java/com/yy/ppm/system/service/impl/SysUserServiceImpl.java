@@ -301,12 +301,11 @@ public class SysUserServiceImpl implements SysUserService {
 		profileDTO.setUserId(sysUserDTO.getId());
 		profileDTO.setUserName(sysUserDTO.getUserAccount());
 		profileDTO.setNickName(sysUserDTO.getUserName());
-		profileDTO.setAdmin("1".equals(sysUserDTO.getIsSuperadmin()));
 		profileDTO.setDeptId(sysUserDTO.getDeptId());
 		profileDTO.setStatus(sysUserDTO.getStatus().toString());
 		profileDTO.setEmail(sysUserDTO.getEmail());
 		profileDTO.setPhonenumber(sysUserDTO.getTel());
-		profileDTO.setSex(sysUserDTO.getSex().toString());
+		profileDTO.setSex(sysUserDTO.getSex() == null ? null : sysUserDTO.getSex().toString());
 
 		// 获取部门信息
 		profileDTO.setDept(sysDeptMapper.getById(sysUserDTO.getDeptId()));

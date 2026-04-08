@@ -8,6 +8,8 @@
         A.PATH,
         A.COMPONENT,
         A.VISIBLE as hidden,
+        A.MENU_TYPE as menuType,
+        A.PARENT_ID as parentId,
         A.ICON,
         A.ORDER_NUM,
         A.IS_FRAME,
