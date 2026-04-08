@@ -574,4 +574,23 @@
         FROM E_MAINT_INFO
         WHERE  MANT_APP_NUMBER =#{mantAppNumber}
     </select>
+
+    <!-- 根据单位ID和角色编码查询人员列表 -->
+    <select id="getDispatchUserListByCompanyAndRole" resultType="com.yy.ppm.equipment.bean.dto.EMaintRepairUserOptionDTO">
+        SELECT
+            u.ID AS repairId,
+            u.USER_NAME AS repairName
+        FROM
+            SYS_USER u
+        JOIN SYS_DEPT d ON u.DEPT_ID = d.ID
+        JOIN SYS_ROLE_USER ru ON u.ID = ru.USER_ID
+        JOIN SYS_ROLE r ON ru.ROLE_ID = r.ID
+        WHERE
+            u.STATUS = 1
+            AND r.STATUS = 1
+            AND r.ROLE_CODE = #{roleCode}
+            AND (d.ID = #{companyId} OR instr(d.PARENT_IDS, #{companyId}) > 0)
+        ORDER BY
+            u.USER_NAME ASC
+    </select>
 </mapper>

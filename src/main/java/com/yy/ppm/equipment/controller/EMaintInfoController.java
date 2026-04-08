@@ -331,4 +331,18 @@ public class EMaintInfoController {
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
     }
+
+    /**
+     * 根据设备ID查询所属单位的派工人员列表
+     */
+    @GetMapping("/getDispatchUserListByEquipId")
+    public Map<String, Object> getDispatchUserListByEquipId(@RequestParam("equipId") Long equipId) {
+        final String methodName = "EMaintInfoController:getDispatchUserListByEquipId";
+        LOGGER.enter(methodName + "[start]", "equipId:" + equipId);
+
+        List<EMaintRepairUserOptionDTO> result = service.getDispatchUserListByEquipId(equipId);
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
+    }
 }

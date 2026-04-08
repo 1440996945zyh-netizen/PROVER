@@ -22,6 +22,7 @@ import com.yy.ppm.equipment.mapper.EMEquipRepairUserMapper;
 import com.yy.ppm.equipment.mapper.EMaintInfoMapper;
 import com.yy.ppm.equipment.mapper.EMaintInfoPartItemMapper;
 import com.yy.ppm.equipment.mapper.EMaintPartReplaceMapper;
+import com.yy.ppm.equipment.mapper.MEquipmentInfoMapper;
 import com.yy.ppm.equipment.service.EMaintInfoLogService;
 import com.yy.ppm.equipment.service.EMaintInfoService;
 import jakarta.annotation.Resource;
@@ -76,6 +77,9 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
 
     @Resource
     private EMaintInfoLogService maintInfoLogService;
+
+    @Resource
+    private MEquipmentInfoMapper equipmentInfoMapper;
 
     @Autowired
     private CommonServiceImpl commonService;
@@ -239,8 +243,16 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
             EMaintInfoLogActionEnum action = EMaintInfoLogActionEnum.REPORT;
             // 派工状态下自动回填派工人和派工时间
             if (dto.getStatus() != null && dto.getStatus() == 1) {
-                po.setDispatcherId(securityUtils.getLoginUserId());
-                po.setDispatcherName(securityUtils.getUserInfo().getUserName());
+                if (dto.getDispatcherId() != null) {
+                    po.setDispatcherId(dto.getDispatcherId());
+                }else {
+                    po.setDispatcherId(securityUtils.getLoginUserId());
+                }
+                if (dto.getDispatcherName() != null) {
+                    po.setDispatcherName(dto.getDispatcherName());
+                }else {
+                    po.setDispatcherName(securityUtils.getUserInfo().getUserName());
+                }
                 po.setDispatchTime(new Date());
                 action = EMaintInfoLogActionEnum.DISPATCH;
             } else if (dto.getStatus() == null) {
@@ -423,8 +435,16 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
             }
         }
         po.setStatus(dto.getStatus() != null ? dto.getStatus() : 1);
-        po.setDispatcherId(securityUtils.getLoginUserId());
-        po.setDispatcherName(securityUtils.getLoginUserName());
+        if (dto.getDispatcherId() != null) {
+            po.setDispatcherId(dto.getDispatcherId());
+        }else {
+            po.setDispatcherId(securityUtils.getLoginUserId());
+        }
+        if (dto.getDispatcherName() != null) {
+            po.setDispatcherName(dto.getDispatcherName());
+        }else {
+            po.setDispatcherName(securityUtils.getLoginUserName());
+        }
         po.setDispatchTime(now);
 
         mapper.update(po);
@@ -944,8 +964,23 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
 
     @Override
     public int number(String mantAppNumber) {
-       int count=  mapper.getCount(mantAppNumber);
-        return count;
+        return mapper.getCount(mantAppNumber);
+    }
+
+    @Override
+    public List<EMaintRepairUserOptionDTO> getDispatchUserListByEquipId(Long equipId) {
+        if (equipId == null) {
+            throw new BusinessRuntimeException("设备ID不能为空");
+        }
+        MEquipmentInfoDTO equipmentInfo = equipmentInfoMapper.selectById(equipId);
+        if (equipmentInfo == null) {
+            throw new BusinessRuntimeException("设备不存在");
+        }
+        Long useCompanyId = equipmentInfo.getUseCompanyId();
+        if (useCompanyId == null) {
+            throw new BusinessRuntimeException("设备未配置使用单位");
+        }
+        return mapper.getDispatchUserListByCompanyAndRole(useCompanyId, "EQPT_MAINT_DIS");
     }
 
     /**

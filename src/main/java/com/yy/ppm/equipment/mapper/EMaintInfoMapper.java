@@ -6,6 +6,7 @@ import com.yy.ppm.equipment.bean.dto.EMaintInfoBatchUpdateDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintInfoDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintInfoSearchDTO;
 import com.yy.ppm.equipment.bean.dto.EMaintProjApplyDTO;
+import com.yy.ppm.equipment.bean.dto.EMaintRepairUserOptionDTO;
 import com.yy.ppm.equipment.bean.po.EMaintInfoPO;
 import org.apache.ibatis.annotations.Param;
 
@@ -90,5 +91,10 @@ public interface EMaintInfoMapper {
     EMaintProjApplyDTO getMaintProjApplyByAppNumber(@Param("appNumber")String appNumber);
 
     int getCount(String mantAppNumber);
+
+    /**
+     * 根据单位ID和角色编码查询人员列表
+     */
+    List<EMaintRepairUserOptionDTO> getDispatchUserListByCompanyAndRole(@Param("companyId") Long companyId, @Param("roleCode") String roleCode);
 }
 

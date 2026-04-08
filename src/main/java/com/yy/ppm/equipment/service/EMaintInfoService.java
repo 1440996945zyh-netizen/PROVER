@@ -71,4 +71,9 @@ public interface EMaintInfoService {
     EMaintProjApplyDTO getMaintProjApplyByAppNumber(String appNumber);
 
     int number(String  mantAppNumber);
+
+    /**
+     * 根据设备ID查询所属单位的派工人员列表
+     */
+    List<EMaintRepairUserOptionDTO> getDispatchUserListByEquipId(Long equipId);
 }
