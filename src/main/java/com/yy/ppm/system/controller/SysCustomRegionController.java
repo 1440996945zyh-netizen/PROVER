@@ -5,7 +5,6 @@ import com.yy.common.log.MicroLogger;
 import com.yy.ppm.system.bean.dto.SysCustomRegionDTO;
 import com.yy.ppm.system.bean.dto.SysMenuDTO;
 import com.yy.ppm.system.service.SysCustomRegionService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

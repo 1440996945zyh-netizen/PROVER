@@ -125,7 +125,8 @@ public final class DistributedReentrantLock {
     }
 
     private void before() {
-        boolean bool = store.opsForValue().setIfAbsent(this.key, "true", this.timeout, TimeUnit.SECONDS);
+        Boolean result = store.opsForValue().setIfAbsent(this.key, "true", this.timeout, TimeUnit.SECONDS);
+        boolean bool = Boolean.TRUE.equals(result);
         if (!bool) {
             if (KEYS.get().contains(this.key)) {
                 store.opsForValue().set(this.key, "true", this.timeout, TimeUnit.SECONDS);

@@ -7,7 +7,6 @@ import com.yy.ppm.middleware.bean.dto.HttpJobDetailSearchDTO;
 import com.yy.ppm.middleware.bean.dto.HttpJobLogsDTO;
 import com.yy.ppm.middleware.bean.dto.HttpJobLogsSearchDTO;
 import com.yy.ppm.middleware.service.QuartzJobService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 

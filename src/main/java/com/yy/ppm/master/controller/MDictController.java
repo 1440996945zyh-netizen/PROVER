@@ -3,8 +3,6 @@ package com.yy.ppm.master.controller;
 import java.util.Map;
 
 import jakarta.annotation.Resource;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,7 +20,6 @@ import com.yy.common.log.MicroLogger;
 import com.yy.common.page.PageParameter;
 import com.yy.common.page.Pages;
 import com.yy.framework.annotation.Log;
-import com.yy.ppm.common.service.CommonService;
 import com.yy.ppm.master.bean.dto.MDictDataDTO;
 import com.yy.ppm.master.bean.dto.MDictTypeDTO;
 import com.yy.ppm.master.bean.dto.MDictTypeSearchDTO;

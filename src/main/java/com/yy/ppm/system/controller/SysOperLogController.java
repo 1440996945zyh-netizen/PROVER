@@ -6,7 +6,6 @@ import com.yy.common.page.Pages;
 import com.yy.ppm.system.bean.dto.SysOperLogDTO;
 import com.yy.ppm.system.bean.dto.SysOperLogSearchDTO;
 import com.yy.ppm.system.service.SysOperLogService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;

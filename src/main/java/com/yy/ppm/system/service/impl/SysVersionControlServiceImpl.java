@@ -2,13 +2,8 @@ package com.yy.ppm.system.service.impl;
 
 import java.util.List;
 
-import com.yy.ppm.auth.service.UserCacheService;
-import com.yy.ppm.common.service.CommonService;
-import jakarta.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

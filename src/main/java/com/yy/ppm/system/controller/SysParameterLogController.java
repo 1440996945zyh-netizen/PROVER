@@ -3,11 +3,8 @@ package com.yy.ppm.system.controller;
 
 import com.yy.common.enums.Response;
 import com.yy.common.log.MicroLogger;
-import com.yy.ppm.system.bean.dto.SysParameterDTO;
 import com.yy.ppm.system.bean.dto.SysParameterLogDTO;
 import com.yy.ppm.system.service.SysParameterLogService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

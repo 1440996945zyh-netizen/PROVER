@@ -6,7 +6,6 @@ import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,8 +21,11 @@ public class SwaggerConfig {
     /**
      * 系统基础配置
      */
-    @Autowired
-    private ProjectConfig projectConfig;
+    private final ProjectConfig projectConfig;
+
+    public SwaggerConfig(ProjectConfig projectConfig){
+        this.projectConfig = projectConfig;
+    }
 
     /**
      * 是否开启swagger

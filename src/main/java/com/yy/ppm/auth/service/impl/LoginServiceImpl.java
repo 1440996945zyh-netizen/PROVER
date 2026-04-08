@@ -15,7 +15,6 @@ import com.yy.ppm.system.bean.dto.SysLoginLogDTO;
 import com.yy.ppm.system.bean.dto.SysUserDTO;
 import com.yy.ppm.system.mapper.SysLoginLogMapper;
 import com.yy.ppm.system.mapper.SysUserMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -39,21 +38,22 @@ public class LoginServiceImpl implements LoginService {
     private final SysLoginLogMapper sysLoginLogMapper;
     private final SysUserMapper sysUserMapper;
     private final Snowflake snowflake;
+    private final HttpServletRequest request;
 
     public LoginServiceImpl(
             AuthenticationManager authenticationManager,
             SysLoginLogMapper sysLoginLogMapper,
             SysUserMapper sysUserMapper,
+            HttpServletRequest request,
             Snowflake snowflake
     ) {
         this.authenticationManager = authenticationManager;
         this.sysLoginLogMapper = sysLoginLogMapper;
         this.sysUserMapper = sysUserMapper;
         this.snowflake = snowflake;
+        this.request = request;
     }
 
-    @Autowired
-    private HttpServletRequest request;
 
     /**
      * 登录

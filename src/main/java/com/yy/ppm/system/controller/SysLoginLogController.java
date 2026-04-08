@@ -7,8 +7,6 @@ import com.yy.common.log.MicroLogger;
 import com.yy.ppm.system.service.SysLoginLogService;
 import com.yy.ppm.system.bean.dto.SysLoginLogDTO;
 import com.yy.ppm.system.bean.dto.SysLoginLogSearchDTO;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;

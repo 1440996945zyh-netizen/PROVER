@@ -4,7 +4,6 @@ import com.yy.common.enums.Response;
 import com.yy.common.log.MicroLogger;
 import com.yy.ppm.mySpecialInfo.bean.dto.TMySpecialInfoDTO;
 import com.yy.ppm.mySpecialInfo.service.TMySpecialInfoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;

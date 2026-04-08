@@ -1,5 +1,7 @@
 package com.yy.framework.task;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean;
 import org.springframework.scheduling.concurrent.ScheduledExecutorTask;
 
@@ -11,6 +13,9 @@ import java.util.concurrent.DelayQueue;
  * @author gewx
  **/
 public final class GlobalDelayQueueTask {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalDelayQueueTask.class);
+
 
     private GlobalDelayQueueTask() {
     }
@@ -67,8 +72,9 @@ public final class GlobalDelayQueueTask {
      **/
     public void compareAndSet(AbstractTaskBeanDelayed taskBean) {
         if (DELAY_QUEUE.contains(taskBean)) {
-            // 移除已存在的任务（接收返回值，满足代码规范）
-            boolean removed = DELAY_QUEUE.remove(taskBean);
+            if(!DELAY_QUEUE.remove(taskBean)){
+                log.warn("Failed to remove: {}",taskBean);
+            }
             DELAY_QUEUE.add(taskBean);
         } else {
             DELAY_QUEUE.add(taskBean);

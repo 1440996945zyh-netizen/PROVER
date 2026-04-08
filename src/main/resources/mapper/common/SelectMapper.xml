@@ -126,7 +126,6 @@
         </if>
     </select>
 
-
     <select id="getVoyageList" resultType="java.util.Map">
         <if test="'' != search.labelContent and null != search.labelContent" >
             SELECT
@@ -299,7 +298,55 @@
         </where>
         ORDER BY CONTACT_NO
     </select>
+    <!-- 远程搜索用户下拉框 -->
+    <select id="getUserRemoteList" resultType="java.util.Map">
+        <!-- 1. 关键词搜索部分 -->
+        <if test="'' != labelContent and null != labelContent" >
+            SELECT
+            ID AS "value",
+            USER_NAME AS "label",
+            USER_ACCOUNT AS "userAccount",
+            MOBILE AS "mobile"
+            FROM
+            SYS_USER
+            WHERE
+            STATUS = 1
+            <if test="null != labelContent and '' != labelContent">
+                <bind name="labelContent" value="'%' + labelContent + '%'"/>
+                AND (USER_NAME LIKE #{labelContent}
+                OR USER_ACCOUNT LIKE #{labelContent}
+                OR MOBILE LIKE #{labelContent})
+            </if>
+            <if test="null != number and 0 != number">
+                AND ROWNUM &lt;= #{number}
+            </if>
+        </if>
 
+        <!-- 2. 关键词+回显数据的UNION连接 -->
+        <if test="null != valueContentList and valueContentList.size() > 0 and '' != labelContent and null != labelContent">
+            UNION
+        </if>
+
+        <!-- 3. 回显/多选部分（根据ID列表查询已选中的用户） -->
+        <if test="null != valueContentList and valueContentList.size() > 0">
+            SELECT
+            ID AS "value",
+            USER_NAME AS "label",
+            USER_ACCOUNT AS "userAccount",
+            MOBILE AS "mobile"
+            FROM
+            SYS_USER
+            WHERE
+            STATUS = 1
+            AND ID
+            <foreach collection="valueContentList" item="item" open="IN (" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+        <!-- 4. 统一排序 -->
+        ORDER BY "label" ASC
+    </select>
     <!-- 查询设备小类下拉列表 -->
     <select id="getEqptType" resultType="java.util.Map">
         SELECT
@@ -337,18 +384,18 @@
             SYS_USER S1
         where
             (S1.DEPT_ID IN (SELECT DEPT_ID FROM SYS_DEPT WHERE PARENT_ID = #{companyId})
-          OR S1.DEPT_ID = #{companyId})
+                OR S1.DEPT_ID = #{companyId})
           AND S1.STATUS = '1'
         order by S1.SORT_NUM
     </select>
     <select id="materialSupplier" resultType="java.util.Map">
         SELECT
-            ID AS "value",
-            SUPPLIER_NAME AS "label"
+        ID AS "value",
+        SUPPLIER_NAME AS "label"
         FROM
         E_MATERIAL_SUPPLIER
         WHERE
-            1=1
+        1=1
         <if test="null != search.labelContent and '' != search.labelContent">
             <bind name="labelContent" value="'%' + search.labelContent + '%'"/>
             and SUPPLIER_NAME like #{labelContent}
@@ -363,6 +410,5 @@
         FROM
             E_M_EQPT_INFO
     </select>
-
 </mapper>
 

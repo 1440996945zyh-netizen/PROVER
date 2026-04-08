@@ -1,14 +1,16 @@
 package com.yy.common.util;
 
 import cn.hutool.core.io.IORuntimeException;
-import cn.hutool.core.io.IoUtil;
 import org.lionsoul.ip2region.xdb.Searcher;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.PosixFilePermissions;
 
 /**
  * @Author linqi
@@ -16,40 +18,47 @@ import java.io.InputStream;
  * @Date 2023-06-30 11:05
  */
 public class LocationUtils {
-
-    public static Lazy<Searcher> SEARCHER = new Lazy<>(() -> {
+    private static final Lazy<Searcher> SEARCHER = new Lazy<>(() -> {
         ClassPathResource resource = new ClassPathResource("xdbs/ip2region.xdb");
+        Path tempPath = null;
 
-        File tempFile;
-        try {
-            tempFile = File.createTempFile("ip2region", ".xdb");
-        } catch (IOException e) {
-            throw new IORuntimeException(e);
-        }
+        try (InputStream inputStream = resource.getInputStream()) {
+            // 创建临时文件
+            tempPath = Files.createTempFile("ip2region", ".xdb",
+                    PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"))
+            );
 
-        try (InputStream inputStream = resource.getInputStream(); FileOutputStream outputStream = new FileOutputStream(tempFile)) {
-            IoUtil.copy(inputStream, outputStream);
+            // 复制资源到临时文件
+            Files.copy(inputStream, tempPath, StandardCopyOption.REPLACE_EXISTING);
 
+            // 加载文件内容到内存
             byte[] cBuff;
             try {
-                cBuff = Searcher.loadContentFromFile(tempFile.getPath());
+                cBuff = Searcher.loadContentFromFile(tempPath.toString());
             } catch (IOException e) {
-                throw new IORuntimeException("failed to load content: " + e);
+                throw new IORuntimeException("Failed to load IP database from temp file: " + tempPath, e);
             }
 
-            Searcher searcher;
+            // 创建 Searcher 实例
             try {
-                searcher = Searcher.newWithBuffer(cBuff);
+                return Searcher.newWithBuffer(cBuff);
             } catch (IOException e) {
-                throw new IORuntimeException("failed to create content cached searcher: " + e);
+                throw new IORuntimeException("Failed to create searcher with cached buffer", e);
             }
 
-            return searcher;
         } catch (IOException e) {
-            throw new IORuntimeException(e);
+            throw new IORuntimeException("Failed to initialize IP searcher", e);
         } finally {
-            //报错
-            boolean tag = tempFile.delete();
+            // 清理临时文件
+            if (tempPath != null) {
+                try {
+                    Files.deleteIfExists(tempPath);
+                } catch (IOException e) {
+                    // 使用 SLF4J 日志记录详细错误
+                    LoggerFactory.getLogger(Lazy.class)
+                            .warn("Failed to delete temp file: {} - {}", tempPath, e.getMessage());
+                }
+            }
         }
     });
 

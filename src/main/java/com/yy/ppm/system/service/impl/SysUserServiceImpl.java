@@ -6,7 +6,6 @@ import cn.hutool.core.collection.CollUtil;
 import com.yy.common.flowable.enums.CommonStatusEnum;
 import com.yy.common.flowable.utils.CollectionUtils;
 import com.yy.framework.exception.BusinessRuntimeException;
-import com.yy.ppm.common.enums.DictTypeEnum;
 import com.yy.ppm.common.enums.SelectEnum;
 import com.yy.ppm.common.mapper.SelectMapper;
 import com.yy.ppm.common.service.SysFileService;
@@ -14,7 +13,6 @@ import jakarta.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,7 +71,6 @@ public class SysUserServiceImpl implements SysUserService {
 	@Resource
 	private SelectMapper selectMapper;
 
-	private final RedisTemplate<String, String> redisTemplate;
 
 	private final UserCacheService userCacheService;
 
@@ -82,12 +79,10 @@ public class SysUserServiceImpl implements SysUserService {
 	private final Snowflake snowflake;
 
 	public SysUserServiceImpl(
-			RedisTemplate<String, String> redisTemplate,
 			UserCacheService userCacheService,
 			CommonService baseService,
 			Snowflake snowflake
 	){
-		this.redisTemplate = redisTemplate;
 		this.userCacheService = userCacheService;
 		this.baseService = baseService;
 		this.snowflake = snowflake;
@@ -306,12 +301,11 @@ public class SysUserServiceImpl implements SysUserService {
 		profileDTO.setUserId(sysUserDTO.getId());
 		profileDTO.setUserName(sysUserDTO.getUserAccount());
 		profileDTO.setNickName(sysUserDTO.getUserName());
-		profileDTO.setAdmin("1".equals(sysUserDTO.getIsSuperadmin()));
 		profileDTO.setDeptId(sysUserDTO.getDeptId());
 		profileDTO.setStatus(sysUserDTO.getStatus().toString());
 		profileDTO.setEmail(sysUserDTO.getEmail());
 		profileDTO.setPhonenumber(sysUserDTO.getTel());
-		profileDTO.setSex(sysUserDTO.getSex().toString());
+		profileDTO.setSex(sysUserDTO.getSex() == null ? null : sysUserDTO.getSex().toString());
 
 		// 获取部门信息
 		profileDTO.setDept(sysDeptMapper.getById(sysUserDTO.getDeptId()));

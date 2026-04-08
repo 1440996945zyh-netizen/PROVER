@@ -14,7 +14,6 @@ import com.yy.ppm.system.bean.dto.SysDeptDTO;
 import com.yy.ppm.system.mapper.SysDeptMapper;
 import com.yy.ppm.system.service.SysDeptService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;

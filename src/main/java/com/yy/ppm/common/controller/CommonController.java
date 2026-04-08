@@ -3,9 +3,6 @@ package com.yy.ppm.common.controller;
 import com.yy.common.enums.Response;
 import com.yy.common.log.MicroLogger;
 import com.yy.ppm.common.service.CommonService;
-import com.yy.ppm.system.bean.dto.SysDeptDTO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 

@@ -3,14 +3,17 @@ import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageBuilder;
 import org.springframework.amqp.core.MessageProperties;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class RabbitProducerService {
 
-    @Autowired
-    private AmqpTemplate rabbitTemplate;
+
+    private final AmqpTemplate rabbitTemplate;
+
+    public RabbitProducerService(AmqpTemplate rabbitTemplate){
+        this.rabbitTemplate = rabbitTemplate;
+    }
 
     /**
      * 通用消息发送方法

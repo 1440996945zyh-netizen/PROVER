@@ -67,13 +67,5 @@ public class SysParameterDTO extends SysParameterPO implements Serializable {
         }
         return false;
     }
-//   @Override
-//    public int hashCode() {
-//        int result = 17;
-//        result = 31 * result + (name == null ? 0 : name.hashCode());
-//        result = 31 * result + (age == null ? 0 : age.hashCode());
-//        return result;
-//    }
-
 
 }

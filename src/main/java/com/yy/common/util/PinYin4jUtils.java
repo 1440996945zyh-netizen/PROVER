@@ -7,6 +7,8 @@ import net.sourceforge.pinyin4j.format.HanyuPinyinToneType;
 import net.sourceforge.pinyin4j.format.HanyuPinyinVCharType;
 import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombination;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,7 +23,7 @@ import java.util.stream.Stream;
  * @author
  **/
 public final class PinYin4jUtils {
-
+    private static final Logger log = LoggerFactory.getLogger(PinYin4jUtils.class);
     public static final String SPLIT_SYMBOL = " / ";
 
     private static final Pattern PATTERN_CN_ZH = Pattern.compile("[\\u4E00-\\u9FA5]+");
@@ -114,7 +116,7 @@ public final class PinYin4jUtils {
             // System.out.println(t4);
             return t4;
         } catch (BadHanyuPinyinOutputFormatCombination e1) {
-            e1.printStackTrace();
+            log.warn("BadHanyuPinyinOutputFormatCombination",e1);
         }
         return t4;
     }

@@ -15,8 +15,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.NamedThreadLocal;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -50,17 +48,17 @@ public class LogAspect {
     @Resource
     private SecurityUtils securityUtils;
 
-    @Autowired
-    private HttpServletRequest request;
 
+    private final HttpServletRequest request;
 
     private final Snowflake snowflake;
 
-    public LogAspect(Snowflake snowflake){
+    public LogAspect(Snowflake snowflake,HttpServletRequest request){
         this.snowflake = snowflake;
+        this.request = request;
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(LogAspect.class);
+    private static final Logger log = LoggerFactory.getLogger(LogAspect.class);
 
     /** 计算操作消耗时间 */
     private static final ThreadLocal<Long> TIME_THREADLOCAL = new ThreadLocal<>();
@@ -144,17 +142,20 @@ public class LogAspect {
                 oper.setTitle(method.getAnnotation(Log.class).title());
             }
         } catch (NoSuchMethodException ex) {
-            ex.printStackTrace();
+            log.warn("NoSuchMethodException",ex);
             oper.setBusinessType("未设置操作类型");
             oper.setTitle("未设置业务名称");
         }
 
         //设置url
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        String URL = attributes.getRequest().getRequestURL().substring(21);
-        oper.setOperUrl(URL);
-        //设置请求方式
-        oper.setRequestMethod(attributes.getRequest().getMethod());
+        String url ="";
+        if(attributes!=null  && attributes.getRequest().getRequestURL()!=null){
+            url =  attributes.getRequest().getRequestURL().substring(21);
+            oper.setOperUrl(url);
+            //设置请求方式
+            oper.setRequestMethod(attributes.getRequest().getMethod());
+        }
         //设置ip地址
         String ip = HttpRequestUtils.getRemoteAddrIp(this.request);
         oper.setOperIp(ip);
@@ -187,6 +188,7 @@ public class LogAspect {
         }else{
             sysOperLogMapper.insert(oper);
         }
+        TIME_THREADLOCAL.remove();
     }
 
     /**
@@ -225,6 +227,9 @@ public class LogAspect {
      */
     private void setRequestValue(JoinPoint joinPoint, SysOperLogPO oper) {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes == null) {
+            return;
+        }
         Map<String, String[]> map = attributes.getRequest().getParameterMap();
         if (map.size() != 0) {
             String params = JSONObject.toJSONString(map);

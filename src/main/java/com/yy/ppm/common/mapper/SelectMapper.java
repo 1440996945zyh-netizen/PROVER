@@ -108,4 +108,6 @@ public interface SelectMapper {
     List<Map<String, Object>> materialSupplier(@Param("search") SelecSearchDTO selectCommonSearch);
 
     List<Map<String, Object>> getEqptInfo();
+
+    List<Map<String, Object>> getUserRemoteList(SelecSearchDTO dto);
 }

@@ -6,6 +6,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -356,7 +357,9 @@ public final class StringUtil extends StringUtils {
      * @return
      */
     public static String getRandomString(int start, int end) {
-        return "" + (int) (Math.random() * (end - start + 1) + start);
+        SecureRandom random = new SecureRandom();
+        int value = random.nextInt(end - start + 1) + start;
+        return String.valueOf(value);
     }
 
     /**

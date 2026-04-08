@@ -16,7 +16,6 @@ import com.yy.ppm.common.bean.po.SysFilePO;
 import com.yy.ppm.common.service.SysFileService;
 import com.yy.ppm.system.enums.SysEnum;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,6 +23,9 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotBlank;
+
+import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
@@ -82,98 +84,205 @@ public class SysFileController {
         final String methodName = "MinioController:upload";
         LOGGER.enter(methodName, "上传文件[start]");
 
+        // 参数校验
+        Map<String, Object> errorResponse = validateBasicParams(fileArray, businessType);
+        if (!errorResponse.isEmpty()) {
+            return errorResponse;
+        }
+
+        // 文件批量校验
+        errorResponse = validateFiles(fileArray);
+        if (!errorResponse.isEmpty()) {
+            return errorResponse;
+        }
+
+        // 准备上传环境
+        String bucketName = SysEnum.SysParamEnum.FILE_BUCKET.getDefValue();
+        String route = FileUploadBusinessTypeEnum.getRoute(businessType);
+        ensureBucketExists(bucketName);
+
+        // 上传文件并保存记录
+        List<SysFileDTO> fileList = uploadAndSaveFiles(fileArray, businessType, bucketName, route);
+        sysFileService.save(fileList);
+
+        // 构建响应结果
+        Map<String, Object> result = buildUploadResult(fileList);
+        LOGGER.exit(methodName, "上传文件[end]");
+        return Response.SUCCESS.newBuilder().toResult(result);
+    }
+
+    /**
+     * 校验基本参数
+     */
+    private Map<String, Object> validateBasicParams(MultipartFile[] fileArray, String businessType) {
         if (fileArray.length == 0) {
             LOGGER.warn("缺失上传文件数据~");
-            return Response.FAIL.newBuilder().addGateWayCode(Response.GateWayCode.E0201).out("缺失上传文件数据~").toResult();
+            return Response.FAIL.newBuilder()
+                    .addGateWayCode(Response.GateWayCode.E0201)
+                    .out("缺失上传文件数据~")
+                    .toResult();
         }
 
         if (isBlank(businessType)) {
             LOGGER.warn("业务类型必填~");
-            return Response.FAIL.newBuilder().addGateWayCode(Response.GateWayCode.E0201).toResult();
+            return Response.FAIL.newBuilder()
+                    .addGateWayCode(Response.GateWayCode.E0201)
+                    .toResult();
         }
-
-        /*if (isBlank(businessId)) {
-            LOGGER.warn("业务主键必填~");
-            return Response.FAIL.newBuilder().addGateWayCode(Response.GateWayCode.E0201).toResult();
-        }*/
 
         if (!FileUploadBusinessTypeEnum.valid(businessType)) {
             LOGGER.warn("业务类型不匹配~");
-            return Response.FAIL.newBuilder().addGateWayCode(Response.GateWayCode.E0205).toResult();
+            return Response.FAIL.newBuilder()
+                    .addGateWayCode(Response.GateWayCode.E0205)
+                    .toResult();
         }
 
-        // 校验文件大小及类型，校验文件名长度
-        for (MultipartFile fileObject : fileArray) {
-            byte[] fileByte = fileObject.getBytes();
-            String type = FileMagicUtils.getFileType(fileByte);
+        return new HashMap<>();
+    }
 
-            if (Objects.requireNonNull(fileObject.getOriginalFilename()).length() > 100) {
-                LOGGER.warn("文件名过长~");
-                return Response.FAIL.newBuilder().addGateWayCode(Response.GateWayCode.E0403).toResult();
-            }
-
-            if (!FileType.isInclude(type)) {
-                LOGGER.warn("不支持的文件上传格式~");
-                return Response.FAIL.newBuilder().addGateWayCode(Response.GateWayCode.E0402).toResult();
-            }
-
-            if (fileByte.length > MAX_FILE_SIZE) {
-                LOGGER.warn("文件上传大小限制5及以下~");
-                return Response.FAIL.newBuilder().addGateWayCode(Response.GateWayCode.E0401).toResult();
+    /**
+     * 批量校验文件（大小、类型、文件名长度）
+     */
+    private Map<String, Object> validateFiles(MultipartFile[] fileArray) throws IOException {
+        for (MultipartFile file : fileArray) {
+            Map<String, Object> errorResponse = validateSingleFile(file);
+            if (errorResponse != null) {
+                return errorResponse;
             }
         }
+        return new HashMap<>();
+    }
 
-        //上传前准备，获取桶和路由
-        String bucketName = SysEnum.SysParamEnum.FILE_BUCKET.getDefValue();
-        String route = FileUploadBusinessTypeEnum.getRoute(businessType);
+    /**
+     * 校验单个文件
+     */
+    private Map<String, Object> validateSingleFile(MultipartFile file) throws IOException {
+        // 校验文件名长度
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename != null && originalFilename.length() > 100) {
+            LOGGER.warn("文件名过长~");
+            return Response.FAIL.newBuilder()
+                    .addGateWayCode(Response.GateWayCode.E0403)
+                    .toResult();
+        }
 
+        // 校验文件类型
+        String type = FileMagicUtils.getFileType(file.getBytes());
+        if (!FileType.isInclude(type)) {
+            LOGGER.warn("不支持的文件上传格式~");
+            return Response.FAIL.newBuilder()
+                    .addGateWayCode(Response.GateWayCode.E0402)
+                    .toResult();
+        }
 
-        //如果桶名不存在则新建
+        // 校验文件大小
+        if (file.getBytes().length > MAX_FILE_SIZE) {
+            LOGGER.warn("文件上传大小限制5及以下~");
+            return Response.FAIL.newBuilder()
+                    .addGateWayCode(Response.GateWayCode.E0401)
+                    .toResult();
+        }
+
+        return new HashMap<>();
+    }
+
+    /**
+     * 确保桶存在
+     */
+    private void ensureBucketExists(String bucketName) throws Exception {
         if (!minIoConfig.checkBucket(bucketName)) {
             minIoConfig.createBucket(bucketName);
         }
+    }
 
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        String bucketDate = format.format(new Date()) + "/";
-
-        /**
-         * 上传：企业相关/cargoin/straight/barge/2020-06-17/1234567890741test.pdf
-         *         桶名 /            服务器路径            /       id+源文件名
-         */
+    /**
+     * 上传文件并保存记录
+     */
+    private List<SysFileDTO> uploadAndSaveFiles(MultipartFile[] fileArray, String businessType,
+                                                String bucketName, String route) throws Exception {
         List<SysFileDTO> fileList = new ArrayList<>();
-        for (MultipartFile fileObject : fileArray) {
-            String fileName = fileObject.getOriginalFilename();
-            Long id = snowflake.nextId();
-            String saveName = id + fileName;
-            String path = "".equals(route) ? bucketDate : (route + "/" + bucketDate);
-            minIoConfig.putObject(bucketName, path + saveName, fileObject.getInputStream());
+        String bucketDate = getBucketDate();
+        String path = buildPath(route, bucketDate);
 
-            SysFileDTO sysFilePo = new SysFileDTO();
-            sysFilePo.setId(id);
-            sysFilePo.setBusinessType(businessType);
-            sysFilePo.setFileBucket(bucketName);
-            sysFilePo.setFilePath(path);
-            sysFilePo.setFileSaveName(saveName);
-            sysFilePo.setFileName(fileName);
-            sysFilePo.setFileSuffix(fileName.substring(fileName.indexOf(".") + 1));
-            fileList.add(sysFilePo);
+        for (MultipartFile file : fileArray) {
+            SysFileDTO fileDto = uploadSingleFile(file, businessType, bucketName, path);
+            fileList.add(fileDto);
         }
 
-        sysFileService.save(fileList);
+        return fileList;
+    }
 
+    /**
+     * 获取桶日期路径
+     */
+    private String getBucketDate() {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        return format.format(new Date()) + "/";
+    }
+
+    /**
+     * 构建存储路径
+     */
+    private String buildPath(String route, String bucketDate) {
+        return "".equals(route) ? bucketDate : (route + File.separator + bucketDate);
+    }
+
+    /**
+     * 上传单个文件
+     */
+    private SysFileDTO uploadSingleFile(MultipartFile file, String businessType,
+                                        String bucketName, String path) throws Exception {
+        String fileName = file.getOriginalFilename();
+        Long id = snowflake.nextId();
+        String saveName = id + fileName;
+
+        // 上传到MinIO
+        minIoConfig.putObject(bucketName, path + saveName, file.getInputStream());
+
+        // 构建文件DTO
+        SysFileDTO fileDto = new SysFileDTO();
+        fileDto.setId(id);
+        fileDto.setBusinessType(businessType);
+        fileDto.setFileBucket(bucketName);
+        fileDto.setFilePath(path);
+        fileDto.setFileSaveName(saveName);
+        fileDto.setFileName(fileName);
+
+        if (fileName != null) {
+            fileDto.setFileSuffix(fileName.substring(fileName.indexOf(".") + 1));
+        }
+
+        return fileDto;
+    }
+
+    /**
+     * 构建上传结果
+     */
+    private Map<String, Object> buildUploadResult(List<SysFileDTO> fileList) {
         Map<String, Object> result = new HashMap<>();
-        //将附件信息返回
         result.put("files", fileList);
-        //生成url并返回
-        String[] urls = new String[fileList.size()];
-        for (int i = 0; i < fileList.size(); i++) {
-            SysFileDTO filePO = fileList.get(i);
-            //    http://114.215.173.72/         yyy           /           barge/2021-03-09/     1369162693856071680aa.jpg
-            urls[i] = minIoConfig.getMinioUrl() + "/minio/" + filePO.getFileBucket() + "/" + filePO.getFilePath() + filePO.getFileSaveName();
-        }
+
+        String[] urls = generateFileUrls(fileList);
         result.put("urls", urls);
-        LOGGER.exit(methodName, "上传文件[end]");
-        return Response.SUCCESS.newBuilder().toResult(result);
+
+        return result;
+    }
+
+    /**
+     * 生成文件访问URL
+     */
+    private String[] generateFileUrls(List<SysFileDTO> fileList) {
+        String[] urls = new String[fileList.size()];
+        String minioUrl = minIoConfig.getMinioUrl();
+
+        for (int i = 0; i < fileList.size(); i++) {
+            SysFileDTO file = fileList.get(i);
+            // 格式: http://域名/minio/桶名/路径/文件名
+            urls[i] = minioUrl + "/minio/" + file.getFileBucket() + "/"
+                    + file.getFilePath() + file.getFileSaveName();
+        }
+
+        return urls;
     }
 
     /**
@@ -207,6 +316,9 @@ public class SysFileController {
         String path = sysFilePO.getFilePath();
         String saveName = sysFilePO.getFileSaveName();
         byte[] fileByteArray = minIoConfig.getObject(bucketName, path + saveName);
+        if(StringUtil.isEmpty(fileByteArray)){
+            throw new BusinessRuntimeException("不存在的附件~");
+        }
         resp.setHeader("content-disposition",
                 "attachment;filename=" + URLEncoder.encode(sysFilePO.getFileName(), "UTF-8"));
         try (OutputStream outputStream = resp.getOutputStream()) {
@@ -422,7 +534,6 @@ public class SysFileController {
                     "attachment;filename=" + URLEncoder.encode(templateFileName, "UTF-8"));
             response.getOutputStream().write(fileByteArray);
         } catch (Exception e) {
-            e.printStackTrace();
             throw new BusinessRuntimeException("下载模板异常！");
         }
         LOGGER.exit(methodName + "result:" + templateFileName);

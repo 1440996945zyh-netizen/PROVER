@@ -4,6 +4,9 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -11,7 +14,7 @@ import java.net.UnknownHostException;
  * Http请求辅助类
  **/
 public final class HttpRequestUtils {
-
+	private static final Logger log = LoggerFactory.getLogger(HttpRequestUtils.class);
 	/**
 	 * 代理服务器请求头
 	 **/
@@ -70,7 +73,7 @@ public final class HttpRequestUtils {
 					InetAddress inet = InetAddress.getLocalHost();
 					ipAddress= inet.getHostAddress();
 				} catch (UnknownHostException e) {
-					e.printStackTrace();
+					log.warn("UnknownHostException",e);
 				}
 			}
 		}

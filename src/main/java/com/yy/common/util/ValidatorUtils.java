@@ -47,9 +47,11 @@ public final class ValidatorUtils {
                             : Arrays.asList(args).contains(StringUtil.getString(item.getPropertyPath())))
                     .collect(Collectors.toSet());
 
-            for (ConstraintViolation<T> item : resultSet) {
-                return new FieldBean(item.getMessageTemplate(), Boolean.TRUE);
+            if (!resultSet.isEmpty()) {
+                ConstraintViolation<T> firstViolation = resultSet.iterator().next();
+                return new FieldBean(firstViolation.getMessageTemplate(), Boolean.TRUE);
             }
+            return new FieldBean("success", Boolean.FALSE);
         }
         return new FieldBean(StringUtils.EMPTY, Boolean.FALSE);
     }
@@ -83,8 +85,9 @@ public final class ValidatorUtils {
                         : Arrays.asList(args).contains(StringUtil.getString(item.getPropertyPath())))
                 .collect(Collectors.toSet());
 
-        for (ConstraintViolation<T> item : resultSet) {
-            return new FieldBean(item.getMessageTemplate(), Boolean.TRUE);
+        if (!resultSet.isEmpty()) {
+            ConstraintViolation<T> firstViolation = resultSet.iterator().next();
+            return new FieldBean(firstViolation.getMessageTemplate(), Boolean.TRUE);
         }
         return new FieldBean(StringUtils.EMPTY, Boolean.FALSE);
     }

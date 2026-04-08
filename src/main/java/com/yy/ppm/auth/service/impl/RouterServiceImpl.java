@@ -52,6 +52,9 @@ public class RouterServiceImpl implements RouterService {
             menuMeta.put("query", menuLeftTreeDTO.getQuery());
             menuMeta.put("isFrame", menuLeftTreeDTO.getIsFrame());
             menuMeta.put("link", menuLeftTreeDTO.getLink());
+            menuMeta.put("menuType", menuLeftTreeDTO.getMenuType());
+            menuMeta.put("parentId", menuLeftTreeDTO.getParentId());
+
             menuLeftTreeDTO.setQuery(null); //解决前端路径上显示query，放到meta使用
             menuLeftTreeDTO.setName(menuLeftTreeDTO.getPath() + "-" + menuLeftTreeDTO.getName()); // 解决前端因name值相同覆盖菜单的bug
             menuLeftTreeDTO.setMeta(menuMeta);

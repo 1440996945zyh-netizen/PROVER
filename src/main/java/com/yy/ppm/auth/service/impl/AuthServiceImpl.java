@@ -9,16 +9,12 @@ import com.yy.framework.exception.BusinessRuntimeException;
 import com.yy.ppm.auth.bean.dto.UserInfo;
 import com.yy.ppm.auth.mapper.AuthMapper;
 import com.yy.ppm.auth.service.AuthService;
-import com.yy.ppm.auth.service.LoginService;
 import com.yy.ppm.auth.service.UserCacheService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 认证、授权用Service

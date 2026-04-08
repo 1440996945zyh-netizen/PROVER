@@ -311,7 +311,6 @@ public class CollectionUtils {
         if (CollUtil.isEmpty(from)) {
             return null;
         }
-        assert !from.isEmpty(); // 断言，避免告警
         if(StringUtil.isEmpty(from)){
             throw new IllegalArgumentException("form不能为空");
         }

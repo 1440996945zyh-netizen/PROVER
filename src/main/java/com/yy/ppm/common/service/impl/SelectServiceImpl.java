@@ -108,6 +108,9 @@ public class SelectServiceImpl implements SelectService {
             case "CUSTOMER_SUPPLIER" :
                 res = selectMapper.materialSupplier(selectCommonSearch);
                 break;
+            case "USER" :
+                res = selectMapper.getUserRemoteList(selectCommonSearch);
+                break;
             default:
                 break;
         }

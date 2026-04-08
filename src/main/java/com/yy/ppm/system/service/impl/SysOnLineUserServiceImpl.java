@@ -4,12 +4,10 @@ import com.yy.common.enums.RedisEnum;
 import com.yy.ppm.system.bean.dto.SysUserDTO;
 import com.yy.ppm.system.service.SysOnLineUserService;
 import com.yy.ppm.system.mapper.SysOnLineUserMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLOutput;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -45,15 +43,11 @@ public class SysOnLineUserServiceImpl implements SysOnLineUserService {
         List<SysUserDTO> userList = sysOnLineUserMapper.getList(accountList, userAccount, userName);
 
         for (SysUserDTO user:userList) {
-            Long score = 0L;
-            try{
-
-                score = redisTemplate.opsForZSet().score(applicationName + ":"
-                        + RedisEnum.ONLINE_ACCOUNTS_PC.getCode(), user.getUserAccount()).longValue();
-            }catch (Exception e){
-                System.out.println("系统异常"+ e);
-            };
-
+            Double scoreValue = redisTemplate.opsForZSet().score(
+                    applicationName + ":" + RedisEnum.ONLINE_ACCOUNTS_PC.getCode(),
+                    user.getUserAccount()
+            );
+            Long score = scoreValue != null ? scoreValue.longValue() : 0L;
             Date lastRequestTime = new Date(score);
             user.setLastRequestTime(lastRequestTime);
 

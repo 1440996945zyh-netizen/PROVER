@@ -960,41 +960,128 @@ public class Convert
     }
 
     /**
-     * 数字金额大写转换 先写个完整的然后将如零拾替换成零
+     * 数字金额大写转换
+     * <p>
+     * 示例：
+     * - 0 → "零元整"
+     * - 12.34 → "壹拾贰元叁角肆分"
+     * - 100.5 → "壹佰元伍角"
+     * - 10000 → "壹万元整"
      *
-     * @param n 数字
-     * @return 中文大写数字
+     * @param n 数字金额（支持负数、小数）
+     * @return 中文大写金额字符串
      */
-    public static String digitUppercase(double n)
-    {
-        String[] fraction = { "角", "分" };
-        String[] digit = { "零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖" };
-        String[][] unit = { { "元", "万", "亿" }, { "", "拾", "佰", "仟" } };
-
+    public static String digitUppercase(double n) {
+        // 负数处理
         String head = n < 0 ? "负" : "";
         n = Math.abs(n);
 
-        String s = "";
-        for (int i = 0; i < fraction.length; i++)
-        {
-            s += (digit[(int) (Math.floor(n * 10 * Math.pow(10, i)) % 10)] + fraction[i]).replaceAll("(零.)+", "");
-        }
-        if (s.length() < 1)
-        {
-            s = "整";
-        }
-        int integerPart = (int) Math.floor(n);
+        // 数字大写映射
+        String[] digit = {"零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖"};
+        String[] unit = {"", "拾", "佰", "仟"};
+        String[] bigUnit = {"", "万", "亿"};
 
-        for (int i = 0; i < unit[0].length && integerPart > 0; i++)
-        {
-            String p = "";
-            for (int j = 0; j < unit[1].length && n > 0; j++)
-            {
-                p = digit[integerPart % 10] + unit[1][j] + p;
-                integerPart = integerPart / 10;
-            }
-            s = p.replaceAll("(零.)*零$", "").replaceAll("^$", "零") + unit[0][i] + s;
+        // 1. 处理小数部分（角、分）
+        String fraction = processFraction(n, digit);
+
+        // 2. 处理整数部分
+        String integer = processInteger((long) Math.floor(n), digit, unit, bigUnit);
+
+        // 3. 组合结果
+        if (integer.isEmpty()) {
+            return head + fraction;  // 小于1元的情况
+        } else if (fraction.isEmpty()) {
+            return head + integer + "元整";
+        } else {
+            return head + integer + "元" + fraction;
         }
-        return head + s.replaceAll("(零.)*零元", "元").replaceFirst("(零.)+", "").replaceAll("(零.)+", "零").replaceAll("^整$", "零元整");
+    }
+
+    /**
+     * 处理小数部分（角、分）
+     */
+    private static String processFraction(double n, String[] digit) {
+        int angle = (int) (n * 10) % 10;      // 角
+        int cent = (int) (n * 100) % 10;      // 分
+
+        String result = "";
+        if (angle > 0) {
+            result += digit[angle] + "角";
+        }
+        if (cent > 0) {
+            result += digit[cent] + "分";
+        }
+        return result;
+    }
+
+    /**
+     * 处理整数部分（支持万亿以内）
+     */
+    private static String processInteger(long integerPart, String[] digit,
+                                         String[] unit, String[] bigUnit) {
+        if (integerPart == 0) {
+            return "";
+        }
+
+        StringBuilder result = new StringBuilder();
+        int bigUnitIndex = 0;
+
+        while (integerPart > 0) {
+            int part = (int) (integerPart % 10000);  // 每4位一组
+            if (part != 0) {
+                String partStr = convertSegment(part, digit, unit);
+                // 添加大单位（万、亿）
+                result.insert(0, partStr + bigUnit[bigUnitIndex]);
+            } else {
+                // 处理连续的零
+                if (!result.isEmpty() && !result.toString().startsWith("零")) {
+                    result.insert(0, "零");
+                }
+            }
+
+            integerPart /= 10000;
+            bigUnitIndex++;
+        }
+
+        // 去除末尾多余的"零"
+        String resultStr = result.toString();
+        while (resultStr.endsWith("零")) {
+            resultStr = resultStr.substring(0, resultStr.length() - 1);
+        }
+
+        return resultStr;
+    }
+
+    /**
+     * 转换4位数字段（千、百、十、个）
+     */
+    private static String convertSegment(int num, String[] digit, String[] unit) {
+        StringBuilder sb = new StringBuilder();
+
+        int qian = num / 1000;
+        int bai = (num % 1000) / 100;
+        int shi = (num % 100) / 10;
+        int ge = num % 10;
+
+        if (qian > 0) {
+            sb.append(digit[qian]).append(unit[3]);
+        }
+        if (bai > 0) {
+            sb.append(digit[bai]).append(unit[2]);
+        } else if (qian > 0 && (bai == 0 && (shi > 0 || ge > 0))) {
+            sb.append("零");
+        }
+
+        if (shi > 0) {
+            sb.append(digit[shi]).append(unit[1]);
+        } else if ((qian > 0 || bai > 0) && ge > 0) {
+            sb.append("零");
+        }
+
+        if (ge > 0) {
+            sb.append(digit[ge]);
+        }
+
+        return sb.toString();
     }
 }

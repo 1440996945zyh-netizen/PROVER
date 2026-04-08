@@ -41,6 +41,14 @@ private Long id;
     private String menuIconColor;
 
     private HashMap<String, Object> meta;
+    /**
+     * 菜单类型
+     */
+    private String menuType;
+    /**
+     * 父菜单ID
+     */
+    private Long parentId;
 
     /**是否为外链（0是 1否） */
     private Long isFrame;

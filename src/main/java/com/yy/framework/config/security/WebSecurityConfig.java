@@ -1,16 +1,14 @@
 package com.yy.framework.config.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -31,11 +29,6 @@ public class WebSecurityConfig {
 
     @Resource
     private WhiteList whiteList;
-    /**
-     * 自定义用户登录
-     */
-    @Resource
-    private UserDetailsService userDetailsService;
 
     /**
      * Jwt过滤器
@@ -53,22 +46,15 @@ public class WebSecurityConfig {
     private final CustomPasswordEncoder customPasswordEncoder;
 
     /**
-     * 退出成功处理
-     */
-    private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
-
-    /**
      * 构造器注入
      */
     public WebSecurityConfig(
             JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter,
             CrosFilter crosFilter,
-            CustomPasswordEncoder customPasswordEncoder,
-            CustomLogoutSuccessHandler customLogoutSuccessHandler) {
+            CustomPasswordEncoder customPasswordEncoder) {
         this.jwtAuthenticationTokenFilter = jwtAuthenticationTokenFilter;
         this.crosFilter = crosFilter;
         this.customPasswordEncoder = customPasswordEncoder;
-        this.customLogoutSuccessHandler = customLogoutSuccessHandler;
     }
 
     // 获取AuthenticationManager（认证管理器），登录时认证使用。
@@ -99,7 +85,7 @@ public class WebSecurityConfig {
         http.addFilterBefore(crosFilter, JwtAuthenticationTokenFilter.class);
 
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)// NOSONAR 前后端分离JWT认证，CSRF防护冗余
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> {
                     // 1. 白名单URL允许匿名访问

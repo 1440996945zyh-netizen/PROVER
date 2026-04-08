@@ -1,28 +1,25 @@
 package com.yy.common.util;
 
-import com.yy.framework.config.CustomsConfig;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
+import org.apache.commons.net.ftp.FTPSClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import jakarta.annotation.Resource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
-import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 
 public class FtpUtils {
+
+    private static final Logger log = LoggerFactory.getLogger(FtpUtils.class);
     public FTPClient ftpClient = null;
 
     private static String hostname;
@@ -68,20 +65,19 @@ public class FtpUtils {
             System.out.println("上传文件成功");
         } catch (Exception e) {
             System.out.println("上传文件失败");
-            e.printStackTrace();
         } finally {
             if (ftpClient.isConnected()) {
                 try {
                     ftpClient.disconnect();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.warn("连接失败");
                 }
             }
             if (null != inputStream) {
                 try {
                     inputStream.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.warn("inputStream.close() feature");
                 }
             }
         }
@@ -125,20 +121,19 @@ public class FtpUtils {
             System.out.println("下载文件成功");
         } catch (Exception e) {
             System.out.println("下载文件失败");
-            e.printStackTrace();
         } finally {
             if (ftpClient.isConnected()) {
                 try {
                     ftpClient.disconnect();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.warn("服务器连接失败");
                 }
             }
             if (null != os) {
                 try {
                     os.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.warn("os.close() feature");
                 }
             }
         }
@@ -152,25 +147,32 @@ public class FtpUtils {
      * @author jinsh
      * @date 2018-4-24
      */
-    public void initFtpClient() {
-        ftpClient = new FTPClient();
-        ftpClient.setControlEncoding("utf-8");
+    public void initFtpClient() throws IOException {
+        FTPSClient ftpsClient = new FTPSClient();
+        ftpsClient.execPBSZ(0);   // 设置保护缓冲区大小
+        ftpsClient.execPROT("P"); // 保护数据传输通道
+
         try {
-            System.out.println("connecting...ftp服务器:" + this.hostname + ":"
-                    + this.port);
-            ftpClient.connect(hostname, Integer.parseInt(port)); // 连接ftp服务器
-            ftpClient.login(userName, password); // 登录ftp服务器
-            int replyCode = ftpClient.getReplyCode(); // 是否成功登录服务器
-            if (!FTPReply.isPositiveCompletion(replyCode)) {
-                System.out.println("connect failed...ftp服务器:" + this.hostname
-                        + ":" + this.port);
+            ftpClient.connect(hostname, Integer.parseInt(port));
+            ftpClient.enterLocalPassiveMode();
+
+            if (!ftpClient.login(userName, password)) {
+                ftpClient.disconnect();
+                throw new SecurityException("FTP login failed for user: " + userName);
             }
-            System.out.println("connect successfull...ftp服务器:" + this.hostname
-                    + ":" + this.port);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
+
+            int replyCode = ftpClient.getReplyCode();
+            if (!FTPReply.isPositiveCompletion(replyCode)) {
+                ftpClient.disconnect();
+                throw new IOException("FTP server refused connection, reply code: " + replyCode);
+            }
+
+            log.info("Connected to FTP server: {}:{}", hostname, port);
         } catch (IOException e) {
-            e.printStackTrace();
+            if (ftpClient.isConnected()) {
+                ftpClient.disconnect();
+            }
+            throw e;
         }
     }
 
@@ -247,7 +249,7 @@ public class FtpUtils {
                 System.out.println("进入文件夹" + directory + " 失败！开始创建文件夹");
             }
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            log.warn("IOException：" , ioe);
         }
         return flag;
     }
@@ -291,7 +293,7 @@ public class FtpUtils {
                 System.out.println("创建文件夹" + dir + " 失败！");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn("Exception：" , e);
         }
         return flag;
     }

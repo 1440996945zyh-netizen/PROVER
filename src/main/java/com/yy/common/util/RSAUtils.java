@@ -181,25 +181,5 @@ public class RSAUtils {
         return resultDatas;
     }
 
-    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException {
-      /*  // 创建密钥对
-        Map<String, String> keys = RSAUtils.createKeys(1024);
-        // 从Map中获取密钥对
-        String publicKey = keys.get("publicKey");
-        String privateKey = keys.get("privateKey");
-        // 获取公钥
-        System.out.println("publicKey:"+publicKey);
-        // 获取私钥
-        System.out.println("privateKey:"+privateKey);*/
-
-        RSAUtils rsa = new RSAUtils();
-        // 后端获取私钥
-        String myPublicKey = rsa.myPublicKey;
-        RSAPublicKey privateKey = getPublicKey(myPublicKey);
-        publicEncrypt("123456",privateKey);
-        System.out.println(publicEncrypt("123456",privateKey));
-
-    }
-
 }
 
