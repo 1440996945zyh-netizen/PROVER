@@ -25,12 +25,9 @@ public class HomeDTO extends BasePO {
     private Long id;
 
 
-    @JsonFormat(timezone="GMT+8",pattern="yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date startTime;
-    @JsonFormat(timezone="GMT+8",pattern="yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date endTime;
+    private String startTime;
+
+    private String endTime;
     private Integer tbs;
     private Integer jxz;
     private Integer ywc;

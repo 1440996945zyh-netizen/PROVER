@@ -122,9 +122,9 @@
         NVL(t.ywc, 0) AS ywc
         FROM (
         SELECT
-        TO_CHAR(CAST(#{startTime} AS DATE) + LEVEL - 1, 'yyyy-MM-dd') AS createDate
+        TO_CHAR(TO_DATE(#{startTime}, 'yyyy-MM-dd') + LEVEL - 1, 'yyyy-MM-dd') AS createDate
         FROM DUAL
-        CONNECT BY LEVEL &lt;= CAST(#{endTime} AS DATE) - CAST(#{startTime} AS DATE) + 1
+        CONNECT BY LEVEL &lt;= TO_DATE(#{endTime}, 'yyyy-MM-dd') - TO_DATE(#{startTime}, 'yyyy-MM-dd') + 1
         ) day_list
         LEFT JOIN (
         SELECT
@@ -134,11 +134,11 @@
         SUM(CASE WHEN STATUS = 5 THEN 1 ELSE 0 END) AS ywc
         FROM E_MAINT_INFO
         WHERE DEL_FLAG = 0
-        AND TO_CHAR(CREATE_TIME, 'yyyy-MM-dd') >= TO_CHAR(#{startTime}, 'yyyy-MM-dd')
-        AND TO_CHAR(CREATE_TIME, 'yyyy-MM-dd') &lt;= TO_CHAR(#{endTime}, 'yyyy-MM-dd')
-          <if test="id != null">
-              AND(MAINT_LEADER_ID= #{id} or DISPATCHER_ID= #{id} or CREATE_BY= #{id} or ACCEPTER_ID= #{id})
-          </if>
+        AND CREATE_TIME >= TO_DATE(#{startTime} || ' 00:00:00', 'yyyy-MM-dd hh24:mi:ss')
+        AND CREATE_TIME &lt;= TO_DATE(#{endTime} || ' 23:59:59', 'yyyy-MM-dd hh24:mi:ss')
+        <if test="id != null">
+            AND(MAINT_LEADER_ID= #{id} or DISPATCHER_ID= #{id} or CREATE_BY= #{id} or ACCEPTER_ID= #{id})
+        </if>
         GROUP BY TO_CHAR(CREATE_TIME, 'yyyy-MM-dd')
         ) t ON day_list.createDate = t.createDate
         ORDER BY day_list.createDate ASC
