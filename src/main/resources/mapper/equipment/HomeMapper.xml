@@ -134,8 +134,8 @@
         SUM(CASE WHEN STATUS = 5 THEN 1 ELSE 0 END) AS ywc
         FROM E_MAINT_INFO
         WHERE DEL_FLAG = 0
-        AND CREATE_TIME >= #{startTime}
-        AND CREATE_TIME &lt;= #{endTime}
+        AND TO_CHAR(CREATE_TIME, 'yyyy-MM-dd') >= TO_CHAR(#{startTime}, 'yyyy-MM-dd')
+        AND TO_CHAR(CREATE_TIME, 'yyyy-MM-dd') &lt;= TO_CHAR(#{endTime}, 'yyyy-MM-dd')
           <if test="id != null">
               AND(MAINT_LEADER_ID= #{id} or DISPATCHER_ID= #{id} or CREATE_BY= #{id} or ACCEPTER_ID= #{id})
           </if>

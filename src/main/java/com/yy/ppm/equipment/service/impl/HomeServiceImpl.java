@@ -104,7 +104,9 @@ public class HomeServiceImpl implements HomeService {
     public List<HomeDTO> getMainInfo(HomeDTO homeDTO) {
 
 
-        homeDTO.setId(securityUtils.getUserInfo().getId());
+        //用户id
+        Long userId = securityUtils.getUserInfo().getIsSuperadmin().equals("1")?null:securityUtils.getUserInfo().getId();
+        homeDTO.setId(userId);
         List<HomeDTO> homeDTOList= homeMapper.getMainInfo(homeDTO);
 
         if (!CollectionUtils.isEmpty(homeDTOList)){
