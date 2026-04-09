@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.system.mapper.SysNotificationMapper">
+
+    <insert id="insert" parameterType="com.yy.ppm.system.bean.po.SysNotificationPO">
+        INSERT INTO SYS_NOTIFICATION (
+            ID, TITLE, CONTENT, RECEIVER_ID, CREATE_TIME
+        ) VALUES (
+            #{id,jdbcType=NUMERIC},
+            #{title,jdbcType=VARCHAR},
+            #{content,jdbcType=VARCHAR},
+            #{receiverId,jdbcType=VARCHAR},
+            #{createTime,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <select id="getList" resultType="com.yy.ppm.system.bean.dto.SysNotificationDTO">
+        SELECT * FROM (
+            SELECT
+                ID,
+                TITLE,
+                CONTENT,
+                RECEIVER_ID,
+                CREATE_TIME
+            FROM SYS_NOTIFICATION
+            <where>
+                <if test="receiverId != null">
+                    AND ',' || RECEIVER_ID || ',' LIKE '%,' || #{receiverId} || ',%'
+                </if>
+            </where>
+            ORDER BY CREATE_TIME DESC
+        ) WHERE ROWNUM &lt;= #{limit}
+    </select>
+
+    <select id="countByReceiverId" resultType="int">
+        SELECT COUNT(1)
+        FROM SYS_NOTIFICATION
+        <where>
+            <if test="receiverId != null">
+                AND ',' || RECEIVER_ID || ',' LIKE '%,' || #{receiverId} || ',%'
+            </if>
+        </where>
+    </select>
+
+</mapper>

@@ -25,6 +25,7 @@ import com.yy.ppm.equipment.mapper.EMaintPartReplaceMapper;
 import com.yy.ppm.equipment.mapper.MEquipmentInfoMapper;
 import com.yy.ppm.equipment.service.EMaintInfoLogService;
 import com.yy.ppm.equipment.service.EMaintInfoService;
+import com.yy.ppm.system.service.SysNotificationService;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -83,6 +84,9 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
 
     @Autowired
     private CommonServiceImpl commonService;
+
+    @Resource
+    private SysNotificationService sysNotificationService;
 
     /**
      * 查询设备维修信息列表
@@ -266,6 +270,15 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
 
             maintInfoLogService.saveLog(id, po.getWorkOrderNo(), action,
                     null, po.getStatus(), po.getFaultDesc(), buildReportSnapshot(po, dto));
+
+            if (po.getDispatcherId() != null) {
+                String equipName = dto.getEquipName() != null ? dto.getEquipName() : "设备";
+                sysNotificationService.sendNotification(
+                        "新故障提报",
+                        equipName + "故障已提报，工单号：" + po.getWorkOrderNo() + "，请及时处理",
+                        java.util.Arrays.asList(po.getDispatcherId())
+                );
+            }
             return;
         }
 
@@ -457,6 +470,24 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
             latestDto.setItemList(partItemMapper.selectListByMaintInfoId(dto.getId()));
             maintInfoLogService.saveLog(dto.getId(), latestDto.getWorkOrderNo(), EMaintInfoLogActionEnum.DISPATCH,
                     existingDto.getStatus(), latestDto.getStatus(), null, buildDispatchSnapshot(latestDto));
+
+            if (dto.getMaintLeaderId() != null && !dto.getMaintLeaderId().isEmpty()) {
+                List<Long> leaderIds = new ArrayList<>();
+                String[] leaderIdArray = dto.getMaintLeaderId().split(",");
+                for (String leaderId : leaderIdArray) {
+                    if (leaderId != null && !leaderId.trim().isEmpty()) {
+                        leaderIds.add(Long.parseLong(leaderId.trim()));
+                    }
+                }
+                if (!leaderIds.isEmpty()) {
+                    String equipName = latestDto.getEquipName() != null ? latestDto.getEquipName() : "设备";
+                    sysNotificationService.sendNotification(
+                            "设备派工通知",
+                            equipName + "已派工给您处理，工单号：" + latestDto.getWorkOrderNo() + "，请及时维修",
+                            leaderIds
+                    );
+                }
+            }
         }
     }
 
@@ -627,6 +658,22 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
         maintInfoLogService.saveLog(id, dto.getWorkOrderNo(), EMaintInfoLogActionEnum.END_MAINT,
                 dto.getStatus(), 4, maintRemark,
                 buildEndMaintSnapshot(dto, maintEndTime, maintRemark, imageIds, savedPartReplaceList, hourFeedbackList));
+
+        List<Long> receiverIds = new ArrayList<>();
+        if (dto.getDispatcherId() != null) {
+            receiverIds.add(dto.getDispatcherId());
+        }
+        if (dto.getCreateBy() != null && !dto.getCreateBy().equals(dto.getDispatcherId())) {
+            receiverIds.add(dto.getCreateBy());
+        }
+        if (!receiverIds.isEmpty()) {
+            String equipName = dto.getEquipName() != null ? dto.getEquipName() : "设备";
+            sysNotificationService.sendNotification(
+                    "维修完成通知",
+                    equipName + "已完成维修，工单号：" + dto.getWorkOrderNo() + "，请进行验收",
+                    receiverIds
+            );
+        }
     }
 
     /**
@@ -699,6 +746,31 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
                 : buildAcceptRejectSnapshot(now, finalAcceptanceRemark, returnStatus);
         maintInfoLogService.saveLog(id, dto.getWorkOrderNo(), action, dto.getStatus(), toStatus,
                 finalAcceptanceRemark, snapshotJson);
+
+        if (isAccepted == 0) {
+            List<Long> rejectReceiverIds = new ArrayList<>();
+            if (returnStatus != null) {
+                if (returnStatus == 0 && dto.getDispatcherId() != null) {
+                    rejectReceiverIds.add(dto.getDispatcherId());
+                } else if ((returnStatus == 1 || returnStatus == 2) && dto.getMaintLeaderId() != null && !dto.getMaintLeaderId().isEmpty()) {
+                    String[] leaderIds = dto.getMaintLeaderId().split(",");
+                    for (String leaderId : leaderIds) {
+                        if (leaderId != null && !leaderId.trim().isEmpty()) {
+                            rejectReceiverIds.add(Long.parseLong(leaderId.trim()));
+                        }
+                    }
+                }
+            }
+            if (!rejectReceiverIds.isEmpty()) {
+                String equipName = dto.getEquipName() != null ? dto.getEquipName() : "设备";
+                String statusText = returnStatus == 0 ? "提报" : (returnStatus == 1 ? "已派工" : "维修中");
+                sysNotificationService.sendNotification(
+                        "验收不通过通知",
+                        equipName + "验收未通过，已退回到" + statusText + "状态，原因：" + finalAcceptanceRemark + "，请及时处理",
+                        rejectReceiverIds
+                );
+            }
+        }
     }
 
     private String buildReportSnapshot(EMaintInfoPO po, EMaintInfoDTO dto) {
