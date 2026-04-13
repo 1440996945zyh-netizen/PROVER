@@ -1,0 +1,257 @@
+#basic
+server:
+  port: 9800
+  servlet:
+    context-path: /dev-api
+
+#druid
+spring:
+  # 数据源配置（dynamic-datasource 多数据源）
+  datasource:
+    dynamic:
+      p6spy: false
+      primary: master
+      strict: true
+      datasource:
+        # 主数据源 - Oracle
+        master:
+          driver-class-name: oracle.jdbc.OracleDriver  # Oracle 驱动
+          username: SGEMS  # 替换为实际用户名
+          password: ems@2026  # 替换为实际密码
+          url: jdbc:oracle:thin:@//42.120.10.45:1521/ORCL  # 替换为实际连接串（格式：@主机:端口:SID）
+      # Druid 连接池配置
+      druid:
+        initialSize: 32
+        minIdle: 32
+        maxActive: 128
+        maxWait: 15000
+        timeBetweenEvictionRunsMillis: 3000
+        minEvictableIdleTimeMillis: 300000
+        maxEvictableIdleTimeMillis: 900000
+        filters: stat
+        validation-query: SELECT 1 FROM DUAL  # Oracle 健康检查语句（必须查 DUAL 表）
+        test-while-idle: true
+        test-on-borrow: false
+        test-on-return: false
+  # 数据库初始化配置
+  sql:
+    init:
+      mode: never
+      schema-locations: classpath:schema/schema-oracle.sql  # Oracle 建表脚本路径
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 120MB #单个文件最大大小
+      max-request-size: 500MB #上传数据总大小
+  application:
+    name: dev-api
+
+  quartz:
+    job-store-type: jdbc
+    # 全局启用或者关闭quartz
+    enabled: false
+    data-source: masterDataSource
+    jdbc:
+      initialize-schema: never # 若未创建qrtz_表，首次可改为always，创建后改回never
+    # 关闭项目时是否等待正在执行的任务完成（避免任务中断）
+    wait-for-jobs-to-complete-on-shutdown: true
+    # 是否覆盖已存在的任务配置
+    overwrite-existing-jobs: true
+    properties:
+      org:
+        quartz:
+          # 2. 新增：配置Quartz数据源（masterDataSource）的连接信息（与你的master数据源一致）
+          dataSource:
+            masterDataSource:
+              driver: oracle.jdbc.OracleDriver # 与master的driver-class-name一致
+              URL: jdbc:oracle:thin:@//42.120.10.45:1521/ORCL # 与master的url一致
+              user: EMS   # 与master的username一致
+              password: ems@2026  # 与master的password一致
+              maxConnections: 30 # 数据源最大连接数（建议与Druid的maxActive匹配，你的Druid是128，这里可设30-50）
+          scheduler:
+            instanceName: BusinessScheduler
+            instanceId: AUTO
+          threadPool:
+            threadCount: 10
+            threadPriority: 5
+            class: org.quartz.simpl.SimpleThreadPool
+          jobStore:
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            useProperties: false
+            tablePrefix: qrtz_
+            isClustered: true
+            clusterCheckinInterval: 20000
+            #配置任务触发时的misfire策略（超过60s不再执行）
+            misfireThreshold: 60000
+            # 3. 保留：指定JobStore使用的数据源名称（必须与上方dataSource的key一致：masterDataSource）
+            dataSource: masterDataSource
+
+  data:
+    redis:
+      client-name: bdss-redis
+      database: 7
+      host: 127.0.0.1
+      password: admin123
+      port: 6379
+      timeout: 3000ms
+      lettuce:
+        shutdown-timeout: 2000ms
+        pool:
+          max-active: 8
+          max-idle: 4
+          min-idle: 1
+          max-wait: 200ms
+          time-between-eviction-runs-millis: 120000
+  rabbitmq:
+    producer:
+      virtual-host: yangyi-eport
+      host: 114.55.226.181
+      port: 5672
+      username: yangyi
+      password: "Rever168@"
+
+    # 消费者配置（支持连接多个RabbitMQ服务器）
+    consumers:
+      - server-id: rabbit-server-1  # 第一台服务器唯一标识
+        virtual-host: yangyi-eport
+        host: 114.55.226.181
+        port: 5672
+        username: yangyi
+        password: "Rever168@"
+        listener:
+          concurrency: 10
+          max-concurrency: 20
+          acknowledge-mode: manual  # 手动确认模式（必填）
+
+        exchanges: # 该服务器下的交换机配置
+          - name: rabbitmq测试
+            type: direct  # 交换机类型（direct/topic/fanout/headers）
+
+        queues: # 该服务器下的队列配置
+          - name: 测试_queues
+            routing-key: exchange_cs
+            exchange: rabbitmq测试  # 关联的交换机名称
+            enabled: false  # 启用监听
+#mybatis-plus
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*Mapper.xml
+  typeAliasesPackage: com.yy.ppm.*.bean.* # 实体类别名扫描路径（保持不变）
+  configuration:
+    mapUnderscoreToCamelCase: true  # 下划线转驼峰（保持不变）
+    call-setters-on-nulls: true  # 空值返回字段（保持不变）
+    jdbc-type-for-null: 'null'  # 空值的 JDBC 类型（保持不变）
+
+#cros
+cros:
+  config:
+    pathPattern: /**
+    origins: '*'
+    allowMethods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - OPTIONS
+    exposedHeaders:
+      - token
+      - content-disposition
+    allowHeaders:
+      - token
+      - content-disposition
+      - x-requested-with
+    maxAge: 86400
+    allowCredentials: true
+
+# Swagger配置 add by yy
+swagger:
+  # 是否开启swagger
+  enabled: true
+  # 请求前缀
+  pathMapping: /dev-api
+  # 项目相关配置
+  project:
+    # 名称
+    name: 济南扬奕Java开发平台V1.0
+    # 版本
+    version: 1.0.0
+    # 版权年份
+    copyrightYear: 2023
+    #作者
+    contact: 济南扬奕软件开发有限公司
+
+#扬奕云配置参数
+yy:
+  #token过期时间
+  token:
+    expires: 480
+  mqSwitch: 1
+  whiteList:
+    accounts:
+      - admin
+      - test
+      - wfkjgs511
+      - superme
+      - xielinqi
+      - bzhyanshi
+    urls:
+      - /api/internal/login
+      - /api/internal/loginApp
+      - /api/internal/loginApplet
+      - /api/internal/loginRunPlie
+      - /api/internal/sysVersion/getVersion
+      - /api/internal/sysVersion/downloadApp
+      - /api/internal/sysVersion/downloadMacApp
+      - /api/internal/sysVersion/downloadRunPileApp
+      # 测试定时任务接口
+      - /api/v1/internal/tSettingAdSearch/test
+#minio
+minio:
+  url: 127.0.0.1
+  port: 9000
+  accessKey: minioadmin
+  secretKey: minioadmin
+  connectTimeout: 30
+  writeTimeout: 30
+  readTimeout: 30
+  secure: false
+
+service:
+  url: localhost
+
+#snowflake 配置雪花算法的workId IP地址需要替换成服务器地址  在com.port.common.snowflake包中使用
+snowflake:
+  ipdz: {
+    "[192.168.75.134]": "1"
+  }
+
+#log
+logging:
+  level:
+    com.yy.ppm.mappers: debug
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,env,metrics
+  endpoint:
+    health:
+      show-details: always
+  health:
+    rabbit:
+      enabled: false
+
+#Dify配置
+dify:
+  url: http://114.215.173.72:10005/v1
+  key: app-oUrmwL25BFYxsjUm3AK65q5d
+
+#pagehelper
+pagehelper:
+  reasonable: true
+  #分页插件会自动检测当前的数据库链接，自动选择合适的分页方式
+  auto-dialect: true
+  #默认值为 false。设置为 true 时，允许在运行时根据多数据源自动识别对应方言的分页
+  auto-runtime-dialect: true
