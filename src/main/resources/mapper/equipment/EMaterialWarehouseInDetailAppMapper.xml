@@ -9,6 +9,7 @@
         SELECT
             ID,
             WAREHOUSE_IN_ID,
+            SORT_NUM,
             APPLICATION_ID,
             MATERIAL_ID,
             MATERIAL_NAME,
@@ -26,6 +27,7 @@
         SELECT
             ID,
             WAREHOUSE_IN_ID,
+            SORT_NUM,
             APPLICATION_ID,
             APPLICATION_DEPT_ID,
             APPLICATION_DEPT_NAME,
@@ -63,7 +65,7 @@
             E_MATERIAL_WAREHOUSE_IN_DETAIL
         WHERE
             WAREHOUSE_IN_ID = #{warehouseInId}
-        ORDER BY CREATE_TIME ASC
+        ORDER BY CREATE_TIME ASC, NVL(SORT_NUM, 999999) ASC, ID ASC
     </select>
 
     <!-- 批量新增物资入库明细 -->
@@ -72,6 +74,7 @@
         (
             ID,
             WAREHOUSE_IN_ID,
+            SORT_NUM,
             APPLICATION_ID,
             APPLICATION_DEPT_ID,
             APPLICATION_DEPT_NAME,
@@ -107,6 +110,7 @@
             SELECT
                 #{item.id,jdbcType=NUMERIC},
                 #{item.warehouseInId,jdbcType=NUMERIC},
+                #{item.sortNum,jdbcType=NUMERIC},
                 #{item.applicationId,jdbcType=NUMERIC},
                 #{item.applicationDeptId,jdbcType=NUMERIC},
                 #{item.applicationDeptName,jdbcType=VARCHAR},
@@ -147,6 +151,9 @@
         <set>
             <if test="applicationId != null">
                 APPLICATION_ID = #{applicationId,jdbcType=NUMERIC},
+            </if>
+            <if test="sortNum != null">
+                SORT_NUM = #{sortNum,jdbcType=NUMERIC},
             </if>
             <if test="applicationDeptId != null">
                 APPLICATION_DEPT_ID = #{applicationDeptId,jdbcType=NUMERIC},
@@ -327,6 +334,7 @@
         SELECT
             WID.ID,
             WID.WAREHOUSE_IN_ID,
+            WID.SORT_NUM,
             WID.APPLICATION_ID,
             WID.MATERIAL_ID,
             WID.MATERIAL_NAME,
@@ -342,7 +350,7 @@
             AND WI.WAREHOUSE_ID = #{warehouseId}
             AND WI.ACCEPTANCE_STATUS = 1
             AND WID.REMAINING_QUANTITY > 0
-        ORDER BY WID.CREATE_TIME ASC
+        ORDER BY WID.CREATE_TIME ASC, NVL(WID.SORT_NUM, 999999) ASC, WID.ID ASC
     </select>
 
     <!-- 批量更新入库明细的已出库数量和未出库数量 -->

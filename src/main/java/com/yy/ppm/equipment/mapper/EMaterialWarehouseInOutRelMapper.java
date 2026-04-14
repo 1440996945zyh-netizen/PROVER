@@ -4,6 +4,7 @@ import com.yy.framework.annotation.Edit;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 物资入库出库关系Mapper接口
@@ -37,5 +38,9 @@ public interface EMaterialWarehouseInOutRelMapper {
      * 根据出库明细ID查询关系列表
      */
     List<com.yy.ppm.equipment.bean.po.EMaterialWarehouseInOutRelPO> selectListByWarehouseOutDetailId(@Param("warehouseOutDetailId") Long warehouseOutDetailId);
+
+    List<Map<String, Object>> selectReservedQuantitiesByWarehouseOutIdAndMaterial(@Param("warehouseOutId") Long warehouseOutId,
+                                                                                  @Param("materialId") Long materialId,
+                                                                                  @Param("excludeWarehouseOutDetailId") Long excludeWarehouseOutDetailId);
 }
 

@@ -32,7 +32,9 @@ import jakarta.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -74,6 +76,39 @@ public class EMaterialWarehouseOutServiceImpl implements EMaterialWarehouseOutSe
     @Override
     public Pages<EMaterialWarehouseOutDTO> getList(EMaterialWarehouseOutSearchDTO searchDTO) {
         return PageHelperUtils.limit(searchDTO, () -> mapper.selectList(searchDTO));
+    }
+
+    private Map<Long, BigDecimal> buildReservedQuantityMap(EMaterialWarehouseOutDetailPO outDetailPO) {
+        Map<Long, BigDecimal> reservedQuantityMap = new HashMap<>();
+        if (outDetailPO.getWarehouseOutId() == null || outDetailPO.getMaterialId() == null) {
+            return reservedQuantityMap;
+        }
+
+        List<Map<String, Object>> reservedList = inOutRelMapper.selectReservedQuantitiesByWarehouseOutIdAndMaterial(
+                outDetailPO.getWarehouseOutId(), outDetailPO.getMaterialId(), outDetailPO.getId());
+        for (Map<String, Object> reserved : reservedList) {
+            Long warehouseInDetailId = toLong(reserved.get("warehouseInDetailId"));
+            BigDecimal reservedQuantity = toBigDecimal(reserved.get("reservedQuantity"));
+            if (warehouseInDetailId == null || reservedQuantity == null) {
+                continue;
+            }
+            reservedQuantityMap.put(warehouseInDetailId, reservedQuantity);
+        }
+        return reservedQuantityMap;
+    }
+
+    private Long toLong(Object value) {
+        return value instanceof Number ? ((Number) value).longValue() : null;
+    }
+
+    private BigDecimal toBigDecimal(Object value) {
+        if (value instanceof BigDecimal) {
+            return (BigDecimal) value;
+        }
+        if (value instanceof Number) {
+            return BigDecimal.valueOf(((Number) value).doubleValue());
+        }
+        return null;
     }
 
     /**
@@ -286,18 +321,18 @@ public class EMaterialWarehouseOutServiceImpl implements EMaterialWarehouseOutSe
         // 查询出库单状态，判断是否需要减少申请明细的已出库数量
         EMaterialWarehouseOutDTO warehouseOutDto = getById(warehouseOutId);
         boolean isConfirmed = warehouseOutDto != null && warehouseOutDto.getStatus() != null && warehouseOutDto.getStatus() == 1;
-        
+
         for (Long id : idsToDelete) {
             // 从现有明细列表中查找要删除的明细
             EMaterialWarehouseOutDetailDTO outDetail = existingDetails.stream()
                 .filter(d -> d.getId().equals(id))
                 .findFirst()
                 .orElse(null);
-            
+
             if (outDetail != null && outDetail.getWarehouseOutAppDetailId() != null && outDetail.getOutQuantity() != null && isConfirmed) {
                 // 减少申请明细的已出库数量（如果出库单已确认）
                 outApplicationDetailMapper.subtractOutQuantitySum(
-                    outDetail.getWarehouseOutAppDetailId(), 
+                    outDetail.getWarehouseOutAppDetailId(),
                     outDetail.getOutQuantity()
                 );
             }
@@ -331,24 +366,24 @@ public class EMaterialWarehouseOutServiceImpl implements EMaterialWarehouseOutSe
                     .filter(d -> d.getId().equals(detailPO.getId()))
                     .findFirst()
                     .orElse(null);
-                
+
                 if (existingDetail != null && existingDetail.getWarehouseOutAppDetailId() != null && isConfirmed) {
                     // 如果出库单已确认，需要先减少旧的已出库数量
                     if (existingDetail.getOutQuantity() != null) {
                         outApplicationDetailMapper.subtractOutQuantitySum(
-                            existingDetail.getWarehouseOutAppDetailId(), 
+                            existingDetail.getWarehouseOutAppDetailId(),
                             existingDetail.getOutQuantity()
                         );
                     }
                     // 然后增加新的已出库数量
                     if (detailPO.getOutQuantity() != null) {
                         outApplicationDetailMapper.addOutQuantitySum(
-                            existingDetail.getWarehouseOutAppDetailId(), 
+                            existingDetail.getWarehouseOutAppDetailId(),
                             detailPO.getOutQuantity()
                         );
                     }
                 }
-                
+
                 restoreInDetailQuantityByOutDetailId(detailPO.getId());
                 // 删除旧的关系记录
                 inOutRelMapper.deleteByWarehouseOutDetailId(detailPO.getId());
@@ -394,6 +429,7 @@ public class EMaterialWarehouseOutServiceImpl implements EMaterialWarehouseOutSe
                     String.format("物资【%s】库存不足，无法出库", outDetailPO.getMaterialName()));
         }
 
+        Map<Long, BigDecimal> reservedQuantityMap = buildReservedQuantityMap(outDetailPO);
         BigDecimal remainingOutQuantity = outDetailPO.getOutQuantity();
         List<EMaterialWarehouseInOutRelPO> relList = new ArrayList<>();
 
@@ -403,7 +439,11 @@ public class EMaterialWarehouseOutServiceImpl implements EMaterialWarehouseOutSe
                 break;
             }
 
-            BigDecimal availableQuantity = inDetail.getRemainingQuantity();
+            BigDecimal availableQuantity = (inDetail.getRemainingQuantity() != null ? inDetail.getRemainingQuantity() : BigDecimal.ZERO)
+                    .subtract(reservedQuantityMap.getOrDefault(inDetail.getId(), BigDecimal.ZERO));
+                if (availableQuantity.compareTo(BigDecimal.ZERO) <= 0) {
+                continue;
+            }
             BigDecimal allocateQuantity = remainingOutQuantity.min(availableQuantity);
 
             // 建立关系记录（但不更新入库明细数量）
@@ -460,16 +500,16 @@ public class EMaterialWarehouseOutServiceImpl implements EMaterialWarehouseOutSe
             // 更新入库明细的已出库数量和未出库数量
             BigDecimal newRemainingQuantity = (inDetail.getRemainingQuantity() != null ? inDetail.getRemainingQuantity() : BigDecimal.ZERO)
                     .subtract(rel.getQuantity());
-            
+
             // 校验库存不能减成负数
             if (newRemainingQuantity.compareTo(BigDecimal.ZERO) < 0) {
                 throw new BusinessRuntimeException(
-                        String.format("物资【%s】库存不足，无法确认出库。当前库存：%s，出库数量：%s", 
+                        String.format("物资【%s】库存不足，无法确认出库。当前库存：%s，出库数量：%s",
                                 outDetailPO.getMaterialName() != null ? outDetailPO.getMaterialName() : "未知",
                                 inDetail.getRemainingQuantity() != null ? inDetail.getRemainingQuantity() : BigDecimal.ZERO,
                                 rel.getQuantity()));
             }
-            
+
             EMaterialWarehouseInDetailPO updateInDetailPO = new EMaterialWarehouseInDetailPO();
             updateInDetailPO.setId(inDetail.getId());
             updateInDetailPO.setOutQuantity(
@@ -570,7 +610,7 @@ public class EMaterialWarehouseOutServiceImpl implements EMaterialWarehouseOutSe
         if (dto.getStatus() != null && dto.getStatus() == 1) {
             throw new BusinessRuntimeException("已确认的出库单不能删除");
         }
-        
+
         // 未确认的出库单：只删除关系记录，不恢复入库明细数量（因为新增时没有更新入库明细数量）
         List<EMaterialWarehouseOutDetailDTO> outDetailList = detailMapper.selectListByWarehouseOutId(id);
         List<Long> outDetailIds = outDetailList.stream()
@@ -599,10 +639,10 @@ public class EMaterialWarehouseOutServiceImpl implements EMaterialWarehouseOutSe
         if (dto.getStatus() != null && dto.getStatus() == 1) {
             throw new BusinessRuntimeException("该出库单已确认，无需重复确认");
         }
-        
+
         // 判断是否是盘点数据（通过checkId判断）
         boolean isCheckData = dto.getCheckId() != null;
-        
+
         // 确认时更新入库明细数量
         if (dto.getDetailList() != null && !dto.getDetailList().isEmpty()) {
             // 查询出库明细PO列表
@@ -611,32 +651,32 @@ public class EMaterialWarehouseOutServiceImpl implements EMaterialWarehouseOutSe
             for (EMaterialWarehouseOutDetailDTO detailDTO : detailList) {
                 EMaterialWarehouseOutDetailPO detailPO = new EMaterialWarehouseOutDetailPO();
                 BeanUtils.copyProperties(detailDTO, detailPO);
-                
+
                 if (isCheckData) {
                     // 盘点数据：使用盘点确认逻辑（建立关系并更新库存）
                     allocateInDetailsForCheck(dto.getWarehouseId(), detailPO);
                 } else {
                     // 非盘点数据：使用原有逻辑（关系已在新增时建立，只需更新数量）
                     allocateInDetails(dto.getWarehouseId(), detailPO);
-                    
+
                     // 更新申请明细的已出库数量
                     if (detailDTO.getWarehouseOutAppDetailId() != null && detailDTO.getOutQuantity() != null) {
                         outApplicationDetailMapper.addOutQuantitySum(
-                            detailDTO.getWarehouseOutAppDetailId(), 
+                            detailDTO.getWarehouseOutAppDetailId(),
                             detailDTO.getOutQuantity()
                         );
                     }
                 }
             }
         }
-        
+
         EMaterialWarehouseOutPO po = new EMaterialWarehouseOutPO();
         po.setId(id);
         po.setStatus(1); // 已确认
         po.setConfirmBy(securityUtils.getLoginUserId());
         po.setConfirmByName(securityUtils.getLoginUserName());
         po.setConfirmTime(new Date());
-        
+
         mapper.update(po);
     }
 

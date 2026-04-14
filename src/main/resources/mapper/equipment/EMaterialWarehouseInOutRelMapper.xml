@@ -88,5 +88,22 @@
         ORDER BY CREATE_TIME ASC
     </select>
 
+    <select id="selectReservedQuantitiesByWarehouseOutIdAndMaterial" resultType="java.util.HashMap">
+        SELECT
+            REL.WAREHOUSE_IN_DETAIL_ID AS "warehouseInDetailId",
+            NVL(SUM(REL.QUANTITY), 0) AS "reservedQuantity"
+        FROM
+            E_MAT_WAREHOUSE_IN_OUT_REL REL
+        INNER JOIN E_MAT_WAREHOUSE_OUT_DETAIL WOD ON REL.WAREHOUSE_OUT_DETAIL_ID = WOD.ID
+        WHERE
+            WOD.WAREHOUSE_OUT_ID = #{warehouseOutId}
+            AND WOD.MATERIAL_ID = #{materialId}
+            <if test="excludeWarehouseOutDetailId != null">
+                AND WOD.ID != #{excludeWarehouseOutDetailId}
+            </if>
+        GROUP BY
+            REL.WAREHOUSE_IN_DETAIL_ID
+    </select>
+
 </mapper>
 

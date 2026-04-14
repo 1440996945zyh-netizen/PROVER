@@ -30,6 +30,8 @@ public class EMaterialWarehouseInDetailPO extends BasePO implements Serializable
      */
     private Long warehouseInId;
 
+    private Integer sortNum;
+
     /**
      * 物资申报明细ID（关联E_MATERIAL_APPLICATION_DETAIL表）
      */

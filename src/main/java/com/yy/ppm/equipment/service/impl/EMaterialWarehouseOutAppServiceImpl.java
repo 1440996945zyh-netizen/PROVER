@@ -28,7 +28,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -70,6 +72,39 @@ public class EMaterialWarehouseOutAppServiceImpl implements EMaterialWarehouseOu
     @Override
     public Pages<EMaterialWarehouseOutDTO> getList(EMaterialWarehouseOutSearchDTO searchDTO) {
         return PageHelperUtils.limit(searchDTO, () -> mapper.selectList(searchDTO));
+    }
+
+    private Map<Long, BigDecimal> buildReservedQuantityMap(EMaterialWarehouseOutDetailPO outDetailPO) {
+        Map<Long, BigDecimal> reservedQuantityMap = new HashMap<>();
+        if (outDetailPO.getWarehouseOutId() == null || outDetailPO.getMaterialId() == null) {
+            return reservedQuantityMap;
+        }
+
+        List<Map<String, Object>> reservedList = inOutRelMapper.selectReservedQuantitiesByWarehouseOutIdAndMaterial(
+                outDetailPO.getWarehouseOutId(), outDetailPO.getMaterialId(), outDetailPO.getId());
+        for (Map<String, Object> reserved : reservedList) {
+            Long warehouseInDetailId = toLong(reserved.get("warehouseInDetailId"));
+            BigDecimal reservedQuantity = toBigDecimal(reserved.get("reservedQuantity"));
+            if (warehouseInDetailId == null || reservedQuantity == null) {
+                continue;
+            }
+            reservedQuantityMap.put(warehouseInDetailId, reservedQuantity);
+        }
+        return reservedQuantityMap;
+    }
+
+    private Long toLong(Object value) {
+        return value instanceof Number ? ((Number) value).longValue() : null;
+    }
+
+    private BigDecimal toBigDecimal(Object value) {
+        if (value instanceof BigDecimal) {
+            return (BigDecimal) value;
+        }
+        if (value instanceof Number) {
+            return BigDecimal.valueOf(((Number) value).doubleValue());
+        }
+        return null;
     }
 
     /**
@@ -390,6 +425,7 @@ public class EMaterialWarehouseOutAppServiceImpl implements EMaterialWarehouseOu
                     String.format("物资【%s】库存不足，无法出库", outDetailPO.getMaterialName()));
         }
 
+        Map<Long, BigDecimal> reservedQuantityMap = buildReservedQuantityMap(outDetailPO);
         BigDecimal remainingOutQuantity = outDetailPO.getOutQuantity();
         List<EMaterialWarehouseInOutRelPO> relList = new ArrayList<>();
 
@@ -399,7 +435,11 @@ public class EMaterialWarehouseOutAppServiceImpl implements EMaterialWarehouseOu
                 break;
             }
 
-            BigDecimal availableQuantity = inDetail.getRemainingQuantity();
+            BigDecimal availableQuantity = (inDetail.getRemainingQuantity() != null ? inDetail.getRemainingQuantity() : BigDecimal.ZERO)
+                    .subtract(reservedQuantityMap.getOrDefault(inDetail.getId(), BigDecimal.ZERO));
+            if (availableQuantity.compareTo(BigDecimal.ZERO) <= 0) {
+                continue;
+            }
             BigDecimal allocateQuantity = remainingOutQuantity.min(availableQuantity);
 
             // 建立关系记录（但不更新入库明细数量）

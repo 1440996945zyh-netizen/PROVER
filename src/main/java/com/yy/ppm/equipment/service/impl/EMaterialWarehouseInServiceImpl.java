@@ -141,11 +141,13 @@ public class EMaterialWarehouseInServiceImpl implements EMaterialWarehouseInServ
                 // 验证入库数量
                 validateWarehouseInQuantity(dto.getDetailList(), null);
                 List<EMaterialWarehouseInDetailPO> detailPOList = new ArrayList<>();
+                int sortNum = 1;
                 for (EMaterialWarehouseInDetailDTO detailDTO : dto.getDetailList()) {
                     EMaterialWarehouseInDetailPO detailPO = new EMaterialWarehouseInDetailPO();
                     BeanUtils.copyProperties(detailDTO, detailPO);
                     detailPO.setId(snowflake.nextId());
                     detailPO.setWarehouseInId(po.getId());
+                    detailPO.setSortNum(sortNum++);
                     // 如果unitCode为空，根据materialId查询物资代码获取unitCode
                     if ((detailPO.getUnitCode() == null || detailPO.getUnitCode().trim().isEmpty()) && detailPO.getMaterialId() != null) {
                         com.yy.ppm.equipment.bean.dto.EMaterialCodeDTO materialCode = materialCodeMapper.selectById(detailPO.getMaterialId());
@@ -183,6 +185,7 @@ public class EMaterialWarehouseInServiceImpl implements EMaterialWarehouseInServ
                 // 验证入库数量
                 validateWarehouseInQuantity(dto.getDetailList(), po.getId());
                 List<EMaterialWarehouseInDetailPO> detailPOList = new ArrayList<>();
+                int sortNum = 1;
                 for (EMaterialWarehouseInDetailDTO detailDTO : dto.getDetailList()) {
                     EMaterialWarehouseInDetailPO detailPO = new EMaterialWarehouseInDetailPO();
                     BeanUtils.copyProperties(detailDTO, detailPO);
@@ -191,6 +194,7 @@ public class EMaterialWarehouseInServiceImpl implements EMaterialWarehouseInServ
                         detailPO.setId(snowflake.nextId());
                     }
                     detailPO.setWarehouseInId(po.getId());
+                    detailPO.setSortNum(sortNum++);
                     // 如果规格描述为空，从申请单明细中获取
                     if ((detailPO.getSpecificationDesc() == null || detailPO.getSpecificationDesc().trim().isEmpty())
                             && detailPO.getApplicationId() != null) {
