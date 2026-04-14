@@ -1,46 +1,46 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yy.ppm.equipment.mapper.EMaterialCodeMapper">
 
     <!-- 查询物资代码列表 -->
     <select id="selectList" resultType="com.yy.ppm.equipment.bean.dto.EMaterialCodeDTO">
         SELECT
-           e.ID,
-           e.CATEGORY_ID,
-           e.MATERIAL_CODE,
-           e.MATERIAL_NAME,
-           e.PURCHASE_TYPE_CODE,
-           e.PURCHASE_TYPE_NAME,
-           e.SPECIFICATION_MODEL,
-           e.BRAND,
-           e.UNIT_CODE,
-           e.UNIT_NAME,
-           e.MNEMONIC_CODE,
-           e.STATUS,
-           e.CREATE_BY,
-           e.CREATE_BY_NAME,
-           e.CREATE_TIME,
-           e.UPDATE_BY,
-           e.UPDATE_BY_NAME,
-           e.UPDATE_TIME,
-           e.DEL_FLAG,
-           e.DELETE_BY,
-           e.DELETE_BY_NAME,
-           e.DELETE_TIME,
-           c.CATEGORY_NAME,
-           CASE 
-               WHEN c3.CATEGORY_NAME IS NOT NULL AND c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL 
-                   THEN c3.CATEGORY_NAME || '/' || c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
-               WHEN c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL 
-                   THEN c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
-               WHEN c.CATEGORY_NAME IS NOT NULL 
-                   THEN c.CATEGORY_NAME
-               ELSE ''
-           END AS CATEGORY_PATH
+        e.ID,
+        e.CATEGORY_ID,
+        e.MATERIAL_CODE,
+        e.MATERIAL_NAME,
+        e.PURCHASE_TYPE_CODE,
+        e.PURCHASE_TYPE_NAME,
+        e.SPECIFICATION_MODEL,
+        e.BRAND,
+        e.UNIT_CODE,
+        e.UNIT_NAME,
+        e.MNEMONIC_CODE,
+        e.STATUS,
+        e.CREATE_BY,
+        e.CREATE_BY_NAME,
+        e.CREATE_TIME,
+        e.UPDATE_BY,
+        e.UPDATE_BY_NAME,
+        e.UPDATE_TIME,
+        e.DEL_FLAG,
+        e.DELETE_BY,
+        e.DELETE_BY_NAME,
+        e.DELETE_TIME,
+        c.CATEGORY_NAME,
+        CASE
+        WHEN c3.CATEGORY_NAME IS NOT NULL AND c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL
+        THEN c3.CATEGORY_NAME || '/' || c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
+        WHEN c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL
+        THEN c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
+        WHEN c.CATEGORY_NAME IS NOT NULL
+        THEN c.CATEGORY_NAME
+        ELSE ''
+        END AS CATEGORY_PATH
         FROM
-            E_MATERIAL_CODE e
+        E_MATERIAL_CODE e
         LEFT JOIN E_MATERIAL_CATEGORY c ON e.CATEGORY_ID = c.ID AND c.DEL_FLAG = 0
         LEFT JOIN E_MATERIAL_CATEGORY c2 ON c.PARENT_ID = c2.ID AND c2.DEL_FLAG = 0
         LEFT JOIN E_MATERIAL_CATEGORY c3 ON c2.PARENT_ID = c3.ID AND c3.DEL_FLAG = 0
@@ -56,6 +56,9 @@
             <if test="materialName != null and materialName != ''">
                 <bind name="materialNamePattern" value="'%' + materialName + '%'"/>
                 AND e.MATERIAL_NAME LIKE #{materialNamePattern}
+            </if>
+            <if test="categoryLevel != null">
+                AND c.CATEGORY_LEVEL = #{categoryLevel}
             </if>
         </where>
         ORDER BY e.CREATE_TIME DESC
@@ -87,23 +90,23 @@
             E_MATERIAL_CODE.DELETE_BY_NAME,
             E_MATERIAL_CODE.DELETE_TIME,
             c.CATEGORY_NAME,
-            CASE 
-                WHEN c3.CATEGORY_NAME IS NOT NULL AND c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL 
+            CASE
+                WHEN c3.CATEGORY_NAME IS NOT NULL AND c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL
                     THEN c3.CATEGORY_NAME || '/' || c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
-                WHEN c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL 
+                WHEN c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL
                     THEN c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
-                WHEN c.CATEGORY_NAME IS NOT NULL 
+                WHEN c.CATEGORY_NAME IS NOT NULL
                     THEN c.CATEGORY_NAME
                 ELSE ''
-            END AS CATEGORY_PATH
+                END AS CATEGORY_PATH
         FROM
             E_MATERIAL_CODE
-        LEFT JOIN E_MATERIAL_CATEGORY c ON E_MATERIAL_CODE.CATEGORY_ID = c.ID AND c.DEL_FLAG = 0
-        LEFT JOIN E_MATERIAL_CATEGORY c2 ON c.PARENT_ID = c2.ID AND c2.DEL_FLAG = 0
-        LEFT JOIN E_MATERIAL_CATEGORY c3 ON c2.PARENT_ID = c3.ID AND c3.DEL_FLAG = 0
+                LEFT JOIN E_MATERIAL_CATEGORY c ON E_MATERIAL_CODE.CATEGORY_ID = c.ID AND c.DEL_FLAG = 0
+                LEFT JOIN E_MATERIAL_CATEGORY c2 ON c.PARENT_ID = c2.ID AND c2.DEL_FLAG = 0
+                LEFT JOIN E_MATERIAL_CATEGORY c3 ON c2.PARENT_ID = c3.ID AND c3.DEL_FLAG = 0
         WHERE
             E_MATERIAL_CODE.ID = #{id}
-            AND E_MATERIAL_CODE.DEL_FLAG = 0
+          AND E_MATERIAL_CODE.DEL_FLAG = 0
     </select>
 
     <!-- 新增物资代码 -->
@@ -128,24 +131,24 @@
             DEL_FLAG
         )
         VALUES
-        (
-            #{id,jdbcType=NUMERIC},
-            #{categoryId,jdbcType=NUMERIC},
-            #{materialCode,jdbcType=VARCHAR},
-            #{materialName,jdbcType=VARCHAR},
-            #{purchaseTypeCode,jdbcType=VARCHAR},
-            #{purchaseTypeName,jdbcType=VARCHAR},
-            #{specificationModel,jdbcType=VARCHAR},
-            #{brand,jdbcType=VARCHAR},
-            #{unitCode,jdbcType=VARCHAR},
-            #{unitName,jdbcType=VARCHAR},
-            #{mnemonicCode,jdbcType=VARCHAR},
-            #{status,jdbcType=VARCHAR},
-            #{loginUserId,jdbcType=NUMERIC},
-            #{loginUserName,jdbcType=VARCHAR},
-            #{now,jdbcType=TIMESTAMP},
-            0
-        )
+            (
+                #{id,jdbcType=NUMERIC},
+                #{categoryId,jdbcType=NUMERIC},
+                #{materialCode,jdbcType=VARCHAR},
+                #{materialName,jdbcType=VARCHAR},
+                #{purchaseTypeCode,jdbcType=VARCHAR},
+                #{purchaseTypeName,jdbcType=VARCHAR},
+                #{specificationModel,jdbcType=VARCHAR},
+                #{brand,jdbcType=VARCHAR},
+                #{unitCode,jdbcType=VARCHAR},
+                #{unitName,jdbcType=VARCHAR},
+                #{mnemonicCode,jdbcType=VARCHAR},
+                #{status,jdbcType=VARCHAR},
+                #{loginUserId,jdbcType=NUMERIC},
+                #{loginUserName,jdbcType=VARCHAR},
+                #{now,jdbcType=TIMESTAMP},
+                0
+            )
     </insert>
 
     <!-- 修改物资代码 -->
@@ -196,7 +199,7 @@
             </if>
         </set>
         WHERE
-            ID = #{id}
+        ID = #{id}
     </update>
 
     <!-- 删除物资代码（逻辑删除） -->
@@ -225,36 +228,36 @@
     <!-- 查询所有物资代码（无分页，用于树结构） -->
     <select id="selectAllList" resultType="com.yy.ppm.equipment.bean.dto.EMaterialCodeDTO">
         SELECT
-           e.ID,
-           e.CATEGORY_ID,
-           e.MATERIAL_CODE,
-           e.MATERIAL_NAME,
-           e.PURCHASE_TYPE_CODE,
-           e.PURCHASE_TYPE_NAME,
-           e.SPECIFICATION_MODEL,
-           e.BRAND,
-           e.UNIT_CODE,
-           e.UNIT_NAME,
-           e.MNEMONIC_CODE,
-           e.STATUS,
-           c.CATEGORY_NAME,
-           CASE 
-               WHEN c3.CATEGORY_NAME IS NOT NULL AND c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL 
-                   THEN c3.CATEGORY_NAME || '/' || c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
-               WHEN c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL 
-                   THEN c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
-               WHEN c.CATEGORY_NAME IS NOT NULL 
-                   THEN c.CATEGORY_NAME
-               ELSE ''
-           END AS CATEGORY_PATH
+            e.ID,
+            e.CATEGORY_ID,
+            e.MATERIAL_CODE,
+            e.MATERIAL_NAME,
+            e.PURCHASE_TYPE_CODE,
+            e.PURCHASE_TYPE_NAME,
+            e.SPECIFICATION_MODEL,
+            e.BRAND,
+            e.UNIT_CODE,
+            e.UNIT_NAME,
+            e.MNEMONIC_CODE,
+            e.STATUS,
+            c.CATEGORY_NAME,
+            CASE
+                WHEN c3.CATEGORY_NAME IS NOT NULL AND c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL
+                    THEN c3.CATEGORY_NAME || '/' || c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
+                WHEN c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL
+                    THEN c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
+                WHEN c.CATEGORY_NAME IS NOT NULL
+                    THEN c.CATEGORY_NAME
+                ELSE ''
+                END AS CATEGORY_PATH
         FROM
             E_MATERIAL_CODE e
-        LEFT JOIN E_MATERIAL_CATEGORY c ON e.CATEGORY_ID = c.ID AND c.DEL_FLAG = 0
-        LEFT JOIN E_MATERIAL_CATEGORY c2 ON c.PARENT_ID = c2.ID AND c2.DEL_FLAG = 0
-        LEFT JOIN E_MATERIAL_CATEGORY c3 ON c2.PARENT_ID = c3.ID AND c3.DEL_FLAG = 0
+                LEFT JOIN E_MATERIAL_CATEGORY c ON e.CATEGORY_ID = c.ID AND c.DEL_FLAG = 0
+                LEFT JOIN E_MATERIAL_CATEGORY c2 ON c.PARENT_ID = c2.ID AND c2.DEL_FLAG = 0
+                LEFT JOIN E_MATERIAL_CATEGORY c3 ON c2.PARENT_ID = c3.ID AND c3.DEL_FLAG = 0
         WHERE
             e.DEL_FLAG = 0
-            AND e.STATUS = '0'
+          AND e.STATUS = '0'
         ORDER BY c.ID, e.MATERIAL_NAME
     </select>
 
@@ -269,22 +272,22 @@
             c.IS_LABOR_PROTECTION,
             c.CATEGORY_LEVEL,
             c2.CATEGORY_NAME AS PARENT_NAME,
-            CASE 
-                WHEN c3.CATEGORY_NAME IS NOT NULL AND c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL 
+            CASE
+                WHEN c3.CATEGORY_NAME IS NOT NULL AND c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL
                     THEN c3.CATEGORY_NAME || '/' || c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
-                WHEN c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL 
+                WHEN c2.CATEGORY_NAME IS NOT NULL AND c.CATEGORY_NAME IS NOT NULL
                     THEN c2.CATEGORY_NAME || '/' || c.CATEGORY_NAME
-                WHEN c.CATEGORY_NAME IS NOT NULL 
+                WHEN c.CATEGORY_NAME IS NOT NULL
                     THEN c.CATEGORY_NAME
                 ELSE ''
-            END AS CATEGORY_PATH
+                END AS CATEGORY_PATH
         FROM
             E_MATERIAL_CATEGORY c
-        LEFT JOIN E_MATERIAL_CATEGORY c2 ON c.PARENT_ID = c2.ID AND c2.DEL_FLAG = 0
-        LEFT JOIN E_MATERIAL_CATEGORY c3 ON c2.PARENT_ID = c3.ID AND c3.DEL_FLAG = 0
+                LEFT JOIN E_MATERIAL_CATEGORY c2 ON c.PARENT_ID = c2.ID AND c2.DEL_FLAG = 0
+                LEFT JOIN E_MATERIAL_CATEGORY c3 ON c2.PARENT_ID = c3.ID AND c3.DEL_FLAG = 0
         WHERE
             c.DEL_FLAG = 0
-            AND c.CATEGORY_LEVEL = 3
+          AND c.CATEGORY_LEVEL = 3
         ORDER BY c.SORT_ORDER, c.CATEGORY_NAME
     </select>
 

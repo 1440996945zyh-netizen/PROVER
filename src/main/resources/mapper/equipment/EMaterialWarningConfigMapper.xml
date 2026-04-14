@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yy.ppm.equipment.mapper.EMaterialWarningConfigMapper">
 
 
@@ -9,26 +9,42 @@
     <!-- 查询物资预警配置列表（分页） -->
     <select id="selectList" resultType="com.yy.ppm.equipment.bean.dto.EMaterialWarningConfigDTO">
         SELECT
-            T1.ID,
-            T1.MATERIAL_ID,
-            T1.WARNING_THRESHOLD,
-            T1.RECEIVERS,
-            T1.RECEIVER_NAMES,
-            T1.STATUS,
-            DECODE(T1.STATUS, '1', '启用', '0', '禁用', '') AS statusLabel,
-            T1.CREATE_BY,
-            T1.CREATE_TIME,
-            T1.UPDATE_BY,
-            T1.UPDATE_TIME,
-            T2.MATERIAL_NAME,
-            T2.SPECIFICATION_MODEL,
-            T2.BRAND,
-            T2.UNIT_NAME,
-            S1.USER_NAME AS createByName
+        T1.ID,
+        T1.MATERIAL_ID,
+        T1.WARNING_THRESHOLD,
+        T1.RECEIVERS,
+        T1.RECEIVER_NAMES,
+        T1.STATUS,
+        DECODE(T1.STATUS, '1', '启用', '0', '禁用', '') AS statusLabel,
+        T1.CREATE_BY,
+        T1.CREATE_TIME,
+        T1.UPDATE_BY,
+        T1.UPDATE_TIME,
+        T2.MATERIAL_NAME,
+        T3.CATEGORY_NAME AS MATERIAL_TYPE,
+        T2.SPECIFICATION_MODEL,
+        T2.BRAND,
+        T2.UNIT_NAME,
+        S1.USER_NAME AS createByName
         FROM
-            E_MATERIAL_WARNING_CONFIG T1
+        E_MATERIAL_WARNING_CONFIG T1
         LEFT JOIN E_MATERIAL_CODE T2 ON T1.MATERIAL_ID = T2.ID
+        LEFT JOIN E_MATERIAL_CATEGORY T3 ON T2.CATEGORY_ID = T3.ID
         LEFT JOIN SYS_USER S1 ON T1.CREATE_BY = S1.ID
+        <where>
+            1 = 1
+            <if test="materialName != null and materialName != ''">
+                <bind name="materialNamePattern" value="'%' + materialName + '%'"/>
+                AND T2.MATERIAL_NAME LIKE #{materialNamePattern}
+            </if>
+            <if test="status != null and status != ''">
+                AND T1.STATUS = #{status}
+            </if>
+            <if test="categoryId != null">
+                AND T2.CATEGORY_ID = #{categoryId}
+            </if>
+        </where>
+        ORDER BY T1.CREATE_TIME DESC
     </select>
     <!-- 根据主键ID查询详情 -->
     <select id="selectById" resultType="com.yy.ppm.equipment.bean.dto.EMaterialWarningConfigDTO">
@@ -44,12 +60,14 @@
             T1.UPDATE_BY,
             T1.UPDATE_TIME,
             T2.MATERIAL_NAME,
+            T3.CATEGORY_NAME AS MATERIAL_TYPE,
             T2.SPECIFICATION_MODEL,
             T2.BRAND,
             T2.UNIT_NAME
         FROM
             E_MATERIAL_WARNING_CONFIG T1
-        LEFT JOIN E_MATERIAL_CODE T2 ON T1.MATERIAL_ID = T2.ID
+                LEFT JOIN E_MATERIAL_CODE T2 ON T1.MATERIAL_ID = T2.ID
+                LEFT JOIN E_MATERIAL_CATEGORY T3 ON T2.CATEGORY_ID = T3.ID
         WHERE
             T1.ID = #{id}
     </select>
@@ -109,6 +127,25 @@
         DELETE FROM E_MATERIAL_WARNING_CONFIG WHERE ID = #{id}
     </delete>
 
+    <!-- 批量删除物资预警配置 -->
+    <delete id="deleteBatch">
+        DELETE FROM E_MATERIAL_WARNING_CONFIG
+        WHERE ID IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 检查物资配置是否重复 -->
+    <select id="countByMaterialId" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM E_MATERIAL_WARNING_CONFIG
+        WHERE MATERIAL_ID = #{materialId}
+        <if test="id != null">
+            AND ID != #{id}
+        </if>
+    </select>
+
     <!-- 查启用中的预警配置 -->
     <select id="selectEnabledList" resultType="com.yy.ppm.equipment.bean.dto.EMaterialWarningConfigDTO">
         SELECT
@@ -124,4 +161,3 @@
         WHERE T1.STATUS = '1'
     </select>
 </mapper>
-

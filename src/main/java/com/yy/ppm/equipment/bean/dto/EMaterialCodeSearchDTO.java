@@ -30,5 +30,10 @@ public class EMaterialCodeSearchDTO extends PageParameter implements Serializabl
      * 物资名称
      */
     private String materialName;
+
+    /**
+     * 物资类别级别
+     */
+    private Integer categoryLevel;
 }
 

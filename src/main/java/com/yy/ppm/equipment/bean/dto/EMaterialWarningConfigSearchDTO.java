@@ -17,6 +17,18 @@ public class EMaterialWarningConfigSearchDTO extends PageParameter implements Se
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 物资名称
+     */
+    private String materialName;
 
+    /**
+     * 状态 1-启用 0-禁用
+     */
+    private String status;
+
+    /**
+     * 物资类别ID（三级类别）
+     */
+    private Long categoryId;
 }
-

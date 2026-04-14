@@ -8,6 +8,8 @@ import com.yy.ppm.equipment.bean.dto.EMaterialWarningConfigSearchDTO;
 import com.yy.ppm.equipment.bean.po.EMaterialWarningConfigPO;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 /**
  * @author FanQi
  * @version 1.0
@@ -62,6 +64,22 @@ public interface EMaterialWarningConfigMapper {
     @Edit
     void delete(@Param("id") Long id);
 
+    /**
+     * 批量删除物资预警配置
+     *
+     * @param ids 主键ID集合
+     */
+    @Edit
+    void deleteBatch(@Param("ids") List<Long> ids);
+
+    /**
+     * 按物资检查配置是否重复
+     *
+     * @param materialId 物资ID
+     * @param id 当前主键ID
+     * @return 数量
+     */
+    Integer countByMaterialId(@Param("materialId") Long materialId, @Param("id") Long id);
 
     /**
      * 查启用中的预警配置

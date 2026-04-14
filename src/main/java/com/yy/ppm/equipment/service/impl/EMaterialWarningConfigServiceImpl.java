@@ -4,6 +4,8 @@ import cn.hutool.core.lang.Snowflake;
 import com.yy.common.log.MicroLogger;
 import com.yy.common.page.Pages;
 import com.yy.common.util.PageHelperUtils;
+import com.yy.framework.exception.BusinessRuntimeException;
+import com.yy.ppm.equipment.bean.dto.EMaterialWarningConfigBatchDTO;
 import com.yy.ppm.equipment.bean.dto.EMaterialWarningConfigDTO;
 import com.yy.ppm.equipment.bean.dto.EMaterialWarningConfigSearchDTO;
 import com.yy.ppm.equipment.bean.po.EMaterialWarningConfigPO;
@@ -19,7 +21,9 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author FanQi
@@ -30,7 +34,7 @@ import java.util.List;
 @Service
 public class EMaterialWarningConfigServiceImpl implements EMaterialWarningConfigService {
 
-   @Autowired
+    @Autowired
     private EMaterialWarningConfigMapper eMaterialWarningConfigMapper;
 
     @Autowired
@@ -69,11 +73,43 @@ public class EMaterialWarningConfigServiceImpl implements EMaterialWarningConfig
      */
     @Override
     public void save(EMaterialWarningConfigPO po) {
+        checkDuplicate(po.getMaterialId(), po.getId());
         if(null == po.getId()){
             po.setId(snowflake.nextId());
             eMaterialWarningConfigMapper.add(po);
         }else{
             eMaterialWarningConfigMapper.update(po);
+        }
+    }
+
+    /**
+     * 批量新增物资预警配置
+     *
+     * @param dto 请求参数
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
+    public void saveBatch(EMaterialWarningConfigBatchDTO dto) {
+        if (dto.getMaterialIds() == null || dto.getMaterialIds().isEmpty()) {
+            throw new BusinessRuntimeException("请选择物资");
+        }
+
+        // 去一下重，避免前端多选重复提交
+        Set<Long> materialIdSet = new LinkedHashSet<>(dto.getMaterialIds());
+        for (Long materialId : materialIdSet) {
+            if (materialId == null) {
+                continue;
+            }
+            checkDuplicate(materialId, null);
+
+            EMaterialWarningConfigPO po = new EMaterialWarningConfigPO();
+            po.setId(snowflake.nextId());
+            po.setMaterialId(materialId);
+            po.setWarningThreshold(dto.getWarningThreshold());
+            po.setReceivers(dto.getReceivers());
+            po.setReceiverNames(dto.getReceiverNames());
+            po.setStatus(dto.getStatus());
+            eMaterialWarningConfigMapper.add(po);
         }
     }
 
@@ -92,6 +128,19 @@ public class EMaterialWarningConfigServiceImpl implements EMaterialWarningConfig
     @Override
     public void deleteById(Long id) {
         eMaterialWarningConfigMapper.delete(id);
+    }
+
+    /**
+     * 批量删除物资预警配置
+     *
+     * @param ids 主键ID集合
+     */
+    @Override
+    public void deleteBatch(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            throw new BusinessRuntimeException("请选择要删除的数据");
+        }
+        eMaterialWarningConfigMapper.deleteBatch(ids);
     }
 
 //    /**
@@ -153,5 +202,18 @@ public class EMaterialWarningConfigServiceImpl implements EMaterialWarningConfig
         }
 
         return count;
+    }
+
+    /**
+     * 一个物资只保留一条有效配置
+     */
+    private void checkDuplicate(Long materialId, Long id) {
+        if (materialId == null) {
+            throw new BusinessRuntimeException("请选择物资");
+        }
+        Integer count = eMaterialWarningConfigMapper.countByMaterialId(materialId, id);
+        if (count != null && count > 0) {
+            throw new BusinessRuntimeException("该物资已存在预警配置，请勿重复新增");
+        }
     }
 }

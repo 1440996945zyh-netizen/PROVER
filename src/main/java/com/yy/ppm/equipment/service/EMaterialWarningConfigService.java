@@ -1,10 +1,12 @@
 package com.yy.ppm.equipment.service;
 
 import com.yy.common.page.Pages;
-import com.yy.ppm.equipment.bean.dto.EMaterialCodeDTO;
+import com.yy.ppm.equipment.bean.dto.EMaterialWarningConfigBatchDTO;
 import com.yy.ppm.equipment.bean.dto.EMaterialWarningConfigDTO;
 import com.yy.ppm.equipment.bean.dto.EMaterialWarningConfigSearchDTO;
 import com.yy.ppm.equipment.bean.po.EMaterialWarningConfigPO;
+
+import java.util.List;
 
 /**
  * @author FanQi
@@ -27,10 +29,16 @@ public interface EMaterialWarningConfigService {
 
     /**
      * 新增/修改资预警配置
-     * @param dto
+     * @param po
      */
     void save(EMaterialWarningConfigPO po);
 
+    /**
+     * 批量新增物资预警配置
+     *
+     * @param dto 请求参数
+     */
+    void saveBatch(EMaterialWarningConfigBatchDTO dto);
 
     /**
      * 修改状态
@@ -42,6 +50,13 @@ public interface EMaterialWarningConfigService {
      * @param id
      */
     void deleteById(Long id);
+
+    /**
+     * 批量删除物资预警配置
+     *
+     * @param ids 主键ID集合
+     */
+    void deleteBatch(List<Long> ids);
 
     /**
      * 生成预警消息

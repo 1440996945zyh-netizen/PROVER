@@ -3,8 +3,9 @@ package com.yy.ppm.equipment.controller;
 import com.yy.common.enums.Response;
 import com.yy.common.log.MicroLogger;
 import com.yy.common.page.Pages;
-import com.yy.ppm.equipment.bean.dto.*;
-
+import com.yy.ppm.equipment.bean.dto.EMaterialWarningConfigBatchDTO;
+import com.yy.ppm.equipment.bean.dto.EMaterialWarningConfigDTO;
+import com.yy.ppm.equipment.bean.dto.EMaterialWarningConfigSearchDTO;
 import com.yy.ppm.equipment.bean.po.EMaterialWarningConfigPO;
 import com.yy.ppm.equipment.service.EMaterialWarningConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,7 +42,7 @@ public class EMaterialWarningConfigController {
      */
     @PostMapping("/list")
     @PreAuthorize("hasAuthority('equipment:eMaterialWarningConfig:query')")
-    public Map<String, Object> getList(EMaterialWarningConfigSearchDTO searchDTO) {
+    public Map<String, Object> getList(@RequestBody EMaterialWarningConfigSearchDTO searchDTO) {
         final String methodName = "EMaterialWarningConfigController:getList";
         LOGGER.enter(methodName + "[start]", "searchDTO:" + searchDTO);
 
@@ -83,6 +85,21 @@ public class EMaterialWarningConfigController {
     }
 
     /**
+     * 批量新增物资预警配置
+     */
+    @PostMapping("/saveBatch")
+    @PreAuthorize("hasAuthority('equipment:eMaterialWarningConfig:save')")
+    public Map<String, Object> saveBatch(@RequestBody EMaterialWarningConfigBatchDTO dto) {
+        final String methodName = "EMaterialWarningConfigController:saveBatch";
+        LOGGER.enter(methodName + "[start]", "dto:" + dto);
+
+        eMaterialWarningConfigService.saveBatch(dto);
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("新增成功").toResult();
+    }
+
+    /**
      * 修改状态
      */
     @PostMapping("/updateStatus")
@@ -107,6 +124,21 @@ public class EMaterialWarningConfigController {
         LOGGER.enter(methodName + "[start]", "id:" + id);
 
         eMaterialWarningConfigService.deleteById(id);
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("删除成功").toResult();
+    }
+
+    /**
+     * 批量删除物资预警配置
+     */
+    @DeleteMapping("/deleteBatch")
+    @PreAuthorize("hasAuthority('equipment:eMaterialWarningConfig:delete')")
+    public Map<String, Object> deleteBatch(@RequestBody List<Long> ids) {
+        final String methodName = "EMaterialWarningConfigController:deleteBatch";
+        LOGGER.enter(methodName + "[start]", "ids:" + ids);
+
+        eMaterialWarningConfigService.deleteBatch(ids);
 
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("删除成功").toResult();

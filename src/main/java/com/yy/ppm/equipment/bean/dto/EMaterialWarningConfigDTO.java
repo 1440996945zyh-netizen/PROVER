@@ -1,11 +1,8 @@
 package com.yy.ppm.equipment.bean.dto;
 
-import com.yy.ppm.equipment.bean.po.ECostSettlementApplyPO;
 import com.yy.ppm.equipment.bean.po.EMaterialWarningConfigPO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import java.util.List;
 
 /**
  * @author FanQi
@@ -25,6 +22,11 @@ public class EMaterialWarningConfigDTO extends EMaterialWarningConfigPO {
      * 物资名称
      */
     private String materialName;
+
+    /**
+     * 物资类型
+     */
+    private String materialType;
 
     /**
      * 规格型号
