@@ -1,10 +1,10 @@
-image: maven:3-eclipse-temurin-17
+#image: maven:3-eclipse-temurin-17
 
 variables:
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
 #  GIT_CLEAN_FLAGS: none #解决长路径问题可以先放开，但是运行第二次的时候必须注释，否则不会更新代码
-  SONAR_HOST_URL: "\"http://114.55.226.181:9002\""
+  SONAR_HOST_URL: "http://114.55.226.181:9002"
   SONAR_PROJECT_KEY: "yy-framework_yy-framework-api_85325cdb-89a9-4d80-86d4-66be8c9c646d"         # 必须写你的项目key
   SONAR_TOKEN: "sqp_9ae93907f74c7ca4fcbede512e997c7f5ec2c279"
 
@@ -20,7 +20,6 @@ build-sonar:
     key: "sonar-cache-$CI_COMMIT_REF_SLUG"
     paths:
       - ".sonar/cache"
-      - sonar-scanner/
   script:
     - Remove-Item -Path ".sonar_lock", "target/sonar/.sonar_lock" -Force -ErrorAction SilentlyContinue
     - git clean -fdx  # 强制清理工作区
