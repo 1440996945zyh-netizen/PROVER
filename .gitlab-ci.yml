@@ -18,8 +18,8 @@ build-sonar:
       - ".sonar/cache"
   script:
     # 1. 读取 File 类型变量（核心！）
-    - $sonar_host = Get-Content $SONAR_HOST_URL
-    - $sonar_token = Get-Content $SONAR_TOKEN
+    - $sonar_host = "http://114.55.226.181:9002"
+    - $sonar_token = "sqp_9ae93907f74c7ca4fcbede512e997c7f5ec2c279"
 
     # 2. 清理锁文件 & 工作区
     - Remove-Item -Path ".sonar_lock", "target/sonar/.sonar_lock" -Force -ErrorAction SilentlyContinue
