@@ -15,7 +15,7 @@ build-sonar:
   script:
     - cd D:/gitlab-runner/builds/UUZGLxcD_/0/gitlab2/yy-framework/yy-framework-api
     # 最简单、最安全、Windows Runner 100% 不报错
-    - mvn clean verify sonar:sonar -Dsonar.host.url=%SONAR_HOST_URL% -Dsonar.projectKey=yy-framework_yy-framework-api -Dsonar.login=%SONAR_TOKEN% -Dsonar.java.binaries=target/classes
+    - mvn clean verify sonar:sonar -Dsonar.host.url=$env:SONAR_HOST_URL -Dsonar.projectKey=yy-framework_yy-framework-api -Dsonar.login=$env:SONAR_TOKEN -Dsonar.java.binaries=target/classes
 
   allow_failure: true
   rules:
