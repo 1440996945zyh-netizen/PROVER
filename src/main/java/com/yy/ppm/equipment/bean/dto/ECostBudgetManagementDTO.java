@@ -84,6 +84,8 @@ public class ECostBudgetManagementDTO extends BasePO implements Serializable {
     private String warningUserId;
     private String warningUserName;
 
+    private BigDecimal warningAmount;
+
     private Long useCompanyId;
     private String roleCode;
 

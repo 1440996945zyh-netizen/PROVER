@@ -19,7 +19,8 @@
         t.UPDATE_BY            AS updateBy,
         t.UPDATE_TIME          AS updateTime,
         t.WARNING_USER_ID,
-        t.WARNING_USER_NAME
+        t.WARNING_USER_NAME,
+        t.WARNING_AMOUNT
         FROM E_COST_BUDGET_MANAGEMENT t
         LEFT JOIN M_DICT_DATA d
         ON d.DICT_TYPE = 'EXPENSE_TYPE'
@@ -49,7 +50,8 @@
             t.UPDATE_BY             AS updateBy,
             t.UPDATE_TIME           AS updateTime,
             t.WARNING_USER_ID,
-            t.WARNING_USER_NAME
+            t.WARNING_USER_NAME,
+            t.WARNING_AMOUNT
         FROM E_COST_BUDGET_MANAGEMENT t
                  LEFT JOIN M_DICT_DATA d
                            ON d.DICT_TYPE = 'EXPENSE_TYPE'
@@ -68,6 +70,7 @@
             AMOUNT,
             WARNING_USER_ID,
             WARNING_USER_NAME,
+            WARNING_AMOUNT,
             CREATE_BY,
             CREATE_TIME,
             UPDATE_BY,
@@ -81,6 +84,7 @@
                      #{amount},
                       #{warningUserId},
                       #{warningUserName},
+                      #{warningAmount},
                      #{loginUserId},
                      #{now},
                      #{loginUserId},
