@@ -1,9 +1,7 @@
 #image: maven:3-eclipse-temurin-17
 
 variables:
-  GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
-#  GIT_CLEAN_FLAGS: none #解决长路径问题可以先放开，但是运行第二次的时候必须注释，否则不会更新代码
-
+  GIT_DEPTH: "0"
 
 stages:
   - build-sonar
@@ -16,11 +14,8 @@ build-sonar:
     paths:
       - ".sonar/cache"
   script:
-    # 直接读取 File 变量内容
     $sonar_host = Get-Content $env:sonar_host_url
     $sonar_token = Get-Content $env:sonar_token
-    
-    # 执行扫描（使用环境变量）
     mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.host.url=$sonar_host -Dsonar.projectKey=yy-framework_yy-framework-api -Dsonar.login=$sonar_token -Dsonar.java.binaries=target/classes
   allow_failure: true
   rules:
