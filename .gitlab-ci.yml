@@ -17,9 +17,6 @@ build-sonar:
     paths:
       - ".sonar/cache"
   script:
-    # 正确进入项目目录（最重要！）
-    - cd $CI_PROJECT_DIR\yy-framework-api
-
     # 直接读取 File 变量内容
     - $sonar_host = Get-Content $env:SONAR_HOST_URL
     - $sonar_token = Get-Content $env:SONAR_TOKEN
