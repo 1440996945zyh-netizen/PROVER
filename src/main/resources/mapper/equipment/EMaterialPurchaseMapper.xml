@@ -18,6 +18,8 @@
             t1.FIXED_SERVICE_CATEGORY_NAME,
             t1.TAX_INCLUDED_AMOUNT,
             t1.TAX_EXCLUDED_AMOUNT,
+            t1.USE_COMPANY_ID,
+            t1.USE_COMPANY_NAME,
             t1.PURCHASE_STATUS,
             t1.FAILURE_REASON,
             t1.APPROVAL_BY,
@@ -89,6 +91,8 @@
             t1.APPROVAL_BY_NAME,
             t1.APPROVAL_TIME,
             t1.APPROVAL_REMARK,
+            t1.USE_COMPANY_ID,
+            t1.USE_COMPANY_NAME,
             t1.CREATE_BY,
             t1.CREATE_BY_NAME,
             t1.CREATE_TIME,
@@ -122,6 +126,8 @@
             FIXED_SERVICE_CATEGORY_NAME,
             TAX_INCLUDED_AMOUNT,
             TAX_EXCLUDED_AMOUNT,
+            USE_COMPANY_ID,
+            USE_COMPANY_NAME,
             PURCHASE_STATUS,
             FAILURE_REASON,
             CREATE_BY,
@@ -141,6 +147,8 @@
             #{fixedServiceCategoryName,jdbcType=VARCHAR},
             #{taxIncludedAmount,jdbcType=NUMERIC},
             #{taxExcludedAmount,jdbcType=NUMERIC},
+            #{useCompanyId,jdbcType=NUMERIC},
+            #{useCompanyName,jdbcType=VARCHAR},
             #{purchaseStatus,jdbcType=NUMERIC},
             #{failureReason,jdbcType=VARCHAR},
             #{loginUserId,jdbcType=NUMERIC},
@@ -164,6 +172,12 @@
             </if>
             <if test="supplierName != null">
                 SUPPLIER_NAME = #{supplierName,jdbcType=VARCHAR},
+            </if>
+            <if test="useCompanyId != null">
+                USE_COMPANY_ID = #{useCompanyId,jdbcType=NUMERIC},
+            </if>
+            <if test="useCompanyName != null">
+                USE_COMPANY_NAME = #{useCompanyName,jdbcType=VARCHAR},
             </if>
             <if test="purchaseTypeCode != null">
                 PURCHASE_TYPE_CODE = #{purchaseTypeCode,jdbcType=VARCHAR},

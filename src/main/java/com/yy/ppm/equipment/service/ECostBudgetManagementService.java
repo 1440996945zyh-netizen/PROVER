@@ -4,6 +4,8 @@ import com.yy.common.page.PageParameter;
 import com.yy.common.page.Pages;
 import com.yy.ppm.equipment.bean.dto.ECostBudgetManagementDTO;
 
+import java.util.List;
+
 /**
  * 预算管理 Service
  *
@@ -48,4 +50,6 @@ public interface ECostBudgetManagementService {
      * @param id 主键ID
      */
     void delete(Long id);
+
+    List<ECostBudgetManagementDTO> getWarningUser(ECostBudgetManagementDTO dto);
 }

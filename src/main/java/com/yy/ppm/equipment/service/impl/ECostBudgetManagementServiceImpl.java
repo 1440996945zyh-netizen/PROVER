@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * 预算管理 Service 实现
@@ -117,6 +118,14 @@ public class ECostBudgetManagementServiceImpl implements ECostBudgetManagementSe
             throw new BusinessRuntimeException("id不能为空");
         }
         mapper.delete(id);
+    }
+
+    @Override
+    public List<ECostBudgetManagementDTO> getWarningUser(ECostBudgetManagementDTO dto) {
+
+
+        List<ECostBudgetManagementDTO> result = mapper.getWarningUser(dto);
+        return result;
     }
 
     /**

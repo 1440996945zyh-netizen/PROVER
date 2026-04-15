@@ -5,6 +5,8 @@ import com.yy.framework.annotation.Edit;
 import com.yy.ppm.equipment.bean.dto.ECostBudgetManagementDTO;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 /**
  * 预算管理 Mapper
  *
@@ -69,4 +71,6 @@ public interface ECostBudgetManagementMapper {
                         @Param("maintenanceUnitId") Long maintenanceUnitId,
                         @Param("costType") String costType,
                         @Param("id") Long id);
+
+    List<ECostBudgetManagementDTO> getWarningUser(ECostBudgetManagementDTO dto);
 }

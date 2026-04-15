@@ -109,6 +109,8 @@
             SETTLEMENT_NO,
             MAINT_ORG_ID,
             MAINT_ORG_NAME,
+            USE_COMPANY_ID,
+            USE_COMPANY_NAME,
             PROJECT_TYPE,
             TOTAL_BUDGET_AMOUNT,
             TOTAL_ACTUAL_AMOUNT,
@@ -124,6 +126,8 @@
             #{settlementNo,jdbcType=VARCHAR},
             #{maintOrgId,jdbcType=NUMERIC},
             #{maintOrgName,jdbcType=VARCHAR},
+            #{useCompanyId,jdbcType=NUMERIC},
+            #{useCompanyName,jdbcType=VARCHAR},
             #{projectType,jdbcType=VARCHAR},
             #{totalBudgetAmount,jdbcType=NUMERIC},
             #{totalActualAmount,jdbcType=NUMERIC},
@@ -218,6 +222,9 @@
             <if test="workOrderNo != null and workOrderNo != ''">
                 <bind name="workOrderNoPattern" value="'%' + workOrderNo + '%'"/>
                 AND m.WORK_ORDER_NO LIKE #{workOrderNoPattern}
+            </if>
+            <if test="useCompanyId != null">
+                AND e.USE_COMPANY_ID = #{useCompanyId}
             </if>
             <if test="equipName != null and equipName != ''">
                 <bind name="equipNamePattern" value="'%' + equipName + '%'"/>

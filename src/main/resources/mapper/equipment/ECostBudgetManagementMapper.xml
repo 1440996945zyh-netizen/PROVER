@@ -62,6 +62,8 @@
             MAINTENANCE_UNIT_NAME,
             COST_TYPE,
             AMOUNT,
+            WARNING_USER_ID,
+            WARNING_USER_NAME,
             CREATE_BY,
             CREATE_TIME,
             UPDATE_BY,
@@ -73,6 +75,8 @@
                      #{maintenanceUnitName},
                      #{costType},
                      #{amount},
+                      #{warningUserId},
+                      #{warningUserName},
                      #{loginUserId},
                      #{now},
                      #{loginUserId},
@@ -106,5 +110,22 @@
         <if test="id != null">
             AND t.ID &lt;&gt; #{id}
         </if>
+    </select>
+    <select id="getWarningUser" resultType="com.yy.ppm.equipment.bean.dto.ECostBudgetManagementDTO">
+        SELECT
+            u.ID AS userId,
+            u.USER_NAME AS userName
+        FROM
+            SYS_USER u
+                JOIN SYS_DEPT d ON u.DEPT_ID = d.ID
+                JOIN SYS_ROLE_USER ru ON u.ID = ru.USER_ID
+                JOIN SYS_ROLE r ON ru.ROLE_ID = r.ID
+        WHERE
+            u.STATUS = 1
+          AND r.STATUS = 1
+          AND r.ROLE_CODE = #{roleCode}
+          AND (d.ID = #{companyId} OR instr(d.PARENT_IDS, #{companyId}) > 0)
+        ORDER BY
+            u.USER_NAME ASC
     </select>
 </mapper>

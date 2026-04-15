@@ -101,5 +101,9 @@ public class EMaterialPurchasePO extends BasePO implements Serializable {
     @com.fasterxml.jackson.annotation.JsonFormat(timezone="GMT+8",pattern="yyyy-MM-dd HH:mm:ss")
     @org.springframework.format.annotation.DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private java.util.Date approvalTime;
+
+
+    private Long useCompanyId;
+    private String useCompanyName;
 }
 

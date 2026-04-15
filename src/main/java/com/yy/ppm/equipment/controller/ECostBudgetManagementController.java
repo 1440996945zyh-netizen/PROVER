@@ -12,6 +12,7 @@ import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -130,6 +131,26 @@ public class ECostBudgetManagementController {
 
         LOGGER.exit(methodName + "[end]");
         return Response.SUCCESS.newBuilder().out("删除成功").toResult();
+    }
+
+
+
+    /**
+     * 根据业务id与角色获取用户
+     *
+     * @param id 主键ID
+     * @return 详情数据
+     */
+    @GetMapping("/getWarningUser")
+    @PreAuthorize("hasAuthority('equipment:ecostbudgetmanagement:getWarningUser')")
+    public Map<String, Object> getWarningUser(ECostBudgetManagementDTO dto) {
+        final String methodName = "ECostBudgetManagementController:getById";
+        LOGGER.enter(methodName + "[start]", "dto:" + dto);
+
+        List<ECostBudgetManagementDTO > result = service.getWarningUser(dto);
+
+        LOGGER.exit(methodName + "[end]");
+        return Response.SUCCESS.newBuilder().out("查询成功").toResult(result);
     }
 }
 

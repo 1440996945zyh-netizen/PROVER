@@ -86,5 +86,8 @@ public class EMaintInfoSearchDTO extends PageParameter implements Serializable {
      * 排除当前结算单ID
      */
     private Long id;
+
+
+    private Long useCompanyId;
 }
 

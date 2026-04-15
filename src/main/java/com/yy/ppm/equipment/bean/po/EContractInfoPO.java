@@ -67,4 +67,11 @@ public class EContractInfoPO extends BasePO implements Serializable {
      */
     private String externalCompanyId;
 
+    /** 所属单位ID */
+    private Long useCompanyId;
+
+
+    private String useCompanyName;
+
+
 }

@@ -79,4 +79,14 @@ public class ECostBudgetManagementDTO extends BasePO implements Serializable {
      * 修改时间
      */
     private Date updateTime;
+
+    //预警人 ‘，‘拼接
+    private String warningUserId;
+    private String warningUserName;
+
+    private Long useCompanyId;
+    private String roleCode;
+
+    private Long userId;
+    private String userName;
 }

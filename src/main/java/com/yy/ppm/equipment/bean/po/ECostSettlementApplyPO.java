@@ -29,8 +29,13 @@ public class ECostSettlementApplyPO extends BasePO {
     /** 维修单位ID */
     private Long maintOrgId;
 
+
+    /** 所属单位ID */
+    private Long useCompanyId;
+
     /** 承修单位名称 */
     private String maintOrgName;
+    private String useCompanyName;
 
     /** 项目类型(定额/非定额) */
     private String projectType;
