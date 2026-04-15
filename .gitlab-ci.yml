@@ -22,7 +22,7 @@ build-sonar:
     $sonar_token = Get-Content $env:sonar_token
     
     # 执行扫描（使用环境变量）
-    - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.host.url=%SONAR_HOST_URL% -Dsonar.projectKey=yy-framework_yy-framework-api -Dsonar.login=%SONAR_TOKEN% -Dsonar.java.binaries=target/classes
+    mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.host.url=$sonar_host -Dsonar.projectKey=yy-framework_yy-framework-api -Dsonar.login=$sonar_token -Dsonar.java.binaries=target/classes
 
   allow_failure: true
   rules:
