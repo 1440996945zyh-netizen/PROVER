@@ -13,7 +13,11 @@ build-sonar:
     key: "sonar-cache-$CI_COMMIT_REF_SLUG"
     paths:
       - ".sonar/cache"
-  script: "$sonar_host = Get-Content $env:SONAR_HOST_URL; $sonar_token = Get-Content $env:SONAR_TOKEN; mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.host.url=$sonar_host -Dsonar.projectKey=yy-framework_yy-framework-api -Dsonar.login=$sonar_token -Dsonar.java.binaries=target/classes"
+  script:
+    - cd $CI_PROJECT_DIR
+    - $sonar_host = Get-Content $env:SONAR_HOST_URL
+    - $sonar_token = Get-Content $env:SONAR_TOKEN
+    - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.host.url=$sonar_host -Dsonar.projectKey=yy-framework_yy-framework-api -Dsonar.login=$sonar_token -Dsonar.java.binaries=target/classes
 
   allow_failure: true
   rules:
