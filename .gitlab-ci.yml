@@ -21,6 +21,12 @@ build-sonar:
     $sonar_host = Get-Content $env:sonar_host_url
     $sonar_token = Get-Content $env:sonar_token
     
+    # 清理锁文件（避免Sonar扫描失败）
+    Remove-Item -Path ".sonar_lock", "target/sonar/.sonar_lock" -Force -ErrorAction SilentlyContinue
+
+    # 正确进入项目目录（用$PWD确保路径正确，彻底避开CI_PROJECT_DIR为空的坑）
+    cd "$($PWD.Path)\yy-framework-api"
+
     # 执行扫描（使用环境变量）
     mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.host.url=$sonar_host -Dsonar.projectKey=yy-framework_yy-framework-api -Dsonar.login=$sonar_token -Dsonar.java.binaries=target/classes
 
