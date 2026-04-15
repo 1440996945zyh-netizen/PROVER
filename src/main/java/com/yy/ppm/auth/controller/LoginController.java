@@ -148,7 +148,7 @@ public class LoginController {
 		LOGGER.info("登录Token: " + token);
 
 		LOGGER.exit(methodName, "PC登录请求[end]");
-		return Response.SUCCESS.newBuilder().toResult(environmental);
+		return Response.SUCCESS.newBuilder().toResult(sysAcc);
 	}
 
 	/**
