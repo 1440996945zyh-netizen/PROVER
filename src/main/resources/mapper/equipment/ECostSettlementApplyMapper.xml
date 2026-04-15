@@ -169,6 +169,12 @@
             <if test="applyUserName != null">
                 APPLY_USER_NAME = #{applyUserName,jdbcType=VARCHAR},
             </if>
+            <if test="useCompanyId != null">
+                USE_COMPANY_ID = #{useCompanyId,jdbcType=NUMERIC},
+            </if>
+            <if test="useCompanyName != null">
+                USE_COMPANY_NAME = #{useCompanyName,jdbcType=VARCHAR},
+            </if>
             <if test="applyTime != null">
                 APPLY_TIME = #{applyTime,jdbcType=TIMESTAMP},
             </if>
