@@ -124,7 +124,7 @@
             u.STATUS = 1
           AND r.STATUS = 1
           AND r.ROLE_CODE = #{roleCode}
-          AND (d.ID = #{companyId} OR instr(d.PARENT_IDS, #{companyId}) > 0)
+          AND (d.ID = #{useCompanyId} OR instr(d.PARENT_IDS, #{useCompanyId}) > 0)
         ORDER BY
             u.USER_NAME ASC
     </select>
