@@ -19,14 +19,16 @@ build-sonar:
     policy: pull-push
     key: "sonar-cache-$CI_COMMIT_REF_SLUG"
     paths:
-      - "${SONAR_USER_HOME}/cache"
+      - ".sonar/cache"
       - sonar-scanner/
   script:
-    - echo "SONAR_HOST_URL=${SONAR_HOST_URL}"  # 添加这行查看实际值（未打印，可能是runner的问题）
+    # PowerShell 正确进入项目目录（使用 $env:CI_PROJECT_DIR）
+    - cd $env:CI_PROJECT_DIR
+    - echo "SONAR_HOST_URL=$env:SONAR_HOST_URL"  # 添加这行查看实际值（未打印，可能是runner的问题）
     - cd D:/gitlab-runner/builds/UUZGLxcD_/0/gitlab2/yy-framework/yy-framework-api
-#    - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar "-Dsonar.host.url=${SONAR_HOST_URL}" "-Dsonar.projectKey=${SONAR_PROJECT_KEY}" "-Dsonar.login=${SONAR_TOKEN}" "-Dsonar.java.binaries=target/classes"
+    - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar "-Dsonar.host.url=$env:SONAR_HOST_URL" "-Dsonar.projectKey=$env:SONAR_PROJECT_KEY" "-Dsonar.login=$env:SONAR_TOKEN" "-Dsonar.java.binaries=target/classes"
     #可能是runner的问题，${}取不到值，先写死
-    - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar "-Dsonar.host.url=http://114.55.226.181:9002" "-Dsonar.projectKey=yy-framework_yy-framework-api_85325cdb-89a9-4d80-86d4-66be8c9c646d" "-Dsonar.login=sqp_9ae93907f74c7ca4fcbede512e997c7f5ec2c279" "-Dsonar.java.binaries=target/classes"
+  #    - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar "-Dsonar.host.url=http://114.55.226.181:9002" "-Dsonar.projectKey=yy-framework_yy-framework-api_85325cdb-89a9-4d80-86d4-66be8c9c646d" "-Dsonar.login=sqp_9ae93907f74c7ca4fcbede512e997c7f5ec2c279" "-Dsonar.java.binaries=target/classes"
   allow_failure: true
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
