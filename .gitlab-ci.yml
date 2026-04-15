@@ -18,15 +18,15 @@ build-sonar:
       - ".sonar/cache"
   script:
     # 1. 读取 File 类型变量（核心！）
-    - $sonar_host = Get-Content $env:SONAR_HOST_URL
-    - $sonar_token = Get-Content $env:SONAR_TOKEN
+    - $sonar_host = Get-Content $SONAR_HOST_URL
+    - $sonar_token = Get-Content $SONAR_TOKEN
 
     # 2. 清理锁文件 & 工作区
     - Remove-Item -Path ".sonar_lock", "target/sonar/.sonar_lock" -Force -ErrorAction SilentlyContinue
     - git clean -fdx
 
     # 3. 进入项目目录 & 执行 Sonar 扫描
-    - cd $env:CI_PROJECT_DIR\yy-framework-api
+    - cd $CI_PROJECT_DIR\yy-framework-api
     - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar `
       "-Dsonar.host.url=$sonar_host" `
       "-Dsonar.projectKey=yy-framework_yy-framework-api_85325cdb-89a9-4d80-86d4-66be8c9c646d" `
