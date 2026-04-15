@@ -17,9 +17,14 @@ build-sonar:
     paths:
       - ".sonar/cache"
   script:
-    # 直接使用 GitLab 环境变量，不做任何 PowerShell 变量赋值
-    # 这是 Windows Runner 唯一稳定的方式
-    - cd yy-framework-api
+    # 正确进入项目目录（最重要！）
+    - cd $CI_PROJECT_DIR\yy-framework-api
+
+    # 直接读取 File 变量内容
+    - $sonar_host = Get-Content $env:SONAR_HOST_URL
+    - $sonar_token = Get-Content $env:SONAR_TOKEN
+
+    # 执行扫描（使用环境变量）
     - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.host.url=%SONAR_HOST_URL% -Dsonar.projectKey=yy-framework_yy-framework-api -Dsonar.login=%SONAR_TOKEN% -Dsonar.java.binaries=target/classes
 
   allow_failure: true
