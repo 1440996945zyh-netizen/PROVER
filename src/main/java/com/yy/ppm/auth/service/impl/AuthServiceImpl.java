@@ -112,6 +112,7 @@ public class AuthServiceImpl implements AuthService {
         authorizeInfo.put("userName", userInfo.getUserName());
         authorizeInfo.put("deptName", userInfo.getDeptName());
         authorizeInfo.put("posts", userInfo.getPostName());
+        authorizeInfo.put("deptId", userInfo.getDeptId());
         // 配合前端 超级管理员固定加角色
         if (CommonEnum.YesNoMode.YES.getCode().equals(securityUtils.getUserInfo().getIsSuperadmin())) {
             if (userInfo.getRoles() == null || userInfo.getRoles().size() == 0) {
