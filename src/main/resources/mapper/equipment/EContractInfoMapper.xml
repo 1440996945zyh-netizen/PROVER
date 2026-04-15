@@ -107,6 +107,8 @@
         CONTRACT_NAME = #{contractName},
         CONTRACT_CODE = #{contractCode},
         CONTRACT_AMOUNT = #{contractAmount},
+        USE_COMPANY_ID = #{useCompanyId},
+        USE_COMPANY_NAME = #{useCompanyName},
         START_DATE = #{startDate},
         END_DATE = #{endDate},
         APPLY_SCOPE = #{applyScope},

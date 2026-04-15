@@ -142,7 +142,6 @@ public class ECostBudgetManagementController {
      * @return 详情数据
      */
     @GetMapping("/getWarningUser")
-    @PreAuthorize("hasAuthority('equipment:ecostbudgetmanagement:getWarningUser')")
     public Map<String, Object> getWarningUser(ECostBudgetManagementDTO dto) {
         final String methodName = "ECostBudgetManagementController:getById";
         LOGGER.enter(methodName + "[start]", "dto:" + dto);

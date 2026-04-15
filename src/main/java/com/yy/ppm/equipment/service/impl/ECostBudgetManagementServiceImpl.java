@@ -120,6 +120,14 @@ public class ECostBudgetManagementServiceImpl implements ECostBudgetManagementSe
         mapper.delete(id);
     }
 
+
+
+    /**
+     *  根据业务id与角色获取用户
+     *
+     * @param id 主键ID
+     */
+
     @Override
     public List<ECostBudgetManagementDTO> getWarningUser(ECostBudgetManagementDTO dto) {
 
@@ -170,5 +178,20 @@ public class ECostBudgetManagementServiceImpl implements ECostBudgetManagementSe
         if (count != null && count > 0) {
             throw new BusinessRuntimeException("同一个年份下，同维修单位的费用类型不允许重复");
         }
+    }
+
+
+
+    /**
+     * 合同金额预警消息：每天零点跑一次
+     */
+    public Integer generateWarningAmount() {
+
+
+        //循环预算管理数据
+
+
+
+        return  1;
     }
 }
