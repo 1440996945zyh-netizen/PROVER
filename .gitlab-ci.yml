@@ -14,7 +14,7 @@ build-sonar:
 
   script:
     # 最简单、最安全、Windows Runner 100% 不报错
-    - cmd /c "cd /d %CI_PROJECT_DIR% && mvn clean verify sonar:sonar -Dsonar.host.url=http://114.55.226.181:9002 -Dsonar.projectKey=yy-framework_yy-framework-api -Dsonar.login=sqp_9ae93907f74c7ca4fcbede512e997c7f5ec2c279 -Dsonar.java.binaries=target/classes"
+    - cmd /c "mvn clean verify sonar:sonar -Dsonar.host.url=http://114.55.226.181:9002 -Dsonar.projectKey=yy-framework_yy-framework-api -Dsonar.login=sqp_9ae93907f74c7ca4fcbede512e997c7f5ec2c279 -Dsonar.java.binaries=target/classes"
 
   allow_failure: true
   rules:
