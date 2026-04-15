@@ -17,19 +17,11 @@ build-sonar:
     paths:
       - ".sonar/cache"
   script:
-    # 1. 读取 File 类型变量（核心！）
-    - $sonar_host = "http://114.55.226.181:9002"
-    - $sonar_token = "sqp_9ae93907f74c7ca4fcbede512e997c7f5ec2c279"
+    # 直接使用 GitLab 环境变量，不做任何 PowerShell 变量赋值
+    # 这是 Windows Runner 唯一稳定的方式
+    - cd yy-framework-api
+    - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.host.url=%SONAR_HOST_URL% -Dsonar.projectKey=yy-framework_yy-framework-api -Dsonar.login=%SONAR_TOKEN% -Dsonar.java.binaries=target/classes
 
-    # 2. 清理锁文件 & 工作区
-    - Remove-Item -Path ".sonar_lock", "target/sonar/.sonar_lock" -Force -ErrorAction SilentlyContinue
-    - git clean -fdx
-
-    # 3. 进入项目目录 & 执行 Sonar 扫描
-    - cd $CI_PROJECT_DIR\yy-framework-api
-    - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar "-Dsonar.host.url=$sonar_host" "-Dsonar.projectKey=yy-framework_yy-framework-api_85325cdb-89a9-4d80-86d4-66be8c9c646d" "-Dsonar.login=$sonar_token" "-Dsonar.java.binaries=target/classes"
-    #可能是runner的问题，${}取不到值，先写死
-  #    - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar "-Dsonar.host.url=http://114.55.226.181:9002" "-Dsonar.projectKey=yy-framework_yy-framework-api_85325cdb-89a9-4d80-86d4-66be8c9c646d" "-Dsonar.login=sqp_9ae93907f74c7ca4fcbede512e997c7f5ec2c279" "-Dsonar.java.binaries=target/classes"
   allow_failure: true
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
