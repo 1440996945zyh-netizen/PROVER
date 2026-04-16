@@ -36,6 +36,7 @@ public class SysNotificationPO extends BasePO implements Serializable {
      * 接收人ID，多个用逗号分隔
      */
     private String receiverId;
+    private Long  businessId;
 
     /**
      * 创建时间

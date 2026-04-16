@@ -28,7 +28,7 @@ public class SysNotificationServiceImpl implements SysNotificationService {
     private SysUserService sysUserService;
 
     @Override
-    public void sendNotification(String title, String content, List<Long> receiverIds) {
+    public void sendNotification(String title, String content, List<Long> receiverIds,Long businessId) {
         if (receiverIds == null || receiverIds.isEmpty()) {
             return;
         }
@@ -44,6 +44,7 @@ public class SysNotificationServiceImpl implements SysNotificationService {
         po.setContent(content);
         po.setReceiverId(receiverIdStr);
         po.setCreateTime(now);
+        po.setBusinessId(businessId);
 
         mapper.insert(po);
 

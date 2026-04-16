@@ -139,4 +139,77 @@
         ORDER BY
             u.USER_NAME ASC
     </select>
+    <select id="getBudgetManagementList" resultType="com.yy.ppm.equipment.bean.dto.ECostBudgetManagementDTO">
+        select
+            id,
+            year,
+            maintenance_unit_id,
+            maintenance_unit_name,
+            cost_type,
+            amount,
+            warning_user_id,
+            warning_user_name,
+            warning_amount,
+            create_by,
+            create_time,
+            update_by,
+            update_time
+        from
+            e_cost_budget_management
+    </select>
+    <select id="getSettlementAmount" resultType="java.math.BigDecimal">
+        select
+            sum(t1.TOTAL_ACTUAL_AMOUNT)
+        from
+            E_COST_SETTLEMENT_APPLY t1
+         LEFT JOIN BPM_BUSINESS_INSTANCE t3 ON t3.BUSINESS_DATA_ID = t1.ID
+        where
+            t3.INSTANCE_STATUS = '2'
+            and  USE_COMPANY_ID = #{useCompanyId}
+            and to_char(APPLY_TIME, 'yyyy') = #{year}
+
+    </select>
+    <select id="getSettlementApply" resultType="com.yy.ppm.equipment.bean.dto.EContractInfoDTO">
+        SELECT
+            t1.ID,
+            t1.CONTRACT_NAME,
+            t1.CONTRACT_CODE,
+            t1.CONTRACT_AMOUNT,
+            to_char(t1.START_DATE, 'yyyy') AS startYear,
+            to_char(t1.END_DATE, 'yyyy') AS endYear,
+            t1.START_DATE,
+            t1.END_DATE,
+            t1.APPLY_SCOPE,
+            t1.STATUS,
+            t1.CONTRACT_TYPE,
+            t1.USE_COMPANY_ID,
+            t1.USE_COMPANY_NAME
+
+        FROM E_COST_CONTRACT_INFO t1
+        WHERE
+            t1.STATUS = '1'
+           AND t1.USE_COMPANY_ID = #{useCompanyId}
+          AND (to_char(t1.START_DATE, 'yyyy') = #{year} OR to_char(t1.END_DATE, 'yyyy') = #{year})
+
+
+    </select>
+    <select id="getMaterialPurchaseAmount" resultType="java.math.BigDecimal">
+        select
+            sum(t1.TAX_INCLUDED_AMOUNT)
+        from
+            E_MATERIAL_PURCHASE t1
+                LEFT JOIN BPM_BUSINESS_INSTANCE t3 ON t3.BUSINESS_DATA_ID = t1.ID
+        where
+            t3.INSTANCE_STATUS = '2'
+            and  USE_COMPANY_ID = #{useCompanyId}
+            and to_char(CREATE_TIME, 'yyyy') = #{year}
+    </select>
+    <select id="countNotification" resultType="java.lang.Integer">
+        SELECT
+            count(id)
+        FROM
+            SYS_NOTIFICATION
+        WHERE
+          BUSSINESS_ID = #{id}
+    </select>
 </mapper>

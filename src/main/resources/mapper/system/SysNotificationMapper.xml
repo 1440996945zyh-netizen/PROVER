@@ -6,13 +6,14 @@
 
     <insert id="insert" parameterType="com.yy.ppm.system.bean.po.SysNotificationPO">
         INSERT INTO SYS_NOTIFICATION (
-            ID, TITLE, CONTENT, RECEIVER_ID, CREATE_TIME
+            ID, TITLE, CONTENT, RECEIVER_ID, CREATE_TIME,BUSINESS_ID
         ) VALUES (
             #{id,jdbcType=NUMERIC},
             #{title,jdbcType=VARCHAR},
             #{content,jdbcType=VARCHAR},
             #{receiverId,jdbcType=VARCHAR},
-            #{createTime,jdbcType=TIMESTAMP}
+            #{createTime,jdbcType=TIMESTAMP},
+          #{businessId,jdbcType=NUMERIC}
         )
     </insert>
 

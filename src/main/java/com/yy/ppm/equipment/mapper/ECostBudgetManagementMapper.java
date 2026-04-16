@@ -2,9 +2,12 @@ package com.yy.ppm.equipment.mapper;
 
 import com.github.pagehelper.Page;
 import com.yy.framework.annotation.Edit;
+import com.yy.ppm.equipment.bean.dto.EContractInfoDTO;
 import com.yy.ppm.equipment.bean.dto.ECostBudgetManagementDTO;
+import com.yy.ppm.equipment.bean.dto.ECostSettlementApplyDTO;
 import org.apache.ibatis.annotations.Param;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -73,4 +76,14 @@ public interface ECostBudgetManagementMapper {
                         @Param("id") Long id);
 
     List<ECostBudgetManagementDTO> getWarningUser(ECostBudgetManagementDTO dto);
+
+    List<ECostBudgetManagementDTO> getBudgetManagementList();
+
+    BigDecimal getSettlementAmount(ECostBudgetManagementDTO dto);
+
+    List<EContractInfoDTO> getSettlementApply(ECostBudgetManagementDTO dto);
+
+    BigDecimal getMaterialPurchaseAmount(ECostBudgetManagementDTO dto);
+
+    int countNotification(Long id);
 }

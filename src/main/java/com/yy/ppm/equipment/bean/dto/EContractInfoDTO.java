@@ -1,11 +1,14 @@
 package com.yy.ppm.equipment.bean.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.yy.ppm.equipment.bean.po.EContractInfoPO;
 import com.yy.ppm.equipment.bean.po.EMaintProjApplyPO;
 import com.yy.ppm.equipment.bean.po.EMaintProjApplyQuotaPO;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -27,5 +30,9 @@ public class EContractInfoDTO extends EContractInfoPO implements Serializable {
      * 单位名称
      */
     private String unitName;
+
+
+    private String startYear;
+    private String endYear;
 
 }

@@ -276,7 +276,8 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
                 sysNotificationService.sendNotification(
                         "新故障提报",
                         equipName + "故障已提报，工单号：" + po.getWorkOrderNo() + "，请及时处理",
-                        java.util.Arrays.asList(po.getDispatcherId())
+                        java.util.Arrays.asList(po.getDispatcherId()),
+                        null
                 );
             }
             return;
@@ -484,7 +485,8 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
                     sysNotificationService.sendNotification(
                             "设备派工通知",
                             equipName + "已派工给您处理，工单号：" + latestDto.getWorkOrderNo() + "，请及时维修",
-                            leaderIds
+                            leaderIds,
+                            null
                     );
                 }
             }
@@ -671,7 +673,8 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
             sysNotificationService.sendNotification(
                     "维修完成通知",
                     equipName + "已完成维修，工单号：" + dto.getWorkOrderNo() + "，请进行验收",
-                    receiverIds
+                    receiverIds,
+                    null
             );
         }
     }
@@ -767,7 +770,8 @@ public class EMaintInfoServiceImpl implements EMaintInfoService {
                 sysNotificationService.sendNotification(
                         "验收不通过通知",
                         equipName + "验收未通过，已退回到" + statusText + "状态，原因：" + finalAcceptanceRemark + "，请及时处理",
-                        rejectReceiverIds
+                        rejectReceiverIds,
+                        null
                 );
             }
         }

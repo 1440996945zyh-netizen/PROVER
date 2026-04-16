@@ -12,7 +12,7 @@ public interface SysNotificationService {
      * @param content 消息内容
      * @param receiverIds 接收人ID列表
      */
-    void sendNotification(String title, String content, List<Long> receiverIds);
+    void sendNotification(String title, String content, List<Long> receiverIds,Long businessId);
 
     /**
      * 查询消息列表（最近15条）
