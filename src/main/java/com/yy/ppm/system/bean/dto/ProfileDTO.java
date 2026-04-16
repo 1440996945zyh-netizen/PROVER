@@ -37,4 +37,8 @@ public class ProfileDTO implements Serializable {
     private String updateTime;
     private Long userId;
     private String userName;
+    private String mobile;
+    private String iconApp;
+    private String icon;
+
 }

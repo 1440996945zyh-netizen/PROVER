@@ -304,7 +304,7 @@ public class SysUserServiceImpl implements SysUserService {
 		profileDTO.setDeptId(sysUserDTO.getDeptId());
 		profileDTO.setStatus(sysUserDTO.getStatus().toString());
 		profileDTO.setEmail(sysUserDTO.getEmail());
-		profileDTO.setPhonenumber(sysUserDTO.getTel());
+		profileDTO.setMobile(sysUserDTO.getMobile());
 		profileDTO.setSex(sysUserDTO.getSex() == null ? null : sysUserDTO.getSex().toString());
 
 		// 获取部门信息
