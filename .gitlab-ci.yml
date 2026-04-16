@@ -8,17 +8,16 @@ build-sonar:
   stage: build-sonar
   cache:
     policy: pull-push
-    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
+    key: "sonar-cache-%CI_COMMIT_REF_SLUG%"
     paths:
       - ".sonar/cache"
-
   script:
     # 从 file 类型变量中读取真实值
     - set /p SONAR_HOST_URL=<"%SONAR_HOST_URL%"
     - set /p SONAR_TOKEN=<"%SONAR_TOKEN%"
     # 可选：打印调试信息（注意 token 只打印长度）
     - echo SonarQube URL: %SONAR_HOST_URL%
-    - echo SonarQube Token length: %SONAR_TOKEN:~0,1%***（仅演示，实际可计算长度）
+    - echo SonarQube Token length: %SONAR_TOKEN:~0,1%*** (only first char shown)
     # 进入项目目录（使用 GitLab 预定义变量）
     - cd /d "%CI_PROJECT_DIR%"
     # 临时将 Maven 加入 PATH
