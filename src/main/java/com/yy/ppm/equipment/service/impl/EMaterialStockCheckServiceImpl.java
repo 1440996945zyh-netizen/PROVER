@@ -590,6 +590,8 @@ public class EMaterialStockCheckServiceImpl implements EMaterialStockCheckServic
         outPO.setWarehouseId(check.getWarehouseId());
         outPO.setWarehouseName(check.getWarehouseName());
         outPO.setStatus(1); // 直接设为已确认
+        outPO.setWarehouseOutTypeCode("02");
+        outPO.setWarehouseOutTypeName("盘点出库");
         outPO.setCheckId(check.getId()); // 关联盘点单ID
         outPO.setLoginUserId(securityUtils.getLoginUserId());
         outPO.setLoginUserName(securityUtils.getLoginUserName());

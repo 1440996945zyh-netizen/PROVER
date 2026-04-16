@@ -91,6 +91,9 @@ public class EMaterialAllocateServiceImpl implements EMaterialAllocateService {
     @Resource
     private Snowflake snowflake;
 
+    @Resource
+    private SecurityUtils securityUtils;
+
     /**
      * 查询物资调拨列表
      */
@@ -411,10 +414,11 @@ public class EMaterialAllocateServiceImpl implements EMaterialAllocateService {
         dto.setWarehouseOutTitle(allocateDTO.getTitle());
         dto.setWarehouseId(allocateDTO.getFromWarehouseId());
         dto.setWarehouseName(allocateDTO.getFromWarehouseName());
-        dto.setDeptId(allocateDTO.getFromCompanyId());
-        dto.setDeptName(allocateDTO.getFromCompanyName());
-        dto.setReceiverId(allocateDTO.getApplyUser());
-        dto.setReceiverName(allocateDTO.getApplyUserName());
+//        dto.setDeptId(allocateDTO.getFromCompanyId());
+//        dto.setDeptName(allocateDTO.getFromCompanyName());
+        UserInfo userInfo = securityUtils.getUserInfo();
+//        dto.setReceiverId(allocateDTO.getApplyUser());
+//        dto.setReceiverName(allocateDTO.getApplyUserName());
         dto.setStatus(0);
         dto.setWarehouseOutTypeCode("03");
         dto.setWarehouseOutTypeName("调拨出库");
@@ -452,8 +456,8 @@ public class EMaterialAllocateServiceImpl implements EMaterialAllocateService {
         dto.setWarehouseInTypeName("调拨入库");
         dto.setSupplierName("内部调拨");
         dto.setWarehouseInDate(new Date());
-        dto.setDeptId(allocateDTO.getToCompanyId());
-        dto.setDeptName(allocateDTO.getToCompanyName());
+//        dto.setDeptId(allocateDTO.getToCompanyId());
+//        dto.setDeptName(allocateDTO.getToCompanyName());
         dto.setWarehouseId(allocateDTO.getToWarehouseId());
         dto.setWarehouseName(allocateDTO.getToWarehouseName());
         dto.setRemarks("由物资调拨单自动生成");
