@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMaterialSupplierMapper">
+
+    <select id="selectList" resultType="com.yy.ppm.equipment.bean.dto.EMaterialSupplierDTO">
+        SELECT
+        T1.ID                                         AS id,
+        T1.SUPPLIER_CODE                              AS supplierCode,
+        T1.COMPANY_ID                                 AS companyId,
+        T1.CUSTOMER_TYPE                              AS customerType,
+        T1.SUPPLIER_NAME                              AS supplierName,
+        DBMS_LOB.SUBSTR(T1.COMPANY_NAME, 4000, 1)     AS companyName,
+        DBMS_LOB.SUBSTR(T1.COMPANY_SHORT, 4000, 1)    AS companyShort,
+        DBMS_LOB.SUBSTR(T1.FORMER_NAME, 4000, 1)      AS formerName,
+        DBMS_LOB.SUBSTR(T1.E_COMPANY_NAME, 4000, 1)   AS eCompanyName,
+        T1.INDUSTRY_TYPE                              AS industryType,
+        T1.COUNTRY                                    AS country,
+        T1.PROVINCE                                   AS province,
+        T1.CITY                                       AS city,
+        T1.REGISTERED_CURRENCY                        AS registeredCurrency,
+        DBMS_LOB.SUBSTR(T1.ADDRESS, 4000, 1)          AS address,
+        T1.UNIFORM_SOCIAL_CREDIT_CODE                 AS uniformSocialCreditCode,
+        T1.ORGANIZATION_CODE                          AS organizationCode,
+        T1.BUSINESS_TYPE                              AS businessType,
+        T1.DUNS                                       AS duns,
+        T1.MNEMONIC_CODE                              AS mnemonicCode,
+        T1.ESTIBLISH_TIME                             AS estiblishTime,
+        T1.REGISTERED_CAPITAL                         AS registeredCapital,
+        T1.LEGAL_PERSON                               AS legalPerson,
+        T1.LEGAL_PERSON_CARD_NO                       AS legalPersonCardNo,
+        T1.BUSINESS_STATE                             AS businessState,
+        DBMS_LOB.SUBSTR(T1.BUSINESS_SCOPE, 4000, 1)   AS businessScope,
+        T1.COMPANY_TEL                                AS companyTel,
+        DBMS_LOB.SUBSTR(T1.BUSINESS_ADDRESS, 4000, 1) AS businessAddress,
+        T1.LICENSEIMG_URL                             AS licenseImgUrl,
+        DBMS_LOB.SUBSTR(T1.LEGAL_PERSON_CARD_IMG1, 4000, 1) AS legalPersonCardImg1,
+        DBMS_LOB.SUBSTR(T1.LEGAL_PERSON_CARD_IMG2, 4000, 1) AS legalPersonCardImg2,
+        T1.IS_AUTH                                    AS isAuth,
+        T1.STATE                                      AS status,
+        DBMS_LOB.SUBSTR(T1.REMARK, 4000, 1)           AS remark,
+        DBMS_LOB.SUBSTR(T1.COMPANY_INFO_REMARK, 4000, 1) AS companyInfoRemark,
+        DBMS_LOB.SUBSTR(T1.SUPPLIER_PERSON, 4000, 1)  AS supplierPerson,
+        DBMS_LOB.SUBSTR(T1.SUPPLIER_PHONE, 4000, 1)   AS supplierPhone,
+        DBMS_LOB.SUBSTR(T1.RELATION_VOID_PERSON, 4000, 1) AS relationVoidPerson,
+        DBMS_LOB.SUBSTR(T1.RELATION_VOID_REASON, 4000, 1) AS relationVoidReason,
+        T1.CREATED_USER                               AS createBy,
+        T1.CREATED_TIME                               AS createTime,
+        T1.UPDATE_USER                                AS updateBy,
+        T1.UPDATE_TIME                                AS updateTime
+        FROM E_MATERIAL_SUPPLIER T1
+        WHERE T1.CUSTOMER_TYPE = '1'
+        AND T1.RELATION_VOID_DATE IS NULL
+        <if test="supplierCode != null and supplierCode != ''">
+            <bind name="supplierCodeLike" value="'%' + supplierCode + '%'"/>
+            AND T1.SUPPLIER_CODE LIKE #{supplierCodeLike}
+        </if>
+        <if test="supplierName != null and supplierName != ''">
+            <bind name="supplierNameLike" value="'%' + supplierName + '%'"/>
+            AND T1.SUPPLIER_NAME LIKE #{supplierNameLike}
+        </if>
+        <if test="uniformSocialCreditCode != null and uniformSocialCreditCode != ''">
+            <bind name="uniformSocialCreditCodeLike" value="'%' + uniformSocialCreditCode + '%'"/>
+            AND T1.UNIFORM_SOCIAL_CREDIT_CODE LIKE #{uniformSocialCreditCodeLike}
+        </if>
+        <if test="businessType != null and businessType != ''">
+            <bind name="businessTypeLike" value="'%' + businessType + '%'"/>
+            AND T1.BUSINESS_TYPE LIKE #{businessTypeLike}
+        </if>
+        <if test="status != null and status != ''">
+            AND T1.STATE = #{status}
+        </if>
+        ORDER BY T1.CREATED_TIME DESC, T1.ID DESC
+    </select>
+
+    <select id="selectById" resultType="com.yy.ppm.equipment.bean.dto.EMaterialSupplierDTO">
+        SELECT
+            T1.ID                                         AS id,
+            T1.SUPPLIER_CODE                              AS supplierCode,
+            T1.COMPANY_ID                                 AS companyId,
+            T1.CUSTOMER_TYPE                              AS customerType,
+            T1.SUPPLIER_NAME                              AS supplierName,
+            DBMS_LOB.SUBSTR(T1.COMPANY_NAME, 4000, 1)     AS companyName,
+            DBMS_LOB.SUBSTR(T1.COMPANY_SHORT, 4000, 1)    AS companyShort,
+            DBMS_LOB.SUBSTR(T1.FORMER_NAME, 4000, 1)      AS formerName,
+            DBMS_LOB.SUBSTR(T1.E_COMPANY_NAME, 4000, 1)   AS eCompanyName,
+            T1.INDUSTRY_TYPE                              AS industryType,
+            T1.COUNTRY                                    AS country,
+            T1.PROVINCE                                   AS province,
+            T1.CITY                                       AS city,
+            T1.REGISTERED_CURRENCY                        AS registeredCurrency,
+            DBMS_LOB.SUBSTR(T1.ADDRESS, 4000, 1)          AS address,
+            T1.UNIFORM_SOCIAL_CREDIT_CODE                 AS uniformSocialCreditCode,
+            T1.ORGANIZATION_CODE                          AS organizationCode,
+            T1.BUSINESS_TYPE                              AS businessType,
+            T1.DUNS                                       AS duns,
+            T1.MNEMONIC_CODE                              AS mnemonicCode,
+            T1.ESTIBLISH_TIME                             AS estiblishTime,
+            T1.REGISTERED_CAPITAL                         AS registeredCapital,
+            T1.LEGAL_PERSON                               AS legalPerson,
+            T1.LEGAL_PERSON_CARD_NO                       AS legalPersonCardNo,
+            T1.BUSINESS_STATE                             AS businessState,
+            DBMS_LOB.SUBSTR(T1.BUSINESS_SCOPE, 4000, 1)   AS businessScope,
+            T1.COMPANY_TEL                                AS companyTel,
+            DBMS_LOB.SUBSTR(T1.BUSINESS_ADDRESS, 4000, 1) AS businessAddress,
+            T1.LICENSEIMG_URL                             AS licenseImgUrl,
+            DBMS_LOB.SUBSTR(T1.LEGAL_PERSON_CARD_IMG1, 4000, 1) AS legalPersonCardImg1,
+            DBMS_LOB.SUBSTR(T1.LEGAL_PERSON_CARD_IMG2, 4000, 1) AS legalPersonCardImg2,
+            T1.IS_AUTH                                    AS isAuth,
+            T1.STATE                                      AS status,
+            DBMS_LOB.SUBSTR(T1.REMARK, 4000, 1)           AS remark,
+            DBMS_LOB.SUBSTR(T1.COMPANY_INFO_REMARK, 4000, 1) AS companyInfoRemark,
+            DBMS_LOB.SUBSTR(T1.SUPPLIER_PERSON, 4000, 1)  AS supplierPerson,
+            DBMS_LOB.SUBSTR(T1.SUPPLIER_PHONE, 4000, 1)   AS supplierPhone,
+            DBMS_LOB.SUBSTR(T1.RELATION_VOID_PERSON, 4000, 1) AS relationVoidPerson,
+            DBMS_LOB.SUBSTR(T1.RELATION_VOID_REASON, 4000, 1) AS relationVoidReason,
+            T1.CREATED_USER                               AS createBy,
+            T1.CREATED_TIME                               AS createTime,
+            T1.UPDATE_USER                                AS updateBy,
+            T1.UPDATE_TIME                                AS updateTime
+        FROM E_MATERIAL_SUPPLIER T1
+        WHERE T1.ID = #{id}
+          AND T1.CUSTOMER_TYPE = '1'
+          AND T1.RELATION_VOID_DATE IS NULL
+    </select>
+
+    <insert id="insert">
+        INSERT INTO E_MATERIAL_SUPPLIER (
+            ID,
+            SUPPLIER_CODE,
+            COMPANY_ID,
+            CUSTOMER_TYPE,
+            COMPANY_NAME,
+            COMPANY_SHORT,
+            FORMER_NAME,
+            E_COMPANY_NAME,
+            INDUSTRY_TYPE,
+            COUNTRY,
+            PROVINCE,
+            CITY,
+            REGISTERED_CURRENCY,
+            ADDRESS,
+            UNIFORM_SOCIAL_CREDIT_CODE,
+            ORGANIZATION_CODE,
+            BUSINESS_TYPE,
+            DUNS,
+            MNEMONIC_CODE,
+            ESTIBLISH_TIME,
+            REGISTERED_CAPITAL,
+            LEGAL_PERSON,
+            LEGAL_PERSON_CARD_NO,
+            BUSINESS_STATE,
+            BUSINESS_SCOPE,
+            COMPANY_TEL,
+            BUSINESS_ADDRESS,
+            LICENSEIMG_URL,
+            LEGAL_PERSON_CARD_IMG1,
+            LEGAL_PERSON_CARD_IMG2,
+            IS_AUTH,
+            STATE,
+            REMARK,
+            COMPANY_INFO_REMARK,
+            SUPPLIER_PERSON,
+            SUPPLIER_PHONE,
+            SUPPLIER_NAME,
+            CREATED_USER,
+            CREATED_TIME,
+            UPDATE_USER,
+            UPDATE_TIME
+        ) VALUES (
+                     #{id},
+                     #{supplierCode},
+                     #{companyId},
+                     #{customerType},
+                     #{companyName,jdbcType=CLOB},
+                     #{companyShort,jdbcType=CLOB},
+                     #{formerName,jdbcType=CLOB},
+                     #{eCompanyName,jdbcType=CLOB},
+                     #{industryType},
+                     #{country},
+                     #{province},
+                     #{city},
+                     #{registeredCurrency},
+                     #{address,jdbcType=CLOB},
+                     #{uniformSocialCreditCode},
+                     #{organizationCode},
+                     #{businessType},
+                     #{duns},
+                     #{mnemonicCode},
+                     #{estiblishTime},
+                     #{registeredCapital},
+                     #{legalPerson},
+                     #{legalPersonCardNo},
+                     #{businessState},
+                     #{businessScope,jdbcType=CLOB},
+                     #{companyTel},
+                     #{businessAddress,jdbcType=CLOB},
+                     #{licenseImgUrl},
+                     #{legalPersonCardImg1,jdbcType=CLOB},
+                     #{legalPersonCardImg2,jdbcType=CLOB},
+                     #{isAuth},
+                     #{status},
+                     #{remark,jdbcType=CLOB},
+                     #{companyInfoRemark,jdbcType=CLOB},
+                     #{supplierPerson,jdbcType=CLOB},
+                     #{supplierPhone,jdbcType=CLOB},
+                     #{supplierName},
+                     #{loginUserId,jdbcType=NUMERIC},
+                     #{now,jdbcType=TIMESTAMP},
+                     #{loginUserId,jdbcType=NUMERIC},
+                     #{now,jdbcType=TIMESTAMP}
+                 )
+    </insert>
+
+    <update id="update">
+        UPDATE E_MATERIAL_SUPPLIER
+        SET SUPPLIER_NAME              = #{supplierName},
+            COMPANY_NAME               = #{companyName,jdbcType=CLOB},
+            COMPANY_SHORT              = #{companyShort,jdbcType=CLOB},
+            FORMER_NAME                = #{formerName,jdbcType=CLOB},
+            E_COMPANY_NAME             = #{eCompanyName,jdbcType=CLOB},
+            INDUSTRY_TYPE              = #{industryType},
+            COUNTRY                    = #{country},
+            PROVINCE                   = #{province},
+            CITY                       = #{city},
+            REGISTERED_CURRENCY        = #{registeredCurrency},
+            ADDRESS                    = #{address,jdbcType=CLOB},
+            UNIFORM_SOCIAL_CREDIT_CODE = #{uniformSocialCreditCode},
+            ORGANIZATION_CODE          = #{organizationCode},
+            BUSINESS_TYPE              = #{businessType},
+            DUNS                       = #{duns},
+            MNEMONIC_CODE              = #{mnemonicCode},
+            ESTIBLISH_TIME             = #{estiblishTime},
+            REGISTERED_CAPITAL         = #{registeredCapital},
+            LEGAL_PERSON               = #{legalPerson},
+            LEGAL_PERSON_CARD_NO       = #{legalPersonCardNo},
+            BUSINESS_STATE             = #{businessState},
+            BUSINESS_SCOPE             = #{businessScope,jdbcType=CLOB},
+            COMPANY_TEL                = #{companyTel},
+            BUSINESS_ADDRESS           = #{businessAddress,jdbcType=CLOB},
+            LICENSEIMG_URL             = #{licenseImgUrl},
+            LEGAL_PERSON_CARD_IMG1     = #{legalPersonCardImg1,jdbcType=CLOB},
+            LEGAL_PERSON_CARD_IMG2     = #{legalPersonCardImg2,jdbcType=CLOB},
+            IS_AUTH                    = #{isAuth},
+            STATE                      = #{status},
+            REMARK                     = #{remark,jdbcType=CLOB},
+            COMPANY_INFO_REMARK        = #{companyInfoRemark,jdbcType=CLOB},
+            SUPPLIER_PERSON            = #{supplierPerson,jdbcType=CLOB},
+            SUPPLIER_PHONE             = #{supplierPhone,jdbcType=CLOB},
+            UPDATE_USER                = #{loginUserId,jdbcType=NUMERIC},
+            UPDATE_TIME                = #{now,jdbcType=TIMESTAMP}
+        WHERE ID = #{id}
+          AND CUSTOMER_TYPE = '1'
+          AND RELATION_VOID_DATE IS NULL
+    </update>
+
+    <update id="deleteById">
+        UPDATE E_MATERIAL_SUPPLIER
+        SET RELATION_VOID_DATE   = #{now,jdbcType=TIMESTAMP},
+            RELATION_VOID_PERSON = #{loginUserName,jdbcType=CLOB},
+            RELATION_VOID_REASON = '黄骅设备系统删除',
+            STATE                = '1',
+            UPDATE_USER          = #{loginUserId,jdbcType=NUMERIC},
+            UPDATE_TIME          = #{now,jdbcType=TIMESTAMP}
+        WHERE ID = #{id}
+          AND CUSTOMER_TYPE = '1'
+          AND RELATION_VOID_DATE IS NULL
+    </update>
+
+    <select id="selectMaxCodeToday" resultType="java.lang.String">
+        SELECT MAX(SUPPLIER_CODE)
+        FROM E_MATERIAL_SUPPLIER
+        WHERE CUSTOMER_TYPE = '1'
+          AND RELATION_VOID_DATE IS NULL
+          AND SUPPLIER_CODE LIKE 'GYS-' || TO_CHAR(SYSDATE, 'YYYYMMDD') || '-%'
+    </select>
+
+    <select id="countByNameAndCreditCode" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM E_MATERIAL_SUPPLIER
+        WHERE CUSTOMER_TYPE = '1'
+        AND RELATION_VOID_DATE IS NULL
+        AND SUPPLIER_NAME = #{supplierName}
+        AND UNIFORM_SOCIAL_CREDIT_CODE = #{uniformSocialCreditCode}
+        <if test="excludeId != null">
+            AND ID &lt;&gt; #{excludeId}
+        </if>
+    </select>
+
+    <select id="countUsedById" resultType="java.lang.Integer">
+        SELECT (
+                       NVL((SELECT COUNT(1) FROM E_MATERIAL_PURCHASE WHERE SUPPLIER_ID = #{id}), 0)
+                       + NVL((SELECT COUNT(1) FROM E_MATERIAL_WAREHOUSE_IN WHERE SUPPLIER_ID = #{id}), 0)
+                       + NVL((SELECT COUNT(1) FROM E_MATERIAL_WAREHOUSE_IN_DETAIL WHERE SUPPLIER_ID = #{id}), 0)
+                   )
+        FROM DUAL
+    </select>
+</mapper>
