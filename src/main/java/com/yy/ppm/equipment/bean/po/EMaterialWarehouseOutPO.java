@@ -89,5 +89,13 @@ public class EMaterialWarehouseOutPO extends BasePO {
      * 盘点单ID（关联E_MATERIAL_STOCK_CHECK表）
      */
     private Long checkId;
+
+    private String warehouseOutTypeCode;
+
+    private String warehouseOutTypeName;
+
+    private Long sourceBizId;
+
+    private String sourceBizNo;
 }
 

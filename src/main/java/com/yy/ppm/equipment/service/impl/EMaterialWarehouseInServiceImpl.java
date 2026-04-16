@@ -112,12 +112,13 @@ public class EMaterialWarehouseInServiceImpl implements EMaterialWarehouseInServ
 
         if (dto.getId() == null) {
             po.setId(snowflake.nextId());
+            dto.setId(po.getId());
             String warehouseInNo = commonService.generateSerialNumber(SerialNumberPrefixEnum.WAREHOUSE_IN);
             po.setWarehouseInNo(warehouseInNo);
             dto.setWarehouseInNo(warehouseInNo);
 
             UserInfo userInfo = securityUtils.getUserInfo();
-            if (userInfo != null && userInfo.getDeptId() != null) {
+            if (po.getDeptId() == null && userInfo != null && userInfo.getDeptId() != null) {
                 po.setDeptId(userInfo.getDeptId());
                 po.setDeptName(userInfo.getDeptName());
                 dto.setDeptId(userInfo.getDeptId());
@@ -139,7 +140,9 @@ public class EMaterialWarehouseInServiceImpl implements EMaterialWarehouseInServ
             // 批量插入明细
             if (dto.getDetailList() != null && !dto.getDetailList().isEmpty()) {
                 // 验证入库数量
-                validateWarehouseInQuantity(dto.getDetailList(), null);
+                if (!"07".equals(dto.getWarehouseInTypeCode())) {
+                    validateWarehouseInQuantity(dto.getDetailList(), null);
+                }
                 List<EMaterialWarehouseInDetailPO> detailPOList = new ArrayList<>();
                 int sortNum = 1;
                 for (EMaterialWarehouseInDetailDTO detailDTO : dto.getDetailList()) {
@@ -183,7 +186,9 @@ public class EMaterialWarehouseInServiceImpl implements EMaterialWarehouseInServ
             detailMapper.deleteByWarehouseInId(po.getId());
             if (dto.getDetailList() != null && !dto.getDetailList().isEmpty()) {
                 // 验证入库数量
-                validateWarehouseInQuantity(dto.getDetailList(), po.getId());
+                if (!"07".equals(dto.getWarehouseInTypeCode())) {
+                    validateWarehouseInQuantity(dto.getDetailList(), po.getId());
+                }
                 List<EMaterialWarehouseInDetailPO> detailPOList = new ArrayList<>();
                 int sortNum = 1;
                 for (EMaterialWarehouseInDetailDTO detailDTO : dto.getDetailList()) {

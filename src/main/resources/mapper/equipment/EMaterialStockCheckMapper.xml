@@ -252,7 +252,8 @@
             CHECK_STATUS AS checkStatus,
             CASE
                 WHEN CHECK_STATUS = 0 THEN '待盘点'
-                WHEN CHECK_STATUS = 1 THEN '已盘点'
+                WHEN CHECK_STATUS = 1 THEN '待确认'
+                WHEN CHECK_STATUS = 2 THEN '已完成'
                 ELSE '未知'
             END AS checkStatusName,
             REMARK AS remark,
@@ -291,7 +292,8 @@
             CD.CHECK_STATUS AS checkStatus,
             CASE
                 WHEN CD.CHECK_STATUS = 0 THEN '待盘点'
-                WHEN CD.CHECK_STATUS = 1 THEN '已盘点'
+                WHEN CD.CHECK_STATUS = 1 THEN '待确认'
+                WHEN CD.CHECK_STATUS = 2 THEN '已完成'
                 ELSE '未知'
             END AS checkStatusName,
             CD.REMARK AS remark,
@@ -540,7 +542,8 @@
             CHECK_STATUS AS checkStatus,
             CASE
                 WHEN CHECK_STATUS = 0 THEN '待盘点'
-                WHEN CHECK_STATUS = 1 THEN '已盘点'
+                WHEN CHECK_STATUS = 1 THEN '待确认'
+                WHEN CHECK_STATUS = 2 THEN '已完成'
                 ELSE '未知'
             END AS checkStatusName,
             REMARK AS remark,

@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMaterialAllocateMapper">
+
+    <resultMap id="BaseResultMap" type="com.yy.ppm.equipment.bean.po.EMaterialAllocatePO">
+        <id column="ID" property="id"/>
+        <result column="ALLOCATE_CODE" property="allocateCode"/>
+        <result column="TITLE" property="title"/>
+        <result column="FROM_COMPANY_ID" property="fromCompanyId"/>
+        <result column="FROM_COMPANY_NAME" property="fromCompanyName"/>
+        <result column="FROM_WAREHOUSE_ID" property="fromWarehouseId"/>
+        <result column="FROM_WAREHOUSE_NAME" property="fromWarehouseName"/>
+        <result column="TO_COMPANY_ID" property="toCompanyId"/>
+        <result column="TO_COMPANY_NAME" property="toCompanyName"/>
+        <result column="TO_WAREHOUSE_ID" property="toWarehouseId"/>
+        <result column="TO_WAREHOUSE_NAME" property="toWarehouseName"/>
+        <result column="ALLOCATE_TIME" property="allocateTime"/>
+        <result column="APPLY_USER" property="applyUser"/>
+        <result column="APPLY_USER_NAME" property="applyUserName"/>
+        <result column="APPLY_REASON" property="applyReason"/>
+        <result column="EXECUTE_STATUS" property="executeStatus"/>
+        <result column="EXECUTE_MSG" property="executeMsg"/>
+        <result column="EXECUTE_TIME" property="executeTime"/>
+        <result column="EXECUTE_USER" property="executeUser"/>
+        <result column="EXECUTE_USER_NAME" property="executeUserName"/>
+        <result column="OUT_WAREHOUSE_ID" property="outWarehouseId"/>
+        <result column="OUT_WAREHOUSE_NO" property="outWarehouseNo"/>
+        <result column="IN_WAREHOUSE_ID" property="inWarehouseId"/>
+        <result column="IN_WAREHOUSE_NO" property="inWarehouseNo"/>
+        <result column="REMARKS" property="remarks"/>
+        <result column="CREATE_BY" property="createBy"/>
+        <result column="CREATE_BY_NAME" property="createByName"/>
+        <result column="CREATE_TIME" property="createTime"/>
+        <result column="UPDATE_BY" property="updateBy"/>
+        <result column="UPDATE_BY_NAME" property="updateByName"/>
+        <result column="UPDATE_TIME" property="updateTime"/>
+    </resultMap>
+
+    <resultMap id="DTOResultMap" type="com.yy.ppm.equipment.bean.dto.EMaterialAllocateDTO" extends="BaseResultMap">
+        <result column="PROC_INST_ID" property="procInstId"/>
+        <result column="processStatus" property="processStatus"/>
+        <result column="processStatusLabel" property="processStatusLabel"/>
+    </resultMap>
+
+    <select id="getList" resultMap="DTOResultMap">
+        SELECT
+            t1.ID,
+            t1.ALLOCATE_CODE,
+            t1.TITLE,
+            t1.FROM_COMPANY_ID,
+            t1.FROM_COMPANY_NAME,
+            t1.FROM_WAREHOUSE_ID,
+            t1.FROM_WAREHOUSE_NAME,
+            t1.TO_COMPANY_ID,
+            t1.TO_COMPANY_NAME,
+            t1.TO_WAREHOUSE_ID,
+            t1.TO_WAREHOUSE_NAME,
+            t1.ALLOCATE_TIME,
+            t1.APPLY_USER,
+            t1.APPLY_USER_NAME,
+            t1.APPLY_REASON,
+            t1.EXECUTE_STATUS,
+            t1.EXECUTE_MSG,
+            t1.EXECUTE_TIME,
+            t1.EXECUTE_USER,
+            t1.EXECUTE_USER_NAME,
+            t1.OUT_WAREHOUSE_ID,
+            t1.OUT_WAREHOUSE_NO,
+            t1.IN_WAREHOUSE_ID,
+            t1.IN_WAREHOUSE_NO,
+            t1.REMARKS,
+            t1.CREATE_BY,
+            t1.CREATE_BY_NAME,
+            t1.CREATE_TIME,
+            t1.UPDATE_BY,
+            t1.UPDATE_BY_NAME,
+            t1.UPDATE_TIME,
+            t3.PROC_INST_ID,
+            CASE WHEN t3.INSTANCE_STATUS IS NULL THEN '0' ELSE t3.INSTANCE_STATUS END AS processStatus,
+            CASE WHEN t2.DICT_LABEL IS NULL THEN '未发起' ELSE t2.DICT_LABEL END AS processStatusLabel
+        FROM E_M_MAT_ALLOCATE t1
+        LEFT JOIN BPM_BUSINESS_INSTANCE t3 ON t3.BUSINESS_DATA_ID = t1.ID
+        LEFT JOIN M_DICT_DATA t2 ON t2.DICT_VALUE = t3.INSTANCE_STATUS AND t2.DICT_TYPE = 'APPROVAL_STATUS'
+        <where>
+            <if test="allocateCode != null and allocateCode != ''">
+                <bind name="allocateCodePattern" value="'%' + allocateCode + '%'"/>
+                AND t1.ALLOCATE_CODE LIKE #{allocateCodePattern}
+            </if>
+            <if test="title != null and title != ''">
+                <bind name="titlePattern" value="'%' + title + '%'"/>
+                AND t1.TITLE LIKE #{titlePattern}
+            </if>
+            <if test="fromCompanyId != null">
+                AND t1.FROM_COMPANY_ID = #{fromCompanyId}
+            </if>
+            <if test="fromWarehouseId != null">
+                AND t1.FROM_WAREHOUSE_ID = #{fromWarehouseId}
+            </if>
+            <if test="toCompanyId != null">
+                AND t1.TO_COMPANY_ID = #{toCompanyId}
+            </if>
+            <if test="toWarehouseId != null">
+                AND t1.TO_WAREHOUSE_ID = #{toWarehouseId}
+            </if>
+            <if test="executeStatus != null">
+                AND t1.EXECUTE_STATUS = #{executeStatus}
+            </if>
+        </where>
+        ORDER BY t1.CREATE_TIME DESC
+    </select>
+
+    <select id="getById" resultMap="DTOResultMap">
+        SELECT
+            t1.ID,
+            t1.ALLOCATE_CODE,
+            t1.TITLE,
+            t1.FROM_COMPANY_ID,
+            t1.FROM_COMPANY_NAME,
+            t1.FROM_WAREHOUSE_ID,
+            t1.FROM_WAREHOUSE_NAME,
+            t1.TO_COMPANY_ID,
+            t1.TO_COMPANY_NAME,
+            t1.TO_WAREHOUSE_ID,
+            t1.TO_WAREHOUSE_NAME,
+            t1.ALLOCATE_TIME,
+            t1.APPLY_USER,
+            t1.APPLY_USER_NAME,
+            t1.APPLY_REASON,
+            t1.EXECUTE_STATUS,
+            t1.EXECUTE_MSG,
+            t1.EXECUTE_TIME,
+            t1.EXECUTE_USER,
+            t1.EXECUTE_USER_NAME,
+            t1.OUT_WAREHOUSE_ID,
+            t1.OUT_WAREHOUSE_NO,
+            t1.IN_WAREHOUSE_ID,
+            t1.IN_WAREHOUSE_NO,
+            t1.REMARKS,
+            t1.CREATE_BY,
+            t1.CREATE_BY_NAME,
+            t1.CREATE_TIME,
+            t1.UPDATE_BY,
+            t1.UPDATE_BY_NAME,
+            t1.UPDATE_TIME,
+            t3.PROC_INST_ID,
+            CASE WHEN t3.INSTANCE_STATUS IS NULL THEN '0' ELSE t3.INSTANCE_STATUS END AS processStatus,
+            CASE WHEN t2.DICT_LABEL IS NULL THEN '未发起' ELSE t2.DICT_LABEL END AS processStatusLabel
+        FROM E_M_MAT_ALLOCATE t1
+        LEFT JOIN BPM_BUSINESS_INSTANCE t3 ON t3.BUSINESS_DATA_ID = t1.ID
+        LEFT JOIN M_DICT_DATA t2 ON t2.DICT_VALUE = t3.INSTANCE_STATUS AND t2.DICT_TYPE = 'APPROVAL_STATUS'
+        WHERE t1.ID = #{id}
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+            ID,
+            ALLOCATE_CODE,
+            TITLE,
+            FROM_COMPANY_ID,
+            FROM_COMPANY_NAME,
+            FROM_WAREHOUSE_ID,
+            FROM_WAREHOUSE_NAME,
+            TO_COMPANY_ID,
+            TO_COMPANY_NAME,
+            TO_WAREHOUSE_ID,
+            TO_WAREHOUSE_NAME,
+            ALLOCATE_TIME,
+            APPLY_USER,
+            APPLY_USER_NAME,
+            APPLY_REASON,
+            EXECUTE_STATUS,
+            EXECUTE_MSG,
+            EXECUTE_TIME,
+            EXECUTE_USER,
+            EXECUTE_USER_NAME,
+            OUT_WAREHOUSE_ID,
+            OUT_WAREHOUSE_NO,
+            IN_WAREHOUSE_ID,
+            IN_WAREHOUSE_NO,
+            REMARKS,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME
+        FROM E_M_MAT_ALLOCATE
+        WHERE ID = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.EMaterialAllocatePO">
+        INSERT INTO E_M_MAT_ALLOCATE (
+            ID, ALLOCATE_CODE, TITLE,
+            FROM_COMPANY_ID, FROM_COMPANY_NAME, FROM_WAREHOUSE_ID, FROM_WAREHOUSE_NAME,
+            TO_COMPANY_ID, TO_COMPANY_NAME, TO_WAREHOUSE_ID, TO_WAREHOUSE_NAME,
+            ALLOCATE_TIME, APPLY_USER, APPLY_USER_NAME, APPLY_REASON,
+            EXECUTE_STATUS, EXECUTE_MSG, EXECUTE_TIME, EXECUTE_USER, EXECUTE_USER_NAME,
+            OUT_WAREHOUSE_ID, OUT_WAREHOUSE_NO, IN_WAREHOUSE_ID, IN_WAREHOUSE_NO,
+            REMARKS, CREATE_BY, CREATE_BY_NAME, CREATE_TIME
+        ) VALUES (
+            #{id}, #{allocateCode}, #{title},
+            #{fromCompanyId}, #{fromCompanyName}, #{fromWarehouseId}, #{fromWarehouseName},
+            #{toCompanyId}, #{toCompanyName}, #{toWarehouseId}, #{toWarehouseName},
+            #{allocateTime}, #{applyUser}, #{applyUserName}, #{applyReason},
+            #{executeStatus}, #{executeMsg}, #{executeTime}, #{executeUser}, #{executeUserName},
+            #{outWarehouseId}, #{outWarehouseNo}, #{inWarehouseId}, #{inWarehouseNo},
+            #{remarks}, #{createBy}, #{createByName}, #{createTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.yy.ppm.equipment.bean.po.EMaterialAllocatePO">
+        UPDATE E_M_MAT_ALLOCATE
+        <set>
+            <if test="title != null">TITLE = #{title},</if>
+            <if test="fromCompanyId != null">FROM_COMPANY_ID = #{fromCompanyId},</if>
+            <if test="fromCompanyName != null">FROM_COMPANY_NAME = #{fromCompanyName},</if>
+            <if test="fromWarehouseId != null">FROM_WAREHOUSE_ID = #{fromWarehouseId},</if>
+            <if test="fromWarehouseName != null">FROM_WAREHOUSE_NAME = #{fromWarehouseName},</if>
+            <if test="toCompanyId != null">TO_COMPANY_ID = #{toCompanyId},</if>
+            <if test="toCompanyName != null">TO_COMPANY_NAME = #{toCompanyName},</if>
+            <if test="toWarehouseId != null">TO_WAREHOUSE_ID = #{toWarehouseId},</if>
+            <if test="toWarehouseName != null">TO_WAREHOUSE_NAME = #{toWarehouseName},</if>
+            <if test="allocateTime != null">ALLOCATE_TIME = #{allocateTime},</if>
+            <if test="applyReason != null">APPLY_REASON = #{applyReason},</if>
+            <if test="remarks != null">REMARKS = #{remarks},</if>
+            <if test="updateBy != null">UPDATE_BY = #{updateBy},</if>
+            <if test="updateByName != null">UPDATE_BY_NAME = #{updateByName},</if>
+            <if test="updateTime != null">UPDATE_TIME = #{updateTime},</if>
+        </set>
+        WHERE ID = #{id}
+    </update>
+
+    <update id="updateExecuteResult" parameterType="com.yy.ppm.equipment.bean.po.EMaterialAllocatePO">
+        UPDATE E_M_MAT_ALLOCATE
+        <set>
+            <if test="executeStatus != null">EXECUTE_STATUS = #{executeStatus},</if>
+            <if test="executeMsg != null">EXECUTE_MSG = #{executeMsg},</if>
+            <if test="executeTime != null">EXECUTE_TIME = #{executeTime},</if>
+            <if test="executeUser != null">EXECUTE_USER = #{executeUser},</if>
+            <if test="executeUserName != null">EXECUTE_USER_NAME = #{executeUserName},</if>
+            <if test="outWarehouseId != null">OUT_WAREHOUSE_ID = #{outWarehouseId},</if>
+            <if test="outWarehouseNo != null">OUT_WAREHOUSE_NO = #{outWarehouseNo},</if>
+            <if test="inWarehouseId != null">IN_WAREHOUSE_ID = #{inWarehouseId},</if>
+            <if test="inWarehouseNo != null">IN_WAREHOUSE_NO = #{inWarehouseNo},</if>
+            <if test="updateBy != null">UPDATE_BY = #{updateBy},</if>
+            <if test="updateByName != null">UPDATE_BY_NAME = #{updateByName},</if>
+            <if test="updateTime != null">UPDATE_TIME = #{updateTime},</if>
+        </set>
+        WHERE ID = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM E_M_MAT_ALLOCATE WHERE ID = #{id}
+    </delete>
+
+    <select id="getBusinessDataIdByProcessInstanceId" resultType="java.lang.Long">
+        SELECT BUSINESS_DATA_ID FROM BPM_BUSINESS_INSTANCE WHERE PROC_INST_ID = #{processInstanceId}
+    </select>
+</mapper>

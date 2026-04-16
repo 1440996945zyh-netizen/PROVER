@@ -105,5 +105,32 @@
             REL.WAREHOUSE_IN_DETAIL_ID
     </select>
 
+    <select id="selectSplitInDetailsByWarehouseOutId" resultType="java.util.HashMap">
+        SELECT
+            REL.WAREHOUSE_OUT_DETAIL_ID AS "warehouseOutDetailId",
+            WID.MATERIAL_ID AS "materialId",
+            WID.MATERIAL_CODE AS "materialCode",
+            WID.MATERIAL_NAME AS "materialName",
+            WID.SPECIFICATION AS "specification",
+            WID.SPECIFICATION_DESC AS "specificationDesc",
+            WID.BRAND AS "brand",
+            WID.UNIT_CODE AS "unitCode",
+            WID.UNIT AS "unitName",
+            REL.QUANTITY AS "quantity",
+            WID.TAX_INCLUDED_UNIT_PRICE AS "taxIncludedUnitPrice",
+            NVL(REL.QUANTITY, 0) * NVL(WID.TAX_INCLUDED_UNIT_PRICE, 0) AS "taxIncludedAmount"
+        FROM
+            E_MAT_WAREHOUSE_IN_OUT_REL REL
+        INNER JOIN E_MAT_WAREHOUSE_OUT_DETAIL WOD ON REL.WAREHOUSE_OUT_DETAIL_ID = WOD.ID
+        INNER JOIN E_MATERIAL_WAREHOUSE_IN_DETAIL WID ON REL.WAREHOUSE_IN_DETAIL_ID = WID.ID
+        WHERE
+            WOD.WAREHOUSE_OUT_ID = #{warehouseOutId}
+        ORDER BY
+            WOD.CREATE_TIME ASC,
+            WOD.ID ASC,
+            REL.CREATE_TIME ASC,
+            REL.ID ASC
+    </select>
+
 </mapper>
 

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMaterialAllocateHistoryMapper">
+
+    <insert id="insert" parameterType="com.yy.ppm.equipment.bean.po.EMaterialAllocateHistoryPO">
+        INSERT INTO E_M_MAT_ALLOC_HIS (
+            ID, ALLOCATE_ID, ALLOCATE_DETAIL_ID, MATERIAL_ID,
+            LAST_CHANGE_INFO, REMARK, CREATE_BY, CREATE_BY_NAME, CREATE_TIME
+        ) VALUES (
+            #{id}, #{allocateId}, #{allocateDetailId}, #{materialId},
+            #{lastChangeInfo}, #{remark}, #{createBy}, #{createByName}, #{createTime}
+        )
+    </insert>
+
+    <delete id="deleteByAllocateId">
+        DELETE FROM E_M_MAT_ALLOC_HIS WHERE ALLOCATE_ID = #{allocateId}
+    </delete>
+</mapper>

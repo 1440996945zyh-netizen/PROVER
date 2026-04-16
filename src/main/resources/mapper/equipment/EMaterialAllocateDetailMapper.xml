@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.ppm.equipment.mapper.EMaterialAllocateDetailMapper">
+
+    <select id="selectListByAllocateId" resultType="com.yy.ppm.equipment.bean.dto.EMaterialAllocateDetailDTO">
+        SELECT
+            ID,
+            ALLOCATE_ID,
+            SORT_NUM,
+            MATERIAL_ID,
+            MATERIAL_CODE,
+            MATERIAL_NAME,
+            SPECIFICATION,
+            SPEC_DESC,
+            BRAND,
+            UNIT_CODE,
+            UNIT_NAME,
+            ALLOC_QTY,
+            AVAILABLE_QTY,
+            TAX_IN_PRICE,
+            TAX_IN_AMT,
+            FLOW_DIRECTION,
+            REMARK,
+            OUT_DETAIL_ID,
+            IN_DETAIL_ID,
+            CREATE_BY,
+            CREATE_BY_NAME,
+            CREATE_TIME,
+            UPDATE_BY,
+            UPDATE_BY_NAME,
+            UPDATE_TIME
+        FROM E_M_MAT_ALLOC_DTL
+        WHERE ALLOCATE_ID = #{allocateId}
+        ORDER BY NVL(SORT_NUM, 999999) ASC, ID ASC
+    </select>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO E_M_MAT_ALLOC_DTL
+        (
+            ID, ALLOCATE_ID, SORT_NUM, MATERIAL_ID, MATERIAL_CODE, MATERIAL_NAME,
+            SPECIFICATION, SPEC_DESC, BRAND, UNIT_CODE, UNIT_NAME,
+            ALLOC_QTY, AVAILABLE_QTY, TAX_IN_PRICE, TAX_IN_AMT, FLOW_DIRECTION, REMARK,
+            OUT_DETAIL_ID, IN_DETAIL_ID, CREATE_BY, CREATE_BY_NAME, CREATE_TIME
+        )
+        <foreach collection="list" item="item" separator="UNION ALL">
+            SELECT
+                #{item.id}, #{item.allocateId}, #{item.sortNum}, #{item.materialId},
+                #{item.materialCode}, #{item.materialName}, #{item.specification}, #{item.specDesc},
+                #{item.brand}, #{item.unitCode}, #{item.unitName},
+                #{item.allocQty}, #{item.availableQty}, #{item.taxInPrice}, #{item.taxInAmt}, #{item.flowDirection},
+                #{item.remark}, #{item.outDetailId}, #{item.inDetailId},
+                #{item.createBy}, #{item.createByName}, #{item.createTime}
+            FROM DUAL
+        </foreach>
+    </insert>
+
+    <update id="updateRelationIds">
+        UPDATE E_M_MAT_ALLOC_DTL
+        <set>
+            <if test="outDetailId != null">OUT_DETAIL_ID = #{outDetailId},</if>
+            <if test="inDetailId != null">IN_DETAIL_ID = #{inDetailId},</if>
+            <if test="updateBy != null">UPDATE_BY = #{updateBy},</if>
+            <if test="updateByName != null">UPDATE_BY_NAME = #{updateByName},</if>
+            UPDATE_TIME = SYSDATE
+        </set>
+        WHERE ID = #{id}
+    </update>
+
+    <delete id="deleteByAllocateId">
+        DELETE FROM E_M_MAT_ALLOC_DTL WHERE ALLOCATE_ID = #{allocateId}
+    </delete>
+</mapper>

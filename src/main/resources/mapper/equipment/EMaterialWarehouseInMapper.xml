@@ -36,7 +36,9 @@
             UPDATE_TIME,
             APPROVAL_BY,
             APPROVAL_BY_NAME,
-            APPROVAL_TIME
+            APPROVAL_TIME,
+            SOURCE_BIZ_ID,
+            SOURCE_BIZ_NO
         FROM
             E_MATERIAL_WAREHOUSE_IN
         <where>
@@ -97,7 +99,9 @@
             CREATE_TIME,
             UPDATE_BY,
             UPDATE_BY_NAME,
-            UPDATE_TIME
+            UPDATE_TIME,
+            SOURCE_BIZ_ID,
+            SOURCE_BIZ_NO
         FROM
             E_MATERIAL_WAREHOUSE_IN
         WHERE
@@ -131,6 +135,8 @@
             ACCEPTANCE_REMARKS,
             BATCH_NO,
             CHECK_ID,
+            SOURCE_BIZ_ID,
+            SOURCE_BIZ_NO,
             CREATE_BY,
             CREATE_BY_NAME,
             CREATE_TIME
@@ -160,6 +166,8 @@
             #{acceptanceRemarks,jdbcType=VARCHAR},
             #{batchNo,jdbcType=VARCHAR},
             #{checkId,jdbcType=NUMERIC},
+            #{sourceBizId,jdbcType=NUMERIC},
+            #{sourceBizNo,jdbcType=VARCHAR},
             #{loginUserId,jdbcType=NUMERIC},
             #{loginUserName,jdbcType=VARCHAR},
             #{now,jdbcType=TIMESTAMP}
@@ -226,6 +234,12 @@
             </if>
             <if test="batchNo != null">
                 BATCH_NO = #{batchNo,jdbcType=VARCHAR},
+            </if>
+            <if test="sourceBizId != null">
+                SOURCE_BIZ_ID = #{sourceBizId,jdbcType=NUMERIC},
+            </if>
+            <if test="sourceBizNo != null">
+                SOURCE_BIZ_NO = #{sourceBizNo,jdbcType=VARCHAR},
             </if>
                 UPDATE_BY = #{loginUserId,jdbcType=NUMERIC},
                 UPDATE_BY_NAME = #{loginUserName,jdbcType=VARCHAR},

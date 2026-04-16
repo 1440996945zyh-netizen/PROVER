@@ -308,14 +308,6 @@ public class EMaterialStockCheckServiceImpl implements EMaterialStockCheckServic
             throw new BusinessRuntimeException("明细不属于该盘点单");
         }
 
-        // 更新盘点单状态为盘点中（如果当前是待盘点状态）
-        if (check.getCheckStatus() == 0) {
-            EMaterialStockCheckPO updatePO = new EMaterialStockCheckPO();
-            updatePO.setId(checkId);
-            updatePO.setCheckStatus(1); // 盘点中
-            mapper.update(updatePO);
-        }
-
         // 查询最新的库存数据作为账面数量
         BigDecimal bookQuantity = BigDecimal.ZERO;
         EMaterialWarehouseInDetailDTO inDetail = warehouseInDetailMapper.selectById(existingDetail.getWarehouseInDetailId());
@@ -350,6 +342,7 @@ public class EMaterialStockCheckServiceImpl implements EMaterialStockCheckServic
         detailPO.setRemark(detailDTO.getRemark());
         // 更新单条明细
         mapper.updateDetail(detailPO);
+        refreshMainCheckStatus(checkId);
     }
 
     /**
@@ -995,6 +988,7 @@ public class EMaterialStockCheckServiceImpl implements EMaterialStockCheckServic
         updatePO.setLoginUserId(securityUtils.getLoginUserId());
         updatePO.setLoginUserName(securityUtils.getLoginUserName());
         mapper.updateDetail(updatePO);
+        refreshMainCheckStatus(checkId);
     }
 
     /**
@@ -1063,26 +1057,7 @@ public class EMaterialStockCheckServiceImpl implements EMaterialStockCheckServic
             }
         }
 
-        // 检查是否所有明细都已审核
-        List<EMaterialStockCheckDetailDTO> allDetailList = mapper.selectDetailListByCheckId(checkId);
-        boolean allAudited = true;
-        for (EMaterialStockCheckDetailDTO d : allDetailList) {
-            // 检查是否已审核（checkStatus = 2 表示已审核）
-            if (d.getCheckStatus() == null || d.getCheckStatus() != 2) {
-                allAudited = false;
-                break;
-            }
-        }
-
-        // 如果所有明细都已审核，更新主表状态为已完成
-        if (allAudited) {
-            EMaterialStockCheckPO updatePO = new EMaterialStockCheckPO();
-            updatePO.setId(checkId);
-            updatePO.setCheckStatus(2); // 已完成
-            updatePO.setLoginUserId(securityUtils.getLoginUserId());
-            updatePO.setLoginUserName(securityUtils.getLoginUserName());
-            mapper.update(updatePO);
-        }
+        refreshMainCheckStatus(checkId);
     }
 
     /**
@@ -1127,14 +1102,6 @@ public class EMaterialStockCheckServiceImpl implements EMaterialStockCheckServic
             throw new BusinessRuntimeException("明细不属于该盘点单");
         }
 
-        // 更新盘点单状态为盘点中（如果当前是待盘点状态）
-        if (check.getCheckStatus() == 0) {
-            EMaterialStockCheckPO updatePO = new EMaterialStockCheckPO();
-            updatePO.setId(checkId);
-            updatePO.setCheckStatus(1); // 盘点中
-            mapper.update(updatePO);
-        }
-
         // 查询最新的库存数据作为账面数量
         BigDecimal bookQuantity = BigDecimal.ZERO;
         EMaterialWarehouseInDetailDTO inDetail = warehouseInDetailMapper.selectById(existingDetail.getWarehouseInDetailId());
@@ -1153,11 +1120,12 @@ public class EMaterialStockCheckServiceImpl implements EMaterialStockCheckServic
         // 无差异：差异数量为0，差异类型为0
         detailPO.setDifferenceQuantity(BigDecimal.ZERO);
         detailPO.setDifferenceType(0); // 无差异
-        detailPO.setCheckStatus(2); // 状态设为2（无差异）
+        detailPO.setCheckStatus(2); // 直接进入最终状态
         // 更新备注（允许空字符串）
         detailPO.setRemark(detailDTO.getRemark());
         // 更新单条明细
         mapper.updateDetail(detailPO);
+        refreshMainCheckStatus(checkId);
     }
 
     /**
@@ -1209,6 +1177,49 @@ public class EMaterialStockCheckServiceImpl implements EMaterialStockCheckServic
                     displayFormat.format(check.getCheckEndDate()));
             }
         }
+    }
+
+    /**
+     * 根据明细状态重新汇总主表状态。
+     */
+    private void refreshMainCheckStatus(Long checkId) {
+        List<EMaterialStockCheckDetailDTO> detailList = mapper.selectDetailListByCheckId(checkId);
+        if (detailList == null || detailList.isEmpty()) {
+            return;
+        }
+
+        boolean allPending = true;
+        boolean allCompleted = true;
+        boolean hasDifference = false;
+        for (EMaterialStockCheckDetailDTO detail : detailList) {
+            Integer status = detail.getCheckStatus();
+            if (status != null && status != 0) {
+                allPending = false;
+            }
+            if (status == null || status != 2) {
+                allCompleted = false;
+            }
+            if (detail.getDifferenceQuantity() != null
+                && detail.getDifferenceQuantity().compareTo(BigDecimal.ZERO) != 0) {
+                hasDifference = true;
+            }
+        }
+
+        Integer targetStatus;
+        if (allPending) {
+            targetStatus = 0;
+        } else if (!allCompleted) {
+            targetStatus = 1;
+        } else {
+            targetStatus = hasDifference ? 3 : 2;
+        }
+
+        EMaterialStockCheckPO updatePO = new EMaterialStockCheckPO();
+        updatePO.setId(checkId);
+        updatePO.setCheckStatus(targetStatus);
+        updatePO.setLoginUserId(securityUtils.getLoginUserId());
+        updatePO.setLoginUserName(securityUtils.getLoginUserName());
+        mapper.update(updatePO);
     }
 }
 

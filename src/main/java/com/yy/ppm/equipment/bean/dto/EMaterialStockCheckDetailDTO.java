@@ -82,7 +82,7 @@ public class EMaterialStockCheckDetailDTO implements Serializable {
     private Long warehouseInDetailId;
 
     /**
-     * 盘点状态：0-待盘点，1-已盘点
+     * 盘点状态：0-待盘点，1-已盘点待确认，2-已确认/已完成
      */
     private Integer checkStatus;
 

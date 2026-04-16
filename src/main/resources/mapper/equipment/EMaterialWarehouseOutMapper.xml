@@ -16,6 +16,10 @@
             DEPT_NAME,
             RECEIVER_ID,
             RECEIVER_NAME,
+            WAREHOUSE_OUT_TYPE_CODE,
+            WAREHOUSE_OUT_TYPE_NAME,
+            SOURCE_BIZ_ID,
+            SOURCE_BIZ_NO,
             STATUS,
             CONFIRM_BY,
             CONFIRM_BY_NAME,
@@ -60,6 +64,10 @@
             DEPT_NAME,
             RECEIVER_ID,
             RECEIVER_NAME,
+            WAREHOUSE_OUT_TYPE_CODE,
+            WAREHOUSE_OUT_TYPE_NAME,
+            SOURCE_BIZ_ID,
+            SOURCE_BIZ_NO,
             STATUS,
             CONFIRM_BY,
             CONFIRM_BY_NAME,
@@ -95,6 +103,10 @@
             DEPT_NAME,
             RECEIVER_ID,
             RECEIVER_NAME,
+            WAREHOUSE_OUT_TYPE_CODE,
+            WAREHOUSE_OUT_TYPE_NAME,
+            SOURCE_BIZ_ID,
+            SOURCE_BIZ_NO,
             STATUS,
             CHECK_ID,
             CREATE_BY,
@@ -117,6 +129,10 @@
             #{deptName,jdbcType=VARCHAR},
             #{receiverId,jdbcType=NUMERIC},
             #{receiverName,jdbcType=VARCHAR},
+            #{warehouseOutTypeCode,jdbcType=VARCHAR},
+            #{warehouseOutTypeName,jdbcType=VARCHAR},
+            #{sourceBizId,jdbcType=NUMERIC},
+            #{sourceBizNo,jdbcType=VARCHAR},
             #{status,jdbcType=NUMERIC},
             #{checkId,jdbcType=NUMERIC},
             #{loginUserId,jdbcType=NUMERIC},
@@ -152,6 +168,18 @@
             </if>
             <if test="receiverName != null">
                 RECEIVER_NAME = #{receiverName,jdbcType=VARCHAR},
+            </if>
+            <if test="warehouseOutTypeCode != null">
+                WAREHOUSE_OUT_TYPE_CODE = #{warehouseOutTypeCode,jdbcType=VARCHAR},
+            </if>
+            <if test="warehouseOutTypeName != null">
+                WAREHOUSE_OUT_TYPE_NAME = #{warehouseOutTypeName,jdbcType=VARCHAR},
+            </if>
+            <if test="sourceBizId != null">
+                SOURCE_BIZ_ID = #{sourceBizId,jdbcType=NUMERIC},
+            </if>
+            <if test="sourceBizNo != null">
+                SOURCE_BIZ_NO = #{sourceBizNo,jdbcType=VARCHAR},
             </if>
             <if test="status != null">
                 STATUS = #{status,jdbcType=NUMERIC},

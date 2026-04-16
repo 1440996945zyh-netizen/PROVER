@@ -42,5 +42,10 @@ public interface EMaterialWarehouseInOutRelMapper {
     List<Map<String, Object>> selectReservedQuantitiesByWarehouseOutIdAndMaterial(@Param("warehouseOutId") Long warehouseOutId,
                                                                                   @Param("materialId") Long materialId,
                                                                                   @Param("excludeWarehouseOutDetailId") Long excludeWarehouseOutDetailId);
+
+    /**
+     * 查询指定出库单的实际拆批结果，供调拨调入按真实批次落账
+     */
+    List<Map<String, Object>> selectSplitInDetailsByWarehouseOutId(@Param("warehouseOutId") Long warehouseOutId);
 }
 

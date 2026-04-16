@@ -135,6 +135,7 @@ public class EMaterialWarehouseOutServiceImpl implements EMaterialWarehouseOutSe
         BeanUtils.copyProperties(dto, po);
         if (dto.getId() == null) {
             po.setId(snowflake.nextId());
+            dto.setId(po.getId());
             String warehouseOutNo = commonService.generateSerialNumber(SerialNumberPrefixEnum.WAREHOUSE_OUT);
 
             // 验证出库单号是否重复，最多重试10次
