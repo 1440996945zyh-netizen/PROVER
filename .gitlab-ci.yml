@@ -2,26 +2,38 @@ variables:
   GIT_DEPTH: "0"
 
 stages:
-  - "build-sonar"
+  - build-sonar
 
 build-sonar:
-  stage: "build-sonar"
+  stage: build-sonar
   cache:
-    policy: "pull-push"
-    key: "sonar-cache-%CI_COMMIT_REF_SLUG%"
+    policy: pull-push
+    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
     paths:
       - ".sonar/cache"
   script:
-    - "set /p SONAR_HOST_URL=<\"%SONAR_HOST_URL%\""
-    - "set /p SONAR_TOKEN=<\"%SONAR_TOKEN%\""
-    - "echo SonarQube URL: %SONAR_HOST_URL%"
-    - "echo SonarQube Token length: %SONAR_TOKEN:~0,1%*** (only first char shown)"
-    - "cd /d \"%CI_PROJECT_DIR%\""
-    - "set PATH=D:\\apache-maven\\bin;%PATH%"
-    - "mvn clean verify sonar:sonar -Dsonar.host.url=\"%SONAR_HOST_URL%\" -Dsonar.login=\"%SONAR_TOKEN%\" -Dsonar.java.binaries=target/classes"
+    - |
+      # 直接从环境变量读取（无需 Get-Content）
+      $sonarHostUrl = $env:SONAR_HOST_URL.Trim()
+      $sonarToken = $env:SONAR_TOKEN.Trim()
+      
+      Write-Host "SonarQube URL: $sonarHostUrl"
+      Write-Host "SonarQube Token length: $($sonarToken.Length)"
+      
+      # 进入项目目录
+      Set-Location $env:CI_PROJECT_DIR
+      
+      # 确保 Maven 在 PATH 中
+      $env:PATH = "D:\apache-maven\bin;$env:PATH"
+      
+      # 执行 Maven 命令（注意：整个命令用双引号包裹，内部变量替换）
+      mvn clean verify sonar:sonar `
+        -Dsonar.host.url="$sonarHostUrl" `
+        -Dsonar.login="$sonarToken" `
+        -Dsonar.java.binaries=target/classes
   allow_failure: true
   rules:
-    - if: "$CI_PIPELINE_SOURCE == 'merge_request_event'"
-    - if: "$CI_COMMIT_BRANCH == 'master'"
-    - if: "$CI_COMMIT_BRANCH == 'main'"
-    - if: "$CI_COMMIT_BRANCH == 'develop'"
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "develop"
