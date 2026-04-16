@@ -13,9 +13,25 @@ build-sonar:
       - ".sonar/cache"
 
   script:
-    # 最简单、最安全、Windows Runner 100% 不报错
-    - cmd /c "cd /d D:\gitlab-runner\builds\UUZGLxcD_\0\gitlab2\yy-framework\yy-framework-api && mvn clean verify sonar:sonar -Dsonar.host.url=http://114.55.226.181:9002 -Dsonar.projectKey=yy-framework_yy-framework-api_85325cdb-89a9-4d80-86d4-66be8c9c646d -Dsonar.login=sqp_9ae93907f74c7ca4fcbede512e997c7f5ec2c279 -Dsonar.java.binaries=target/classes"
-
+    # 使用 PowerShell 原生语法，不调用 cmd /c
+    - |
+      # 从 GitLab file 类型变量中读取真实值
+      $sonarHostUrl = (Get-Content $env:SONAR_HOST_URL -Raw).Trim()
+      $sonarToken = (Get-Content $env:SONAR_TOKEN -Raw).Trim()
+      
+      # 可选：输出调试信息（注意 token 不要完整打印，仅用于确认长度）
+      Write-Host "SonarQube URL: $sonarHostUrl"
+      Write-Host "SonarQube Token length: $($sonarToken.Length)"
+      
+      # 切换到项目目录（建议使用 GitLab 预定义变量，避免硬编码）
+      $projectDir = "$env:CI_PROJECT_DIR"
+      Set-Location $projectDir
+      
+      # 执行 Maven 命令，使用读取到的值
+      mvn clean verify sonar:sonar `
+        -Dsonar.host.url="$sonarHostUrl" `
+        -Dsonar.login="$sonarToken" `
+        -Dsonar.java.binaries=target/classes
   allow_failure: true
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
