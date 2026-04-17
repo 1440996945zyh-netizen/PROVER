@@ -393,7 +393,7 @@
             SELECT
             T1.ID AS "value",
             T1.SUPPLIER_NAME AS "label"
-            FROM CUSTOMER_SUPPLIER T1
+            FROM E_MATERIAL_SUPPLIER T1
             WHERE T1.CUSTOMER_TYPE = '1'
             AND T1.RELATION_VOID_DATE IS NULL
             AND T1.STATE = '2'
@@ -405,14 +405,14 @@
                 AND ROWNUM &lt;= #{search.number}
             </if>
         </if>
-        <if test="null != search.valueContentList and search.valueContentList.size() > 0 and '' != search.labelContent and null != search.labelContent">
+        <if test="null != search.valueContentE_MATERIAL_SUPPLIERList and search.valueContentList.size() > 0 and '' != search.labelContent and null != search.labelContent">
             UNION
         </if>
         <if test="null != search.valueContentList and search.valueContentList.size() > 0">
             SELECT
             T1.ID AS "value",
             T1.SUPPLIER_NAME AS "label"
-            FROM CUSTOMER_SUPPLIER T1
+            FROM E_MATERIAL_SUPPLIER T1
             WHERE T1.ID
             <foreach collection="search.valueContentList" item="item" open="in ( " separator="," close=")">
                 #{item}
